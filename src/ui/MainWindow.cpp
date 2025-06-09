@@ -1,4 +1,4 @@
-#include "MainWindow.hpp"
+﻿#include "MainWindow.hpp"
 #include "WindowFrame.hpp"
 
 namespace viewer

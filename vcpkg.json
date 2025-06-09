@@ -2,6 +2,7 @@
   "name": "comfypp",
   "version": "1.0.0",
   "dependencies": [
-	"wxwidgets"
+	"wxwidgets", 
+	"glew"
   ]
 }
