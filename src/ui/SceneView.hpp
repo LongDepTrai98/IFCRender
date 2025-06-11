@@ -16,11 +16,9 @@ namespace viewer
 		wxDECLARE_EVENT_TABLE();
 	private:
 		//main context 
-		wxGLContext* m_Context{nullptr};
+		std::unique_ptr<wxGLContext> m_Context{nullptr};
 		//min size 
-		wxSize m_MinSize{ 640, 480 };
-		HGLRC m_Hglrc; 
-		HDC m_Hdc; 
+		wxSize m_MinSize{ 300, 300 };
 	};
 }
 #endif // !_SCENE_VIEW_HPP_

@@ -16,6 +16,7 @@ namespace viewer
 		void OnHello(wxCommandEvent& event);
 		void OnExit(wxCommandEvent& event);
 		void OnAbout(wxCommandEvent& event);
+		void OnInternalIdle() override;
 	private: 
 		void OnSize(wxSizeEvent& event);
 		wxDECLARE_EVENT_TABLE();

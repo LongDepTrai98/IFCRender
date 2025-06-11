@@ -3,7 +3,7 @@
 
 namespace viewer
 {
-	bool MainWindow::OnInit()
+	bool App::OnInit()
 	{
 		if (!m_Frame)
 		{

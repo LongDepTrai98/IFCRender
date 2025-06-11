@@ -55,14 +55,12 @@ namespace viewer
 		m_Mgr.AddPane(treePanel, wxAuiPaneInfo().
 			Name("tree").Caption("Project Tree").
 			Left().CloseButton(true).MaximizeButton(true).PinButton(true).
-			MinSize(200, 300).
+			MinSize(300, 300).
 			Dockable(true));
 		m_Mgr.Update();
 	}
 	void WindowFrame::initScene()
 	{
-		//create scene
-		//Create GLAttributes
 		wxGLAttributes dispAttrs;
 		dispAttrs.PlatformDefaults()
 			.Defaults()
@@ -92,6 +90,12 @@ namespace viewer
 	{
 		wxMessageBox("This is a wxWidgets Hello World example",
 			"About Hello World", wxOK | wxICON_INFORMATION);
+	}
+	void WindowFrame::OnInternalIdle()
+	{
+		//redraw frame 
+		wxWindow::OnInternalIdle();
+		Refresh(false);
 	}
 	void WindowFrame::OnSize(wxSizeEvent& event)
 	{

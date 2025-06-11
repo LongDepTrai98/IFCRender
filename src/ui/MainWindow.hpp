@@ -4,7 +4,7 @@
 namespace viewer
 {
 	class WindowFrame; 
-	class MainWindow : public wxApp
+	class App : public wxApp
 	{
 	public: 
 		bool OnInit() override;
