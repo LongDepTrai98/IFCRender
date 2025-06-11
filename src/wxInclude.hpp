@@ -6,3 +6,4 @@
 #include <wx/ribbon/buttonbar.h>
 #include <wx/treectrl.h>
 #include <wx/glcanvas.h>
+#include <wx/dcclient.h>

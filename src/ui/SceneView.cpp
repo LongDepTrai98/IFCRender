@@ -1,8 +1,5 @@
 #include "SceneView.hpp"
 #include <iostream>
-#include <wx/dcclient.h>
-
-
 namespace dragon
 {
 	wxBEGIN_EVENT_TABLE(SceneView, wxGLCanvas)
