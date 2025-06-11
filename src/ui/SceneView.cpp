@@ -3,7 +3,7 @@
 #include <wx/dcclient.h>
 
 
-namespace viewer
+namespace dragon
 {
 	wxBEGIN_EVENT_TABLE(SceneView, wxGLCanvas)
 		EVT_SIZE(SceneView::OnSize)
@@ -41,5 +41,10 @@ namespace viewer
 		glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		SwapBuffers(); 
+	}
+	void SceneView::OnInternalIdle()
+	{
+		wxWindow::OnInternalIdle();
+		Refresh(false);
 	}
 }

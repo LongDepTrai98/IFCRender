@@ -1,10 +1,10 @@
 #include <iostream>
 #include <string>
-namespace viewer::app_config
+namespace dragon::app_config
 {
-	constexpr const char* app_name = "viewer";
+	constexpr const char* app_name = "dragon";
 }
-namespace viewer::component_id
+namespace dragon::component_id
 {
 	constexpr int ID_MENUBAR = 1; 
 }

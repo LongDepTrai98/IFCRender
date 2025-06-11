@@ -1,9 +1,8 @@
 #ifndef _SCENE_VIEW_HPP_
 #define _SCENE_VIEW_HPP_
-#include <GL/glew.h> 
-#include <wx/glcanvas.h>
 #include <memory>
-namespace viewer
+#include "wxInclude.hpp"
+namespace dragon
 {
 	class SceneView : public wxGLCanvas
 	{
@@ -13,6 +12,7 @@ namespace viewer
 	private: 
 		void OnSize(wxSizeEvent& event);
 		void OnPaint(wxPaintEvent& event); 
+		void OnInternalIdle() override;
 		wxDECLARE_EVENT_TABLE();
 	private:
 		//main context 

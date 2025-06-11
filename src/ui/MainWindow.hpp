@@ -1,7 +1,7 @@
-#ifndef _IFC_VIEWER_HPP_
-#define _IFC_VIEWER_HPP_
-#include <wx/wx.h>
-namespace viewer
+#ifndef _IFC_dragon_HPP_
+#define _IFC_dragon_HPP_
+#include "wxInclude.hpp"
+namespace dragon
 {
 	class WindowFrame; 
 	class App : public wxApp
@@ -12,4 +12,4 @@ namespace viewer
 		WindowFrame* m_Frame{ nullptr }; 
 	};
 }
-#endif // !_IFC_VIEWER_HPP_
+#endif // !_IFC_dragon_HPP_

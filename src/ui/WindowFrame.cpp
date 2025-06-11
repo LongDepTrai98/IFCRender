@@ -1,14 +1,8 @@
 ﻿#include "WindowFrame.hpp"
 #include "config/app_config.hpp"
+#include "config/pannel_config.hpp"
 #include "SceneView.hpp"
-#include <wx/wx.h>
-#include <wx/ribbon/bar.h>
-#include <wx/ribbon/page.h>
-#include <wx/ribbon/panel.h>
-#include <wx/ribbon/buttonbar.h>
-#include <wx/treectrl.h>
-#include <wx/glcanvas.h>
-namespace viewer
+namespace dragon
 {
 	wxBEGIN_EVENT_TABLE(WindowFrame, wxFrame)
 		EVT_SIZE(WindowFrame::OnSize)
@@ -17,9 +11,14 @@ namespace viewer
 		wxID_ANY,
 		app_config::app_name)
 	{
+		initUIManager(); 
 		initMenuBar(); 
 		initScene(); 
-		//initTreeCtrl(); 
+		initTreeCtrl(); 
+	}
+	void WindowFrame::initUIManager()
+	{
+		m_UIManager = std::make_unique<wxAuiManager>(this); 
 	}
 	void WindowFrame::initMenuBar()
 	{
@@ -28,7 +27,7 @@ namespace viewer
 			m_MenuBar = new wxMenuBar(); 
 		}
 		wxMenu* menuFile = new wxMenu;
-		menuFile->Append(viewer::component_id::ID_MENUBAR, "&Hello...\tCtrl+H",
+		menuFile->Append(dragon::component_id::ID_MENUBAR, "&Hello...\tCtrl+H",
 			"Help string shown in status bar for this menu item");
 		menuFile->AppendSeparator();
 		menuFile->Append(wxID_EXIT);
@@ -40,24 +39,18 @@ namespace viewer
 	}
 	void WindowFrame::initTreeCtrl()
 	{
-		m_Mgr.SetManagedWindow(this);
 		// create panel store tree ctrl
 		wxPanel* treePanel = new wxPanel(this);
 		wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-		wxTreeCtrl* tree = new wxTreeCtrl(treePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-			wxTR_DEFAULT_STYLE | wxTR_HAS_BUTTONS);
+		wxTreeCtrl* tree = new wxTreeCtrl(treePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize);
 		wxTreeItemId root = tree->AddRoot("Root");
 		tree->AppendItem(root, "Child 1");
 		tree->AppendItem(root, "Child 2");
 		tree->Expand(root);
 		sizer->Add(tree, 1, wxEXPAND | wxALL, 5);
 		treePanel->SetSizer(sizer);
-		m_Mgr.AddPane(treePanel, wxAuiPaneInfo().
-			Name("tree").Caption("Project Tree").
-			Left().CloseButton(true).MaximizeButton(true).PinButton(true).
-			MinSize(300, 300).
-			Dockable(true));
-		m_Mgr.Update();
+		m_UIManager->AddPane(treePanel, panel_config::tree_ctrl_panel_info);
+		m_UIManager->Update(); 
 	}
 	void WindowFrame::initScene()
 	{
@@ -76,6 +69,8 @@ namespace viewer
 				dispAttrs); 
 			sizer->Add(m_Scene.get(), 1, wxEXPAND);
 			SetSizerAndFit(sizer);
+			m_UIManager->AddPane(m_Scene.get(), panel_config::scene_view_panel_info);
+			m_UIManager->Update(); 
 		}
 	}
 	void WindowFrame::OnHello(wxCommandEvent& event)
@@ -90,12 +85,6 @@ namespace viewer
 	{
 		wxMessageBox("This is a wxWidgets Hello World example",
 			"About Hello World", wxOK | wxICON_INFORMATION);
-	}
-	void WindowFrame::OnInternalIdle()
-	{
-		//redraw frame 
-		wxWindow::OnInternalIdle();
-		Refresh(false);
 	}
 	void WindowFrame::OnSize(wxSizeEvent& event)
 	{

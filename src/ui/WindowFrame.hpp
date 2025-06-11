@@ -1,8 +1,7 @@
 #ifndef _WINDOW_FRAME_HPP_
 #define _WINDOW_FRAME_HPP_
-#include <wx/wx.h>
-#include <wx/aui/aui.h>
-namespace viewer
+#include "wxInclude.hpp"
+namespace dragon
 {
 	class SceneView; 
 	class WindowFrame : public wxFrame
@@ -10,20 +9,20 @@ namespace viewer
 	public: 
 		WindowFrame(); 
 	private: 
+		void initUIManager(); 
 		void initMenuBar();
 		void initTreeCtrl(); 
 		void initScene(); 
 		void OnHello(wxCommandEvent& event);
 		void OnExit(wxCommandEvent& event);
 		void OnAbout(wxCommandEvent& event);
-		void OnInternalIdle() override;
 	private: 
 		void OnSize(wxSizeEvent& event);
 		wxDECLARE_EVENT_TABLE();
 	private: 
 		wxMenuBar* m_MenuBar{ nullptr };
 		std::unique_ptr<SceneView> m_Scene{ nullptr }; 
-		wxAuiManager m_Mgr;
+		std::unique_ptr<wxAuiManager> m_UIManager{ nullptr };
 	};
 }
 #endif // !_WINDOW_FRAME_HPP_

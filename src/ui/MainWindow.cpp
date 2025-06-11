@@ -1,7 +1,7 @@
 ﻿#include "MainWindow.hpp"
 #include "WindowFrame.hpp"
 
-namespace viewer
+namespace dragon
 {
 	bool App::OnInit()
 	{
