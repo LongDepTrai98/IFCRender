@@ -26,15 +26,21 @@ project(${PROJECT_NAME})
 #find_package(wxWidgets CONFIG REQUIRED)
 find_package(glew CONFIG REQUIRED)
 #add file 
+#ui
 file(GLOB_RECURSE UI_SRC "src/ui/*.cpp" "src/ui/*.hpp")
 source_group("ui" FILES ${UI_SRC})
+#config
 file(GLOB_RECURSE APP_CONFIG_SRC "src/config/*.cpp" "src/config/*.hpp")
 source_group("config" FILES ${APP_CONFIG_SRC})
+#context 
+file(GLOB_RECURSE APP_CONTEXT_SRC "src/context/*.cpp" "src/context/*.hpp")
+source_group("context" FILES ${APP_CONTEXT_SRC})
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/wxInclude.hpp
 	${UI_SRC}
-	${APP_CONFIG_SRC})
+	${APP_CONFIG_SRC}
+	${APP_CONTEXT_SRC})
  #add include 
  target_include_directories(${EDITOR_NAME_PROJECT} 
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
