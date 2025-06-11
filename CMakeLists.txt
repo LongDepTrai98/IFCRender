@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
+include(FetchContent)
 set(CMAKE_TOOLCHAIN_FILE "./vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 project(workflow LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
@@ -6,6 +7,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Build options
 option(BUILD_TESTS "Build test targets" ON)
 option(USE_STATIC_LIBS "Use static libraries" OFF)
+#add threepp 
+set(THREEPP_BUILD_TESTS OFF)
+set(THREEPP_BUILD_EXAMPLES OFF)
+set(THREEPP_WITH_GLFW OFF) # Disable default GLFW backend as we use WxWidgets
+FetchContent_Declare(
+        threepp
+        GIT_REPOSITORY https://github.com/markaren/threepp.git
+)
+FetchContent_MakeAvailable(threepp)
 #project
 set(PROJECT_NAME Dragon)
 set(EDITOR_NAME_PROJECT App)
@@ -32,6 +42,7 @@ add_executable(${EDITOR_NAME_PROJECT}
 	PRIVATE ${WX_INCLUDE_PATH}/msvc
  )
 target_link_libraries(${EDITOR_NAME_PROJECT}  
-PRIVATE GLEW::glew)
+PRIVATE GLEW::glew
+PRIVATE threepp::threepp)
 target_compile_definitions(${EDITOR_NAME_PROJECT}
 PRIVATE _UNICODE)
