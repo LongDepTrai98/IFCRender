@@ -33,8 +33,8 @@ source_group("ui" FILES ${UI_SRC})
 file(GLOB_RECURSE APP_CONFIG_SRC "src/config/*.cpp" "src/config/*.hpp")
 source_group("config" FILES ${APP_CONFIG_SRC})
 #context 
-file(GLOB_RECURSE APP_CONTEXT_SRC "src/context/*.cpp" "src/context/*.hpp")
-source_group("context" FILES ${APP_CONTEXT_SRC})
+file(GLOB_RECURSE APP_CONTEXT_SRC "src/core/context/*.cpp" "src/core/context/*.hpp")
+source_group("core/context" FILES ${APP_CONTEXT_SRC})
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/wxInclude.hpp
