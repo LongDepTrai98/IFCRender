@@ -1,6 +1,6 @@
 #ifndef _CONTEXT_RENDERER_HPP_
 #define _CONTEXT_RENDERER_HPP_
-#include "IContextRenderer.hpp"
+#include "core/IContextRenderer.hpp"
 #include "threepp/threepp.hpp"
 namespace dragon
 {

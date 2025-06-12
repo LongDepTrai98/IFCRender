@@ -1,17 +1,12 @@
 #include "RenderCanvas.hpp"
 #include <iostream>
-#include "core/context/TPContextRenderer.hpp"
+#include "renderer/TPContextRenderer.hpp"
 namespace dragon
 {
-	wxBEGIN_EVENT_TABLE(RenderCanvas, wxGLCanvas)
-		EVT_SIZE(RenderCanvas::OnSize)
-		EVT_PAINT(RenderCanvas::OnPaint)
-		wxEND_EVENT_TABLE()
-		RenderCanvas::RenderCanvas(wxWindow* parent,
-			const wxGLAttributes& canvasAttrs) : wxGLCanvas(parent,
+	RenderCanvas::RenderCanvas(wxWindow* parent, const wxGLAttributes& canvasAttrs) : wxGLCanvas(parent,
 				canvasAttrs)
 	{
-		//SetMinSize(FromDIP(m_MinSize));
+		bindFunction(); 
 		initGLContext(); 
 		initContextRenderer(); 
 	}
@@ -33,6 +28,17 @@ namespace dragon
 	{
 		if (!m_ContextRenderer)
 			m_ContextRenderer = std::make_unique<TPContextRenderer>(this);
+	}
+	void RenderCanvas::bindFunction()
+	{
+		Bind(wxEVT_PAINT, &RenderCanvas::OnPaint, this);
+		Bind(wxEVT_SIZE, &RenderCanvas::OnSize, this);
+		Bind(wxEVT_MOTION, &RenderCanvas::OnMouseMove, this);
+		Bind(wxEVT_LEFT_DOWN, &RenderCanvas::OnMousePress, this);
+		Bind(wxEVT_RIGHT_DOWN, &RenderCanvas::OnMousePress, this);
+		Bind(wxEVT_LEFT_UP, &RenderCanvas::OnMouseRelease, this);
+		Bind(wxEVT_RIGHT_UP, &RenderCanvas::OnMouseRelease, this);
+		Bind(wxEVT_MOUSEWHEEL, &RenderCanvas::OnMouseWheel, this);
 	}
 	void RenderCanvas::activeContext()
 	{
@@ -73,6 +79,18 @@ namespace dragon
 		}
 		swapBuff(); 
 		deactiveContext(); 
+	}
+	void RenderCanvas::OnMouseMove(wxMouseEvent& event)
+	{
+	}
+	void RenderCanvas::OnMousePress(wxMouseEvent& event)
+	{
+	}
+	void RenderCanvas::OnMouseRelease(wxMouseEvent& event)
+	{
+	}
+	void RenderCanvas::OnMouseWheel(wxMouseEvent& event)
+	{
 	}
 	void RenderCanvas::OnInternalIdle()
 	{

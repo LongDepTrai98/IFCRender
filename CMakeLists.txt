@@ -32,15 +32,23 @@ source_group("ui" FILES ${UI_SRC})
 #config
 file(GLOB_RECURSE APP_CONFIG_SRC "src/config/*.cpp" "src/config/*.hpp")
 source_group("config" FILES ${APP_CONFIG_SRC})
-#context 
-file(GLOB_RECURSE APP_CONTEXT_SRC "src/core/context/*.cpp" "src/core/context/*.hpp")
-source_group("core/context" FILES ${APP_CONTEXT_SRC})
+#core 
+file(GLOB_RECURSE APP_CORE_SRC "src/core/*.cpp" "src/core/*.hpp")
+source_group("core" FILES ${APP_CORE_SRC})
+#renderer 
+file(GLOB_RECURSE APP_RENDERER_SRC "src/renderer/*.cpp" "src/renderer/*.hpp")
+source_group("renderer" FILES ${APP_RENDERER_SRC})
+#controller
+file(GLOB_RECURSE APP_CONTROLLER_SRC "src/controller/*.cpp" "src/controller/*.hpp")
+source_group("controller" FILES ${APP_CONTROLLER_SRC})
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/wxInclude.hpp
 	${UI_SRC}
 	${APP_CONFIG_SRC}
-	${APP_CONTEXT_SRC})
+	${APP_CORE_SRC}
+	${APP_RENDERER_SRC}
+	${APP_CONTROLLER_SRC})
  #add include 
  target_include_directories(${EDITOR_NAME_PROJECT} 
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src

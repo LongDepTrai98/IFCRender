@@ -14,11 +14,15 @@ namespace dragon
 	private: 
 		void initGLContext(); 
 		void initContextRenderer(); 
+		void bindFunction(); 
 	private: 
 		void OnSize(wxSizeEvent& event);
 		void OnPaint(wxPaintEvent& event); 
+		void OnMouseMove(wxMouseEvent& event);
+		void OnMousePress(wxMouseEvent& event);
+		void OnMouseRelease(wxMouseEvent& event);
+		void OnMouseWheel(wxMouseEvent& event);
 		void OnInternalIdle() override;
-		wxDECLARE_EVENT_TABLE();
 	public: 
 		void activeContext();
 		void deactiveContext();
