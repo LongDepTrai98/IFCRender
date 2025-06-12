@@ -2,7 +2,6 @@
 #include "config/app_config.hpp"
 #include "config/pannel_config.hpp"
 #include "SceneView.hpp"
-#include "core/context/ContextRenderer.hpp"
 namespace dragon
 {
 	wxBEGIN_EVENT_TABLE(WindowFrame, wxFrame)

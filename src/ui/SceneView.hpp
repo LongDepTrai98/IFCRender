@@ -4,7 +4,7 @@
 #include "wxInclude.hpp"
 namespace dragon
 {
-	class ContextRenderer; 
+	class IContextRenderer; 
 	class SceneView : public wxGLCanvas
 	{
 	public: 
@@ -26,7 +26,7 @@ namespace dragon
 		//main context 
 		std::unique_ptr<wxGLContext> m_Context{nullptr};
 		//main render context 
-		std::unique_ptr<ContextRenderer> m_ContextRenderer; 
+		std::unique_ptr<IContextRenderer> m_ContextRenderer;
 		//min size 
 		wxSize m_MinSize{ 300, 300 };
 		float  m_dtTime{ 0.0 }; 

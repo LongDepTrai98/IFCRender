@@ -1,21 +1,21 @@
 #ifndef _CONTEXT_RENDERER_HPP_
 #define _CONTEXT_RENDERER_HPP_
-/*
-* THREEPP CONTEXT RENDERER
-*/
+#include "IContextRenderer.hpp"
 namespace dragon
 {
-	class SceneView;
-	class ContextRenderer
+	/*
+	* THREEPP BACKEND RENDERER
+	*/
+	class TPContextRenderer : public IContextRenderer
 	{
 	public: 
-		ContextRenderer(SceneView* canvas);
+		TPContextRenderer(SceneView* canvas);
 		virtual void resize(const int& width, const int& height); 
 		virtual void update(const float& dtTime); 
 		virtual void render();
-		virtual ~ContextRenderer();
+		virtual ~TPContextRenderer();
 	private: 
-		SceneView* m_Canvas{ nullptr };
+		
 	};
 }
 #endif // !_CONTEXT_RENDERER_HPP_

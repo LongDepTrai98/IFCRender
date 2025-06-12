@@ -1,7 +1,7 @@
 #include "SceneView.hpp"
 #include "threepp/threepp.hpp"
 #include <iostream>
-#include "core/context/ContextRenderer.hpp"
+#include "core/context/TPContextRenderer.hpp"
 namespace dragon
 {
 	wxBEGIN_EVENT_TABLE(SceneView, wxGLCanvas)
@@ -18,10 +18,6 @@ namespace dragon
 	}
 	SceneView::~SceneView()
 	{
-		if (!m_ContextRenderer)
-		{
-			m_ContextRenderer = std::make_unique<ContextRenderer>(this); 
-		}
 	}
 	void SceneView::initGLContext()
 	{
@@ -37,7 +33,7 @@ namespace dragon
 	void SceneView::initContextRenderer()
 	{
 		if (!m_ContextRenderer)
-			m_ContextRenderer = std::make_unique<ContextRenderer>(this); 
+			m_ContextRenderer = std::make_unique<TPContextRenderer>(this);
 	}
 	void SceneView::activeContext()
 	{
