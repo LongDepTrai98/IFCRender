@@ -1,5 +1,4 @@
 #include "SceneView.hpp"
-#include "threepp/threepp.hpp"
 #include <iostream>
 #include "core/context/TPContextRenderer.hpp"
 namespace dragon
@@ -46,6 +45,10 @@ namespace dragon
 	void SceneView::swapBuff()
 	{
 		SwapBuffers(); 
+	}
+	wxSize SceneView::getSize()
+	{
+		return GetSize() * GetContentScaleFactor();
 	}
 	void SceneView::OnSize(wxSizeEvent& event)
 	{

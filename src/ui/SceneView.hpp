@@ -2,6 +2,7 @@
 #define _SCENE_VIEW_HPP_
 #include <memory>
 #include "wxInclude.hpp"
+#include "threepp/canvas/WindowSize.hpp"
 namespace dragon
 {
 	class IContextRenderer; 
@@ -22,6 +23,7 @@ namespace dragon
 		void activeContext();
 		void deactiveContext();
 		void swapBuff();
+		wxSize getSize();
 	private:
 		//main context 
 		std::unique_ptr<wxGLContext> m_Context{nullptr};
