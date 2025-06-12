@@ -6,7 +6,7 @@ namespace dragon::panel_config
 		.Caption("View")
 		.Right()
 		.PinButton()
-		.MinSize(500, 300)
+		.MinSize(640, 480)
 		.MaximizeButton(true)
 		.Dockable(true);
 	static wxAuiPaneInfo tree_ctrl_panel_info = wxAuiPaneInfo()

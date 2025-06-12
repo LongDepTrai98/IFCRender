@@ -1,24 +1,24 @@
-#include "SceneView.hpp"
+#include "RenderCanvas.hpp"
 #include <iostream>
 #include "core/context/TPContextRenderer.hpp"
 namespace dragon
 {
-	wxBEGIN_EVENT_TABLE(SceneView, wxGLCanvas)
-		EVT_SIZE(SceneView::OnSize)
-		EVT_PAINT(SceneView::OnPaint)
+	wxBEGIN_EVENT_TABLE(RenderCanvas, wxGLCanvas)
+		EVT_SIZE(RenderCanvas::OnSize)
+		EVT_PAINT(RenderCanvas::OnPaint)
 		wxEND_EVENT_TABLE()
-		SceneView::SceneView(wxWindow* parent,
+		RenderCanvas::RenderCanvas(wxWindow* parent,
 			const wxGLAttributes& canvasAttrs) : wxGLCanvas(parent,
 				canvasAttrs)
 	{
+		//SetMinSize(FromDIP(m_MinSize));
 		initGLContext(); 
 		initContextRenderer(); 
-		SetMinSize(FromDIP(m_MinSize));
 	}
-	SceneView::~SceneView()
+	RenderCanvas::~RenderCanvas()
 	{
 	}
-	void SceneView::initGLContext()
+	void RenderCanvas::initGLContext()
 	{
 		wxGLContextAttrs ctxAttrs;
 		ctxAttrs.PlatformDefaults().CoreProfile().OGLVersion(3, 3).EndList();
@@ -29,54 +29,52 @@ namespace dragon
 			throw std::exception("Can't create context renderer");
 		}
 	}
-	void SceneView::initContextRenderer()
+	void RenderCanvas::initContextRenderer()
 	{
 		if (!m_ContextRenderer)
 			m_ContextRenderer = std::make_unique<TPContextRenderer>(this);
 	}
-	void SceneView::activeContext()
+	void RenderCanvas::activeContext()
 	{
 		SetCurrent(*m_Context);
 	}
-	void SceneView::deactiveContext()
+	void RenderCanvas::deactiveContext()
 	{
 		wglMakeCurrent(NULL, NULL);
 	}
-	void SceneView::swapBuff()
+	void RenderCanvas::swapBuff()
 	{
 		SwapBuffers(); 
 	}
-	wxSize SceneView::getSize()
+	wxSize RenderCanvas::getSize()
 	{
 		return GetSize() * GetContentScaleFactor();
 	}
-	void SceneView::OnSize(wxSizeEvent& event)
+	void RenderCanvas::OnSize(wxSizeEvent& event)
 	{
+		activeContext();
 		auto viewPortSize = event.GetSize() * GetContentScaleFactor();
-		if (m_Context)
-		{
-			glViewport(0, 
-				0,
-				viewPortSize.x, 
-				viewPortSize.y);
-		}
 		if (m_ContextRenderer)
 		{
 			m_ContextRenderer->resize(viewPortSize.x,
 				viewPortSize.y); 
 		}
+		deactiveContext(); 
 		event.Skip(); 
 	}
-	void SceneView::OnPaint(wxPaintEvent& event)
+	void RenderCanvas::OnPaint(wxPaintEvent& event)
 	{
 		wxPaintDC dc(this);
+		activeContext(); 
 		if (m_ContextRenderer)
 		{
 			m_ContextRenderer->update(m_dtTime); 
 			m_ContextRenderer->render(); 
 		}
+		swapBuff(); 
+		deactiveContext(); 
 	}
-	void SceneView::OnInternalIdle()
+	void RenderCanvas::OnInternalIdle()
 	{
 		wxWindow::OnInternalIdle();
 		Refresh(false);

@@ -10,12 +10,15 @@ namespace dragon
 	class TPContextRenderer : public IContextRenderer
 	{
 	public: 
-		TPContextRenderer(SceneView* canvas);
+		TPContextRenderer(RenderCanvas* canvas);
 	private: 
 		void initRenderer(threepp::WindowSize& w_size);
 		void initCamera(threepp::WindowSize& w_size);
 		void initScene(threepp::WindowSize& w_size); 
 		void ctxRender();
+	//example 
+	private: 
+		void createExampleScene();
 	public: 
 		virtual void resize(const int& width, const int& height); 
 		virtual void update(const float& dtTime); 

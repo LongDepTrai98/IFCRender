@@ -6,11 +6,11 @@
 namespace dragon
 {
 	class IContextRenderer; 
-	class SceneView : public wxGLCanvas
+	class RenderCanvas : public wxGLCanvas
 	{
 	public: 
-		SceneView(wxWindow* parent, const wxGLAttributes& canvasAttrs);
-		~SceneView();
+		RenderCanvas(wxWindow* parent, const wxGLAttributes& canvasAttrs);
+		~RenderCanvas();
 	private: 
 		void initGLContext(); 
 		void initContextRenderer(); 
@@ -30,7 +30,7 @@ namespace dragon
 		//main render context 
 		std::unique_ptr<IContextRenderer> m_ContextRenderer;
 		//min size 
-		wxSize m_MinSize{ 300, 300 };
+		wxSize m_MinSize{ 640, 480 };
 		float  m_dtTime{ 0.0 }; 
 	};
 }

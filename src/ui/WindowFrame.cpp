@@ -1,7 +1,7 @@
 ﻿#include "WindowFrame.hpp"
 #include "config/app_config.hpp"
 #include "config/pannel_config.hpp"
-#include "SceneView.hpp"
+#include "RenderCanvas.hpp"
 namespace dragon
 {
 	wxBEGIN_EVENT_TABLE(WindowFrame, wxFrame)
@@ -62,14 +62,11 @@ namespace dragon
 		{
 			throw std::exception("glCanvans not support display attribute"); 
 		}
-		auto sizer = new wxBoxSizer(wxVERTICAL);
-		if (!m_Scene)
+		if (!m_RenderCanvas)
 		{
-			m_Scene = std::make_unique<SceneView>(this,
+			m_RenderCanvas = std::make_unique<RenderCanvas>(this,
 				dispAttrs); 
-			sizer->Add(m_Scene.get(), 1, wxEXPAND);
-			SetSizerAndFit(sizer);
-			m_UIManager->AddPane(m_Scene.get(), panel_config::scene_view_panel_info);
+			m_UIManager->AddPane(m_RenderCanvas.get(), panel_config::scene_view_panel_info);
 			m_UIManager->Update(); 
 		}
 	}

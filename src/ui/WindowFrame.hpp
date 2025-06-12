@@ -3,7 +3,7 @@
 #include "wxInclude.hpp"
 namespace dragon
 {
-	class SceneView; 
+	class RenderCanvas; 
 	class WindowFrame : public wxFrame
 	{
 	public: 
@@ -21,7 +21,7 @@ namespace dragon
 		wxDECLARE_EVENT_TABLE();
 	private: 
 		wxMenuBar* m_MenuBar{ nullptr };
-		std::unique_ptr<SceneView> m_Scene{ nullptr }; 
+		std::unique_ptr<RenderCanvas> m_RenderCanvas{ nullptr }; 
 		std::unique_ptr<wxAuiManager> m_UIManager{ nullptr };
 	};
 }

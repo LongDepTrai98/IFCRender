@@ -1,5 +1,5 @@
 #include "TPContextRenderer.hpp"
-#include "ui/SceneView.hpp"
+#include "ui/RenderCanvas.hpp"
 #include "threepp/threepp.hpp"
 /*
 * THREEPP CONTEXT RENDERER
@@ -7,15 +7,64 @@
 */
 namespace dragon
 {
-	TPContextRenderer::TPContextRenderer(SceneView* canvas) : IContextRenderer(canvas)
+	namespace example
 	{
+	using namespace threepp; 
+	auto createBox() {
+
+		const auto boxGeometry = BoxGeometry::create();
+		const auto boxMaterial = MeshBasicMaterial::create();
+		boxMaterial->color.setRGB(1, 0, 0);
+		boxMaterial->transparent = true;
+		boxMaterial->opacity = 0.1f;
+		auto box = Mesh::create(boxGeometry, boxMaterial);
+
+		auto wiredBox = LineSegments::create(WireframeGeometry::create(*boxGeometry));
+		wiredBox->material()->as<LineBasicMaterial>()->depthTest = false;
+		wiredBox->material()->as<LineBasicMaterial>()->color = Color::gray;
+		box->add(wiredBox);
+
+		return box;
+	}
+
+	auto createSphere() {
+
+		const auto sphereGeometry = SphereGeometry::create(0.5f);
+		const auto sphereMaterial = MeshBasicMaterial::create();
+		sphereMaterial->color.setHex(0x00ff00);
+		sphereMaterial->wireframe = true;
+		auto sphere = Mesh::create(sphereGeometry, sphereMaterial);
+		sphere->position.setX(-1);
+
+		return sphere;
+	}
+
+	auto createPlane() {
+
+		const auto planeGeometry = PlaneGeometry::create(5, 5);
+		const auto planeMaterial = MeshBasicMaterial::create();
+		planeMaterial->color.setHex(Color::yellow);
+		planeMaterial->transparent = true;
+		planeMaterial->opacity = 0.5f;
+		planeMaterial->side = Side::Double;
+		auto plane = Mesh::create(planeGeometry, planeMaterial);
+		plane->position.setZ(-2);
+
+		return plane;
+	}
+	}
+
+
+	TPContextRenderer::TPContextRenderer(RenderCanvas* canvas) : IContextRenderer(canvas)
+	{
+		wxSize canvas_size = m_Canvas->getSize();
 		m_Canvas->activeContext(); 
-		wxSize canvas_size = m_Canvas->getSize(); 
 		//create windowsize 
 		threepp::WindowSize window_size(canvas_size.x, canvas_size.y);
 		initRenderer(window_size);
 		initScene(window_size);
 		initCamera(window_size); 
+		createExampleScene();
 		m_Canvas->deactiveContext(); 
 	}
 	TPContextRenderer::~TPContextRenderer()
@@ -44,13 +93,22 @@ namespace dragon
 			&& m_Camera)
 		{
 			m_Renderer->render(*m_Scene, *m_Camera); 
+
 		}
+	}
+	void TPContextRenderer::createExampleScene()
+	{
+		m_Camera->position.z = 5;
+		auto box = example::createBox();
+		m_Scene->add(box);
+		auto sphere = example::createSphere();
+		box->add(sphere);
+		auto plane = example::createPlane();
+		auto planeMaterial = plane->material()->as<threepp::MeshBasicMaterial>();
+		m_Scene->add(plane);
 	}
 	void TPContextRenderer::resize(const int& width, const int& height)
 	{
-		/*
-		* Context render resize 
-		*/
 		threepp::WindowSize window_size(width,height);
 		if (m_Camera)
 		{
@@ -66,13 +124,10 @@ namespace dragon
 	{
 		if (m_Canvas)
 		{
-			m_Canvas->activeContext();
 			/*
 			* context render here 
 			*/
 			ctxRender();
-			m_Canvas->swapBuff(); 
-			m_Canvas->deactiveContext(); 
 		}
 	}
 }
