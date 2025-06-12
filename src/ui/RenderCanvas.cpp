@@ -82,15 +82,23 @@ namespace dragon
 	}
 	void RenderCanvas::OnMouseMove(wxMouseEvent& event)
 	{
+		if (m_Renderer)
+			m_Renderer->OnMouseMove(event); 
 	}
 	void RenderCanvas::OnMousePress(wxMouseEvent& event)
 	{
+		if (m_Renderer)
+			m_Renderer->OnMousePress(event); 
 	}
 	void RenderCanvas::OnMouseRelease(wxMouseEvent& event)
 	{
+		if (m_Renderer)
+			m_Renderer->OnMouseRelease(event); 
 	}
 	void RenderCanvas::OnMouseWheel(wxMouseEvent& event)
 	{
+		if (m_Renderer)
+			m_Renderer->OnMouseWheel(event); 
 	}
 	void RenderCanvas::OnInternalIdle()
 	{

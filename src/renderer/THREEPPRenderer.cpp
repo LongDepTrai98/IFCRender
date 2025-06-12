@@ -86,6 +86,11 @@ namespace dragon
 			m_Scene = std::make_unique<threepp::Scene>(); 
 		m_Scene->background = threepp::Color::aliceblue; 
 	}
+	void THREEPPRenderer::initController()
+	{
+		if (!m_OrbitControls)
+			m_OrbitControls = std::make_unique<threepp::OrbitControls>(*m_Camera, *this); 
+	}
 	void THREEPPRenderer::ctxRender()
 	{
 		if (m_Renderer
@@ -129,5 +134,56 @@ namespace dragon
 			*/
 			ctxRender();
 		}
+	}
+	void THREEPPRenderer::OnMouseMove(wxMouseEvent& event)
+	{
+		wxPoint pos = event.GetPosition();
+		threepp::Vector2 mousePos(static_cast<float>(pos.x), static_cast<float>(pos.y));
+		onMouseMoveEvent(mousePos);
+		event.Skip();
+	}
+	void THREEPPRenderer::OnMousePress(wxMouseEvent& event)
+	{
+		int buttonFlag = event.GetButton();
+		wxPoint pos = event.GetPosition();
+		int button = 0;
+		if (wxMOUSE_BTN_LEFT == buttonFlag) {
+			button = 0;
+		}
+		else if (wxMOUSE_BTN_RIGHT == buttonFlag) {
+			button = 1;
+		}
+		threepp::Vector2 p{ pos.x, pos.y };
+		onMousePressedEvent(button, p, PeripheralsEventSource::MouseAction::PRESS);
+
+		event.Skip();
+	}
+	void THREEPPRenderer::OnMouseRelease(wxMouseEvent& event)
+	{
+		int buttonFlag = event.GetButton();
+		wxPoint pos = event.GetPosition();
+		int button = 0;
+		if (wxMOUSE_BTN_LEFT == buttonFlag) {
+			button = 0;
+		}
+		else if (wxMOUSE_BTN_RIGHT == buttonFlag) {
+			button = 1;
+		}
+		threepp::Vector2 p{ pos.x, pos.y };
+		onMousePressedEvent(button, p, PeripheralsEventSource::MouseAction::RELEASE);
+
+		event.Skip();
+	}
+	void THREEPPRenderer::OnMouseWheel(wxMouseEvent& event)
+	{
+		int direction = event.GetWheelRotation() / 120;// 1 or -1
+		int xoffset = 0;
+		int yoffset = direction;
+		onMouseWheelEvent({ static_cast<float>(xoffset), static_cast<float>(yoffset) });
+		event.Skip();
+	}
+	threepp::WindowSize THREEPPRenderer::size() const
+	{
+		return threepp::WindowSize();
 	}
 }
