@@ -1,4 +1,4 @@
-#include "TPContextRenderer.hpp"
+#include "THREEPPRenderer.hpp"
 #include "ui/RenderCanvas.hpp"
 #include "threepp/threepp.hpp"
 /*
@@ -55,7 +55,7 @@ namespace dragon
 	}
 
 
-	TPContextRenderer::TPContextRenderer(RenderCanvas* canvas) : IContextRenderer(canvas)
+	THREEPPRenderer::THREEPPRenderer(RenderCanvas* canvas) : IRenderer(canvas)
 	{
 		wxSize canvas_size = m_Canvas->getSize();
 		m_Canvas->activeContext(); 
@@ -67,26 +67,26 @@ namespace dragon
 		createExampleScene();
 		m_Canvas->deactiveContext(); 
 	}
-	TPContextRenderer::~TPContextRenderer()
+	THREEPPRenderer::~THREEPPRenderer()
 	{
 	}
-	void TPContextRenderer::initRenderer(threepp::WindowSize& w_size)
+	void THREEPPRenderer::initRenderer(threepp::WindowSize& w_size)
 	{
 		if (!m_Renderer)
 			m_Renderer = std::make_unique<threepp::GLRenderer>(w_size);
 	}
-	void TPContextRenderer::initCamera(threepp::WindowSize& w_size)
+	void THREEPPRenderer::initCamera(threepp::WindowSize& w_size)
 	{
 		if (!m_Camera)
 			m_Camera = std::make_unique<threepp::PerspectiveCamera>(75, w_size.aspect());
 	}
-	void TPContextRenderer::initScene(threepp::WindowSize& w_size)
+	void THREEPPRenderer::initScene(threepp::WindowSize& w_size)
 	{
 		if (!m_Scene)
 			m_Scene = std::make_unique<threepp::Scene>(); 
 		m_Scene->background = threepp::Color::aliceblue; 
 	}
-	void TPContextRenderer::ctxRender()
+	void THREEPPRenderer::ctxRender()
 	{
 		if (m_Renderer
 			&& m_Scene
@@ -96,7 +96,7 @@ namespace dragon
 
 		}
 	}
-	void TPContextRenderer::createExampleScene()
+	void THREEPPRenderer::createExampleScene()
 	{
 		m_Camera->position.z = 5;
 		auto box = example::createBox();
@@ -107,7 +107,7 @@ namespace dragon
 		auto planeMaterial = plane->material()->as<threepp::MeshBasicMaterial>();
 		m_Scene->add(plane);
 	}
-	void TPContextRenderer::resize(const int& width, const int& height)
+	void THREEPPRenderer::resize(const int& width, const int& height)
 	{
 		threepp::WindowSize window_size(width,height);
 		if (m_Camera)
@@ -117,10 +117,10 @@ namespace dragon
 			m_Renderer->setSize(window_size); 
 		}
 	}
-	void TPContextRenderer::update(const float& dtTime)
+	void THREEPPRenderer::update(const float& dtTime)
 	{
 	}
-	void TPContextRenderer::render()
+	void THREEPPRenderer::render()
 	{
 		if (m_Canvas)
 		{

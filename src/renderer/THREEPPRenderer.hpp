@@ -1,16 +1,16 @@
 #ifndef _CONTEXT_RENDERER_HPP_
 #define _CONTEXT_RENDERER_HPP_
-#include "core/IContextRenderer.hpp"
+#include "core/IRenderer.hpp"
 #include "threepp/threepp.hpp"
 namespace dragon
 {
 	/*
 	* THREEPP BACKEND RENDERER
 	*/
-	class TPContextRenderer : public IContextRenderer
+	class THREEPPRenderer : public IRenderer
 	{
 	public: 
-		TPContextRenderer(RenderCanvas* canvas);
+		THREEPPRenderer(RenderCanvas* canvas);
 	private: 
 		void initRenderer(threepp::WindowSize& w_size);
 		void initCamera(threepp::WindowSize& w_size);
@@ -23,7 +23,7 @@ namespace dragon
 		virtual void resize(const int& width, const int& height); 
 		virtual void update(const float& dtTime); 
 		virtual void render();
-		virtual ~TPContextRenderer();
+		virtual ~THREEPPRenderer();
 	private: 
 		std::unique_ptr<threepp::GLRenderer> m_Renderer{nullptr}; 
 		std::unique_ptr<threepp::Scene> m_Scene{nullptr}; 

@@ -5,7 +5,7 @@
 #include "threepp/canvas/WindowSize.hpp"
 namespace dragon
 {
-	class IContextRenderer; 
+	class IRenderer;
 	class RenderCanvas : public wxGLCanvas
 	{
 	public: 
@@ -32,7 +32,7 @@ namespace dragon
 		//main context 
 		std::unique_ptr<wxGLContext> m_Context{nullptr};
 		//main render context 
-		std::unique_ptr<IContextRenderer> m_ContextRenderer;
+		std::unique_ptr<IRenderer> m_Renderer{ nullptr };
 		//min size 
 		wxSize m_MinSize{ 640, 480 };
 		float  m_dtTime{ 0.0 }; 

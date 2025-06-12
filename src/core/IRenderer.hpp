@@ -3,11 +3,11 @@
 namespace dragon
 {
 	class RenderCanvas;
-	class IContextRenderer
+	class IRenderer
 	{
 	public: 
-		IContextRenderer(RenderCanvas* canvas) : m_Canvas(canvas) {};
-		virtual ~IContextRenderer() {};
+		IRenderer(RenderCanvas* canvas) : m_Canvas(canvas) {};
+		virtual ~IRenderer() {};
 	public: 
 		virtual void resize(const int& width, const int& height) = 0;
 		virtual void update(const float& dtTime) = 0; 

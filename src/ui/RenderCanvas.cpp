@@ -1,6 +1,6 @@
 #include "RenderCanvas.hpp"
 #include <iostream>
-#include "renderer/TPContextRenderer.hpp"
+#include "renderer/THREEPPRenderer.hpp"
 namespace dragon
 {
 	RenderCanvas::RenderCanvas(wxWindow* parent, const wxGLAttributes& canvasAttrs) : wxGLCanvas(parent,
@@ -26,8 +26,8 @@ namespace dragon
 	}
 	void RenderCanvas::initContextRenderer()
 	{
-		if (!m_ContextRenderer)
-			m_ContextRenderer = std::make_unique<TPContextRenderer>(this);
+		if (!m_Renderer)
+			m_Renderer = std::make_unique<THREEPPRenderer>(this);
 	}
 	void RenderCanvas::bindFunction()
 	{
@@ -60,9 +60,9 @@ namespace dragon
 	{
 		activeContext();
 		auto viewPortSize = event.GetSize() * GetContentScaleFactor();
-		if (m_ContextRenderer)
+		if (m_Renderer)
 		{
-			m_ContextRenderer->resize(viewPortSize.x,
+			m_Renderer->resize(viewPortSize.x,
 				viewPortSize.y); 
 		}
 		deactiveContext(); 
@@ -72,10 +72,10 @@ namespace dragon
 	{
 		wxPaintDC dc(this);
 		activeContext(); 
-		if (m_ContextRenderer)
+		if (m_Renderer)
 		{
-			m_ContextRenderer->update(m_dtTime); 
-			m_ContextRenderer->render(); 
+			m_Renderer->update(m_dtTime);
+			m_Renderer->render();
 		}
 		swapBuff(); 
 		deactiveContext(); 
