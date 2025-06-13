@@ -1,6 +1,9 @@
-cmake_minimum_required(VERSION 3.15)
+﻿cmake_minimum_required(VERSION 3.15)
 include(FetchContent)
 set(CMAKE_TOOLCHAIN_FILE "./vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
+cmake_policy(SET CMP0142 NEW)
+#build type 
+ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 project(workflow LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -16,12 +19,38 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/markaren/threepp.git
 )
 FetchContent_MakeAvailable(threepp)
+#add ifcplusplus 
+FetchContent_Declare(
+        ifcplusplus
+        GIT_REPOSITORY https://github.com/LongDepTrai98/ifcplusplus.git
+)
+FetchContent_MakeAvailable(ifcplusplus)
+set(IFCPP_INCLUDE_DIRS
+    ${IFCPP_SOURCE_DIR}/IfcPlusPlus/src
+    ${IFCPP_SOURCE_DIR}/IfcPlusPlus/src/ifcpp/IFC4X3/include
+    ${IFCPP_SOURCE_DIR}/IfcPlusPlus/src/external
+    ${IFCPP_SOURCE_DIR}/IfcPlusPlus/src/external/glm
+    ${IFCPP_SOURCE_DIR}/IfcPlusPlus/src/external/Carve/include
+    ${IFCPP_SOURCE_DIR}/IfcPlusPlus/src/external/Carve/src
+    ${IFCPP_SOURCE_DIR}/IfcPlusPlus/src/external/Carve/src/include
+    ${IFCPP_SOURCE_DIR}/IfcPlusPlus/src/external/Carve/src/common
+    ${IFCPP_SOURCE_DIR}/IfcPlusPlus/src/external/Carve/build/src
+)
 #project
 set(PROJECT_NAME Dragon)
 set(EDITOR_NAME_PROJECT App)
 #set path 
 set(WX_INCLUDE_PATH "D:\\GITHUB\\thirdparty\\wxWidgets-3.3.0\\include")
 set(WX_LIB_PATH "D:\\GITHUB\\thirdparty\\wxWidgets-3.3.0\\lib\\vc_x64_lib")
+set(IFCPLUSPLUS_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/ifcplusplus-build/IfcPlusPlus)
+#if(MSVC)
+    #link_directories(
+        #$<$<CONFIG:Debug>:${CMAKE_BINARY_DIR}/IfcPlusPlus/Debug>
+        #$<$<CONFIG:Release>:${CMAKE_BINARY_DIR}/IfcPlusPlus/Release>
+    #)
+#endif()
+#LINK_DIRECTORIES(EDITOR_NAME_PROJECT ${CMAKE_BINARY_DIR}/IfcPlusPlus/Debug)
+#LINK_DIRECTORIES(EDITOR_NAME_PROJECT ${CMAKE_BINARY_DIR}/IfcPlusPlus/Release)
 project(${PROJECT_NAME})
 #find_package(wxWidgets CONFIG REQUIRED)
 find_package(glew CONFIG REQUIRED)
@@ -54,9 +83,25 @@ add_executable(${EDITOR_NAME_PROJECT}
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 	PRIVATE ${WX_INCLUDE_PATH}
 	PRIVATE ${WX_INCLUDE_PATH}/msvc
+    PRIVATE ${IFCPP_INCLUDE_DIRS}
  )
+ #link lib 
 target_link_libraries(${EDITOR_NAME_PROJECT}  
 PRIVATE GLEW::glew
-PRIVATE threepp::threepp)
+PRIVATE threepp::threepp
+$<$<CONFIG:Debug>:IfcPlusPlusd.lib>
+$<$<CONFIG:Release>:IfcPlusPlus.lib>
+
+)
+
+#TARGET_LINK_LIBRARIES(${EDITOR_NAME_PROJECT}
+    #optimized IfcPlusPlus
+    #debug IfcPlusPlusd)
+
+#directories lib
+target_link_directories(${EDITOR_NAME_PROJECT}
+PRIVATE ${WX_LIB_PATH}
+PRIVATE ${IFCPLUSPLUS_LIB_PATH})
+
 target_compile_definitions(${EDITOR_NAME_PROJECT}
 PRIVATE _UNICODE)
