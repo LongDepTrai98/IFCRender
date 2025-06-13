@@ -3,7 +3,8 @@
 #include "wxInclude.hpp"
 namespace dragon
 {
-	class SceneView; 
+	class AppMenubar; 
+	class RenderCanvas; 
 	class WindowFrame : public wxFrame
 	{
 	public: 
@@ -20,9 +21,12 @@ namespace dragon
 		void OnSize(wxSizeEvent& event);
 		wxDECLARE_EVENT_TABLE();
 	private: 
-		wxMenuBar* m_MenuBar{ nullptr };
-		std::unique_ptr<SceneView> m_Scene{ nullptr }; 
+		AppMenubar*					  m_AppMenuBar{ nullptr };
+		std::unique_ptr<RenderCanvas> m_RenderCanvas{ nullptr }; 
 		std::unique_ptr<wxAuiManager> m_UIManager{ nullptr };
+		//flag enable sampling 
+		bool m_bIsEnbleMSAA{ true }; 
+		int m_sampler{ 4 }; 
 	};
 }
 #endif // !_WINDOW_FRAME_HPP_
