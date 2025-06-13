@@ -15,6 +15,7 @@ FetchContent_Declare(
         threepp
         GIT_REPOSITORY https://github.com/markaren/threepp.git
 )
+#add wxWidgets
 FetchContent_MakeAvailable(threepp)
 #project
 set(PROJECT_NAME Dragon)
