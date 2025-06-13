@@ -41,8 +41,8 @@ set(IFCPP_INCLUDE_DIRS
 set(PROJECT_NAME Dragon)
 set(EDITOR_NAME_PROJECT App)
 #set path 
-set(WX_INCLUDE_PATH "D:\\GITHUB\\thirdparty\\wxWidgets-3.3.0\\include")
-set(WX_LIB_PATH "D:\\GITHUB\\thirdparty\\wxWidgets-3.3.0\\lib\\vc_x64_lib")
+set(WX_INCLUDE_PATH "D:\\Code\\IFCRender\\3rdparty\\wxWidgets-3.3.0\\include")
+set(WX_LIB_PATH "D:\\Code\\IFCRender\\3rdparty\\wxWidgets-3.3.0\\lib\\vc_x64_lib")
 set(IFCPLUSPLUS_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/ifcplusplus-build/IfcPlusPlus)
 project(${PROJECT_NAME})
 #find_package(wxWidgets CONFIG REQUIRED)
