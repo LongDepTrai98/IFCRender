@@ -43,14 +43,6 @@ set(EDITOR_NAME_PROJECT App)
 set(WX_INCLUDE_PATH "D:\\GITHUB\\thirdparty\\wxWidgets-3.3.0\\include")
 set(WX_LIB_PATH "D:\\GITHUB\\thirdparty\\wxWidgets-3.3.0\\lib\\vc_x64_lib")
 set(IFCPLUSPLUS_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/ifcplusplus-build/IfcPlusPlus)
-#if(MSVC)
-    #link_directories(
-        #$<$<CONFIG:Debug>:${CMAKE_BINARY_DIR}/IfcPlusPlus/Debug>
-        #$<$<CONFIG:Release>:${CMAKE_BINARY_DIR}/IfcPlusPlus/Release>
-    #)
-#endif()
-#LINK_DIRECTORIES(EDITOR_NAME_PROJECT ${CMAKE_BINARY_DIR}/IfcPlusPlus/Debug)
-#LINK_DIRECTORIES(EDITOR_NAME_PROJECT ${CMAKE_BINARY_DIR}/IfcPlusPlus/Release)
 project(${PROJECT_NAME})
 #find_package(wxWidgets CONFIG REQUIRED)
 find_package(glew CONFIG REQUIRED)
@@ -70,6 +62,7 @@ source_group("renderer" FILES ${APP_RENDERER_SRC})
 #controller
 file(GLOB_RECURSE APP_CONTROLLER_SRC "src/controller/*.cpp" "src/controller/*.hpp")
 source_group("controller" FILES ${APP_CONTROLLER_SRC})
+
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/wxInclude.hpp
@@ -78,6 +71,7 @@ add_executable(${EDITOR_NAME_PROJECT}
 	${APP_CORE_SRC}
 	${APP_RENDERER_SRC}
 	${APP_CONTROLLER_SRC})
+
  #add include 
  target_include_directories(${EDITOR_NAME_PROJECT} 
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -90,9 +84,7 @@ target_link_libraries(${EDITOR_NAME_PROJECT}
 PRIVATE GLEW::glew
 PRIVATE threepp::threepp
 $<$<CONFIG:Debug>:IfcPlusPlusd.lib>
-$<$<CONFIG:Release>:IfcPlusPlus.lib>
-
-)
+$<$<CONFIG:Release>:IfcPlusPlus.lib>)
 
 #TARGET_LINK_LIBRARIES(${EDITOR_NAME_PROJECT}
     #optimized IfcPlusPlus

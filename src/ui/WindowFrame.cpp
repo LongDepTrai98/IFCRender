@@ -1,7 +1,8 @@
 ﻿#include "WindowFrame.hpp"
+#include "AppMenubar.hpp"
+#include "RenderCanvas.hpp"
 #include "config/app_config.hpp"
 #include "config/pannel_config.hpp"
-#include "RenderCanvas.hpp"
 namespace dragon
 {
 	wxBEGIN_EVENT_TABLE(WindowFrame, wxFrame)
@@ -22,20 +23,10 @@ namespace dragon
 	}
 	void WindowFrame::initMenuBar()
 	{
-		if (!m_MenuBar)
+		if (!m_AppMenuBar)
 		{
-			m_MenuBar = new wxMenuBar(); 
+			m_AppMenuBar = new AppMenubar(this); 
 		}
-		wxMenu* menuFile = new wxMenu;
-		menuFile->Append(dragon::component_id::ID_MENUBAR, "&Hello...\tCtrl+H",
-			"Help string shown in status bar for this menu item");
-		menuFile->AppendSeparator();
-		menuFile->Append(wxID_EXIT);
-		wxMenu* menuHelp = new wxMenu;
-		menuHelp->Append(wxID_ABOUT);
-		m_MenuBar->Append(menuFile, "&File");
-		m_MenuBar->Append(menuHelp, "&Help");
-		SetMenuBar(m_MenuBar);
 	}
 	void WindowFrame::initTreeCtrl()
 	{
