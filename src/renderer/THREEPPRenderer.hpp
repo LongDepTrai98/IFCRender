@@ -19,7 +19,6 @@ namespace dragon
 		void initScene(threepp::WindowSize& w_size); 
 		void validateContext(); 
 		void initController(); 
-		void enableMSAA(); 
 		void ctxRender();
 	//example 
 	private: 

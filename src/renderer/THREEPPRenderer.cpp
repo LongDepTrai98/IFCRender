@@ -99,9 +99,6 @@ namespace dragon
 		if (!m_OrbitControls)
 			m_OrbitControls = std::make_unique<threepp::OrbitControls>(*m_Camera, *this); 
 	}
-	void THREEPPRenderer::enableMSAA()
-	{
-	}
 	void THREEPPRenderer::ctxRender()
 	{
 		if (m_Renderer
@@ -148,7 +145,6 @@ namespace dragon
 	{
 		wxPoint pos = event.GetPosition();
 		threepp::Vector2 mousePos(static_cast<float>(pos.x), static_cast<float>(pos.y));
-		std::cout << "Mouse pos X: " << mousePos.x << "Mouse pos Y: " << mousePos.y << std::endl; 
 		onMouseMoveEvent(mousePos);
 	}
 	void THREEPPRenderer::OnMousePress(wxMouseEvent& event)

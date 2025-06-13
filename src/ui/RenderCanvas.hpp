@@ -1,8 +1,8 @@
 #ifndef _SCENE_VIEW_HPP_
 #define _SCENE_VIEW_HPP_
-#include <memory>
 #include "wxInclude.hpp"
 #include "threepp/canvas/WindowSize.hpp"
+#include <memory>
 namespace dragon
 {
 	class IRenderer;
@@ -13,7 +13,8 @@ namespace dragon
 		~RenderCanvas();
 	private: 
 		void initGLContext(); 
-		void initContextRenderer(); 
+		void initContextRenderer();
+		void initUI(); 
 		void bindFunction(); 
 	private: 
 		void OnSize(wxSizeEvent& event);
@@ -22,7 +23,12 @@ namespace dragon
 		void OnMousePress(wxMouseEvent& event);
 		void OnMouseRelease(wxMouseEvent& event);
 		void OnMouseWheel(wxMouseEvent& event);
+		void OnClickEnableMSAA(wxCommandEvent& command);
 		void OnInternalIdle() override;
+		/*RENDER*/
+	private:
+		void enableMultisampling();
+		void disableMultisampling();
 	public: 
 		void activeContext();
 		void deactiveContext();

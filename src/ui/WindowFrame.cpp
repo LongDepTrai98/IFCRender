@@ -55,13 +55,28 @@ namespace dragon
 	void WindowFrame::initScene()
 	{
 		wxGLAttributes dispAttrs;
-		dispAttrs.PlatformDefaults()
-			.Defaults()
-			.EndList();
+		if (m_bIsEnbleMSAA)
+		{
+			dispAttrs.PlatformDefaults()
+				.RGBA()
+				.DoubleBuffer()
+				.Depth(24)
+				.Defaults()
+				.SampleBuffers(1)
+				.Samplers(m_sampler)
+				.EndList();
+		}
+		else
+		{
+			dispAttrs.PlatformDefaults()
+				.Defaults()
+				.EndList();
+		}
 		if (!wxGLCanvas::IsDisplaySupported(dispAttrs))
 		{
 			throw std::exception("glCanvans not support display attribute"); 
 		}
+
 		if (!m_RenderCanvas)
 		{
 			m_RenderCanvas = std::make_unique<RenderCanvas>(this,

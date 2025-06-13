@@ -23,6 +23,9 @@ namespace dragon
 		wxMenuBar* m_MenuBar{ nullptr };
 		std::unique_ptr<RenderCanvas> m_RenderCanvas{ nullptr }; 
 		std::unique_ptr<wxAuiManager> m_UIManager{ nullptr };
+		//flag enable sampling 
+		bool m_bIsEnbleMSAA{ true }; 
+		int m_sampler{ 4 }; 
 	};
 }
 #endif // !_WINDOW_FRAME_HPP_

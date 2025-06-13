@@ -1,14 +1,18 @@
-#include "RenderCanvas.hpp"
 #include <iostream>
+#include <GL/glew.h>
+#include "RenderCanvas.hpp"
 #include "renderer/THREEPPRenderer.hpp"
 namespace dragon
 {
 	RenderCanvas::RenderCanvas(wxWindow* parent, const wxGLAttributes& canvasAttrs) : wxGLCanvas(parent,
 				canvasAttrs)
 	{
-		bindFunction(); 
+		/*INIT UI FOR RENDERER*/
+		initUI(); 
 		initGLContext(); 
 		initContextRenderer(); 
+		/*BIND FUNCTION*/
+		bindFunction();
 	}
 	RenderCanvas::~RenderCanvas()
 	{
@@ -16,7 +20,10 @@ namespace dragon
 	void RenderCanvas::initGLContext()
 	{
 		wxGLContextAttrs ctxAttrs;
-		ctxAttrs.PlatformDefaults().CoreProfile().OGLVersion(3, 3).EndList();
+		ctxAttrs.PlatformDefaults()
+			.CoreProfile()
+			.OGLVersion(3, 3)
+			.EndList();
 		if (!m_Context)
 			m_Context = std::make_unique<wxGLContext>(this, nullptr, &ctxAttrs);
 		if (!m_Context->IsOK())
@@ -29,6 +36,10 @@ namespace dragon
 		if (!m_Renderer)
 			m_Renderer = std::make_unique<THREEPPRenderer>(this);
 	}
+	void RenderCanvas::initUI()
+	{
+		auto button = new wxButton(this, wxID_ANY, "MSAA", wxPoint(10, 10), wxSize(150, 30));
+	}
 	void RenderCanvas::bindFunction()
 	{
 		Bind(wxEVT_PAINT, &RenderCanvas::OnPaint, this);
@@ -39,6 +50,8 @@ namespace dragon
 		Bind(wxEVT_LEFT_UP, &RenderCanvas::OnMouseRelease, this);
 		Bind(wxEVT_RIGHT_UP, &RenderCanvas::OnMouseRelease, this);
 		Bind(wxEVT_MOUSEWHEEL, &RenderCanvas::OnMouseWheel, this);
+		/*BUTTON*/
+		Bind(wxEVT_BUTTON, &RenderCanvas::OnClickEnableMSAA, this); 
 	}
 	void RenderCanvas::activeContext()
 	{
@@ -46,7 +59,7 @@ namespace dragon
 	}
 	void RenderCanvas::deactiveContext()
 	{
-		wglMakeCurrent(NULL, NULL);
+		wglMakeCurrent(nullptr, nullptr);
 	}
 	void RenderCanvas::swapBuff()
 	{
@@ -72,12 +85,14 @@ namespace dragon
 	{
 		wxPaintDC dc(this);
 		activeContext(); 
+		enableMultisampling(); 
 		if (m_Renderer)
 		{
 			m_Renderer->update(m_dtTime);
 			m_Renderer->render();
 		}
 		swapBuff(); 
+		disableMultisampling(); 
 		deactiveContext(); 
 	}
 	void RenderCanvas::OnMouseMove(wxMouseEvent& event)
@@ -104,9 +119,21 @@ namespace dragon
 			m_Renderer->OnMouseWheel(event); 
 		event.Skip(); 
 	}
+	void RenderCanvas::OnClickEnableMSAA(wxCommandEvent& command)
+	{
+		int a = 3; 
+	}
 	void RenderCanvas::OnInternalIdle()
 	{
 		wxWindow::OnInternalIdle();
 		Refresh(false);
+	}
+	void RenderCanvas::enableMultisampling()
+	{
+		glEnable(GL_MULTISAMPLE); 
+	}
+	void RenderCanvas::disableMultisampling()
+	{
+		glDisable(GL_MULTISAMPLE); 
 	}
 }
