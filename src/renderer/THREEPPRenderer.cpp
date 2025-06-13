@@ -59,11 +59,12 @@ namespace dragon
 	{
 		wxSize canvas_size = m_Canvas->getSize();
 		m_Canvas->activeContext(); 
-		//create windowsize 
+		//create windows size 
 		threepp::WindowSize window_size(canvas_size.x, canvas_size.y);
 		initRenderer(window_size);
 		initScene(window_size);
-		initCamera(window_size); 
+		initCamera(window_size);
+		initController(); 
 		createExampleScene();
 		m_Canvas->deactiveContext(); 
 	}
@@ -86,10 +87,20 @@ namespace dragon
 			m_Scene = std::make_unique<threepp::Scene>(); 
 		m_Scene->background = threepp::Color::aliceblue; 
 	}
+	void THREEPPRenderer::validateContext()
+	{
+		if (!wglGetCurrentContext())
+		{
+			throw std::exception("GL context null");
+		}
+	}
 	void THREEPPRenderer::initController()
 	{
 		if (!m_OrbitControls)
 			m_OrbitControls = std::make_unique<threepp::OrbitControls>(*m_Camera, *this); 
+	}
+	void THREEPPRenderer::enableMSAA()
+	{
 	}
 	void THREEPPRenderer::ctxRender()
 	{
@@ -98,7 +109,6 @@ namespace dragon
 			&& m_Camera)
 		{
 			m_Renderer->render(*m_Scene, *m_Camera); 
-
 		}
 	}
 	void THREEPPRenderer::createExampleScene()
@@ -129,9 +139,8 @@ namespace dragon
 	{
 		if (m_Canvas)
 		{
-			/*
-			* context render here 
-			*/
+			/*context render here */
+			validateContext(); 
 			ctxRender();
 		}
 	}
@@ -139,8 +148,8 @@ namespace dragon
 	{
 		wxPoint pos = event.GetPosition();
 		threepp::Vector2 mousePos(static_cast<float>(pos.x), static_cast<float>(pos.y));
+		std::cout << "Mouse pos X: " << mousePos.x << "Mouse pos Y: " << mousePos.y << std::endl; 
 		onMouseMoveEvent(mousePos);
-		event.Skip();
 	}
 	void THREEPPRenderer::OnMousePress(wxMouseEvent& event)
 	{
@@ -155,8 +164,6 @@ namespace dragon
 		}
 		threepp::Vector2 p{ pos.x, pos.y };
 		onMousePressedEvent(button, p, PeripheralsEventSource::MouseAction::PRESS);
-
-		event.Skip();
 	}
 	void THREEPPRenderer::OnMouseRelease(wxMouseEvent& event)
 	{
@@ -171,8 +178,6 @@ namespace dragon
 		}
 		threepp::Vector2 p{ pos.x, pos.y };
 		onMousePressedEvent(button, p, PeripheralsEventSource::MouseAction::RELEASE);
-
-		event.Skip();
 	}
 	void THREEPPRenderer::OnMouseWheel(wxMouseEvent& event)
 	{
@@ -180,10 +185,16 @@ namespace dragon
 		int xoffset = 0;
 		int yoffset = direction;
 		onMouseWheelEvent({ static_cast<float>(xoffset), static_cast<float>(yoffset) });
-		event.Skip();
 	}
 	threepp::WindowSize THREEPPRenderer::size() const
 	{
+		if (m_Canvas)
+		{
+			wxSize size = m_Canvas->getSize(); 
+			const int& width = size.x; 
+			const int& height = size.y; 
+			return threepp::WindowSize(width, height); 
+		}
 		return threepp::WindowSize();
 	}
 }
