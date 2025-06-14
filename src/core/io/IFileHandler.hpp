@@ -5,8 +5,8 @@ namespace dragon
 {
 	class FileHandler
 	{
-	public: 
-		virtual ~FileHandler() = default; 
+	public:
+		virtual ~FileHandler() = default;
 		virtual void open(const std::filesystem::path& file_path) = 0;
 	};
 }

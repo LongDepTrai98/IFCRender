@@ -63,6 +63,9 @@ source_group("renderer" FILES ${APP_RENDERER_SRC})
 #controller
 file(GLOB_RECURSE APP_CONTROLLER_SRC "src/controller/*.cpp" "src/controller/*.hpp")
 source_group("controller" FILES ${APP_CONTROLLER_SRC})
+#view port 
+file(GLOB_RECURSE APP_VIEWPORT_SRC "src/view/*.cpp" "src/view/*.hpp")
+source_group("view" FILES ${APP_VIEWPORT_SRC})
 
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
@@ -71,7 +74,8 @@ add_executable(${EDITOR_NAME_PROJECT}
 	${APP_CONFIG_SRC}
 	${APP_CORE_SRC}
 	${APP_RENDERER_SRC}
-	${APP_CONTROLLER_SRC})
+	${APP_CONTROLLER_SRC}
+    ${APP_VIEWPORT_SRC})
 
  #add include 
  target_include_directories(${EDITOR_NAME_PROJECT} 

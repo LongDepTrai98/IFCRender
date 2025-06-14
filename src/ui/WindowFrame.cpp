@@ -7,25 +7,25 @@ namespace dragon
 {
 	wxBEGIN_EVENT_TABLE(WindowFrame, wxFrame)
 		EVT_SIZE(WindowFrame::OnSize)
-	wxEND_EVENT_TABLE()
-	WindowFrame::WindowFrame() : wxFrame(nullptr,
-		wxID_ANY,
-		app_config::app_name)
+		wxEND_EVENT_TABLE()
+		WindowFrame::WindowFrame() : wxFrame(nullptr,
+			wxID_ANY,
+			app_config::app_name)
 	{
-		initUIManager(); 
-		initMenuBar(); 
-		initScene(); 
-		initTreeCtrl(); 
+		initUIManager();
+		initMenuBar();
+		initScene();
+		initTreeCtrl();
 	}
 	void WindowFrame::initUIManager()
 	{
-		m_UIManager = std::make_unique<wxAuiManager>(this); 
+		m_UIManager = std::make_unique<wxAuiManager>(this);
 	}
 	void WindowFrame::initMenuBar()
 	{
 		if (!m_AppMenuBar)
 		{
-			m_AppMenuBar = new AppMenubar(this); 
+			m_AppMenuBar = new AppMenubar(this);
 		}
 	}
 	void WindowFrame::initTreeCtrl()
@@ -41,39 +41,40 @@ namespace dragon
 		sizer->Add(tree, 1, wxEXPAND | wxALL, 5);
 		treePanel->SetSizer(sizer);
 		m_UIManager->AddPane(treePanel, panel_config::tree_ctrl_panel_info);
-		m_UIManager->Update(); 
+		m_UIManager->Update();
 	}
 	void WindowFrame::initScene()
 	{
 		wxGLAttributes dispAttrs;
-		if (m_bIsEnbleMSAA)
+		if (app_config::enable_msaa)
 		{
 			dispAttrs.PlatformDefaults()
 				.RGBA()
 				.DoubleBuffer()
 				.Depth(24)
-				.Defaults()
 				.SampleBuffers(1)
-				.Samplers(m_sampler)
+				.Samplers(app_config::num_sampler)
 				.EndList();
 		}
 		else
 		{
 			dispAttrs.PlatformDefaults()
-				.Defaults()
+				.RGBA()
+				.DoubleBuffer()
+				.Depth(24)
 				.EndList();
 		}
 		if (!wxGLCanvas::IsDisplaySupported(dispAttrs))
 		{
-			throw std::exception("glCanvans not support display attribute"); 
+			throw std::exception("glCanvans not support display attribute");
 		}
 
 		if (!m_RenderCanvas)
 		{
 			m_RenderCanvas = std::make_unique<RenderCanvas>(this,
-				dispAttrs); 
+				dispAttrs);
 			m_UIManager->AddPane(m_RenderCanvas.get(), panel_config::scene_view_panel_info);
-			m_UIManager->Update(); 
+			m_UIManager->Update();
 		}
 	}
 	void WindowFrame::OnHello(wxCommandEvent& event)
@@ -91,6 +92,6 @@ namespace dragon
 	}
 	void WindowFrame::OnSize(wxSizeEvent& event)
 	{
-		event.Skip(); 
+		event.Skip();
 	}
 }

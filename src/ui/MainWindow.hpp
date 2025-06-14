@@ -3,13 +3,13 @@
 #include "wxInclude.hpp"
 namespace dragon
 {
-	class WindowFrame; 
+	class WindowFrame;
 	class App : public wxApp
 	{
-	public: 
+	public:
 		bool OnInit() override;
-	private: 
-		WindowFrame* m_Frame{ nullptr }; 
+	private:
+		WindowFrame* m_Frame{ nullptr };
 	};
 }
 #endif // !_IFC_dragon_HPP_

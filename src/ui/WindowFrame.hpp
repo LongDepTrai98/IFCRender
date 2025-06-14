@@ -3,30 +3,27 @@
 #include "wxInclude.hpp"
 namespace dragon
 {
-	class AppMenubar; 
-	class RenderCanvas; 
+	class AppMenubar;
+	class RenderCanvas;
 	class WindowFrame : public wxFrame
 	{
-	public: 
-		WindowFrame(); 
-	private: 
-		void initUIManager(); 
+	public:
+		WindowFrame();
+	private:
+		void initUIManager();
 		void initMenuBar();
-		void initTreeCtrl(); 
-		void initScene(); 
+		void initTreeCtrl();
+		void initScene();
 		void OnHello(wxCommandEvent& event);
 		void OnExit(wxCommandEvent& event);
 		void OnAbout(wxCommandEvent& event);
-	private: 
+	private:
 		void OnSize(wxSizeEvent& event);
 		wxDECLARE_EVENT_TABLE();
-	private: 
-		AppMenubar*					  m_AppMenuBar{ nullptr };
-		std::unique_ptr<RenderCanvas> m_RenderCanvas{ nullptr }; 
+	private:
+		AppMenubar* m_AppMenuBar{ nullptr };
+		std::unique_ptr<RenderCanvas> m_RenderCanvas{ nullptr };
 		std::unique_ptr<wxAuiManager> m_UIManager{ nullptr };
-		//flag enable sampling 
-		bool m_bIsEnbleMSAA{ true }; 
-		int m_sampler{ 4 }; 
 	};
 }
 #endif // !_WINDOW_FRAME_HPP_

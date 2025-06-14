@@ -5,13 +5,13 @@ namespace dragon
 {
 	class IFCFileHandler : public FileHandler
 	{
-	public: 
-		IFCFileHandler(); 
-		~IFCFileHandler() override; 
-	public: 
+	public:
+		IFCFileHandler();
+		~IFCFileHandler() override;
+	public:
 		/*OVERRIDE METHOD*/
 		void open(const std::filesystem::path& file_path) override;
-	private: 
+	private:
 		/*PRIVATE PARAM*/
 	};
 }

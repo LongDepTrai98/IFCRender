@@ -2,15 +2,17 @@
 #include <GL/glew.h>
 #include "RenderCanvas.hpp"
 #include "renderer/THREEPPRenderer.hpp"
+#include "view/ViewportGizmo.hpp"
+#include "core/IWindowEventHandler.hpp"
 namespace dragon
 {
 	RenderCanvas::RenderCanvas(wxWindow* parent, const wxGLAttributes& canvasAttrs) : wxGLCanvas(parent,
-				canvasAttrs)
+		canvasAttrs)
 	{
 		/*INIT UI FOR RENDERER*/
-		initUI(); 
-		initGLContext(); 
-		initContextRenderer(); 
+		initUI();
+		initGLContext();
+		initContextRenderer();
 		/*BIND FUNCTION*/
 		bindFunction();
 	}
@@ -51,7 +53,7 @@ namespace dragon
 		Bind(wxEVT_RIGHT_UP, &RenderCanvas::OnMouseRelease, this);
 		Bind(wxEVT_MOUSEWHEEL, &RenderCanvas::OnMouseWheel, this);
 		/*BUTTON*/
-		Bind(wxEVT_BUTTON, &RenderCanvas::OnClickEnableMSAA, this); 
+		Bind(wxEVT_BUTTON, &RenderCanvas::OnClickEnableMSAA, this);
 	}
 	void RenderCanvas::activeContext()
 	{
@@ -63,7 +65,7 @@ namespace dragon
 	}
 	void RenderCanvas::swapBuff()
 	{
-		SwapBuffers(); 
+		SwapBuffers();
 	}
 	wxSize RenderCanvas::getSize()
 	{
@@ -76,52 +78,56 @@ namespace dragon
 		if (m_Renderer)
 		{
 			m_Renderer->resize(viewPortSize.x,
-				viewPortSize.y); 
+				viewPortSize.y);
 		}
-		deactiveContext(); 
-		event.Skip(); 
+		deactiveContext();
+		event.Skip();
 	}
 	void RenderCanvas::OnPaint(wxPaintEvent& event)
 	{
 		wxPaintDC dc(this);
-		activeContext(); 
-		enableMultisampling(); 
+		activeContext();
+		enableMultisampling();
 		if (m_Renderer)
 		{
 			m_Renderer->update(m_dtTime);
 			m_Renderer->render();
 		}
-		swapBuff(); 
-		disableMultisampling(); 
-		deactiveContext(); 
+		swapBuff();
+		disableMultisampling();
+		deactiveContext();
 	}
 	void RenderCanvas::OnMouseMove(wxMouseEvent& event)
 	{
-		if (m_Renderer)
-			m_Renderer->OnMouseMove(event); 
+		WindowEventHandler* event_handler = dynamic_cast<WindowEventHandler*>(m_Renderer.get());
+		if (event_handler)
+			event_handler->OnMouseMove(event);
 		event.Skip();
 	}
 	void RenderCanvas::OnMousePress(wxMouseEvent& event)
 	{
-		if (m_Renderer)
-			m_Renderer->OnMousePress(event); 
-		event.Skip(); 
+		WindowEventHandler* event_handler = dynamic_cast<WindowEventHandler*>(m_Renderer.get());
+		if (event_handler)
+			event_handler->OnMousePress(event);
+		event.Skip();
 	}
 	void RenderCanvas::OnMouseRelease(wxMouseEvent& event)
 	{
-		if (m_Renderer)
-			m_Renderer->OnMouseRelease(event); 
-		event.Skip(); 
+		WindowEventHandler* event_handler = dynamic_cast<WindowEventHandler*>(m_Renderer.get());
+		if (event_handler)
+			event_handler->OnMouseRelease(event);
+		event.Skip();
 	}
 	void RenderCanvas::OnMouseWheel(wxMouseEvent& event)
 	{
-		if (m_Renderer)
-			m_Renderer->OnMouseWheel(event); 
-		event.Skip(); 
+		WindowEventHandler* event_handler = dynamic_cast<WindowEventHandler*>(m_Renderer.get());
+		if (event_handler)
+			event_handler->OnMouseWheel(event);
+		event.Skip();
 	}
 	void RenderCanvas::OnClickEnableMSAA(wxCommandEvent& command)
 	{
-		int a = 3; 
+		int a = 3;
 	}
 	void RenderCanvas::OnInternalIdle()
 	{
@@ -130,10 +136,10 @@ namespace dragon
 	}
 	void RenderCanvas::enableMultisampling()
 	{
-		glEnable(GL_MULTISAMPLE); 
+		glEnable(GL_MULTISAMPLE);
 	}
 	void RenderCanvas::disableMultisampling()
 	{
-		glDisable(GL_MULTISAMPLE); 
+		glDisable(GL_MULTISAMPLE);
 	}
 }

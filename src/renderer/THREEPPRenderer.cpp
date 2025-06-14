@@ -3,73 +3,73 @@
 #include "threepp/threepp.hpp"
 /*
 * THREEPP CONTEXT RENDERER
-* BACKEND RENDERER IS OPENGL + THREEPP 
+* BACKEND RENDERER IS OPENGL + THREEPP
 */
 namespace dragon
 {
 	namespace example
 	{
-	using namespace threepp; 
-	auto createBox() {
+		using namespace threepp;
+		auto createBox() {
+			const auto boxGeometry = BoxGeometry::create();
+			const auto boxMaterial = MeshBasicMaterial::create();
+			boxMaterial->color.setRGB(1, 0, 0);
+			boxMaterial->transparent = true;
+			boxMaterial->opacity = 0.1f;
+			auto box = Mesh::create(boxGeometry, boxMaterial);
 
-		const auto boxGeometry = BoxGeometry::create();
-		const auto boxMaterial = MeshBasicMaterial::create();
-		boxMaterial->color.setRGB(1, 0, 0);
-		boxMaterial->transparent = true;
-		boxMaterial->opacity = 0.1f;
-		auto box = Mesh::create(boxGeometry, boxMaterial);
+			auto wiredBox = LineSegments::create(WireframeGeometry::create(*boxGeometry));
+			wiredBox->material()->as<LineBasicMaterial>()->depthTest = false;
+			wiredBox->material()->as<LineBasicMaterial>()->color = Color::gray;
+			box->add(wiredBox);
 
-		auto wiredBox = LineSegments::create(WireframeGeometry::create(*boxGeometry));
-		wiredBox->material()->as<LineBasicMaterial>()->depthTest = false;
-		wiredBox->material()->as<LineBasicMaterial>()->color = Color::gray;
-		box->add(wiredBox);
+			return box;
+		}
 
-		return box;
+		auto createSphere() {
+			const auto sphereGeometry = SphereGeometry::create(0.5f);
+			const auto sphereMaterial = MeshBasicMaterial::create();
+			sphereMaterial->color.setHex(0x00ff00);
+			sphereMaterial->wireframe = true;
+			auto sphere = Mesh::create(sphereGeometry, sphereMaterial);
+			sphere->position.setX(-1);
+
+			return sphere;
+		}
+
+		auto createPlane() {
+			const auto planeGeometry = PlaneGeometry::create(5, 5);
+			const auto planeMaterial = MeshBasicMaterial::create();
+			planeMaterial->color.setHex(Color::yellow);
+			planeMaterial->transparent = true;
+			planeMaterial->opacity = 0.5f;
+			planeMaterial->side = Side::Double;
+			auto plane = Mesh::create(planeGeometry, planeMaterial);
+			plane->position.setZ(-2);
+
+			return plane;
+		}
 	}
-
-	auto createSphere() {
-
-		const auto sphereGeometry = SphereGeometry::create(0.5f);
-		const auto sphereMaterial = MeshBasicMaterial::create();
-		sphereMaterial->color.setHex(0x00ff00);
-		sphereMaterial->wireframe = true;
-		auto sphere = Mesh::create(sphereGeometry, sphereMaterial);
-		sphere->position.setX(-1);
-
-		return sphere;
-	}
-
-	auto createPlane() {
-
-		const auto planeGeometry = PlaneGeometry::create(5, 5);
-		const auto planeMaterial = MeshBasicMaterial::create();
-		planeMaterial->color.setHex(Color::yellow);
-		planeMaterial->transparent = true;
-		planeMaterial->opacity = 0.5f;
-		planeMaterial->side = Side::Double;
-		auto plane = Mesh::create(planeGeometry, planeMaterial);
-		plane->position.setZ(-2);
-
-		return plane;
-	}
-	}
-
 
 	THREEPPRenderer::THREEPPRenderer(RenderCanvas* canvas) : IRenderer(canvas)
 	{
 		wxSize canvas_size = m_Canvas->getSize();
-		m_Canvas->activeContext(); 
-		//create windows size 
+		m_Canvas->activeContext();
+		//create windows size
 		threepp::WindowSize window_size(canvas_size.x, canvas_size.y);
 		initRenderer(window_size);
 		initScene(window_size);
 		initCamera(window_size);
-		initController(); 
+		initController();
 		createExampleScene();
-		m_Canvas->deactiveContext(); 
+		m_Canvas->deactiveContext();
 	}
 	THREEPPRenderer::~THREEPPRenderer()
 	{
+	}
+	threepp::GLRenderer* THREEPPRenderer::getRenderer()
+	{
+		return m_Renderer.get();
 	}
 	void THREEPPRenderer::initRenderer(threepp::WindowSize& w_size)
 	{
@@ -84,8 +84,8 @@ namespace dragon
 	void THREEPPRenderer::initScene(threepp::WindowSize& w_size)
 	{
 		if (!m_Scene)
-			m_Scene = std::make_unique<threepp::Scene>(); 
-		m_Scene->background = threepp::Color::aliceblue; 
+			m_Scene = std::make_unique<threepp::Scene>();
+		m_Scene->background = threepp::Color::aliceblue;
 	}
 	void THREEPPRenderer::validateContext()
 	{
@@ -97,7 +97,7 @@ namespace dragon
 	void THREEPPRenderer::initController()
 	{
 		if (!m_OrbitControls)
-			m_OrbitControls = std::make_unique<threepp::OrbitControls>(*m_Camera, *this); 
+			m_OrbitControls = std::make_unique<threepp::OrbitControls>(*m_Camera, *this);
 	}
 	void THREEPPRenderer::ctxRender()
 	{
@@ -105,7 +105,7 @@ namespace dragon
 			&& m_Scene
 			&& m_Camera)
 		{
-			m_Renderer->render(*m_Scene, *m_Camera); 
+			m_Renderer->render(*m_Scene, *m_Camera);
 		}
 	}
 	void THREEPPRenderer::createExampleScene()
@@ -121,12 +121,12 @@ namespace dragon
 	}
 	void THREEPPRenderer::resize(const int& width, const int& height)
 	{
-		threepp::WindowSize window_size(width,height);
+		threepp::WindowSize window_size(width, height);
 		if (m_Camera)
 		{
-			m_Camera->aspect = window_size.aspect(); 
-			m_Camera->updateProjectionMatrix(); 
-			m_Renderer->setSize(window_size); 
+			m_Camera->aspect = window_size.aspect();
+			m_Camera->updateProjectionMatrix();
+			m_Renderer->setSize(window_size);
 		}
 	}
 	void THREEPPRenderer::update(const float& dtTime)
@@ -137,7 +137,7 @@ namespace dragon
 		if (m_Canvas)
 		{
 			/*context render here */
-			validateContext(); 
+			validateContext();
 			ctxRender();
 		}
 	}
@@ -186,10 +186,10 @@ namespace dragon
 	{
 		if (m_Canvas)
 		{
-			wxSize size = m_Canvas->getSize(); 
-			const int& width = size.x; 
-			const int& height = size.y; 
-			return threepp::WindowSize(width, height); 
+			wxSize size = m_Canvas->getSize();
+			const int& width = size.x;
+			const int& height = size.y;
+			return threepp::WindowSize(width, height);
 		}
 		return threepp::WindowSize();
 	}

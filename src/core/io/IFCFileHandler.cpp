@@ -1,6 +1,6 @@
 #include "IFCFileHandler.hpp"
 
-namespace dragon 
+namespace dragon
 {
 	IFCFileHandler::IFCFileHandler()
 	{

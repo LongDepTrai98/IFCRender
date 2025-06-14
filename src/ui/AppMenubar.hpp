@@ -5,10 +5,10 @@ namespace dragon
 {
 	class AppMenubar : public wxMenuBar
 	{
-	public: 
+	public:
 		AppMenubar(wxFrame* main_window);
-	private: 
-		wxWindow* m_Window{ nullptr }; 
+	private:
+		wxWindow* m_Window{ nullptr };
 	};
 }
 #endif // !_APP_MENUBAR_HPP_
