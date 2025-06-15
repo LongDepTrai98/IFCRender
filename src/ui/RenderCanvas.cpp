@@ -106,7 +106,6 @@ namespace dragon
 	}
 	void RenderCanvas::OnMousePress(wxMouseEvent& event)
 	{
-		this->CaptureMouse();
 		WindowEventHandler* event_handler = dynamic_cast<WindowEventHandler*>(m_Renderer.get());
 		if (event_handler)
 			event_handler->OnMousePress(event);
@@ -118,7 +117,6 @@ namespace dragon
 		if (event_handler)
 			event_handler->OnMouseRelease(event);
 		event.Skip();
-		if (this->HasCapture()) this->ReleaseMouse();
 	}
 	void RenderCanvas::OnMouseWheel(wxMouseEvent& event)
 	{
