@@ -9,11 +9,9 @@ namespace dragon
 	public:
 		IRenderer(RenderCanvas* canvas) : m_Canvas(canvas) {};
 		virtual ~IRenderer() {};
-	public:
-		/*EVENT RENDER*/
-		virtual void resize(const int& width, const int& height) = 0;
+		//public:
+		//	/*EVENT RENDER*/
 		virtual void update(const float& dtTime) = 0;
-		virtual void render() = 0;
 	protected:
 		RenderCanvas* m_Canvas{ nullptr };
 	};

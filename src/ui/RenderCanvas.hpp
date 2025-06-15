@@ -40,11 +40,10 @@ namespace dragon
 		std::unique_ptr<wxGLContext> m_Context{ nullptr };
 		/* MAIN SCENE*/
 		std::unique_ptr<IRenderer> m_Renderer{ nullptr };
-		/*GIZMO SCENE*/
-		std::unique_ptr<ViewPortGizmo> m_ViewPortGizmo{ nullptr };
 		//min size
 		wxSize m_MinSize{ 640, 480 };
 		float  m_dtTime{ 0.0 };
+		wxGLAttributes m_DispAttrs{};
 	};
 }
 #endif // !_SCENE_VIEW_HPP_

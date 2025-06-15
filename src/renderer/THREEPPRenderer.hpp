@@ -2,14 +2,14 @@
 #define _CONTEXT_RENDERER_HPP_
 #include "core/IRenderer.hpp"
 #include "core/IWindowEventHandler.hpp"
-#include "SceneContext.hpp"
+#include "threepp/threepp.hpp"
 namespace dragon
 {
 	/*
 	* THREEPP BACKEND RENDERER
 	*/
+	class ViewPort;
 	class THREEPPRenderer : public IRenderer,
-		public SceneContext,
 		public WindowEventHandler,
 		public threepp::PeripheralsEventSource
 	{
@@ -20,6 +20,7 @@ namespace dragon
 		threepp::GLRenderer* getRenderer();
 	private:
 		void initRenderer(threepp::WindowSize& w_size);
+		void initViewPort();
 		void initCamera(threepp::WindowSize& w_size);
 		void initScene(threepp::WindowSize& w_size);
 		void validateContext();
@@ -27,11 +28,10 @@ namespace dragon
 		void ctxRender();
 		//example
 	private:
-		void createExampleScene();
 	public:
-		virtual void resize(const int& width, const int& height) override;
+		void render(); 
+		void resize(const int& width, const int& height);
 		virtual void update(const float& dtTime) override;
-		virtual void render() override;
 		//event
 		void OnMouseMove(wxMouseEvent& event) override;
 		void OnMousePress(wxMouseEvent& event) override;
@@ -40,10 +40,11 @@ namespace dragon
 		//threepp
 		threepp::WindowSize size() const override;
 	protected:
-		//Renderer
 		std::unique_ptr<threepp::GLRenderer> m_Renderer{ nullptr };
 		/*CONTROLLER*/
 		std::unique_ptr<threepp::OrbitControls> m_OrbitControls{ nullptr };
+		/*LST VIEWPORT*/
+		std::vector<std::unique_ptr<ViewPort>> m_lstViewPort{};
 	};
 }
 #endif // !_CONTEXT_RENDERER_HPP_

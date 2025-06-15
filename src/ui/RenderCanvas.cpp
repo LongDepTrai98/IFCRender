@@ -10,7 +10,7 @@ namespace dragon
 		canvasAttrs)
 	{
 		/*INIT UI FOR RENDERER*/
-		initUI();
+		//initUI();
 		initGLContext();
 		initContextRenderer();
 		/*BIND FUNCTION*/
@@ -77,7 +77,7 @@ namespace dragon
 		auto viewPortSize = event.GetSize() * GetContentScaleFactor();
 		if (m_Renderer)
 		{
-			m_Renderer->resize(viewPortSize.x,
+			dynamic_cast<THREEPPRenderer*>(m_Renderer.get())->resize(viewPortSize.x,
 				viewPortSize.y);
 		}
 		deactiveContext();
@@ -91,7 +91,7 @@ namespace dragon
 		if (m_Renderer)
 		{
 			m_Renderer->update(m_dtTime);
-			m_Renderer->render();
+			dynamic_cast<THREEPPRenderer*>(m_Renderer.get())->render();
 		}
 		swapBuff();
 		disableMultisampling();
@@ -106,6 +106,7 @@ namespace dragon
 	}
 	void RenderCanvas::OnMousePress(wxMouseEvent& event)
 	{
+		this->CaptureMouse();
 		WindowEventHandler* event_handler = dynamic_cast<WindowEventHandler*>(m_Renderer.get());
 		if (event_handler)
 			event_handler->OnMousePress(event);
@@ -113,6 +114,7 @@ namespace dragon
 	}
 	void RenderCanvas::OnMouseRelease(wxMouseEvent& event)
 	{
+		if (this->HasCapture()) this->ReleaseMouse();
 		WindowEventHandler* event_handler = dynamic_cast<WindowEventHandler*>(m_Renderer.get());
 		if (event_handler)
 			event_handler->OnMouseRelease(event);
@@ -127,7 +129,6 @@ namespace dragon
 	}
 	void RenderCanvas::OnClickEnableMSAA(wxCommandEvent& command)
 	{
-		int a = 3;
 	}
 	void RenderCanvas::OnInternalIdle()
 	{

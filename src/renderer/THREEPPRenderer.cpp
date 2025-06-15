@@ -1,56 +1,14 @@
 #include "THREEPPRenderer.hpp"
 #include "ui/RenderCanvas.hpp"
 #include "threepp/threepp.hpp"
+#include "view/MainViewPort.hpp"
+#include "view/ViewportGizmo.hpp"
 /*
 * THREEPP CONTEXT RENDERER
 * BACKEND RENDERER IS OPENGL + THREEPP
 */
 namespace dragon
 {
-	namespace example
-	{
-		using namespace threepp;
-		auto createBox() {
-			const auto boxGeometry = BoxGeometry::create();
-			const auto boxMaterial = MeshBasicMaterial::create();
-			boxMaterial->color.setRGB(1, 0, 0);
-			boxMaterial->transparent = true;
-			boxMaterial->opacity = 0.1f;
-			auto box = Mesh::create(boxGeometry, boxMaterial);
-
-			auto wiredBox = LineSegments::create(WireframeGeometry::create(*boxGeometry));
-			wiredBox->material()->as<LineBasicMaterial>()->depthTest = false;
-			wiredBox->material()->as<LineBasicMaterial>()->color = Color::gray;
-			box->add(wiredBox);
-
-			return box;
-		}
-
-		auto createSphere() {
-			const auto sphereGeometry = SphereGeometry::create(0.5f);
-			const auto sphereMaterial = MeshBasicMaterial::create();
-			sphereMaterial->color.setHex(0x00ff00);
-			sphereMaterial->wireframe = true;
-			auto sphere = Mesh::create(sphereGeometry, sphereMaterial);
-			sphere->position.setX(-1);
-
-			return sphere;
-		}
-
-		auto createPlane() {
-			const auto planeGeometry = PlaneGeometry::create(5, 5);
-			const auto planeMaterial = MeshBasicMaterial::create();
-			planeMaterial->color.setHex(Color::yellow);
-			planeMaterial->transparent = true;
-			planeMaterial->opacity = 0.5f;
-			planeMaterial->side = Side::Double;
-			auto plane = Mesh::create(planeGeometry, planeMaterial);
-			plane->position.setZ(-2);
-
-			return plane;
-		}
-	}
-
 	THREEPPRenderer::THREEPPRenderer(RenderCanvas* canvas) : IRenderer(canvas)
 	{
 		wxSize canvas_size = m_Canvas->getSize();
@@ -58,10 +16,9 @@ namespace dragon
 		//create windows size
 		threepp::WindowSize window_size(canvas_size.x, canvas_size.y);
 		initRenderer(window_size);
-		initScene(window_size);
-		initCamera(window_size);
+		initViewPort(); 
 		initController();
-		createExampleScene();
+		m_OrbitControls->update();
 		m_Canvas->deactiveContext();
 	}
 	THREEPPRenderer::~THREEPPRenderer()
@@ -75,17 +32,16 @@ namespace dragon
 	{
 		if (!m_Renderer)
 			m_Renderer = std::make_unique<threepp::GLRenderer>(w_size);
+		m_Renderer->autoClear = false;
 	}
-	void THREEPPRenderer::initCamera(threepp::WindowSize& w_size)
+	void THREEPPRenderer::initViewPort()
 	{
-		if (!m_Camera)
-			m_Camera = std::make_unique<threepp::PerspectiveCamera>(75, w_size.aspect());
-	}
-	void THREEPPRenderer::initScene(threepp::WindowSize& w_size)
-	{
-		if (!m_Scene)
-			m_Scene = std::make_unique<threepp::Scene>();
-		m_Scene->background = threepp::Color::aliceblue;
+		m_lstViewPort.push_back(std::make_unique<MainViewPort>(m_Canvas)); 
+		m_lstViewPort.push_back(std::make_unique<ViewPortGizmo>(m_Canvas)); 
+		for (auto& view_port : m_lstViewPort)
+		{
+			view_port->initRenderer(m_Renderer.get()); 
+		}
 	}
 	void THREEPPRenderer::validateContext()
 	{
@@ -97,36 +53,33 @@ namespace dragon
 	void THREEPPRenderer::initController()
 	{
 		if (!m_OrbitControls)
-			m_OrbitControls = std::make_unique<threepp::OrbitControls>(*m_Camera, *this);
+		{
+			ViewPort* main_viewport = m_lstViewPort[0].get(); 
+			if (main_viewport)
+			{
+				m_OrbitControls = std::make_unique<threepp::OrbitControls>(*main_viewport->getCamera(), *this);
+			}
+		}
 	}
 	void THREEPPRenderer::ctxRender()
 	{
-		if (m_Renderer
-			&& m_Scene
-			&& m_Camera)
+		m_Renderer->clear();
+		for (auto& viewport : m_lstViewPort)
 		{
-			m_Renderer->render(*m_Scene, *m_Camera);
+			viewport->render(m_Renderer.get()); 
 		}
-	}
-	void THREEPPRenderer::createExampleScene()
-	{
-		m_Camera->position.z = 5;
-		auto box = example::createBox();
-		m_Scene->add(box);
-		auto sphere = example::createSphere();
-		box->add(sphere);
-		auto plane = example::createPlane();
-		auto planeMaterial = plane->material()->as<threepp::MeshBasicMaterial>();
-		m_Scene->add(plane);
+
 	}
 	void THREEPPRenderer::resize(const int& width, const int& height)
 	{
 		threepp::WindowSize window_size(width, height);
-		if (m_Camera)
+		for (auto& viewport : m_lstViewPort)
 		{
-			m_Camera->aspect = window_size.aspect();
-			m_Camera->updateProjectionMatrix();
-			m_Renderer->setSize(window_size);
+			viewport->resize(width, height); 
+		}
+		if (m_Renderer)
+		{
+			m_Renderer->setSize(window_size); 
 		}
 	}
 	void THREEPPRenderer::update(const float& dtTime)
