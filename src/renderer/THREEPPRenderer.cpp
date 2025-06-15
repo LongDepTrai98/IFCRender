@@ -64,6 +64,12 @@ namespace dragon
 	void THREEPPRenderer::ctxRender()
 	{
 		m_Renderer->clear();
+
+		auto q = m_lstViewPort[0]->getCamera()->quaternion; 
+		auto axes = m_lstViewPort[1]->getScene()->children[0]; 
+
+		axes->quaternion.copy(q.invert());
+		
 		for (auto& viewport : m_lstViewPort)
 		{
 			viewport->render(m_Renderer.get()); 

@@ -6,32 +6,21 @@ namespace dragon
 	namespace example
 	{
 		using namespace threepp;
-		auto createBox2() {
-			const auto boxGeometry = BoxGeometry::create();
-			const auto boxMaterial = MeshBasicMaterial::create();
-			boxMaterial->color.setRGB(1, 0, 0);
-			boxMaterial->transparent = true;
-			boxMaterial->opacity = 0.1f;
-			auto box = Mesh::create(boxGeometry, boxMaterial);
-
-			auto wiredBox = LineSegments::create(WireframeGeometry::create(*boxGeometry));
-			wiredBox->material()->as<LineBasicMaterial>()->depthTest = false;
-			wiredBox->material()->as<LineBasicMaterial>()->color = Color::gray;
-			box->add(wiredBox);
-
-			return box;
+		auto createAxes() {
+			const auto axes = AxesHelper::create(2.0f);
+			axes->material()->depthTest = false; 
+			return axes; 
 		}
 	}
 	ViewPortGizmo::ViewPortGizmo(RenderCanvas* canvas) : IRenderer(canvas)
 	{
 		m_Canvas->activeContext();
-		m_Viewport_Size = { 50,50 }; 
+		m_Viewport_Size = { 100,100 }; 
 		wxSize canvas_size = canvas->getSize();
 		initCamera(m_Viewport_Size);
 		initScene(m_Viewport_Size);
 		m_Camera->position.z = 5;
-		auto box = example::createBox2();
-		m_Scene->add(box);
+		m_Scene->add(example::createAxes()); 
 		m_Canvas->deactiveContext();
 	}
 	ViewPortGizmo::~ViewPortGizmo()
