@@ -6,8 +6,8 @@ namespace dragon
 		m_Window(main_window)
 	{
 		wxMenu* menuFile = new wxMenu;
-		menuFile->Append(component_id::ID_MENUBAR, "&Hello...\tCtrl+H",
-			"Help string shown in status bar for this menu item");
+		menuFile->Append(wxID_OPEN, "&Open",
+			"Open File");
 		menuFile->AppendSeparator();
 		menuFile->Append(wxID_EXIT);
 		wxMenu* menuHelp = new wxMenu;

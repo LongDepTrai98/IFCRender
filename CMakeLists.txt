@@ -41,8 +41,8 @@ set(IFCPP_INCLUDE_DIRS
 set(PROJECT_NAME Dragon)
 set(EDITOR_NAME_PROJECT App)
 #set path 
-set(WX_INCLUDE_PATH "D:\\Code\\IFCRender\\3rdparty\\wxWidgets-3.3.0\\include")
-set(WX_LIB_PATH "D:\\Code\\IFCRender\\3rdparty\\wxWidgets-3.3.0\\lib\\vc_x64_lib")
+set(WX_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.0/include)
+set(WX_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.0/lib/vc_x64_lib/)
 set(IFCPLUSPLUS_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/ifcplusplus-build/IfcPlusPlus)
 project(${PROJECT_NAME})
 #find_package(wxWidgets CONFIG REQUIRED)
@@ -51,6 +51,9 @@ find_package(glew CONFIG REQUIRED)
 #ui
 file(GLOB_RECURSE UI_SRC "src/ui/*.cpp" "src/ui/*.hpp")
 source_group("ui" FILES ${UI_SRC})
+#app commands 
+file(GLOB_RECURSE UI_COMMANDS_SRC "src/commands/*.cpp" "src/commands/*.hpp")
+source_group("commands" FILES ${UI_COMMANDS_SRC})
 #config
 file(GLOB_RECURSE APP_CONFIG_SRC "src/config/*.cpp" "src/config/*.hpp")
 source_group("config" FILES ${APP_CONFIG_SRC})
@@ -71,6 +74,7 @@ add_executable(${EDITOR_NAME_PROJECT}
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/wxInclude.hpp
 	${UI_SRC}
+    ${UI_COMMANDS_SRC}
 	${APP_CONFIG_SRC}
 	${APP_CORE_SRC}
 	${APP_RENDERER_SRC}
