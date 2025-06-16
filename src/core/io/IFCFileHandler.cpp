@@ -10,5 +10,6 @@ namespace dragon
 	}
 	void IFCFileHandler::open(const std::filesystem::path& file_path)
 	{
+		int a = 3; 
 	}
 }

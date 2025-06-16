@@ -3,6 +3,7 @@
 #include "RenderCanvas.hpp"
 #include "config/app_config.hpp"
 #include "config/pannel_config.hpp"
+#include "commands/AppCommandsHandler.hpp"
 namespace dragon
 {
 	wxBEGIN_EVENT_TABLE(WindowFrame, wxFrame)
@@ -13,6 +14,7 @@ namespace dragon
 			app_config::app_name)
 	{
 		initUIManager();
+		initCommand(); 
 		initMenuBar();
 		initScene();
 		initTreeCtrl();
@@ -76,6 +78,13 @@ namespace dragon
 			m_UIManager->AddPane(m_RenderCanvas.get(), panel_config::scene_view_panel_info);
 			m_UIManager->Update();
 		}
+	}
+	void WindowFrame::initCommand()
+	{
+		if (!m_CommandHandler)
+			m_CommandHandler = std::make_unique<AppCommandHandler>(this); 
+		/*BIND COMMAND*/
+		Bind(wxEVT_MENU, &AppCommandHandler::OnOpenFile, m_CommandHandler.get(), wxID_OPEN);
 	}
 	void WindowFrame::OnHello(wxCommandEvent& event)
 	{

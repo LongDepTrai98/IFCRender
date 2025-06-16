@@ -1,9 +1,18 @@
 #include "FileHandlerFactory.hpp"
 #include "IFCFileHandler.hpp"
+#include "core/utils/StringHelper.hpp"
 namespace dragon
 {
-	std::unique_ptr<FileHandler> FileHandlerFactory::createFileHandler(const std::filesystem::path& file)
+	std::unique_ptr<FileHandler> FileHandlerFactory::create(const std::filesystem::path& file)
 	{
-		return std::unique_ptr<FileHandler>();
+		if (!std::filesystem::exists(file)) return nullptr; 
+		if (!std::filesystem::is_regular_file(file)) return nullptr; 
+		auto path_extension = file.extension(); 
+		if(StringHelper::tolower(path_extension.string()) == ".ifc")
+		{
+			/*CREATE IFC HANDLER*/
+			return std::make_unique<IFCFileHandler>(); 
+		}
+		return nullptr;
 	}
 }

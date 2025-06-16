@@ -8,7 +8,7 @@ namespace dragon
 	class FileHandlerFactory
 	{
 	public: 
-		static std::unique_ptr<FileHandler> createFileHandler(const std::filesystem::path& file); 
+		static std::unique_ptr<FileHandler> create(const std::filesystem::path& file); 
 	private: 
 		FileHandlerFactory();
 	};

@@ -5,6 +5,7 @@ namespace dragon
 {
 	class AppMenubar;
 	class RenderCanvas;
+	class AppCommandHandler;
 	class WindowFrame : public wxFrame
 	{
 	public:
@@ -14,6 +15,7 @@ namespace dragon
 		void initMenuBar();
 		void initTreeCtrl();
 		void initScene();
+		void initCommand(); 
 		void OnHello(wxCommandEvent& event);
 		void OnExit(wxCommandEvent& event);
 		void OnAbout(wxCommandEvent& event);
@@ -24,6 +26,7 @@ namespace dragon
 		AppMenubar* m_AppMenuBar{ nullptr };
 		std::unique_ptr<RenderCanvas> m_RenderCanvas{ nullptr };
 		std::unique_ptr<wxAuiManager> m_UIManager{ nullptr };
+		std::unique_ptr<AppCommandHandler> m_CommandHandler{ nullptr };
 	};
 }
 #endif // !_WINDOW_FRAME_HPP_
