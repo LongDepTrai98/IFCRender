@@ -94,11 +94,6 @@ PRIVATE GLEW::glew
 PRIVATE threepp::threepp
 $<$<CONFIG:Debug>:IfcPlusPlusd.lib>
 $<$<CONFIG:Release>:IfcPlusPlus.lib>)
-
-#TARGET_LINK_LIBRARIES(${EDITOR_NAME_PROJECT}
-    #optimized IfcPlusPlus
-    #debug IfcPlusPlusd)
-
 #directories lib
 target_link_directories(${EDITOR_NAME_PROJECT}
 PRIVATE ${WX_LIB_PATH}

@@ -25,7 +25,7 @@ namespace dragon
 	void IFCFileHandler::open(const std::filesystem::path& file_path)
 	{
 		shared_ptr<BuildingModel> ifc_model(new BuildingModel());
-		///*MessageHandler mh;*/
+		//MessageHandler mh;
 
 		//shared_ptr<ReaderSTEP> step_reader(new ReaderSTEP());
 		//step_reader->setMessageCallBack(std::bind(&MessageHandler::slotMessageWrapper, &mh, std::placeholders::_1));
