@@ -1,4 +1,5 @@
 #include "IFCFileHandler.hpp"
+#include "IFCMessageHandler.hpp"
 #include <unordered_set>
 #include <ifcpp/IFC4X3/include/IfcBuildingStorey.h>
 #include <ifcpp/IFC4X3/include/IfcGloballyUniqueId.h>
@@ -25,9 +26,9 @@ namespace dragon
 	void IFCFileHandler::open(const std::filesystem::path& file_path)
 	{
 		shared_ptr<BuildingModel> ifc_model(new BuildingModel());
-		//MessageHandler mh;
-
-		//shared_ptr<ReaderSTEP> step_reader(new ReaderSTEP());
-		//step_reader->setMessageCallBack(std::bind(&MessageHandler::slotMessageWrapper, &mh, std::placeholders::_1));
+		IFCMessageHandler mh;
+		shared_ptr<ReaderSTEP> step_reader(new ReaderSTEP());
+		step_reader->setMessageCallBack(std::bind(&IFCMessageHandler::slotMessageWrapper, &mh, std::placeholders::_1));
+		int a = 3; 
 	}
 }
