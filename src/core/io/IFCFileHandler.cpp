@@ -1,5 +1,6 @@
 #include "IFCFileHandler.hpp"
 #include "IFCMessageHandler.hpp"
+#include "core/convert/IFCEntityConvert.hpp"
 #include <unordered_set>
 #include <ifcpp/IFC4X3/include/IfcBuildingStorey.h>
 #include <ifcpp/IFC4X3/include/IfcGloballyUniqueId.h>
@@ -12,7 +13,6 @@
 #include <ifcpp/model/BuildingModel.h>
 #include <ifcpp/reader/ReaderSTEP.h>
 #include <ifcpp/geometry/GeometryConverter.h>
-
 
 
 namespace dragon
@@ -36,6 +36,17 @@ namespace dragon
 		/*CONVERT MODEL TO GEOMETRY*/
 		m_GeometrySettings = std::make_shared<GeometrySettings>(); 
 		m_GeometryConverter = std::make_shared<GeometryConverter>(ifc_model, m_GeometrySettings);
+		/*adjust epsilon for boolean operations*/
+		m_GeometryConverter->setCsgEps(m_Eps); 
+#ifdef _DEBUG
+		GeomDebugDump::clearMeshsetDump();
+#endif
+		std::cout << "Converting IFC geometry: ";
+		m_GeometryConverter->convertGeometry();
+		/*CONVERT ENTITY TO SCENE*/
+		IFCConverter converter{};
+		converter.convert(nullptr, m_GeometryConverter);
+
 	}
 	std::shared_ptr<GeometryConverter>& IFCFileHandler::getGeometryConverter()
 	{

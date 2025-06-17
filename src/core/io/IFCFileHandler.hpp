@@ -18,6 +18,7 @@ namespace dragon
 		/*PRIVATE PARAM*/
 		std::shared_ptr<GeometryConverter> m_GeometryConverter{ nullptr };
 		std::shared_ptr<GeometrySettings> m_GeometrySettings{ nullptr }; 
+		double m_Eps{ 1.5e-9 }; 
 	};
 }
 #endif // !_IFC_FILE_HANDLER_HPP_
