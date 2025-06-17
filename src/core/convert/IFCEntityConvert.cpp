@@ -52,7 +52,9 @@ namespace dragon
 			std::vector<carve::mesh::Vertex<3> >& vertexData = meshset->vertex_storage;
 			for (auto mesh : meshset->meshes)
 			{
-				std::vector<uint32_t> indices = createIndicesFromMesh(mesh); 
+				std::vector<uint32_t> indices;
+				std::vector<carve::mesh::Vertex<3>*> lstVertex;
+				createIndicesAndVertexFromMesh(mesh, indices, lstVertex);
 				/*std::map<carve::mesh::Vertex<3>*,>
 				size_t face_size = mesh->faces.size();
 				std::cout << face_size << std::endl;*/
@@ -79,7 +81,9 @@ namespace dragon
 			std::vector<carve::mesh::Vertex<3> >& vertexData = meshset->vertex_storage;
 			for (auto mesh : meshset->meshes)
 			{
-				std::vector<uint32_t> indices = createIndicesFromMesh(mesh);
+				std::vector<uint32_t> indices; 
+				std::vector<carve::mesh::Vertex<3>*> lstVertex; 
+				createIndicesAndVertexFromMesh(mesh,indices,lstVertex);
 
 				/*size_t face_size = mesh->faces.size(); 
 				std::cout << face_size << std::endl;*/ 
@@ -123,30 +127,33 @@ namespace dragon
 			resolveShapeData(child_object);
 		}
 	}
-	std::vector<uint32_t> IFCConverter::createIndicesFromMesh(carve::mesh::Mesh<3>* mesh)
+	void IFCConverter::createIndicesAndVertexFromMesh(carve::mesh::Mesh<3>* mesh,
+		std::vector<uint32_t>& indices,
+		std::vector<carve::mesh::Vertex<3>*>& lstVertex)
 	{
 		size_t face_size = mesh->faces.size();
-		std::vector<uint32_t> indices; 
-		int index = -1; 
 		std::map<carve::mesh::Vertex<3>*,int> vertex_map;
 		for (auto face : mesh->faces)
 		{
 			carve::mesh::Edge<3>* edge = face->edge;
 			edge = edge->next;
 			size_t edge_size = face->n_edges;
-			auto* start = face->edge;
-			auto* current = start;
+			auto* start_edge = face->edge;
+			auto* current_edge = start_edge;
 			do {
-				if (vertex_map.count(current->vert) == 0)
+				if (vertex_map.count(current_edge->vert) == 0)
 				{
-					auto& v = current->vert->v;
-					vertex_map.insert({ current->vert,++index });
+					lstVertex.push_back(current_edge->vert);
+					uint32_t vertex_idx = lstVertex.size() - 1; 
+					vertex_map.insert({ current_edge->vert,vertex_idx});
 				}
 				/*PUSHBACK INDEX*/
-				indices.push_back(vertex_map[current->vert]);
-				current = current->next;
-			} while (current != start);
+				indices.push_back(vertex_map[current_edge->vert]);
+				current_edge = current_edge->next;
+			} while (current_edge != start_edge);
 		}
-		return indices; 
+		if (indices.size() % 3 != 0) {
+			throw std::exception("Warning: Indices count not divisible by 3 (may not form complete triangles)"); 
+		}
 	}
 }
