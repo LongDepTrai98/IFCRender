@@ -52,7 +52,11 @@ namespace dragon
 			std::vector<carve::mesh::Vertex<3> >& vertexData = meshset->vertex_storage;
 			for (auto mesh : meshset->meshes)
 			{
-				for (auto face : mesh->faces)
+				std::vector<uint32_t> indices = createIndicesFromMesh(mesh); 
+				/*std::map<carve::mesh::Vertex<3>*,>
+				size_t face_size = mesh->faces.size();
+				std::cout << face_size << std::endl;*/
+				/*for (auto face : mesh->faces)
 				{
 					carve::mesh::Edge<3>* edge = face->edge;
 					for (size_t ii = 0; ii < face->n_edges; ++ii)
@@ -65,7 +69,7 @@ namespace dragon
 						double z = pointGlobal.z;
 						std::cout << "point in mesh: (" << x << "/" << y << "/" << z << ")" << std::endl;
 					}
-				}
+				}*/
 			}
 		}
 
@@ -75,7 +79,11 @@ namespace dragon
 			std::vector<carve::mesh::Vertex<3> >& vertexData = meshset->vertex_storage;
 			for (auto mesh : meshset->meshes)
 			{
-				for (auto face : mesh->faces)
+				std::vector<uint32_t> indices = createIndicesFromMesh(mesh);
+
+				/*size_t face_size = mesh->faces.size(); 
+				std::cout << face_size << std::endl;*/ 
+				/*for (auto face : mesh->faces)
 				{
 					carve::mesh::Edge<3>* edge = face->edge;
 					for (size_t ii = 0; ii < face->n_edges; ++ii)
@@ -88,7 +96,7 @@ namespace dragon
 						double z = pointGlobal.z;
 						std::cout << "point in mesh: (" << x << "/" << y << "/" << z << ")" << std::endl;
 					}
-				}
+				}*/
 			}
 		}
 
@@ -114,5 +122,31 @@ namespace dragon
 			// child elements in case of IfcBuildingStorey, IfcElementAssembly etc.
 			resolveShapeData(child_object);
 		}
+	}
+	std::vector<uint32_t> IFCConverter::createIndicesFromMesh(carve::mesh::Mesh<3>* mesh)
+	{
+		size_t face_size = mesh->faces.size();
+		std::vector<uint32_t> indices; 
+		int index = -1; 
+		std::map<carve::mesh::Vertex<3>*,int> vertex_map;
+		for (auto face : mesh->faces)
+		{
+			carve::mesh::Edge<3>* edge = face->edge;
+			edge = edge->next;
+			size_t edge_size = face->n_edges;
+			auto* start = face->edge;
+			auto* current = start;
+			do {
+				if (vertex_map.count(current->vert) == 0)
+				{
+					auto& v = current->vert->v;
+					vertex_map.insert({ current->vert,++index });
+				}
+				/*PUSHBACK INDEX*/
+				indices.push_back(vertex_map[current->vert]);
+				current = current->next;
+			} while (current != start);
+		}
+		return indices; 
 	}
 }

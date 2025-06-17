@@ -17,6 +17,7 @@ namespace dragon
 				wxMessageBox("Read file error"); 
 				return; 
 			}
+			file->setViewport(m_ParentWindow); 
 			file->open({ path.ToStdString() }); 
 		}
 	}
