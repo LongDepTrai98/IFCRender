@@ -147,7 +147,7 @@ namespace dragon
 				{
 					carve::geom::vector<3> pointLocal = vertex->v;
 					carve::geom::vector<3> pointGlobal = localTransform * pointLocal;
-					lstVertex.push_back(pointLocal);
+					lstVertex.push_back(pointGlobal);
 					uint32_t vertex_idx = lstVertex.size() - 1; 
 					vertex_map.insert({ current_edge->vert,vertex_idx});
 				}
