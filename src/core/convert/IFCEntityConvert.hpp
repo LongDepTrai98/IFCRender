@@ -19,7 +19,7 @@ namespace dragon
 		void convert(threepp::Scene* scene, const std::shared_ptr<GeometryConverter>& ifcConverter);
 		void resolveGeometricItems(std::shared_ptr<ItemShapeData>& geometricItem, carve::math::Matrix& localTransform); 
 		void resolveShapeData(shared_ptr<ProductShapeData>& shapeData); 
-		void createIndicesAndVertexFromMesh(carve::mesh::Mesh<3>* mesh, std::vector<uint32_t>& indices, std::vector<carve::mesh::Vertex<3>*>& lstVertex);
+		void createIndicesAndVertexFromMesh(carve::mesh::Mesh<3>* mesh, carve::math::Matrix& localTransform, std::vector<uint32_t>& indices, std::vector<carve::geom::vector<3>>& lstVertex);
 	}; 
 }
 #endif // !_IFC_ENTITY_CONVERT_TO_SCENE_OBJECT_HPP_

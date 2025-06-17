@@ -53,8 +53,8 @@ namespace dragon
 			for (auto mesh : meshset->meshes)
 			{
 				std::vector<uint32_t> indices;
-				std::vector<carve::mesh::Vertex<3>*> lstVertex;
-				createIndicesAndVertexFromMesh(mesh, indices, lstVertex);
+				std::vector<carve::geom::vector<3>> lstVertex;
+				createIndicesAndVertexFromMesh(mesh, localTransform, indices, lstVertex);
 				/*std::map<carve::mesh::Vertex<3>*,>
 				size_t face_size = mesh->faces.size();
 				std::cout << face_size << std::endl;*/
@@ -81,9 +81,9 @@ namespace dragon
 			std::vector<carve::mesh::Vertex<3> >& vertexData = meshset->vertex_storage;
 			for (auto mesh : meshset->meshes)
 			{
-				std::vector<uint32_t> indices; 
-				std::vector<carve::mesh::Vertex<3>*> lstVertex; 
-				createIndicesAndVertexFromMesh(mesh,indices,lstVertex);
+				std::vector<uint32_t> indices;
+				std::vector<carve::geom::vector<3>> lstVertex;
+				createIndicesAndVertexFromMesh(mesh,localTransform,indices,lstVertex);
 
 				/*size_t face_size = mesh->faces.size(); 
 				std::cout << face_size << std::endl;*/ 
@@ -128,8 +128,9 @@ namespace dragon
 		}
 	}
 	void IFCConverter::createIndicesAndVertexFromMesh(carve::mesh::Mesh<3>* mesh,
+		carve::math::Matrix& localTransform,
 		std::vector<uint32_t>& indices,
-		std::vector<carve::mesh::Vertex<3>*>& lstVertex)
+		std::vector<carve::geom::vector<3>>& lstVertex)
 	{
 		size_t face_size = mesh->faces.size();
 		std::map<carve::mesh::Vertex<3>*,int> vertex_map;
@@ -141,9 +142,12 @@ namespace dragon
 			auto* start_edge = face->edge;
 			auto* current_edge = start_edge;
 			do {
-				if (vertex_map.count(current_edge->vert) == 0)
+				carve::mesh::Vertex<3>* vertex = current_edge->vert;
+				if (vertex_map.count(vertex) == 0)
 				{
-					lstVertex.push_back(current_edge->vert);
+					carve::geom::vector<3> pointLocal = vertex->v;
+					carve::geom::vector<3> pointGlobal = localTransform * pointLocal;
+					lstVertex.push_back(pointLocal);
 					uint32_t vertex_idx = lstVertex.size() - 1; 
 					vertex_map.insert({ current_edge->vert,vertex_idx});
 				}
