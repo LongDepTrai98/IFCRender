@@ -2,6 +2,7 @@
 #define _IFC_FILE_HANDLER_HPP_
 #include "core/io/IFileHandler.hpp"
 class GeometryConverter;
+class GeometrySettings; 
 namespace dragon
 {
 	class IFCFileHandler : public FileHandler
@@ -12,9 +13,11 @@ namespace dragon
 	public:
 		/*OVERRIDE METHOD*/
 		void open(const std::filesystem::path& file_path) override;
+		std::shared_ptr<GeometryConverter>& getGeometryConverter(); 
 	private:
 		/*PRIVATE PARAM*/
-		std::shared_ptr<GeometryConverter> m_GeoConvert{ nullptr };
+		std::shared_ptr<GeometryConverter> m_GeometryConverter{ nullptr };
+		std::shared_ptr<GeometrySettings> m_GeometrySettings{ nullptr }; 
 	};
 }
 #endif // !_IFC_FILE_HANDLER_HPP_

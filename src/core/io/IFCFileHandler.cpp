@@ -26,9 +26,19 @@ namespace dragon
 	void IFCFileHandler::open(const std::filesystem::path& file_path)
 	{
 		shared_ptr<BuildingModel> ifc_model(new BuildingModel());
+		/*CALLBACK MESSAGE HANDLER*/
 		IFCMessageHandler mh;
+		/*CRATE READER STEP*/
 		shared_ptr<ReaderSTEP> step_reader(new ReaderSTEP());
 		step_reader->setMessageCallBack(std::bind(&IFCMessageHandler::slotMessageWrapper, &mh, std::placeholders::_1));
-		int a = 3; 
+		/*LOAD MODEL*/
+		step_reader->loadModelFromFile(file_path.string(), ifc_model); 
+		/*CONVERT MODEL TO GEOMETRY*/
+		m_GeometrySettings = std::make_shared<GeometrySettings>(); 
+		m_GeometryConverter = std::make_shared<GeometryConverter>(ifc_model, m_GeometrySettings);
+	}
+	std::shared_ptr<GeometryConverter>& IFCFileHandler::getGeometryConverter()
+	{
+		return m_GeometryConverter; 
 	}
 }
