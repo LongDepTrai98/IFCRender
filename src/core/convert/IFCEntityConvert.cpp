@@ -12,6 +12,17 @@
 #include <ifcpp/model/BuildingModel.h>
 #include <ifcpp/reader/ReaderSTEP.h>
 #include <ifcpp/geometry/GeometryConverter.h>
+#include <ifcpp/model/BasicTypes.h>
+#include <ifcpp/model/StatusCallback.h>
+#include <ifcpp/IFC4X3/EntityFactory.h>
+#include <ifcpp/IFC4X3/include/IfcCurtainWall.h>
+#include <ifcpp/IFC4X3/include/IfcFeatureElementSubtraction.h>
+#include <ifcpp/IFC4X3/include/IfcOpeningElement.h>
+#include <ifcpp/IFC4X3/include/IfcPropertySetDefinitionSet.h>
+#include <ifcpp/IFC4X3/include/IfcSpace.h>
+#include <ifcpp/IFC4X3/include/IfcWindow.h>
+#include <ifcpp/geometry/GeometrySettings.h>
+#include <ifcpp/geometry/MeshOps.h>
 
 namespace dragon
 {
