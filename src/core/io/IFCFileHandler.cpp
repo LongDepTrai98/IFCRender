@@ -43,6 +43,7 @@ namespace dragon
 		/*CONVERT MODEL TO GEOMETRY*/
 		m_GeometrySettings = std::make_shared<GeometrySettings>(); 
 		m_GeometryConverter = std::make_shared<GeometryConverter>(ifc_model, m_GeometrySettings);
+		m_GeometryConverter->setCsgEps(1.5e-08); 
 		/*adjust epsilon for boolean operations*/
 		//m_GeometryConverter->setCsgEps(m_Eps); 
 #ifdef _DEBUG
@@ -70,8 +71,12 @@ namespace dragon
 						auto viewport_scene = m_viewport->getScene(); 
 						auto camera = m_viewport->getCamera(); 
 						viewport_scene->clear();
+						group->rotation.x = -threepp::math::PI / 2;
 						viewport_scene->add(group); 
-						camera->lookAt(group->position);
+						threepp::Box3 box{}; 
+						box.setFromObject(*group);
+						auto center = box.getCenter(); 
+						camera->lookAt(center);
 						m_viewport->addLight(); 
 					}
 				}

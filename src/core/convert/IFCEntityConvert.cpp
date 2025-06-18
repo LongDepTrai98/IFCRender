@@ -210,10 +210,6 @@ namespace dragon
 			} 
 			while (current_edge != start_edge);
 		}
-		if (indices.size() % 3 != 0)
-		{
-			//throw std::exception("Warning: Indices count not divisible by 3 (may not form complete triangles)");
-		}
 		geometry->setIndex(indices); 
 		geometry->setAttribute("position", threepp::FloatBufferAttribute::create(vertices, 3)); 
 		geometry->setAttribute("normal", threepp::FloatBufferAttribute::create(normals, 3));
