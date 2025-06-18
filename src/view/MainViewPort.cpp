@@ -3,6 +3,11 @@
 #include "ui/RenderCanvas.hpp"
 namespace dragon
 {
+	static void createAndAddLights(threepp::Scene& scene) {
+		auto light1 = threepp::AmbientLight::create(0xffffff, 1.f);
+		scene.add(light1);
+	}
+
 	namespace example
 	{
 		using namespace threepp;
@@ -52,6 +57,7 @@ namespace dragon
 		m_Viewport_Size = { canvas_size.x, canvas_size.y }; 
 		initScene(m_Viewport_Size);
 		initCamera(m_Viewport_Size);
+		createAndAddLights(*m_Scene); 
 		createExampleScene(); 
 	}
 	MainViewPort::~MainViewPort()
@@ -60,13 +66,13 @@ namespace dragon
 	void MainViewPort::createExampleScene()
 	{
 		m_Camera->position.z = 5;
-		auto box = example::createBox();
-		m_Scene->add(box);
-		auto sphere = example::createSphere();
-		box->add(sphere);
-		auto plane = example::createPlane();
-		auto planeMaterial = plane->material()->as<threepp::MeshBasicMaterial>();
-		m_Scene->add(plane);
+		//auto box = example::createBox();
+		//m_Scene->add(box);
+		//auto sphere = example::createSphere();
+		//box->add(sphere);
+		//auto plane = example::createPlane();
+		//auto planeMaterial = plane->material()->as<threepp::MeshBasicMaterial>();
+		//m_Scene->add(plane);
 	}
 	void MainViewPort::initCamera(threepp::WindowSize& w_size)
 	{

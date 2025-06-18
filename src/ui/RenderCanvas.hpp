@@ -35,6 +35,7 @@ namespace dragon
 		void deactiveContext();
 		void swapBuff();
 		wxSize getSize();
+		IRenderer* getRenderer(); 
 	private:
 		//main context
 		std::unique_ptr<wxGLContext> m_Context{ nullptr };

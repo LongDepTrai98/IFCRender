@@ -1,5 +1,12 @@
 #include "IFCFileHandler.hpp"
 #include "IFCMessageHandler.hpp"
+
+
+#include "ui/WindowFrame.hpp"
+#include "ui/RenderCanvas.hpp"
+#include "renderer/THREEPPRenderer.hpp"
+#include "view/MainViewPort.hpp"
+
 #include "core/convert/IFCEntityConvert.hpp"
 #include <unordered_set>
 #include <ifcpp/IFC4X3/include/IfcBuildingStorey.h>
@@ -46,6 +53,27 @@ namespace dragon
 		/*CONVERT ENTITY TO SCENE*/
 		IFCConverter converter{};
 		std::shared_ptr<threepp::Group> group =  converter.convert(m_GeometryConverter);
+		if (m_Window)
+		{
+			/*GET MAIN VIEWPORT*/
+			WindowFrame* window_frame = dynamic_cast<WindowFrame*>(m_Window); 
+			if (window_frame)
+			{
+				IRenderer* renderer = window_frame->getRenderCanvas()->getRenderer(); 
+				/*CONVERT TO THREEPP*/
+				THREEPPRenderer* three_renderer = dynamic_cast<THREEPPRenderer*>(renderer); 
+				if (three_renderer)
+				{
+					MainViewPort* m_viewport = dynamic_cast<MainViewPort*>(three_renderer->getMainViewPort());
+					if (m_viewport)
+					{
+						auto viewport_scene = m_viewport->getScene(); 
+						//viewport_scene->clear();
+						viewport_scene->add(group); 
+					}
+				}
+			}
+		}
 
 	}
 	std::shared_ptr<GeometryConverter>& IFCFileHandler::getGeometryConverter()

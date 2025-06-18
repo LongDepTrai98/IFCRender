@@ -10,6 +10,8 @@ namespace dragon
 	{
 	public:
 		WindowFrame();
+	public: 
+		RenderCanvas* getRenderCanvas(); 
 	private:
 		void initUIManager();
 		void initMenuBar();

@@ -18,6 +18,7 @@ namespace dragon
 		virtual ~THREEPPRenderer();
 	public:
 		threepp::GLRenderer* getRenderer();
+		ViewPort* getMainViewPort(); 
 	private:
 		void initRenderer(threepp::WindowSize& w_size);
 		void initViewPort();

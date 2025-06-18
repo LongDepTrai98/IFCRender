@@ -62,7 +62,18 @@ namespace dragon
 				/*CREATE MESH HERE*/
 				std::shared_ptr<threepp::BufferGeometry> buffer_mesh =  createBufferGeometryFromCarveMesh(mesh); 
 				/*MATERIAL FOR MESH*/
-				auto material = threepp::MeshBasicMaterial::create();
+				auto material = threepp::MeshPhongMaterial::create();
+				auto lst_style = geometricItem->getStyles(); 
+				for (auto style : lst_style)
+				{
+					auto color_ambient = style->m_color_ambient;
+					auto color_diffuse = style->m_color_diffuse;
+					auto color_specular = style->m_color_specular;
+					material->color = threepp::Color(color_diffuse.r, color_diffuse.g, color_diffuse.b); 
+					material->specular = threepp::Color(color_specular.r, color_specular.g, color_specular.b);
+					material->shininess = style->m_shininess; 
+					material->transparent = style->m_transparency; 
+				}
 				std::shared_ptr<threepp::Mesh> threepp_mesh = threepp::Mesh::create(buffer_mesh, material); 
 				group->add(threepp_mesh); 
 			}
@@ -75,7 +86,18 @@ namespace dragon
 				/*CREATE MESH HERE*/
 				std::shared_ptr<threepp::BufferGeometry> buffer_mesh = createBufferGeometryFromCarveMesh(mesh);
 				/*MATERIAL FOR MESH*/
-				auto material = threepp::MeshBasicMaterial::create();
+				auto material = threepp::MeshPhongMaterial::create();
+				auto lst_style = geometricItem->getStyles();
+				for (auto style : lst_style)
+				{
+					auto color_ambient = style->m_color_ambient;
+					auto color_diffuse = style->m_color_diffuse;
+					auto color_specular = style->m_color_specular;
+					material->color = threepp::Color(color_diffuse.r, color_diffuse.g, color_diffuse.b);
+					material->specular = threepp::Color(color_specular.r, color_specular.g, color_specular.b);
+					material->shininess = style->m_shininess;
+					material->transparent = style->m_transparency;
+				}
 				std::shared_ptr<threepp::Mesh> threepp_mesh = threepp::Mesh::create(buffer_mesh, material);
 				group->add(threepp_mesh);
 			}
@@ -87,7 +109,8 @@ namespace dragon
 		}
 		return group; 
 	}
-	void IFCConverter::resolveShapeData(shared_ptr<ProductShapeData>& shapeData, std::shared_ptr<threepp::Group>& container)
+	void IFCConverter::resolveShapeData(shared_ptr<ProductShapeData>& shapeData,
+		std::shared_ptr<threepp::Group>& container)
 	{
 		//shape container 
 		std::shared_ptr<threepp::Group> shape_container = threepp::Group::create();
@@ -189,7 +212,7 @@ namespace dragon
 		}
 		if (indices.size() % 3 != 0)
 		{
-			throw std::exception("Warning: Indices count not divisible by 3 (may not form complete triangles)");
+			//throw std::exception("Warning: Indices count not divisible by 3 (may not form complete triangles)");
 		}
 		geometry->setIndex(indices); 
 		geometry->setAttribute("position", threepp::FloatBufferAttribute::create(vertices, 3)); 

@@ -19,6 +19,10 @@ namespace dragon
 		initScene();
 		initTreeCtrl();
 	}
+	RenderCanvas* WindowFrame::getRenderCanvas()
+	{
+		return m_RenderCanvas.get(); 
+	}
 	void WindowFrame::initUIManager()
 	{
 		m_UIManager = std::make_unique<wxAuiManager>(this);

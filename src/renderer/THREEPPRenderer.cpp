@@ -28,6 +28,10 @@ namespace dragon
 	{
 		return m_Renderer.get();
 	}
+	ViewPort* THREEPPRenderer::getMainViewPort()
+	{
+		return m_lstViewPort[0].get(); 
+	}
 	void THREEPPRenderer::initRenderer(threepp::WindowSize& w_size)
 	{
 		if (!m_Renderer)

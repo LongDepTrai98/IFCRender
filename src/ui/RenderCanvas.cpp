@@ -71,6 +71,10 @@ namespace dragon
 	{
 		return GetSize() * GetContentScaleFactor();
 	}
+	IRenderer* RenderCanvas::getRenderer()
+	{
+		return m_Renderer.get(); 
+	}
 	void RenderCanvas::OnSize(wxSizeEvent& event)
 	{
 		activeContext();
