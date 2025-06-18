@@ -70,8 +70,8 @@ source_group("controller" FILES ${APP_CONTROLLER_SRC})
 file(GLOB_RECURSE APP_VIEWPORT_SRC "src/view/*.cpp" "src/view/*.hpp")
 source_group("view" FILES ${APP_VIEWPORT_SRC})
 #geometry 
-file(GLOB_RECURSE GEOMETRY_SRC "src/geometry/*.cpp" "src/geometry/*.hpp")
-source_group("geometry" FILES ${GEOMETRY_SRC})
+file(GLOB_RECURSE LOADER_SRC "src/loader/*.cpp" "src/loader/*.hpp")
+source_group("loader" FILES ${LOADER_SRC})
 
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
@@ -83,7 +83,7 @@ add_executable(${EDITOR_NAME_PROJECT}
 	${APP_RENDERER_SRC}
 	${APP_CONTROLLER_SRC}
     ${APP_VIEWPORT_SRC}
-    ${GEOMETRY_SRC}
+    ${LOADER_SRC}
 )
 
  #add include 

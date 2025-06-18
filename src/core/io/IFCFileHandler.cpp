@@ -45,7 +45,7 @@ namespace dragon
 		m_GeometryConverter->convertGeometry();
 		/*CONVERT ENTITY TO SCENE*/
 		IFCConverter converter{};
-		converter.convert(nullptr, m_GeometryConverter);
+		std::shared_ptr<threepp::Group> group =  converter.convert(m_GeometryConverter);
 
 	}
 	std::shared_ptr<GeometryConverter>& IFCFileHandler::getGeometryConverter()

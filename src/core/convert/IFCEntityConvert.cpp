@@ -18,8 +18,10 @@ namespace dragon
 	IFCConverter::IFCConverter()
 	{
 	}
-	void IFCConverter::convert(threepp::Scene* scene, const std::shared_ptr<GeometryConverter>& geometryConverter)
+	std::shared_ptr<threepp::Group> IFCConverter::convert(const std::shared_ptr<GeometryConverter>& geometryConverter)
 	{
+		/*CREAT GROUP TO STORE ENTITY*/
+		std::shared_ptr<threepp::Group> container = threepp::Group::create(); 
 		std::unordered_map<std::string, std::shared_ptr<ProductShapeData>>& map_entities = geometryConverter->getShapeInputData();
 		shared_ptr<ProductShapeData> shapeDataIfcProject;
 		for (auto& it : map_entities)
@@ -41,10 +43,11 @@ namespace dragon
 		}
 		if (shapeDataIfcProject)
 		{
-			resolveShapeData(shapeDataIfcProject);
+			resolveShapeData(shapeDataIfcProject, container);
 		}
+		return container; 
 	}
-	void IFCConverter::resolveGeometricItems(std::shared_ptr<ItemShapeData>& geometricItem, carve::math::Matrix& localTransform)
+	std::shared_ptr<threepp::Group> IFCConverter::resolveGeometricItems(std::shared_ptr<ItemShapeData>& geometricItem, carve::math::Matrix& localTransform)
 	{
 		// closed meshes
 		for (auto meshset : geometricItem->m_meshsets)
@@ -55,26 +58,8 @@ namespace dragon
 				std::vector<uint32_t> indices;
 				std::vector<carve::geom::vector<3>> lstVertex;
 				createIndicesAndVertexFromMesh(mesh, localTransform, indices, lstVertex);
-				/*std::map<carve::mesh::Vertex<3>*,>
-				size_t face_size = mesh->faces.size();
-				std::cout << face_size << std::endl;*/
-				/*for (auto face : mesh->faces)
-				{
-					carve::mesh::Edge<3>* edge = face->edge;
-					for (size_t ii = 0; ii < face->n_edges; ++ii)
-					{
-						carve::mesh::Vertex<3>* vertex = edge->vert;
-						carve::geom::vector<3> pointLocal = vertex->v;
-						carve::geom::vector<3> pointGlobal = localTransform * pointLocal;
-						double x = pointGlobal.x;
-						double y = pointGlobal.y;
-						double z = pointGlobal.z;
-						std::cout << "point in mesh: (" << x << "/" << y << "/" << z << ")" << std::endl;
-					}
-				}*/
 			}
 		}
-
 		// open meshes
 		for (auto meshset : geometricItem->m_meshsets_open)
 		{
@@ -84,36 +69,23 @@ namespace dragon
 				std::vector<uint32_t> indices;
 				std::vector<carve::geom::vector<3>> lstVertex;
 				createIndicesAndVertexFromMesh(mesh,localTransform,indices,lstVertex);
-
-				/*size_t face_size = mesh->faces.size(); 
-				std::cout << face_size << std::endl;*/ 
-				/*for (auto face : mesh->faces)
-				{
-					carve::mesh::Edge<3>* edge = face->edge;
-					for (size_t ii = 0; ii < face->n_edges; ++ii)
-					{
-						carve::mesh::Vertex<3>* vertex = edge->vert;
-						carve::geom::vector<3> pointLocal = vertex->v;
-						carve::geom::vector<3> pointGlobal = localTransform * pointLocal;
-						double x = pointGlobal.x;
-						double y = pointGlobal.y;
-						double z = pointGlobal.z;
-						std::cout << "point in mesh: (" << x << "/" << y << "/" << z << ")" << std::endl;
-					}
-				}*/
 			}
 		}
-
 		// traverse geometry
 		for (auto childItem : geometricItem->m_child_items)
 		{
 			resolveGeometricItems(childItem, localTransform);
 		}
+		return nullptr; 
 	}
-	void IFCConverter::resolveShapeData(shared_ptr<ProductShapeData>& shapeData)
+	void IFCConverter::resolveShapeData(shared_ptr<ProductShapeData>& shapeData, std::shared_ptr<threepp::Group>& container)
 	{
+		//shape container 
+		std::shared_ptr<threepp::Group> shape_container = threepp::Group::create(); 
 		carve::math::Matrix localTransform = shapeData->getTransform();
-
+		//apply localTransform cho group
+		threepp::Matrix4 threepp_local_transform_matrix = convertCarveMatrix2ThreeppMatrix(localTransform); 
+		shape_container->applyMatrix4(threepp_local_transform_matrix); 
 		// traverse geometry
 		for (auto geometricItem : shapeData->getGeometricItems())
 		{
@@ -124,7 +96,7 @@ namespace dragon
 		for (auto child_object : shapeData->getChildElements())
 		{
 			// child elements in case of IfcBuildingStorey, IfcElementAssembly etc.
-			resolveShapeData(child_object);
+			resolveShapeData(child_object, container);
 		}
 	}
 	void IFCConverter::createIndicesAndVertexFromMesh(carve::mesh::Mesh<3>* mesh,
@@ -159,5 +131,9 @@ namespace dragon
 		if (indices.size() % 3 != 0) {
 			throw std::exception("Warning: Indices count not divisible by 3 (may not form complete triangles)"); 
 		}
+	}
+	threepp::Matrix4 IFCConverter::convertCarveMatrix2ThreeppMatrix(const carve::math::Matrix& matrix)
+	{
+		return threepp::Matrix4();
 	}
 }
