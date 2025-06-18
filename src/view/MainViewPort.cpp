@@ -85,6 +85,10 @@ namespace dragon
 			m_Scene = std::make_unique<threepp::Scene>(); 
 		m_Scene->background = threepp::Color::aliceblue; 
 	}
+	void MainViewPort::addLight()
+	{
+		createAndAddLights(*m_Scene);
+	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{
 		m_Viewport_Size = { width,height }; 

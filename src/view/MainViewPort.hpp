@@ -13,6 +13,7 @@ namespace dragon
 	public:
 		void initCamera(threepp::WindowSize& w_size) override;
 		void initScene(threepp::WindowSize& w_size) override;
+		void addLight(); 
 	private: 
 		void createExampleScene();
 	public:

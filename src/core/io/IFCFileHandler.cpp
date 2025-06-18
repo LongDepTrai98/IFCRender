@@ -44,7 +44,7 @@ namespace dragon
 		m_GeometrySettings = std::make_shared<GeometrySettings>(); 
 		m_GeometryConverter = std::make_shared<GeometryConverter>(ifc_model, m_GeometrySettings);
 		/*adjust epsilon for boolean operations*/
-		m_GeometryConverter->setCsgEps(m_Eps); 
+		//m_GeometryConverter->setCsgEps(m_Eps); 
 #ifdef _DEBUG
 		GeomDebugDump::clearMeshsetDump();
 #endif
@@ -68,8 +68,11 @@ namespace dragon
 					if (m_viewport)
 					{
 						auto viewport_scene = m_viewport->getScene(); 
-						//viewport_scene->clear();
+						auto camera = m_viewport->getCamera(); 
+						viewport_scene->clear();
 						viewport_scene->add(group); 
+						camera->lookAt(group->position);
+						m_viewport->addLight(); 
 					}
 				}
 			}
