@@ -29,15 +29,20 @@ namespace dragon
 	IFCConverter::IFCConverter()
 	{
 	}
-	std::shared_ptr<threepp::Group> IFCConverter::convert(const std::shared_ptr<GeometryConverter>& geometryConverter)
+	std::shared_ptr<threepp::Group> IFCConverter::convert(const std::shared_ptr<GeometryConverter>& geometryConverter, 
+		const std::shared_ptr<GeometrySettings>& geometrySettings)
 	{
 		/*CREAT GROUP TO STORE ENTITY*/
 		std::shared_ptr<threepp::Group> container = threepp::Group::create(); 
-		std::unordered_map<std::string, std::shared_ptr<ProductShapeData>>& map_entities = geometryConverter->getShapeInputData();
+		std::unordered_map<std::string, std::shared_ptr<ProductShapeData>>& map_shape_data = geometryConverter->getShapeInputData();
 		shared_ptr<ProductShapeData> shapeDataIfcProject;
-		for (auto& it : map_entities)
+		for (auto& it : map_shape_data)
 		{
 			std::shared_ptr<ProductShapeData> shapeData = it.second;
+			if (!shapeData)
+			{
+				continue; 
+			}
 			if (shapeData->m_ifc_object_definition.expired())
 			{
 				continue;
@@ -54,10 +59,136 @@ namespace dragon
 		}
 		if (shapeDataIfcProject)
 		{
-			resolveShapeData(shapeDataIfcProject, container);
+			//resolveShapeData(shapeDataIfcProject, container);
+			convertProductShape(shapeDataIfcProject,container,1.0f);
 		}
 		return container; 
 	}
+	void IFCConverter::convertProductShape(const std::shared_ptr<ProductShapeData>& product_shape, std::shared_ptr<threepp::Group>& container, 
+		float transparencyOverride)
+	{
+		std::string product_id{ "" }; 
+		try
+		{
+			/*GET PARENT MATRIX*/
+			carve::math::Matrix localTransform = product_shape->getTransform();
+			threepp::Matrix4 threepp_local_transform_matrix = convertCarveMatrix2ThreeppMatrix(localTransform);
+			std::shared_ptr<threepp::Group> new_product_group = threepp::Group::create(); 
+			new_product_group->applyMatrix4(threepp_local_transform_matrix); 
+			container->add(new_product_group); 
+			product_id = product_shape->m_entity_guid;
+			new_product_group->name = product_id; 
+
+			product_shape->m_added_to_spatial_structure = true; 
+			std::string entityType{ "" }; 
+			if (product_shape->m_ifc_object_definition.expired())
+			{
+				return; 
+			}
+
+			std::shared_ptr<IfcObjectDefinition> ifc_object_def(product_shape->m_ifc_object_definition);
+			entityType = EntityFactory::getStringForClassID(ifc_object_def->classID());
+
+			std::shared_ptr<IfcProduct> ifc_product = dynamic_pointer_cast<IfcProduct>(ifc_object_def);
+			if (ifc_product)
+			{
+				// enable transparency for certain objects
+				if (dynamic_pointer_cast<IfcSpace>(ifc_product))
+				{
+					transparencyOverride = 0.1f;
+				}
+				else if (dynamic_pointer_cast<IfcCurtainWall>(ifc_product) || dynamic_pointer_cast<IfcWindow>(ifc_product))
+				{
+					transparencyOverride = 0.2f;
+				}
+				// check if parent building element is window
+				if (ifc_product->m_Decomposes_inverse.size() > 0)
+				{
+					for (size_t ii_decomposes = 0; ii_decomposes < ifc_product->m_Decomposes_inverse.size(); ++ii_decomposes)
+					{
+						const weak_ptr<IfcRelAggregates>& decomposes_weak = ifc_product->m_Decomposes_inverse[ii_decomposes];
+						if (decomposes_weak.expired())
+						{
+							continue;
+						}
+						shared_ptr<IfcRelAggregates> decomposes_ptr(decomposes_weak);
+						shared_ptr<IfcObjectDefinition>& relating_object = decomposes_ptr->m_RelatingObject;
+						if (relating_object)
+						{
+							if (dynamic_pointer_cast<IfcCurtainWall>(relating_object) || dynamic_pointer_cast<IfcWindow>(relating_object))
+							{
+								transparencyOverride = 0.6f;
+							}
+						}
+					}
+				}
+
+				for (size_t ii_representation = 0; ii_representation < product_shape->getGeometricItems().size(); ++ii_representation)
+				{
+					const shared_ptr<ItemShapeData>& geom_item = product_shape->getGeometricItems()[ii_representation];
+					//osg::ref_ptr<osg::Group> grp = product_transform.get();
+					//convertGeometricItem(geom_item, ifc_product, ii_representation, 0, grp, transparencyOverride);
+					convertGeometricItem(geom_item, ifc_product, ii_representation, 0, new_product_group, transparencyOverride); 
+				}
+			}
+			float transparencyOverrideChildElements = 0.0;
+			for (size_t i_item = 0; i_item < product_shape->getChildElements().size(); ++i_item)
+			{
+				const std::shared_ptr<ProductShapeData>& child = product_shape->getChildElements()[i_item];
+				convertProductShape(child, new_product_group, transparencyOverrideChildElements);
+			}
+
+
+
+		}
+		catch (BuildingException& e)
+		{
+			std::cerr << e.what() << std::endl; 
+		}
+		catch (carve::exception& e)
+		{
+			std::cerr << e.str() << std::endl; 
+		}
+		catch (std::exception& e)
+		{
+			std::cerr << e.what() << std::endl; 
+		}
+	}
+
+	void IFCConverter::convertGeometricItem(const std::shared_ptr<ItemShapeData>& item_data, const std::shared_ptr<IfcProduct>& ifc_product, size_t ii_representation, size_t ii_item, std::shared_ptr<threepp::Group>& parentNode, float transparencyOverride)
+	{
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	std::shared_ptr<threepp::Group> IFCConverter::resolveGeometricItems(std::shared_ptr<ItemShapeData>& geometricItem,
 		std::shared_ptr<threepp::Group>& container)
 	{
@@ -86,7 +217,7 @@ namespace dragon
 					material->transparent = style->m_transparency; 
 				}
 				std::shared_ptr<threepp::Mesh> threepp_mesh = threepp::Mesh::create(buffer_mesh, material); 
-				group->add(threepp_mesh); 
+				group->add(threepp_mesh);
 			}
 		}
 		// open meshes
