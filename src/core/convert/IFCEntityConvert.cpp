@@ -35,6 +35,7 @@ namespace dragon
 		/*CREAT GROUP TO STORE ENTITY*/
 		std::shared_ptr<threepp::Group> container = threepp::Group::create(); 
 		std::unordered_map<std::string, std::shared_ptr<ProductShapeData>>& map_shape_data = geometryConverter->getShapeInputData();
+		m_geomSettings = geometrySettings; 
 		shared_ptr<ProductShapeData> shapeDataIfcProject;
 		for (auto& it : map_shape_data)
 		{
@@ -155,8 +156,52 @@ namespace dragon
 		}
 	}
 
-	void IFCConverter::convertGeometricItem(const std::shared_ptr<ItemShapeData>& item_data, const std::shared_ptr<IfcProduct>& ifc_product, size_t ii_representation, size_t ii_item, std::shared_ptr<threepp::Group>& parentNode, float transparencyOverride)
+	void IFCConverter::convertGeometricItem(const std::shared_ptr<ItemShapeData>& item_data, 
+		const std::shared_ptr<IfcProduct>& ifc_product, 
+		size_t ii_representation, size_t ii_item,
+		std::shared_ptr<threepp::Group>& parentNode, 
+		float transparencyOverride)
 	{
+		bool includeChildProducts = false;
+		bool includeGeometricChildItems = false;
+		if (item_data->hasItemDataGeometricRepresentation(includeGeometricChildItems, true))
+		{
+
+			std::string product_guid;
+			std::shared_ptr<threepp::Mesh> meshGeo{ nullptr }; 
+			if (ifc_product->m_GlobalId)
+			{
+				product_guid = ifc_product->m_GlobalId->m_value;
+			}
+
+			std::string ifc_entity_type = EntityFactory::getStringForClassID(ifc_product->classID());
+
+			if (item_data->m_meshsets_open.size() > 0)
+			{
+				// disable back face culling for open meshes
+				convertMeshSets(item_data->m_meshsets_open, meshGeo, ii_item, true);
+			}
+
+			if (item_data->m_meshsets.size() > 0)
+			{
+				convertMeshSets(item_data->m_meshsets, meshGeo, ii_item, false);
+			}
+		}
+
+		for (size_t i_item = 0; i_item < item_data->m_child_items.size(); ++i_item)
+		{
+			const shared_ptr<ItemShapeData>& child = item_data->m_child_items[i_item];
+			convertGeometricItem(child, ifc_product, ii_representation, i_item, parentNode, transparencyOverride);
+		}
+
+	}
+
+	void IFCConverter::convertMeshSets(std::vector<shared_ptr<carve::mesh::MeshSet<3>>>& vecMeshSets, std::shared_ptr<threepp::Mesh>& geoMesh, size_t ii_item, bool disableBackfaceCulling)
+	{
+		double min_triangle_area = m_geomSettings->getMinTriangleArea();
+		double eps = m_geomSettings->getEpsilonMergePoints();
+		//double crease_angle = m_faces_crease_angle;
+		int a = 3; 
 	}
 
 
