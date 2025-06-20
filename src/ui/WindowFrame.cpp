@@ -51,6 +51,7 @@ namespace dragon
 	}
 	void WindowFrame::initScene()
 	{
+
 		wxGLAttributes dispAttrs;
 		if (app_config::enable_msaa)
 		{
@@ -60,6 +61,9 @@ namespace dragon
 				.Depth(24)
 				.SampleBuffers(1)
 				.Samplers(app_config::num_sampler)
+				.Stencil(8)
+				.FrameBuffersRGB()
+				.PlatformDefaults()
 				.EndList();
 		}
 		else
@@ -68,6 +72,9 @@ namespace dragon
 				.RGBA()
 				.DoubleBuffer()
 				.Depth(24)
+				.Stencil(8)
+				.FrameBuffersRGB()
+				.PlatformDefaults()
 				.EndList();
 		}
 		if (!wxGLCanvas::IsDisplaySupported(dispAttrs))
