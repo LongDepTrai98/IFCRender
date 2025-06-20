@@ -71,7 +71,7 @@ namespace dragon
 						auto viewport_scene = m_viewport->getScene(); 
 						auto camera = m_viewport->getCamera(); 
 						viewport_scene->clear();
-						//group->rotation.x = -threepp::math::PI / 2;
+						group->rotation.x = -threepp::math::PI / 2;
 						viewport_scene->add(group); 
 						threepp::Box3 box{}; 
 						box.setFromObject(*group);

@@ -63,64 +63,6 @@ namespace dragon
 			//resolveShapeData(shapeDataIfcProject, container);
 			convertProductShape(shapeDataIfcProject,container,1.0f);
 		}
-
-
-		// in case there are IFC entities that are not in the spatial structure
-		for (auto it = map_shape_data.begin(); it != map_shape_data.end(); ++it)
-		{
-			shared_ptr<ProductShapeData> shape_data = it->second;
-			if (!shape_data)
-			{
-				continue;
-			}
-
-			if (shape_data->m_added_to_spatial_structure)
-			{
-				continue;
-			}
-
-			weak_ptr<IfcObjectDefinition>& ifc_object_def_weak = shape_data->m_ifc_object_definition;
-			if (ifc_object_def_weak.expired())
-			{
-				continue;
-			}
-
-			shared_ptr<IfcObjectDefinition> ifc_object_def(shape_data->m_ifc_object_definition);
-
-			shared_ptr<IfcProduct> ifc_product = dynamic_pointer_cast<IfcProduct>(ifc_object_def);
-			if (!ifc_product)
-			{
-				continue;
-			}
-
-			if (dynamic_pointer_cast<IfcFeatureElementSubtraction>(ifc_product))
-			{
-				// geometry will be created in method subtractOpenings
-				continue;
-			}
-
-			if (dynamic_pointer_cast<IfcOpeningElement>(ifc_product))
-			{
-				// geometry will be created in method subtractOpenings
-				continue;
-			}
-
-			if (!ifc_product->m_Representation)
-			{
-				continue;
-			}
-
-			int a = 3; 
-			/*convertProductShapeToOSG(shape_data, product_group, errorStream, transparencyOverride);
-
-			if (product_group->getNumChildren() > 0)
-			{
-				sw_objects_outside_spatial_structure->addChild(product_group);
-			}*/
-		}
-
-
-
 		return container; 
 	}
 	void IFCConverter::convertProductShape(const std::shared_ptr<ProductShapeData>& product_shape, std::shared_ptr<threepp::Group>& container, 
@@ -186,8 +128,6 @@ namespace dragon
 				for (size_t ii_representation = 0; ii_representation < product_shape->getGeometricItems().size(); ++ii_representation)
 				{
 					const shared_ptr<ItemShapeData>& geom_item = product_shape->getGeometricItems()[ii_representation];
-					//osg::ref_ptr<osg::Group> grp = product_transform.get();
-					//convertGeometricItem(geom_item, ifc_product, ii_representation, 0, grp, transparencyOverride);
 					convertGeometricItem(geom_item, ifc_product, ii_representation, 0, new_product_group, transparencyOverride); 
 				}
 			}
@@ -238,21 +178,33 @@ namespace dragon
 			}
 
 			std::string ifc_entity_type = EntityFactory::getStringForClassID(ifc_product->classID());
+			std::shared_ptr<threepp::Material> material{ nullptr }; 
+			if (item_data->getStyles().size() > 0)
+			{
+				applyStylesToContainer(item_data->getStyles(),
+					container,
+					material,
+					transparencyOverride);
+			}
 
 			if (item_data->m_meshsets_open.size() > 0)
 			{
 				// disable back face culling for open meshes
 				convertMeshSets(item_data->m_meshsets_open, meshGeo, ii_item, true);
+				//if(material)material->side = threepp::Side::Double; 
 			}
 
 			if (item_data->m_meshsets.size() > 0)
 			{
 				convertMeshSets(item_data->m_meshsets, meshGeo, ii_item, false);
+				//if(material)material->side = threepp::Side::Back; 
 			}
 
 			if (meshGeo)
 			{
 				meshGeo->name = product_guid;
+				if (material)
+					meshGeo->setMaterial(material); 
 				container->add(meshGeo); 
 			}
 
@@ -263,7 +215,75 @@ namespace dragon
 			const shared_ptr<ItemShapeData>& child = item_data->m_child_items[i_item];
 			convertGeometricItem(child, ifc_product, ii_representation, i_item, container, transparencyOverride);
 		}
+	}
 
+	void IFCConverter::applyStylesToContainer(const std::vector<shared_ptr<StyleData>>& vec_product_styles, 
+		std::shared_ptr<threepp::Group>& container, 
+		std::shared_ptr<threepp::Material>& material,
+		float transparencyOverride)
+	{
+		for (size_t ii = 0; ii < vec_product_styles.size(); ++ii)
+		{
+			const shared_ptr<StyleData>& style = vec_product_styles[ii];
+			if (!style)
+			{
+				continue;
+			}
+			if (style->m_apply_to_geometry_type == StyleData::GEOM_TYPE_SURFACE || style->m_apply_to_geometry_type == StyleData::GEOM_TYPE_ANY)
+			{
+				createMaterial(style,
+					transparencyOverride,
+					material); 
+			}
+		}
+	}
+
+	void IFCConverter::createMaterial(const shared_ptr<StyleData>& appearence,
+		float transparencyOverride, 
+		std::shared_ptr<threepp::Material>& material)
+	{
+		if (!appearence)
+		{
+			return;
+		}
+		float shininess = appearence->m_shininess;
+		float transparency = appearence->m_transparency;
+		bool set_transparent = false;
+
+		const float color_ambient_r = appearence->m_color_ambient.r;
+		const float color_ambient_g = appearence->m_color_ambient.g;
+		const float color_ambient_b = appearence->m_color_ambient.b;
+		const float color_ambient_a = appearence->m_color_ambient.a;
+
+		const float color_diffuse_r = appearence->m_color_diffuse.r;
+		const float color_diffuse_g = appearence->m_color_diffuse.g;
+		const float color_diffuse_b = appearence->m_color_diffuse.b;
+		const float color_diffuse_a = appearence->m_color_diffuse.a;
+
+		const float color_specular_r = appearence->m_color_specular.r;
+		const float color_specular_g = appearence->m_color_specular.g;
+		const float color_specular_b = appearence->m_color_specular.b;
+		const float color_specular_a = appearence->m_color_specular.a;
+
+		if (transparencyOverride > 0)
+		{
+			set_transparent = true;
+			transparency = transparencyOverride;
+		}
+
+		float alpha = 1.f;
+		if (transparency > 0.01)	// transparency: 0 = opaque, 1 = fully transparent
+		{
+			set_transparent = true;
+			alpha = 1.0f - transparency;
+		}
+
+		material = threepp::MeshPhongMaterial::create(); 
+		material->as<threepp::MeshPhongMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b); 
+		material->as<threepp::MeshPhongMaterial>()->specular = threepp::Color(color_specular_r, color_specular_g, color_specular_b);
+		material->as<threepp::MeshPhongMaterial>()->transparent = set_transparent; 
+		material->as<threepp::MeshPhongMaterial>()->opacity = alpha;
+		material->side = threepp::Side::Double; 
 	}
 
 	void IFCConverter::convertMeshSets(std::vector<shared_ptr<carve::mesh::MeshSet<3>>>& vecMeshSets,
@@ -323,6 +343,9 @@ namespace dragon
 			geoMesh = threepp::Mesh::create(bufferGeo);
 		}
 	}
+
+	
+
 
 
 

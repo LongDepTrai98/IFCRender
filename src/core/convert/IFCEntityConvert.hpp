@@ -11,6 +11,7 @@ namespace threepp
 	class Group; 
 	class Mesh; 
 	class BufferGeometry;
+	class Material; 
 }
 namespace dragon
 {
@@ -35,6 +36,15 @@ namespace dragon
 			std::shared_ptr<threepp::Mesh>& geoMesh,
 			size_t ii_item,
 			bool disableBackfaceCulling); 
+		void applyStylesToContainer(const std::vector<shared_ptr<StyleData>>& vec_product_styles, 
+			std::shared_ptr<threepp::Group>& container,
+			std::shared_ptr<threepp::Material>& material,
+			float transparencyOverride);
+		void createMaterial(const shared_ptr<StyleData>& appearence, 
+			float transparencyOverride, 
+			std::shared_ptr<threepp::Material>& material);
+
+
 		std::shared_ptr<threepp::Group> resolveGeometricItems(std::shared_ptr<ItemShapeData>& geometricItem,
 			std::shared_ptr<threepp::Group>& container);
 		void resolveShapeData(shared_ptr<ProductShapeData>& shapeData,
