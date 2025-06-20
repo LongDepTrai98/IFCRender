@@ -8,13 +8,15 @@ namespace dragon
 	static void createAndAddLights(threepp::Scene& scene) {
 
 		auto light = threepp::SpotLight::create(0xffffff, 0.5f);
-		scene.add(threepp::AmbientLight::create(threepp::Color::lightgray, 1.0f));
-		light->position.set(200, 100, 0);
+		scene.add(threepp::AmbientLight::create(threepp::Color::lightgray, .5f));
+		light->position.set(100, 100, 0);
 		light->angle = threepp::math::PI / 9;
 		light->castShadow = true;
 		scene.add(light); 
 		auto helper = threepp::SpotLightHelper::create(*light);
 		scene.add(helper);
+		const auto axes = threepp::AxesHelper::create(100);
+		scene.add(axes);
 	}
 	MainViewPort::MainViewPort(RenderCanvas* canvas) : IRenderer(canvas)
 	{
@@ -24,6 +26,7 @@ namespace dragon
 		initCamera(m_Viewport_Size);
 		createAndAddLights(*m_Scene); 
 		createExampleScene(); 
+	
 	}
 	MainViewPort::~MainViewPort()
 	{
