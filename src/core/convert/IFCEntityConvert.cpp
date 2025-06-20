@@ -201,8 +201,11 @@ namespace dragon
 			if (meshGeo)
 			{
 				meshGeo->name = product_guid;
-				if (material)
-					meshGeo->setMaterial(material); 
+				if (!material)
+				{
+					createDefaultMaterial(material); 
+				}
+				meshGeo->setMaterial(material);
 				container->add(meshGeo); 
 			}
 
@@ -213,6 +216,12 @@ namespace dragon
 			const shared_ptr<ItemShapeData>& child = item_data->m_child_items[i_item];
 			convertGeometricItem(child, ifc_product, ii_representation, i_item, container, transparencyOverride);
 		}
+	}
+
+	void IFCConverter::createDefaultMaterial(std::shared_ptr<threepp::Material>& material)
+	{
+		material = threepp::MeshLambertMaterial::create();
+		material->as<threepp::MeshLambertMaterial>()->color = threepp::Color::gray; 
 	}
 
 	void IFCConverter::applyStylesToContainer(const std::vector<shared_ptr<StyleData>>& vec_product_styles, 
@@ -275,10 +284,15 @@ namespace dragon
 			set_transparent = true;
 			alpha = 1.0f - transparency;
 		}
-		material = threepp::MeshPhongMaterial::create();
+		/*material = threepp::MeshPhongMaterial::create();
 		material->as<threepp::MeshPhongMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
 		material->as<threepp::MeshPhongMaterial>()->specular = 0x000000; 
-		material->as<threepp::MeshPhongMaterial>()->shininess = 0x000000;
+		material->as<threepp::MeshPhongMaterial>()->shininess = 0x000000;*/
+
+		material = threepp::MeshLambertMaterial::create();
+		material->as<threepp::MeshLambertMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
+	/*	material->as<threepp::MeshPhongMaterial>()->specular = 0x000000;
+		material->as<threepp::MeshPhongMaterial>()->shininess = 0x000000;*/
 		//material = threepp::MeshBasicMaterial::create();
 		//material->as<threepp::MeshBasicMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
 		material->transparent = set_transparent;
@@ -341,7 +355,7 @@ namespace dragon
 			bufferGeo->setAttribute("normal", threepp::FloatBufferAttribute::create(normals, 3));
 			geoMesh = threepp::Mesh::create(bufferGeo);
 			geoMesh->castShadow = true; 
-			geoMesh->receiveShadow = true;
+			//geoMesh->receiveShadow = true;
 		}
 	}
 

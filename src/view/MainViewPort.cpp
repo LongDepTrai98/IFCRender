@@ -7,66 +7,14 @@ namespace dragon
 {
 	static void createAndAddLights(threepp::Scene& scene) {
 
-		auto light = threepp::SpotLight::create(0xffffff, 0.6f);
-		scene.add(threepp::AmbientLight::create(0xaaaaaa,0.6f));
+		auto light = threepp::SpotLight::create(0xffffff, 0.5f);
+		scene.add(threepp::AmbientLight::create(threepp::Color::lightgray, 1.0f));
 		light->position.set(200, 100, 0);
 		light->angle = threepp::math::PI / 9;
 		light->castShadow = true;
 		scene.add(light); 
 		auto helper = threepp::SpotLightHelper::create(*light);
 		scene.add(helper);
-		/*auto ligth = threepp::DirectionalLight::create(0xffffff,0.3);
-		scene.add(ligth);*/
-	/*	auto light1 = threepp::AmbientLight::create(0xffffff,0.8);
-		light1->position.y = 100; 
-		scene.add(light1);*/
-		//auto light2 = threepp::PointLight::create(0xffffff);
-		//light2->position.y = 100;
-		//scene.add(light2);
-	}
-
-	namespace example
-	{
-		using namespace threepp;
-		auto createBox() {
-			const auto boxGeometry = BoxGeometry::create();
-			const auto boxMaterial = MeshBasicMaterial::create();
-			boxMaterial->color.setRGB(1, 0, 0);
-			boxMaterial->transparent = true;
-			boxMaterial->opacity = 0.1f;
-			auto box = Mesh::create(boxGeometry, boxMaterial);
-
-			auto wiredBox = LineSegments::create(WireframeGeometry::create(*boxGeometry));
-			wiredBox->material()->as<LineBasicMaterial>()->depthTest = false;
-			wiredBox->material()->as<LineBasicMaterial>()->color = Color::gray;
-			box->add(wiredBox);
-
-			return box;
-		}
-
-		auto createSphere() {
-			const auto sphereGeometry = SphereGeometry::create(0.5f);
-			const auto sphereMaterial = MeshBasicMaterial::create();
-			sphereMaterial->color.setHex(0x00ff00);
-			sphereMaterial->wireframe = true;
-			auto sphere = Mesh::create(sphereGeometry, sphereMaterial);
-			sphere->position.setX(-1);
-
-			return sphere;
-		}
-
-		auto createPlane() {
-			const auto planeGeometry = PlaneGeometry::create(5, 5);
-			const auto planeMaterial = MeshBasicMaterial::create();
-			planeMaterial->color.setHex(Color::yellow);
-			planeMaterial->transparent = true;
-			planeMaterial->opacity = 0.5f;
-			planeMaterial->side = Side::Double;
-			auto plane = Mesh::create(planeGeometry, planeMaterial);
-			plane->position.setZ(-2);
-
-			return plane;
-		}
 	}
 	MainViewPort::MainViewPort(RenderCanvas* canvas) : IRenderer(canvas)
 	{
@@ -83,13 +31,6 @@ namespace dragon
 	void MainViewPort::createExampleScene()
 	{
 		m_Camera->position.z = 5;
-		//auto box = example::createBox();
-		//m_Scene->add(box);
-		//auto sphere = example::createSphere();
-		//box->add(sphere);
-		//auto plane = example::createPlane();
-		//auto planeMaterial = plane->material()->as<threepp::MeshBasicMaterial>();
-		//m_Scene->add(plane);
 	}
 	void MainViewPort::initCamera(threepp::WindowSize& w_size)
 	{

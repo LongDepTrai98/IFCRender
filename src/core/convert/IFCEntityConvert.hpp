@@ -32,6 +32,7 @@ namespace dragon
 			size_t ii_item,
 			std::shared_ptr<threepp::Group>& container,
 			float transparencyOverride);
+		void createDefaultMaterial(std::shared_ptr<threepp::Material>& material); 
 		void convertMeshSets(std::vector<shared_ptr<carve::mesh::MeshSet<3> > >& vecMeshSets,
 			std::shared_ptr<threepp::Mesh>& geoMesh,
 			size_t ii_item,
