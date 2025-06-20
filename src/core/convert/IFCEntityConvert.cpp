@@ -191,13 +191,11 @@ namespace dragon
 			{
 				// disable back face culling for open meshes
 				convertMeshSets(item_data->m_meshsets_open, meshGeo, ii_item, true);
-				//if(material)material->side = threepp::Side::Double; 
 			}
 
 			if (item_data->m_meshsets.size() > 0)
 			{
 				convertMeshSets(item_data->m_meshsets, meshGeo, ii_item, false);
-				//if(material)material->side = threepp::Side::Back; 
 			}
 
 			if (meshGeo)
@@ -277,13 +275,14 @@ namespace dragon
 			set_transparent = true;
 			alpha = 1.0f - transparency;
 		}
-
-		material = threepp::MeshPhongMaterial::create(); 
-		material->as<threepp::MeshPhongMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b); 
-		material->as<threepp::MeshPhongMaterial>()->specular = threepp::Color(color_specular_r, color_specular_g, color_specular_b);
-		material->as<threepp::MeshPhongMaterial>()->transparent = set_transparent; 
-		material->as<threepp::MeshPhongMaterial>()->opacity = alpha;
-		material->side = threepp::Side::Double; 
+		material = threepp::MeshPhongMaterial::create();
+		material->as<threepp::MeshPhongMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
+		material->as<threepp::MeshPhongMaterial>()->specular = 0x000000; 
+		material->as<threepp::MeshPhongMaterial>()->shininess = 0x000000;
+		//material = threepp::MeshBasicMaterial::create();
+		//material->as<threepp::MeshBasicMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
+		material->transparent = set_transparent;
+		material->opacity = alpha;
 	}
 
 	void IFCConverter::convertMeshSets(std::vector<shared_ptr<carve::mesh::MeshSet<3>>>& vecMeshSets,
@@ -341,6 +340,8 @@ namespace dragon
 			bufferGeo->setAttribute("position", threepp::FloatBufferAttribute::create(vertices, 3));
 			bufferGeo->setAttribute("normal", threepp::FloatBufferAttribute::create(normals, 3));
 			geoMesh = threepp::Mesh::create(bufferGeo);
+			geoMesh->castShadow = true; 
+			geoMesh->receiveShadow = true;
 		}
 	}
 

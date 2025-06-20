@@ -37,6 +37,7 @@ namespace dragon
 	{
 		if (!m_Renderer)
 			m_Renderer = std::make_unique<THREEPPRenderer>(this);
+
 	}
 	void RenderCanvas::initUI()
 	{

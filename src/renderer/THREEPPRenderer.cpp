@@ -37,6 +37,8 @@ namespace dragon
 		if (!m_Renderer)
 			m_Renderer = std::make_unique<threepp::GLRenderer>(w_size);
 		m_Renderer->autoClear = false;
+		m_Renderer->shadowMap().enabled = true;
+		m_Renderer->shadowMap().type = threepp::ShadowMap::PFC;
 	}
 	void THREEPPRenderer::initViewPort()
 	{

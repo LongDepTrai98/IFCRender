@@ -1,11 +1,28 @@
 #include "MainViewPort.hpp"
 #include "wxInclude.hpp"
 #include "ui/RenderCanvas.hpp"
+#include "threepp/helpers/SpotLightHelper.hpp"
+
 namespace dragon
 {
 	static void createAndAddLights(threepp::Scene& scene) {
-		auto light1 = threepp::AmbientLight::create(0xffffff, 1.f);
-		scene.add(light1);
+
+		auto light = threepp::SpotLight::create(0xffffff, 0.6f);
+		scene.add(threepp::AmbientLight::create(0xaaaaaa,0.6f));
+		light->position.set(200, 100, 0);
+		light->angle = threepp::math::PI / 9;
+		light->castShadow = true;
+		scene.add(light); 
+		auto helper = threepp::SpotLightHelper::create(*light);
+		scene.add(helper);
+		/*auto ligth = threepp::DirectionalLight::create(0xffffff,0.3);
+		scene.add(ligth);*/
+	/*	auto light1 = threepp::AmbientLight::create(0xffffff,0.8);
+		light1->position.y = 100; 
+		scene.add(light1);*/
+		//auto light2 = threepp::PointLight::create(0xffffff);
+		//light2->position.y = 100;
+		//scene.add(light2);
 	}
 
 	namespace example
