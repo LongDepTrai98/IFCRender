@@ -229,15 +229,15 @@ namespace dragon
 		const std::shared_ptr<threepp::BufferGeometry>& geoBuffer)
 	{
 		//create edge geometry 
-		const float thresholdAngle = 45.f; 
+		const float thresholdAngle = 15.0f; 
 		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*geoBuffer, thresholdAngle);
 		if (!outlineEdge)
 		{
 			std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create(); 
-			outline_material->color = threepp::Color::black; 
+			outline_material->color = threepp::Color::darkgray; 
+			outline_material->linewidth = 0.5f; 
 			outlineEdge = threepp::LineSegments::create(edge_geo,outline_material);
-			outlineEdge->scale = { 1.001 , 1.001, 1.001 }; 
-			outlineEdge->renderOrder = INT_MAX; 
+			outlineEdge->renderOrder = 1; 
 		}
 	}
 
@@ -312,6 +312,10 @@ namespace dragon
 		material->as<threepp::MeshPhongMaterial>()->specular = threepp::Color(color_specular_r, color_specular_g, color_specular_b);
 		material->as<threepp::MeshPhongMaterial>()->shininess = shininess;
 		material->transparent = set_transparent; 
+		material->polygonOffset = true; 
+		material->polygonOffsetFactor = 1.0f;
+		material->polygonOffsetUnits = 1.0f; 
+		material->needsUpdate(); 
 		material->opacity = alpha; 
 	}
 
