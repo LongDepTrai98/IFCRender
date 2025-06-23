@@ -97,21 +97,21 @@ namespace dragon
 		std::shared_ptr<threepp::DirectionalLight> d_light_1 = threepp::DirectionalLight::create(threepp::Color::white);
 		std::shared_ptr<threepp::DirectionalLight> d_light_2 = threepp::DirectionalLight::create(threepp::Color::white);
 		std::shared_ptr<threepp::DirectionalLight> d_light_3 = threepp::DirectionalLight::create(threepp::Color::white, 0.6f);
-		std::shared_ptr<threepp::AmbientLight> a_light = threepp::AmbientLight::create((0xaaaaaa,0.8f));
+		std::shared_ptr<threepp::AmbientLight> a_light = threepp::AmbientLight::create((threepp::Color::white,0.8f));
 
 		d_light_1->position.set(100, 50, -100); 
 		d_light_2->position.set(-100, 50, 0);
 		d_light_3->position.set(100, 20, 0); 
 
-		a_light->position.set(0,100,0); 
+		//a_light->position.set(0,100,0); 
 
 		d_light_1->setTarget(*container); 
 		d_light_2->setTarget(*container); 
 		d_light_3->setTarget(*container); 
 
 		scene.add(d_light_1); 
-		scene.add(d_light_2); 
-		scene.add(d_light_3); 
+		//scene.add(d_light_2); 
+		//scene.add(d_light_3); 
 		scene.add(a_light); 
 
 

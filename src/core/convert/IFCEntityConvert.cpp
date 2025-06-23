@@ -281,6 +281,8 @@ namespace dragon
 		float shininess = appearence->m_shininess;
 		float transparency = appearence->m_transparency;
 		bool set_transparent = false;
+		const float w_ambient = 0.3f;
+		const float w_diffuse = 0.7f;
 
 		const float color_ambient_r = appearence->m_color_ambient.r;
 		const float color_ambient_g = appearence->m_color_ambient.g;
@@ -297,23 +299,31 @@ namespace dragon
 		const float color_specular_b = appearence->m_color_specular.b;
 		const float color_specular_a = appearence->m_color_specular.a;
 
-		if (transparencyOverride > 0)
-		{
-			set_transparent = true;
-			transparency = transparencyOverride;
-		}
+
+		float mix_r = w_ambient * color_ambient_r + w_diffuse * color_diffuse_r;
+		float mix_g = w_ambient * color_ambient_g + w_diffuse * color_diffuse_g;
+		float mix_b = w_ambient * color_ambient_b + w_diffuse * color_diffuse_b;
+		float mix_a = w_ambient * color_ambient_a + w_diffuse * color_diffuse_a;
 
 		float alpha = 1.f;
-		if (transparency > 0.01)	// transparency: 0 = opaque, 1 = fully transparent
+
+		if (transparencyOverride > 0.0)
 		{
-			set_transparent = true;
-			alpha = 1.0f - transparency;
+			alpha = transparencyOverride;
+			alpha = 1.0f - alpha;
 		}
-		material = threepp::MeshPhongMaterial::create();
+		else if (transparency > 0.0)
+		{
+			alpha = transparency; 
+			alpha = 1.0f - alpha;
+		}
+		/*material = threepp::MeshPhongMaterial::create();
 		material->as<threepp::MeshPhongMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
 		material->as<threepp::MeshPhongMaterial>()->specular = threepp::Color(color_specular_r, color_specular_g, color_specular_b);
-		material->as<threepp::MeshPhongMaterial>()->shininess = shininess;
-		material->transparent = set_transparent; 
+		material->as<threepp::MeshPhongMaterial>()->shininess = shininess;*/
+		material = threepp::MeshBasicMaterial::create(); 
+		material->as<threepp::MeshBasicMaterial>()->color = threepp::Color(mix_r, mix_g, mix_b);
+		material->transparent = true; 
 		material->polygonOffset = true; 
 		material->polygonOffsetFactor = 1.0f;
 		material->polygonOffsetUnits = 1.0f; 

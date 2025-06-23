@@ -49,7 +49,8 @@ namespace dragon
 		void createMaterial(const shared_ptr<StyleData>& appearence, 
 			float transparencyOverride, 
 			std::shared_ptr<threepp::Material>& material);
-
+		void setMaterialForGroup(const std::shared_ptr<threepp::Group>& group, 
+			const std::shared_ptr<threepp::Material>& material);
 
 		std::shared_ptr<threepp::Group> resolveGeometricItems(std::shared_ptr<ItemShapeData>& geometricItem,
 			std::shared_ptr<threepp::Group>& container);
