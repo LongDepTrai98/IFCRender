@@ -202,13 +202,6 @@ namespace dragon
 					container,
 					material,
 					transparencyOverride);
-				if (material)
-				{
-					if (isEnableBackFaceCulling)
-						material->side = threepp::Side::Double;
-					else
-						material->side = threepp::Side::Front;
-				}
 			}
 
 			if (meshGeo)
@@ -247,7 +240,6 @@ namespace dragon
 			outline_material->color = threepp::Color::darkgray; 
 			outline_material->linewidth = 0.5f; 
 			outlineEdge = threepp::LineSegments::create(edge_geo,outline_material);
-			outlineEdge->renderOrder = 1; 
 		}
 	}
 

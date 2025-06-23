@@ -103,7 +103,7 @@ namespace dragon
 		d_light_2->position.set(-100, 50, 0);
 		d_light_3->position.set(100, 20, 0); 
 
-		a_light->position.set(-100,50,0); 
+		a_light->position.set(0,100,0); 
 
 		d_light_1->setTarget(*container); 
 		d_light_2->setTarget(*container); 
