@@ -87,11 +87,8 @@ namespace dragon
 			container->add(new_product_group);
 			product_id = product_shape->m_entity_guid;
 			new_product_group->name = product_id;
-
-
 			std::shared_ptr<IfcObjectDefinition> ifc_object_def(product_shape->m_ifc_object_definition);
 			entityType = EntityFactory::getStringForClassID(ifc_object_def->classID());
-
 			std::shared_ptr<IfcProduct> ifc_product = dynamic_pointer_cast<IfcProduct>(ifc_object_def);
 			if (ifc_product)
 			{
@@ -237,15 +234,15 @@ namespace dragon
 		if (!outlineEdge)
 		{
 			std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create(); 
-			outline_material->color = threepp::Color::darkgray; 
+			outline_material->color = threepp::Color::lightblue; 
 			outlineEdge = threepp::LineSegments::create(edge_geo,outline_material);
 		}
 	}
 
 	void IFCConverter::createDefaultMaterial(std::shared_ptr<threepp::Material>& material)
 	{
-		material = threepp::MeshLambertMaterial::create();
-		material->as<threepp::MeshLambertMaterial>()->color = threepp::Color::gray; 
+		material = threepp::MeshBasicMaterial::create();
+		material->as<threepp::MeshBasicMaterial>()->color = threepp::Color::lightgray;
 	}
 
 	void IFCConverter::applyStylesToContainer(const std::vector<shared_ptr<StyleData>>& vec_product_styles, 
@@ -260,7 +257,8 @@ namespace dragon
 			{
 				continue;
 			}
-			if (style->m_apply_to_geometry_type == StyleData::GEOM_TYPE_SURFACE || style->m_apply_to_geometry_type == StyleData::GEOM_TYPE_ANY)
+			if (style->m_apply_to_geometry_type == StyleData::GEOM_TYPE_SURFACE 
+				|| style->m_apply_to_geometry_type == StyleData::GEOM_TYPE_ANY)
 			{
 				createMaterial(style,
 					transparencyOverride,
@@ -280,8 +278,8 @@ namespace dragon
 		float shininess = appearence->m_shininess;
 		float transparency = appearence->m_transparency;
 		bool set_transparent = false;
-		const float w_ambient = 0.3f;
-		const float w_diffuse = 0.7f;
+		const float w_ambient = 0.4f;
+		const float w_diffuse = 0.6f;
 
 		const float color_ambient_r = appearence->m_color_ambient.r;
 		const float color_ambient_g = appearence->m_color_ambient.g;
@@ -306,7 +304,7 @@ namespace dragon
 			set_transparent = true;
 			alpha = transparencyOverride; 
 		}
-		else  if (transparency > 0.0f)	// transparency: 0 = opaque, 1 = fully transparent
+		else if(transparency > 0.0f)	// transparency: 0 = opaque, 1 = fully transparent
 		{
 			set_transparent = true;
 			alpha = transparency;
@@ -385,159 +383,6 @@ namespace dragon
 			geoMesh->castShadow = true; 
 		}
 	}
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	std::shared_ptr<threepp::Group> IFCConverter::resolveGeometricItems(std::shared_ptr<ItemShapeData>& geometricItem,
-		std::shared_ptr<threepp::Group>& container)
-	{
-		std::shared_ptr<threepp::Group> group = threepp::Group::create(); 
-		/*ADD GROUP TO CONTAINER*/
-		container->add(group); 
-		// closed meshes
-		for (auto meshset : geometricItem->m_meshsets)
-		{
-			std::vector<carve::mesh::Vertex<3> >& vertexData = meshset->vertex_storage;
-			for (auto mesh : meshset->meshes)
-			{
-				/*CREATE MESH HERE*/
-				std::shared_ptr<threepp::BufferGeometry> buffer_mesh =  createBufferGeometryFromCarveMesh(mesh); 
-				/*MATERIAL FOR MESH*/
-				auto material = threepp::MeshPhongMaterial::create();
-				auto lst_style = geometricItem->getStyles(); 
-				for (auto style : lst_style)
-				{
-					auto color_ambient = style->m_color_ambient;
-					auto color_diffuse = style->m_color_diffuse;
-					auto color_specular = style->m_color_specular;
-					material->color = threepp::Color(color_diffuse.r, color_diffuse.g, color_diffuse.b); 
-					material->specular = threepp::Color(color_specular.r, color_specular.g, color_specular.b);
-					material->shininess = style->m_shininess; 
-					material->transparent = style->m_transparency; 
-				}
-				std::shared_ptr<threepp::Mesh> threepp_mesh = threepp::Mesh::create(buffer_mesh, material); 
-				group->add(threepp_mesh);
-			}
-		}
-		// open meshes
-		for (auto meshset : geometricItem->m_meshsets_open)
-		{
-			for (auto mesh : meshset->meshes)
-			{
-				/*CREATE MESH HERE*/
-				std::shared_ptr<threepp::BufferGeometry> buffer_mesh = createBufferGeometryFromCarveMesh(mesh);
-				/*MATERIAL FOR MESH*/
-				auto material = threepp::MeshPhongMaterial::create();
-				auto lst_style = geometricItem->getStyles();
-				for (auto style : lst_style)
-				{
-					auto color_ambient = style->m_color_ambient;
-					auto color_diffuse = style->m_color_diffuse;
-					auto color_specular = style->m_color_specular;
-					material->color = threepp::Color(color_diffuse.r, color_diffuse.g, color_diffuse.b);
-					material->specular = threepp::Color(color_specular.r, color_specular.g, color_specular.b);
-					material->shininess = style->m_shininess;
-					material->transparent = style->m_transparency;
-				}
-				std::shared_ptr<threepp::Mesh> threepp_mesh = threepp::Mesh::create(buffer_mesh, material);
-				group->add(threepp_mesh);
-			}
-		}
-		// traverse geometry
-		for (auto childItem : geometricItem->m_child_items)
-		{
-			resolveGeometricItems(childItem, container);
-		}
-		return group; 
-	}
-	void IFCConverter::resolveShapeData(shared_ptr<ProductShapeData>& shapeData,
-		std::shared_ptr<threepp::Group>& container)
-	{
-		//shape container 
-		std::shared_ptr<threepp::Group> shape_container = threepp::Group::create();
-		/*ADD SHAPE CONTAINER TO GROUP*/
-		container->add(shape_container); 
-		/*APPLY MATRIX TO SHAPE CONTAINER*/
-		carve::math::Matrix localTransform = shapeData->getTransform();
-		threepp::Matrix4 threepp_local_transform_matrix = convertCarveMatrix2ThreeppMatrix(localTransform); 
-		shape_container->applyMatrix4(threepp_local_transform_matrix); 
-		// traverse geometry
-		for (auto geometricItem : shapeData->getGeometricItems())
-		{
-			// geometric items can have child items too
-			resolveGeometricItems(geometricItem, shape_container);
-		}
-
-		for (auto child_object : shapeData->getChildElements())
-		{
-			// child elements in case of IfcBuildingStorey, IfcElementAssembly etc.
-			resolveShapeData(child_object, shape_container);
-		}
-	}
-	void IFCConverter::createIndicesAndVertexFromMesh(carve::mesh::Mesh<3>* mesh,
-		carve::math::Matrix& localTransform,
-		std::vector<uint32_t>& indices,
-		std::vector<carve::geom::vector<3>>& lstVertex)
-	{
-		size_t face_size = mesh->faces.size();
-		std::map<carve::mesh::Vertex<3>*,int> vertex_map;
-		for (auto face : mesh->faces)
-		{
-			carve::mesh::Edge<3>* edge = face->edge;
-			edge = edge->next;
-			size_t edge_size = face->n_edges;
-			auto* start_edge = face->edge;
-			auto* current_edge = start_edge;
-			do {
-				carve::mesh::Vertex<3>* vertex = current_edge->vert;
-				if (vertex_map.count(vertex) == 0)
-				{
-					carve::geom::vector<3> pointLocal = vertex->v;
-					carve::geom::vector<3> pointGlobal = localTransform * pointLocal;
-					lstVertex.push_back(pointGlobal);
-					uint32_t vertex_idx = lstVertex.size() - 1; 
-					vertex_map.insert({ current_edge->vert,vertex_idx});
-				}
-				/*PUSHBACK INDEX*/
-				indices.push_back(vertex_map[current_edge->vert]);
-				current_edge = current_edge->next;
-			} while (current_edge != start_edge);
-		}
-		if (indices.size() % 3 != 0) {
-			throw std::exception("Warning: Indices count not divisible by 3 (may not form complete triangles)"); 
-		}
-	}
 	threepp::Matrix4 IFCConverter::convertCarveMatrix2ThreeppMatrix(const carve::math::Matrix& matrix)
 	{
 		std::array<float, 16> arr_matrix = {
@@ -547,44 +392,5 @@ namespace dragon
 			(float)matrix._41,(float)matrix._42,(float)matrix._43,(float)matrix._44
 		}; 
 		return threepp::Matrix4(arr_matrix);
-	}
-	std::shared_ptr<threepp::BufferGeometry> IFCConverter::createBufferGeometryFromCarveMesh(carve::mesh::Mesh<3>* mesh)
-	{
-		size_t faces = mesh->faces.size();
-		std::shared_ptr<threepp::BufferGeometry> geometry = std::make_shared<threepp::BufferGeometry>(); 
-		size_t vertices_size = faces * 3 * 3; 
-		std::vector<float> vertices;
-		std::vector<float> normals;
-		std::vector<int> indices; 
-		int index{ 0 }; 
-		std::map<carve::mesh::Vertex<3>*, int> vertex_map;//map to create lst indices 
-		/*CREATE BUFFER GEOMETRY WITH LIST POINT IN FACE*/
-		for (auto face : mesh->faces)
-		{
-			carve::mesh::Edge<3>* edge = face->edge;
-			edge = edge->next;
-			size_t edge_size = face->n_edges;
-			auto* start_edge = face->edge;
-			auto* current_edge = start_edge;
-			do {
-				carve::mesh::Vertex<3>* vertex = current_edge->vert;
-				if (vertex_map.count(vertex) == 0)
-				{
-					carve::geom::vector<3> pointLocal = vertex->v;
-					vertices.insert(vertices.end(), { (float)pointLocal[0],(float)pointLocal[1],(float)pointLocal[2] }); 
-					normals.insert(normals.end(), { (float)pointLocal[0],(float)pointLocal[1],(float)pointLocal[2] }); 
-					vertex_map.insert({ current_edge->vert,index });
-					++index; 
-				}
-				/*PUSHBACK INDEX*/
-				indices.push_back(vertex_map[current_edge->vert]);
-				current_edge = current_edge->next;
-			} 
-			while (current_edge != start_edge);
-		}
-		geometry->setIndex(indices); 
-		geometry->setAttribute("position", threepp::FloatBufferAttribute::create(vertices, 3)); 
-		geometry->setAttribute("normal", threepp::FloatBufferAttribute::create(normals, 3));
-		return geometry; 
 	}
 }

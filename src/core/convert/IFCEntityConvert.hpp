@@ -35,8 +35,6 @@ namespace dragon
 			float transparencyOverride);
 		void createOutlineEdgePolygon(std::shared_ptr<threepp::LineSegments>& outlineEdge,
 			const std::shared_ptr<threepp::BufferGeometry>& geoBuffer); 
-
-
 		void createDefaultMaterial(std::shared_ptr<threepp::Material>& material); 
 		void convertMeshSets(std::vector<shared_ptr<carve::mesh::MeshSet<3> > >& vecMeshSets,
 			std::shared_ptr<threepp::Mesh>& geoMesh,
@@ -51,17 +49,7 @@ namespace dragon
 			std::shared_ptr<threepp::Material>& material);
 		void setMaterialForGroup(const std::shared_ptr<threepp::Group>& group, 
 			const std::shared_ptr<threepp::Material>& material);
-
-		std::shared_ptr<threepp::Group> resolveGeometricItems(std::shared_ptr<ItemShapeData>& geometricItem,
-			std::shared_ptr<threepp::Group>& container);
-		void resolveShapeData(shared_ptr<ProductShapeData>& shapeData,
-			std::shared_ptr<threepp::Group>& container); 
-		void createIndicesAndVertexFromMesh(carve::mesh::Mesh<3>* mesh,
-			carve::math::Matrix& localTransform, 
-			std::vector<uint32_t>& indices, 
-			std::vector<carve::geom::vector<3>>& lstVertex);
 		threepp::Matrix4 convertCarveMatrix2ThreeppMatrix(const carve::math::Matrix& matrix); 
-		std::shared_ptr<threepp::BufferGeometry> createBufferGeometryFromCarveMesh(carve::mesh::Mesh<3>* mesh); 
 	private: 
 		std::shared_ptr<GeometrySettings> m_geomSettings{ nullptr };
 		double m_faces_crease_angle = M_PI * 0.02;
