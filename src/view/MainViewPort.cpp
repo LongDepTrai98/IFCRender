@@ -19,13 +19,13 @@ namespace dragon
 	{
 		if (!m_Camera)
 			m_Camera = std::make_unique<threepp::PerspectiveCamera>(60, w_size.aspect()); 
-		m_Camera->position.z = 5;
+		m_Camera->position.z = 10;
 	}
 	void MainViewPort::initScene(threepp::WindowSize& w_size)
 	{
 		if (!m_Scene)
 			m_Scene = std::make_unique<threepp::Scene>(); 
-		m_Scene->background = threepp::Color::aliceblue; 
+		m_Scene->background = threepp::Color::whitesmoke; 
 	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{

@@ -234,7 +234,7 @@ namespace dragon
 		if (!outlineEdge)
 		{
 			std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create(); 
-			outline_material->color = threepp::Color::darkblue; 
+			outline_material->color = threepp::Color::blanchedalmond; 
 			outlineEdge = threepp::LineSegments::create(edge_geo,outline_material);
 		}
 	}
