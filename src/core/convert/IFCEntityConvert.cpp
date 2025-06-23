@@ -232,13 +232,12 @@ namespace dragon
 		const std::shared_ptr<threepp::BufferGeometry>& geoBuffer)
 	{
 		//create edge geometry 
-		const float thresholdAngle = 15.0f; 
+		const float thresholdAngle = 30.0f; 
 		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*geoBuffer, thresholdAngle);
 		if (!outlineEdge)
 		{
 			std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create(); 
 			outline_material->color = threepp::Color::darkgray; 
-			outline_material->linewidth = 0.5f; 
 			outlineEdge = threepp::LineSegments::create(edge_geo,outline_material);
 		}
 	}
@@ -293,42 +292,39 @@ namespace dragon
 		const float color_diffuse_g = appearence->m_color_diffuse.g;
 		const float color_diffuse_b = appearence->m_color_diffuse.b;
 		const float color_diffuse_a = appearence->m_color_diffuse.a;
-
 		const float color_specular_r = appearence->m_color_specular.r;
 		const float color_specular_g = appearence->m_color_specular.g;
 		const float color_specular_b = appearence->m_color_specular.b;
 		const float color_specular_a = appearence->m_color_specular.a;
-
-
 		float mix_r = w_ambient * color_ambient_r + w_diffuse * color_diffuse_r;
 		float mix_g = w_ambient * color_ambient_g + w_diffuse * color_diffuse_g;
 		float mix_b = w_ambient * color_ambient_b + w_diffuse * color_diffuse_b;
 		float mix_a = w_ambient * color_ambient_a + w_diffuse * color_diffuse_a;
-
 		float alpha = 1.f;
+		if (transparencyOverride > 0.0f)
+		{
+			set_transparent = true;
+			alpha = transparencyOverride; 
+		}
+		else  if (transparency > 0.0f)	// transparency: 0 = opaque, 1 = fully transparent
+		{
+			set_transparent = true;
+			alpha = transparency;
+		}
 
-		if (transparencyOverride > 0.0)
-		{
-			alpha = transparencyOverride;
-			alpha = 1.0f - alpha;
-		}
-		else if (transparency > 0.0)
-		{
-			alpha = transparency; 
-			alpha = 1.0f - alpha;
-		}
-		/*material = threepp::MeshPhongMaterial::create();
-		material->as<threepp::MeshPhongMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
-		material->as<threepp::MeshPhongMaterial>()->specular = threepp::Color(color_specular_r, color_specular_g, color_specular_b);
-		material->as<threepp::MeshPhongMaterial>()->shininess = shininess;*/
 		material = threepp::MeshBasicMaterial::create(); 
 		material->as<threepp::MeshBasicMaterial>()->color = threepp::Color(mix_r, mix_g, mix_b);
-		material->transparent = true; 
+		material->transparent = set_transparent;
 		material->polygonOffset = true; 
 		material->polygonOffsetFactor = 1.0f;
 		material->polygonOffsetUnits = 1.0f; 
 		material->opacity = alpha;
+		material->side = threepp::Side::Double; 
 		material->needsUpdate(); 
+	}
+
+	void IFCConverter::setMaterialForGroup(const std::shared_ptr<threepp::Group>& group, const std::shared_ptr<threepp::Material>& material)
+	{
 	}
 
 	void IFCConverter::convertMeshSets(std::vector<shared_ptr<carve::mesh::MeshSet<3>>>& vecMeshSets,
