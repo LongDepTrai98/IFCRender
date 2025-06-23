@@ -1,5 +1,6 @@
 #include "IFCEntityConvert.hpp"
 #include "threepp/threepp.hpp"
+#include "threepp/geometries/EdgesGeometry.hpp"
 #include <unordered_set>
 #include <ifcpp/IFC4X3/include/IfcBuildingStorey.h>
 #include <ifcpp/IFC4X3/include/IfcGloballyUniqueId.h>
@@ -172,6 +173,7 @@ namespace dragon
 
 			std::string product_guid;
 			std::shared_ptr<threepp::Mesh> meshGeo{ nullptr }; 
+			std::shared_ptr<threepp::LineSegments> outlineEdge{ nullptr }; 
 			if (ifc_product->m_GlobalId)
 			{
 				product_guid = ifc_product->m_GlobalId->m_value;
@@ -195,18 +197,23 @@ namespace dragon
 
 			if (item_data->m_meshsets.size() > 0)
 			{
+				// enable back face culling for open meshes 
 				convertMeshSets(item_data->m_meshsets, meshGeo, ii_item, false);
 			}
 
 			if (meshGeo)
 			{
 				meshGeo->name = product_guid;
+				//create outline of geometry 
+				createOutlineEdgePolygon(outlineEdge,
+					meshGeo->geometry()); 
 				if (!material)
 				{
 					createDefaultMaterial(material); 
 				}
 				meshGeo->setMaterial(material);
 				container->add(meshGeo); 
+				container->add(outlineEdge); 
 			}
 
 		}
@@ -215,6 +222,25 @@ namespace dragon
 		{
 			const shared_ptr<ItemShapeData>& child = item_data->m_child_items[i_item];
 			convertGeometricItem(child, ifc_product, ii_representation, i_item, container, transparencyOverride);
+		}
+	}
+
+	void IFCConverter::createOutlineEdgePolygon(std::shared_ptr<threepp::LineSegments>& outlineEdge,
+		const std::shared_ptr<threepp::BufferGeometry>& geoBuffer)
+	{
+		//create edge geometry 
+		const float thresholdAngle = 45.f; 
+		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*geoBuffer, thresholdAngle);
+		if (!outlineEdge)
+		{
+			std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create(); 
+			outline_material->side = threepp::Side::Double; 
+			outline_material->color = threepp::Color::black; 
+			outline_material->transparent = true; 
+			outline_material->opacity = 0.5; 
+			outlineEdge = threepp::LineSegments::create(edge_geo,outline_material);
+			outlineEdge->scale = { 1.002 , 1.002, 1.002 }; 
+			outlineEdge->renderOrder = INT_MAX; 
 		}
 	}
 
@@ -289,14 +315,19 @@ namespace dragon
 		material->as<threepp::MeshPhongMaterial>()->specular = 0x000000; 
 		material->as<threepp::MeshPhongMaterial>()->shininess = 0x000000;*/
 
-		material = threepp::MeshLambertMaterial::create();
-		material->as<threepp::MeshLambertMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
+		//material = threepp::MeshLambertMaterial::create();
+		//material->as<threepp::MeshLambertMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
 	/*	material->as<threepp::MeshPhongMaterial>()->specular = 0x000000;
 		material->as<threepp::MeshPhongMaterial>()->shininess = 0x000000;*/
 		//material = threepp::MeshBasicMaterial::create();
 		//material->as<threepp::MeshBasicMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
-		material->transparent = set_transparent;
-		material->opacity = alpha;
+		//material->transparent = set_transparent;
+		//material->opacity = alpha;
+
+		material = threepp::MeshLambertMaterial::create(); 
+		material->as<threepp::MeshLambertMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
+		material->transparent = set_transparent; 
+		material->opacity = alpha; 
 	}
 
 	void IFCConverter::convertMeshSets(std::vector<shared_ptr<carve::mesh::MeshSet<3>>>& vecMeshSets,
@@ -355,7 +386,6 @@ namespace dragon
 			bufferGeo->setAttribute("normal", threepp::FloatBufferAttribute::create(normals, 3));
 			geoMesh = threepp::Mesh::create(bufferGeo);
 			geoMesh->castShadow = true; 
-			//geoMesh->receiveShadow = true;
 		}
 	}
 

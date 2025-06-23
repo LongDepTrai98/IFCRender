@@ -17,6 +17,9 @@ namespace dragon
 		scene.add(helper);
 		const auto axes = threepp::AxesHelper::create(100);
 		scene.add(axes);
+	/*	auto light = threepp::AmbientLight::create(0xffffff);
+		light->position.set(100, 100, 0);
+		scene.add(light); */
 	}
 	MainViewPort::MainViewPort(RenderCanvas* canvas) : IRenderer(canvas)
 	{

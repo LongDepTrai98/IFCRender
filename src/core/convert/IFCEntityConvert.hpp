@@ -12,6 +12,7 @@ namespace threepp
 	class Mesh; 
 	class BufferGeometry;
 	class Material; 
+	class LineSegments; 
 }
 namespace dragon
 {
@@ -32,6 +33,10 @@ namespace dragon
 			size_t ii_item,
 			std::shared_ptr<threepp::Group>& container,
 			float transparencyOverride);
+		void createOutlineEdgePolygon(std::shared_ptr<threepp::LineSegments>& outlineEdge,
+			const std::shared_ptr<threepp::BufferGeometry>& geoBuffer); 
+
+
 		void createDefaultMaterial(std::shared_ptr<threepp::Material>& material); 
 		void convertMeshSets(std::vector<shared_ptr<carve::mesh::MeshSet<3> > >& vecMeshSets,
 			std::shared_ptr<threepp::Mesh>& geoMesh,
