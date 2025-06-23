@@ -234,12 +234,9 @@ namespace dragon
 		if (!outlineEdge)
 		{
 			std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create(); 
-			outline_material->side = threepp::Side::Double; 
 			outline_material->color = threepp::Color::black; 
-			outline_material->transparent = true; 
-			outline_material->opacity = 0.5; 
 			outlineEdge = threepp::LineSegments::create(edge_geo,outline_material);
-			outlineEdge->scale = { 1.002 , 1.002, 1.002 }; 
+			outlineEdge->scale = { 1.001 , 1.001, 1.001 }; 
 			outlineEdge->renderOrder = INT_MAX; 
 		}
 	}
@@ -310,22 +307,10 @@ namespace dragon
 			set_transparent = true;
 			alpha = 1.0f - transparency;
 		}
-		/*material = threepp::MeshPhongMaterial::create();
+		material = threepp::MeshPhongMaterial::create();
 		material->as<threepp::MeshPhongMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
-		material->as<threepp::MeshPhongMaterial>()->specular = 0x000000; 
-		material->as<threepp::MeshPhongMaterial>()->shininess = 0x000000;*/
-
-		//material = threepp::MeshLambertMaterial::create();
-		//material->as<threepp::MeshLambertMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
-	/*	material->as<threepp::MeshPhongMaterial>()->specular = 0x000000;
-		material->as<threepp::MeshPhongMaterial>()->shininess = 0x000000;*/
-		//material = threepp::MeshBasicMaterial::create();
-		//material->as<threepp::MeshBasicMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
-		//material->transparent = set_transparent;
-		//material->opacity = alpha;
-
-		material = threepp::MeshLambertMaterial::create(); 
-		material->as<threepp::MeshLambertMaterial>()->color = threepp::Color(color_diffuse_r, color_diffuse_g, color_diffuse_b);
+		material->as<threepp::MeshPhongMaterial>()->specular = threepp::Color(color_specular_r, color_specular_g, color_specular_b);
+		material->as<threepp::MeshPhongMaterial>()->shininess = shininess;
 		material->transparent = set_transparent; 
 		material->opacity = alpha; 
 	}
