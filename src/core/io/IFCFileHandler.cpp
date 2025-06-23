@@ -20,6 +20,8 @@
 #include <ifcpp/model/BuildingModel.h>
 #include <ifcpp/reader/ReaderSTEP.h>
 #include <ifcpp/geometry/GeometryConverter.h>
+#include "threepp/helpers/SpotLightHelper.hpp"
+#include "threepp/helpers/DirectionalLightHelper.hpp"
 
 
 namespace dragon
@@ -43,7 +45,7 @@ namespace dragon
 		/*CONVERT MODEL TO GEOMETRY*/
 		m_GeometrySettings = std::make_shared<GeometrySettings>(); 
 		m_GeometryConverter = std::make_shared<GeometryConverter>(ifc_model, m_GeometrySettings);
-		m_GeometryConverter->setCsgEps(1.5e-08); 
+		m_GeometryConverter->setCsgEps(m_Eps);
 		/*adjust epsilon for boolean operations*/
 		//m_GeometryConverter->setCsgEps(m_Eps); 
 #ifdef _DEBUG
@@ -77,7 +79,8 @@ namespace dragon
 						box.setFromObject(*group);
 						auto center = box.getCenter(); 
 						camera->lookAt(center);
-						m_viewport->addLight(); 
+						addLight(*viewport_scene,
+							group); 
 					}
 				}
 			}
@@ -87,5 +90,37 @@ namespace dragon
 	std::shared_ptr<GeometryConverter>& IFCFileHandler::getGeometryConverter()
 	{
 		return m_GeometryConverter; 
+	}
+	void IFCFileHandler::addLight(threepp::Scene& scene,
+		std::shared_ptr<threepp::Group>& container)
+	{
+		std::shared_ptr<threepp::DirectionalLight> d_light_1 = threepp::DirectionalLight::create(threepp::Color::white);
+		std::shared_ptr<threepp::DirectionalLight> d_light_2 = threepp::DirectionalLight::create(threepp::Color::white);
+		std::shared_ptr<threepp::DirectionalLight> d_light_3 = threepp::DirectionalLight::create(threepp::Color::white, 0.6f);
+		std::shared_ptr<threepp::AmbientLight> a_light = threepp::AmbientLight::create((0xaaaaaa,0.8f));
+
+		d_light_1->position.set(100, 50, -100); 
+		d_light_2->position.set(-100, 50, 0);
+		d_light_3->position.set(100, 20, 0); 
+
+		a_light->position.set(-100,50,0); 
+
+		d_light_1->setTarget(*container); 
+		d_light_2->setTarget(*container); 
+		d_light_3->setTarget(*container); 
+
+		scene.add(d_light_1); 
+		scene.add(d_light_2); 
+		scene.add(d_light_3); 
+		scene.add(a_light); 
+
+
+		auto helper_d_light_1 = threepp::DirectionalLightHelper::create(*d_light_1, 1.0f, threepp::Color::lightyellow);
+		auto helper_d_light_2 = threepp::DirectionalLightHelper::create(*d_light_2, 1.0f, threepp::Color::red);
+		auto helper_d_light_3 = threepp::DirectionalLightHelper::create(*d_light_3, 1.0f, threepp::Color::blue);
+		
+		scene.add(helper_d_light_1); 
+		scene.add(helper_d_light_2); 
+		scene.add(helper_d_light_3); 
 	}
 }

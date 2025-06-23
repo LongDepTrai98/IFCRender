@@ -168,6 +168,7 @@ namespace dragon
 	{
 		bool includeChildProducts = false;
 		bool includeGeometricChildItems = false;
+		bool isEnableBackFaceCulling = true; 
 		if (item_data->hasItemDataGeometricRepresentation(includeGeometricChildItems, true))
 		{
 
@@ -180,14 +181,7 @@ namespace dragon
 			}
 
 			std::string ifc_entity_type = EntityFactory::getStringForClassID(ifc_product->classID());
-			std::shared_ptr<threepp::Material> material{ nullptr }; 
-			if (item_data->getStyles().size() > 0)
-			{
-				applyStylesToContainer(item_data->getStyles(),
-					container,
-					material,
-					transparencyOverride);
-			}
+			std::shared_ptr<threepp::Material> material{ nullptr };
 
 			if (item_data->m_meshsets_open.size() > 0)
 			{
@@ -199,6 +193,22 @@ namespace dragon
 			{
 				// enable back face culling for open meshes 
 				convertMeshSets(item_data->m_meshsets, meshGeo, ii_item, false);
+				isEnableBackFaceCulling = false; 
+			}
+
+			if (item_data->getStyles().size() > 0)
+			{
+				applyStylesToContainer(item_data->getStyles(),
+					container,
+					material,
+					transparencyOverride);
+				if (material)
+				{
+					if (isEnableBackFaceCulling)
+						material->side = threepp::Side::Double;
+					else
+						material->side = threepp::Side::Front;
+				}
 			}
 
 			if (meshGeo)
@@ -315,8 +325,8 @@ namespace dragon
 		material->polygonOffset = true; 
 		material->polygonOffsetFactor = 1.0f;
 		material->polygonOffsetUnits = 1.0f; 
+		material->opacity = alpha;
 		material->needsUpdate(); 
-		material->opacity = alpha; 
 	}
 
 	void IFCConverter::convertMeshSets(std::vector<shared_ptr<carve::mesh::MeshSet<3>>>& vecMeshSets,

@@ -2,51 +2,30 @@
 #include "wxInclude.hpp"
 #include "ui/RenderCanvas.hpp"
 #include "threepp/helpers/SpotLightHelper.hpp"
-
+#include "threepp/helpers/DirectionalLightHelper.hpp"
 namespace dragon
 {
-	static void createAndAddLights(threepp::Scene& scene) {
-
-		auto light = threepp::SpotLight::create(0xffffff, 0.5f);
-		scene.add(threepp::AmbientLight::create(threepp::Color::lightgray, .5f));
-		light->position.set(100, 100, 0);
-		light->angle = threepp::math::PI / 9;
-		light->castShadow = true;
-		scene.add(light); 
-		auto helper = threepp::SpotLightHelper::create(*light);
-		scene.add(helper);
-	}
 	MainViewPort::MainViewPort(RenderCanvas* canvas) : IRenderer(canvas)
 	{
 		wxSize canvas_size = m_Canvas->getSize();
 		m_Viewport_Size = { canvas_size.x, canvas_size.y }; 
 		initScene(m_Viewport_Size);
 		initCamera(m_Viewport_Size);
-		createAndAddLights(*m_Scene); 
-		createExampleScene(); 
-	
 	}
 	MainViewPort::~MainViewPort()
 	{
 	}
-	void MainViewPort::createExampleScene()
-	{
-		m_Camera->position.z = 5;
-	}
 	void MainViewPort::initCamera(threepp::WindowSize& w_size)
 	{
 		if (!m_Camera)
-			m_Camera = std::make_unique<threepp::PerspectiveCamera>(75, w_size.aspect()); 
+			m_Camera = std::make_unique<threepp::PerspectiveCamera>(60, w_size.aspect()); 
+		m_Camera->position.z = 5;
 	}
 	void MainViewPort::initScene(threepp::WindowSize& w_size)
 	{
 		if (!m_Scene)
 			m_Scene = std::make_unique<threepp::Scene>(); 
 		m_Scene->background = threepp::Color::aliceblue; 
-	}
-	void MainViewPort::addLight()
-	{
-		createAndAddLights(*m_Scene);
 	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{
