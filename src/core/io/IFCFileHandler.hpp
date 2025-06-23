@@ -20,6 +20,7 @@ namespace dragon
 		void open(const std::filesystem::path& file_path) override;
 		std::shared_ptr<GeometryConverter>& getGeometryConverter(); 
 		void addLight(threepp::Scene& scene, std::shared_ptr<threepp::Group>& container);
+		void createPlane(threepp::Scene& scene);
 	private:
 		/*PRIVATE PARAM*/
 		std::shared_ptr<GeometryConverter> m_GeometryConverter{ nullptr };

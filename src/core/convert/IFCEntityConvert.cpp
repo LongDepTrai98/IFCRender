@@ -234,7 +234,7 @@ namespace dragon
 		if (!outlineEdge)
 		{
 			std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create(); 
-			outline_material->color = threepp::Color::lightblue; 
+			outline_material->color = threepp::Color::darkblue; 
 			outlineEdge = threepp::LineSegments::create(edge_geo,outline_material);
 		}
 	}
@@ -278,8 +278,8 @@ namespace dragon
 		float shininess = appearence->m_shininess;
 		float transparency = appearence->m_transparency;
 		bool set_transparent = false;
-		const float w_ambient = 0.4f;
-		const float w_diffuse = 0.6f;
+		const float w_ambient = 0.35f;
+		const float w_diffuse = 0.65f;
 
 		const float color_ambient_r = appearence->m_color_ambient.r;
 		const float color_ambient_g = appearence->m_color_ambient.g;
