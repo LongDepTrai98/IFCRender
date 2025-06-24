@@ -249,6 +249,7 @@ namespace dragon
 			if (ifc_product->m_GlobalId)
 			{
 				product_guid = ifc_product->m_GlobalId->m_value;
+				
 			}
 			std::string ifc_entity_type = EntityFactory::getStringForClassID(ifc_product->classID());
 			if (m_current_mode == MODE::MESH)
@@ -297,6 +298,28 @@ namespace dragon
 				std::shared_ptr<threepp::BufferGeometry> buffGeo{ nullptr };
 				std::shared_ptr<threepp::Material> material{ nullptr };
 				/*INSTANCING THINKING*/
+				if (item_data->m_meshsets_open.size() > 0)
+				{
+					// disable back face culling for open meshes
+					convertMeshSetsToBuffGeom(item_data->m_meshsets_open,
+						buffGeo,
+						ii_item,
+						true);
+				}
+				else if (item_data->m_meshsets.size() > 0)
+				{
+					// enable back face culling for open meshes 
+					convertMeshSetsToBuffGeom(item_data->m_meshsets,
+						buffGeo,
+						ii_item,
+						false);
+					isEnableBackFaceCulling = false;
+				}
+				if (buffGeo)
+				{
+					buffGeo->applyMatrix4(matrix_transform); 
+					m_instancing_shape[ifc_entity_type].lstBuffGeo.push_back(buffGeo);
+				}
 			}
 
 		}
@@ -397,6 +420,7 @@ namespace dragon
 			alpha = transparency;
 		}
 		material = threepp::MeshBasicMaterial::create(); 
+		material->as<threepp::MeshBasicMaterial>()->vertexColors = true; 
 		material->as<threepp::MeshBasicMaterial>()->color = threepp::Color(mix_r, mix_g, mix_b);
 		material->transparent = set_transparent;
 		material->polygonOffset = true; 
@@ -411,63 +435,6 @@ namespace dragon
 	{
 	}
 
-	void IFCConverter::convertMeshSets(std::vector<shared_ptr<carve::mesh::MeshSet<3>>>& vecMeshSets,
-		std::shared_ptr<threepp::Mesh>& geoMesh,
-		size_t ii_item,
-		bool disableBackfaceCulling)
-	{
-		double min_triangle_area = m_geomSettings->getMinTriangleArea();
-		double eps = m_geomSettings->getEpsilonMergePoints();
-		double crease_angle = m_faces_crease_angle;
-		size_t mesh_size = vecMeshSets.size(); 
-		for (size_t ii = 0; ii < vecMeshSets.size(); ++ii)
-		{
-			//Create buffer geometry 
-			std::vector<float> vertices;
-			std::vector<float> normals;
-			std::vector<int> indices;
-			shared_ptr<carve::mesh::MeshSet<3>>& item_meshset = vecMeshSets[ii];
-			double epsCoplanarFacesAngle = eps;
-			double minFaceArea = eps;
-			bool dumpMeshes = false;
-			PolyInputCache3D polyTriangulated;
-			GeomProcessingParams params(m_geomSettings, dumpMeshes);
-			params.epsMergePoints = 0.001;
-			MeshOps::retriangulateMeshSetForExport(item_meshset, polyTriangulated, params);
-			if (!polyTriangulated.m_poly_data)
-			{
-				return;
-			}
-			//create new buffer geometry 
-			std::shared_ptr<threepp::BufferGeometry> bufferGeo = threepp::BufferGeometry::create(); 
-			for (const vec3& point : polyTriangulated.m_poly_data->points)
-			{
-				vertices.insert(vertices.end(), {static_cast<float>(point.x),static_cast<float>(point.y),static_cast<float>(point.z) });
-				normals.insert(normals.end(), { static_cast<float>(point.x),static_cast<float>(point.y),static_cast<float>(point.z) });
-			}; 
-			for (auto it = polyTriangulated.m_poly_data->faceIndices.begin(); it != polyTriangulated.m_poly_data->faceIndices.end(); ++it) {
-				int numPoints = *it;
-				if (numPoints != 3) {
-					std::cout << "not triangularized" << std::endl;
-					continue;
-				}
-				++it;
-				int idx = *it;
-				++it;
-				indices.push_back(static_cast<int>(idx));
-				idx = *it;
-				++it;
-				indices.push_back(static_cast<int>(idx));
-				idx = *it;
-				indices.push_back(static_cast<int>(idx));
-			}
-			bufferGeo->setIndex(indices);
-			bufferGeo->setAttribute("position", threepp::FloatBufferAttribute::create(vertices, 3));
-			bufferGeo->setAttribute("normal", threepp::FloatBufferAttribute::create(normals, 3));
-			geoMesh = threepp::Mesh::create(bufferGeo);
-			geoMesh->castShadow = true; 
-		}
-	}
 	void IFCConverter::convertMeshSetsToBuffGeom(std::vector<shared_ptr<carve::mesh::MeshSet<3>>>& vecMeshSets, 
 		std::shared_ptr<threepp::BufferGeometry>& geom,
 		size_t ii_item, 
@@ -543,5 +510,9 @@ namespace dragon
 			(float)matrix._41,(float)matrix._42,(float)matrix._43,(float)matrix._44
 		}; 
 		return threepp::Matrix4(arr_matrix);
+	}
+	std::unordered_map<std::string, IFCConverter::Instance_Cache>& IFCConverter::getAllGeo()
+	{
+		return m_instancing_shape; 
 	}
 }

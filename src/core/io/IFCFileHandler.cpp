@@ -6,6 +6,7 @@
 #include "ui/RenderCanvas.hpp"
 #include "renderer/THREEPPRenderer.hpp"
 #include "view/MainViewPort.hpp"
+#include "threepp/utils/BufferGeometryUtils.hpp"
 
 #include "core/convert/IFCEntityConvert.hpp"
 #include <unordered_set>
@@ -61,7 +62,19 @@ namespace dragon
 			group = converter.convert(m_GeometryConverter, m_GeometrySettings);
 		}
 		else if (m_bIsCreateInstance) {
-			group = converter.convertWithInstancing(m_GeometryConverter, m_GeometrySettings); 
+			group = threepp::Group::create(); 
+			converter.convertWithInstancing(m_GeometryConverter, m_GeometrySettings);
+			auto shapes = converter.getAllGeo();
+			auto material = threepp::MeshBasicMaterial::create();
+			material->as<threepp::MeshBasicMaterial>()->color = threepp::Color::lightgray;
+			for (auto& [id_entity, lstBuffer] : shapes)
+			{
+				auto buffer = threepp::mergeBufferGeometries(lstBuffer.lstBuffGeo); 
+				material->transparent = true; 
+				material->opacity = 0.7f; 
+				auto mesh = threepp::Mesh::create(buffer, material); 
+				group->add(mesh); 
+			}
 		}
 
 		if (m_Window)
@@ -89,7 +102,7 @@ namespace dragon
 						camera->lookAt(center);
 						addLight(*viewport_scene,
 							group); 
-						createPlane(*viewport_scene); 
+						//createPlane(*viewport_scene); 
 					}
 				}
 			}

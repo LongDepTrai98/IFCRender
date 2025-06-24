@@ -28,11 +28,8 @@ namespace dragon
 		};
 
 		struct Instance_Cache {
-			std::shared_ptr<threepp::InstancedMesh> mesh{ nullptr }; 
-			std::shared_ptr<threepp::Material> material{ nullptr }; 
-			std::shared_ptr<threepp::BufferGeometry> geometry{ nullptr }; 
-			threepp::Matrix4 matrix; 
-			int count{ 0 }; 
+			/*GEO TO MERGE*/
+			std::vector<std::shared_ptr<threepp::BufferGeometry>> lstBuffGeo{};
 		};
 
 	public:
@@ -59,10 +56,6 @@ namespace dragon
 		void createOutlineEdgePolygon(std::shared_ptr<threepp::LineSegments>& outlineEdge,
 			const std::shared_ptr<threepp::BufferGeometry>& geoBuffer); 
 		void createDefaultMaterial(std::shared_ptr<threepp::Material>& material); 
-		void convertMeshSets(std::vector<shared_ptr<carve::mesh::MeshSet<3> > >& vecMeshSets,
-			std::shared_ptr<threepp::Mesh>& geoMesh,
-			size_t ii_item,
-			bool disableBackfaceCulling); 
 		void convertMeshSetsToBuffGeom(
 			std::vector<shared_ptr<carve::mesh::MeshSet<3>>>& vecMeshSets,
 			std::shared_ptr<threepp::BufferGeometry>& bufferGeo,
@@ -79,6 +72,7 @@ namespace dragon
 		void setMaterialForGroup(const std::shared_ptr<threepp::Group>& group, 
 			const std::shared_ptr<threepp::Material>& material);
 		threepp::Matrix4 convertCarveMatrix2ThreeppMatrix(const carve::math::Matrix& matrix); 
+		std::unordered_map<std::string, Instance_Cache>& getAllGeo(); 
 	private: 
 		std::shared_ptr<GeometrySettings> m_geomSettings{ nullptr };
 		std::unordered_map<std::string, Instance_Cache> m_instancing_shape{};
