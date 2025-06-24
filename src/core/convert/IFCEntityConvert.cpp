@@ -294,7 +294,6 @@ namespace dragon
 			}
 			else if (m_current_mode == MODE::INSTANCING)
 			{
-				std::shared_ptr<threepp::InstancedMesh> instancedMesh{ nullptr };
 				std::shared_ptr<threepp::BufferGeometry> buffGeo{ nullptr };
 				std::shared_ptr<threepp::Material> material{ nullptr };
 				/*INSTANCING THINKING*/

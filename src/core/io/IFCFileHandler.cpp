@@ -70,8 +70,8 @@ namespace dragon
 			for (auto& [id_entity, lstBuffer] : shapes)
 			{
 				auto buffer = threepp::mergeBufferGeometries(lstBuffer.lstBuffGeo); 
-				material->transparent = true; 
-				material->opacity = 0.7f; 
+				//material->transparent = true; 
+				//material->opacity = 0.7f; 
 				auto mesh = threepp::Mesh::create(buffer, material); 
 				group->add(mesh); 
 			}
