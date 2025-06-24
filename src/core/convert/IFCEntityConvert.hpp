@@ -27,6 +27,14 @@ namespace dragon
 			INSTANCING
 		};
 
+		struct Instance_Cache {
+			std::shared_ptr<threepp::InstancedMesh> mesh{ nullptr }; 
+			std::shared_ptr<threepp::Material> material{ nullptr }; 
+			std::shared_ptr<threepp::BufferGeometry> geometry{ nullptr }; 
+			threepp::Matrix4 matrix; 
+			int count{ 0 }; 
+		};
+
 	public:
 		IFCConverter();
 		~IFCConverter();
@@ -73,9 +81,9 @@ namespace dragon
 		threepp::Matrix4 convertCarveMatrix2ThreeppMatrix(const carve::math::Matrix& matrix); 
 	private: 
 		std::shared_ptr<GeometrySettings> m_geomSettings{ nullptr };
-		std::unordered_map<std::string, std::shared_ptr<threepp::InstancedMesh>> m_instancing_shape{};
+		std::unordered_map<std::string, Instance_Cache> m_instancing_shape{};
 		double m_faces_crease_angle = M_PI * 0.02;
-		MODE current_mode{ MODE::MESH }; 
+		MODE m_current_mode{ MODE::MESH };
 	}; 
 }
 #endif // !_IFC_ENTITY_CONVERT_TO_SCENE_OBJECT_HPP_

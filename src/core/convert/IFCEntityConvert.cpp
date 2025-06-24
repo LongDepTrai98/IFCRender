@@ -40,7 +40,7 @@ namespace dragon
 		const std::shared_ptr<GeometrySettings>& geometrySettings)
 	{
 		/*CREAT GROUP TO STORE ENTITY*/
-		current_mode = MODE::MESH; 
+		m_current_mode = MODE::MESH; 
 		std::shared_ptr<threepp::Group> container = threepp::Group::create(); 
 		std::unordered_map<std::string, std::shared_ptr<ProductShapeData>>& map_shape_data = geometryConverter->getShapeInputData();
 		m_geomSettings = geometrySettings; 
@@ -79,7 +79,7 @@ namespace dragon
 	std::shared_ptr<threepp::Group> IFCConverter::convertWithInstancing(const std::shared_ptr<GeometryConverter>& geometryConverter,
 		const std::shared_ptr<GeometrySettings>& geometrySettings)
 	{
-		current_mode = MODE::INSTANCING; 
+		m_current_mode = MODE::INSTANCING; 
 		std::shared_ptr<threepp::Group> container = threepp::Group::create();
 		std::unordered_map<std::string, std::shared_ptr<ProductShapeData>>& map_shape_data = geometryConverter->getShapeInputData();
 		m_geomSettings = geometrySettings;
@@ -134,15 +134,20 @@ namespace dragon
 			/*GET PARENT MATRIX*/
 			carve::math::Matrix localTransform = product_shape->getTransform();
 			threepp::Matrix4 threepp_local_transform_matrix = convertCarveMatrix2ThreeppMatrix(localTransform);
-			std::shared_ptr<threepp::Group> new_product_group = threepp::Group::create();
-			new_product_group->applyMatrix4(threepp_local_transform_matrix);
+			std::shared_ptr<threepp::Group> new_product_group{ nullptr }; 
 
 			/*UPDATE PARENT MATRIX INSTANCING MODE*/
-			if (current_mode == MODE::INSTANCING)
+			if (m_current_mode == MODE::MESH)
 			{
-				parent_matrix = parent_matrix.multiply(threepp_local_transform_matrix);
+				new_product_group = threepp::Group::create();
+				new_product_group->applyMatrix4(threepp_local_transform_matrix);
 			}
-
+			else if (m_current_mode == MODE::INSTANCING)
+			{
+				threepp_local_transform_matrix = threepp_local_transform_matrix.multiply(parent_matrix);
+				//threepp_local_transform_matrix.multiplyMatrices(parent_matrix); 
+				new_product_group = container; 
+			}
 			container->add(new_product_group);
 			product_id = product_shape->m_entity_guid;
 			new_product_group->name = product_id;
@@ -191,7 +196,7 @@ namespace dragon
 						0,
 						new_product_group,
 						transparencyOverride,
-						parent_matrix); 
+						threepp_local_transform_matrix);
 				}
 			}
 			float transparencyOverrideChildElements = 0.0;
@@ -201,7 +206,7 @@ namespace dragon
 				convertProductShape(child, 
 					new_product_group, 
 					transparencyOverrideChildElements,
-					parent_matrix);
+					threepp_local_transform_matrix);
 			}
 
 			if (product_shape->getStyles().size() > 0)
@@ -246,7 +251,7 @@ namespace dragon
 				product_guid = ifc_product->m_GlobalId->m_value;
 			}
 			std::string ifc_entity_type = EntityFactory::getStringForClassID(ifc_product->classID());
-			if (current_mode == MODE::MESH)
+			if (m_current_mode == MODE::MESH)
 			{
 				std::shared_ptr<threepp::Mesh> meshGeo{ nullptr };
 				std::shared_ptr<threepp::BufferGeometry> buffGeo{ nullptr }; 
@@ -255,24 +260,19 @@ namespace dragon
 				if (item_data->m_meshsets_open.size() > 0)
 				{
 					// disable back face culling for open meshes
-					//convertMeshSets(item_data->m_meshsets_open, meshGeo, ii_item, true);
 					convertMeshSetsToBuffGeom(item_data->m_meshsets_open,
 						buffGeo,
 						ii_item, 
 						true); 
-				}
-
-				if (item_data->m_meshsets.size() > 0)
+				} else if (item_data->m_meshsets.size() > 0)
 				{
 					// enable back face culling for open meshes 
-					//convertMeshSets(item_data->m_meshsets, meshGeo, ii_item, false);
 					convertMeshSetsToBuffGeom(item_data->m_meshsets,
 						buffGeo,
 						ii_item,
 						false); 
 					isEnableBackFaceCulling = false;
 				}
-
 				if (item_data->getStyles().size() > 0)
 				{
 					applyStylesToContainer(item_data->getStyles(),
@@ -285,34 +285,18 @@ namespace dragon
 				{
 					createOutlineEdgePolygon(outlineEdge,buffGeo);
 					if (!material) createDefaultMaterial(material);
+					isEnableBackFaceCulling ? material->side = threepp::Side::Front : material->side = threepp::Side::Double; 
 					meshGeo = threepp::Mesh::create(buffGeo, material); 
 					container->add(meshGeo); 
 					container->add(outlineEdge); 
 				}
-
-				//if (meshGeo)
-				//{
-				//	meshGeo->name = product_guid;
-				//	//create outline of geometry 
-				//	createOutlineEdgePolygon(outlineEdge,
-				//		meshGeo->geometry());
-				//	if (!material)
-				//	{
-				//		createDefaultMaterial(material);
-				//	}
-				//	meshGeo->setMaterial(material);
-				//	container->add(meshGeo);
-				//	container->add(outlineEdge);
-				//}
 			}
-			else if (current_mode == MODE::INSTANCING)
+			else if (m_current_mode == MODE::INSTANCING)
 			{
 				std::shared_ptr<threepp::InstancedMesh> instancedMesh{ nullptr };
-				std::shared_ptr<threepp::LineSegments> outlineEdge{ nullptr };
-				if (m_instancing_shape.count(product_guid) == 0)
-				{
-					/*INSERT AND CREATE GEOM*/
-				}
+				std::shared_ptr<threepp::BufferGeometry> buffGeo{ nullptr };
+				std::shared_ptr<threepp::Material> material{ nullptr };
+				/*INSTANCING THINKING*/
 			}
 
 		}
@@ -339,7 +323,7 @@ namespace dragon
 		if (!outlineEdge)
 		{
 			std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create(); 
-			outline_material->color = threepp::Color::blanchedalmond; 
+			outline_material->color = threepp::Color::darkgray; 
 			outlineEdge = threepp::LineSegments::create(edge_geo,outline_material);
 		}
 	}
@@ -412,7 +396,6 @@ namespace dragon
 			set_transparent = true;
 			alpha = transparency;
 		}
-
 		material = threepp::MeshBasicMaterial::create(); 
 		material->as<threepp::MeshBasicMaterial>()->color = threepp::Color(mix_r, mix_g, mix_b);
 		material->transparent = set_transparent;

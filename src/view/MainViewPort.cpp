@@ -25,7 +25,7 @@ namespace dragon
 	{
 		if (!m_Scene)
 			m_Scene = std::make_unique<threepp::Scene>(); 
-		m_Scene->background = threepp::Color::whitesmoke; 
+		m_Scene->background = threepp::Color::aliceblue; 
 	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{

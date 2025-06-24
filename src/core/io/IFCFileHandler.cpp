@@ -55,7 +55,15 @@ namespace dragon
 		m_GeometryConverter->convertGeometry();
 		/*CONVERT ENTITY TO SCENE*/
 		IFCConverter converter{};
-		std::shared_ptr<threepp::Group> group =  converter.convert(m_GeometryConverter, m_GeometrySettings);
+		std::shared_ptr<threepp::Group> group{ nullptr }; 
+		if (!m_bIsCreateInstance)
+		{
+			group = converter.convert(m_GeometryConverter, m_GeometrySettings);
+		}
+		else if (m_bIsCreateInstance) {
+			group = converter.convertWithInstancing(m_GeometryConverter, m_GeometrySettings); 
+		}
+
 		if (m_Window)
 		{
 			/*GET MAIN VIEWPORT*/
@@ -98,7 +106,7 @@ namespace dragon
 		//std::shared_ptr<threepp::DirectionalLight> d_light_1 = threepp::DirectionalLight::create(threepp::Color::white);
 		//std::shared_ptr<threepp::DirectionalLight> d_light_2 = threepp::DirectionalLight::create(threepp::Color::white);
 		//std::shared_ptr<threepp::DirectionalLight> d_light_3 = threepp::DirectionalLight::create(threepp::Color::white, 0.6f);
-		std::shared_ptr<threepp::AmbientLight> a_light = threepp::AmbientLight::create((threepp::Color::white));
+		std::shared_ptr<threepp::AmbientLight> a_light = threepp::AmbientLight::create((threepp::Color::white,0.5f));
 		scene.add(a_light);
 
 		//d_light_1->position.set(100, 50, -100); 
