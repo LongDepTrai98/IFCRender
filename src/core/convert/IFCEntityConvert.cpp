@@ -326,7 +326,8 @@ namespace dragon
 				if (buffGeo)
 				{
 					buffGeo->applyMatrix4(matrix_transform); 
-					if (!material)createDefaultMaterial(material); 
+					if (!material)createDefaultMaterial(material);
+					isEnableBackFaceCulling ? material->side = threepp::Side::Front : material->side = threepp::Side::Double;
 					m_instancing_shape[ifc_entity_type].lstBuffGeo.push_back({ material, buffGeo });
 				}
 			}

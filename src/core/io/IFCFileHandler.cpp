@@ -1,7 +1,5 @@
 #include "IFCFileHandler.hpp"
 #include "IFCMessageHandler.hpp"
-
-
 #include "ui/WindowFrame.hpp"
 #include "ui/RenderCanvas.hpp"
 #include "renderer/THREEPPRenderer.hpp"
@@ -84,12 +82,12 @@ namespace dragon
 					indexOffset += count; 
 				}
 				auto mesh = threepp::Mesh::create(mergeo, materials);
-
-				const float thresholdAngle = 30.0f;
+				const float thresholdAngle = 10.0f;
 				std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*mergeo, thresholdAngle);
 				std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
 				outline_material->color = threepp::Color::darkslategray;
 				std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
+				std::cout << "Indices: " << indexOffset << std::endl; 
 				group->add(mesh); 
 				group->add(outlineEdge); 
 			}
@@ -120,7 +118,6 @@ namespace dragon
 						camera->lookAt(center);
 						addLight(*viewport_scene,
 							group); 
-						//createPlane(*viewport_scene); 
 					}
 				}
 			}
