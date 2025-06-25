@@ -88,7 +88,7 @@ namespace dragon
 				const float thresholdAngle = 30.0f;
 				std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*mergeo, thresholdAngle);
 				std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
-				outline_material->color = threepp::Color::blanchedalmond;
+				outline_material->color = threepp::Color::darkslategray;
 				std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
 				group->add(mesh); 
 				group->add(outlineEdge); 
