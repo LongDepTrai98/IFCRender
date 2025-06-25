@@ -314,10 +314,20 @@ namespace dragon
 						false);
 					isEnableBackFaceCulling = false;
 				}
+
+				if (item_data->getStyles().size() > 0)
+				{
+					applyStylesToContainer(item_data->getStyles(),
+						container,
+						material,
+						transparencyOverride);
+				}
+
 				if (buffGeo)
 				{
 					buffGeo->applyMatrix4(matrix_transform); 
-					m_instancing_shape[ifc_entity_type].lstBuffGeo.push_back(buffGeo);
+					if (!material)createDefaultMaterial(material); 
+					m_instancing_shape[ifc_entity_type].lstBuffGeo.push_back({ material, buffGeo });
 				}
 			}
 
@@ -419,7 +429,7 @@ namespace dragon
 			alpha = transparency;
 		}
 		material = threepp::MeshBasicMaterial::create(); 
-		material->as<threepp::MeshBasicMaterial>()->vertexColors = true; 
+		//material->as<threepp::MeshBasicMaterial>()->vertexColors = true; 
 		material->as<threepp::MeshBasicMaterial>()->color = threepp::Color(mix_r, mix_g, mix_b);
 		material->transparent = set_transparent;
 		material->polygonOffset = true; 

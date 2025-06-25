@@ -27,9 +27,14 @@ namespace dragon
 			INSTANCING
 		};
 
+		struct BuffCache {
+			std::shared_ptr<threepp::Material> material{ nullptr }; 
+			std::shared_ptr<threepp::BufferGeometry> buffer{ nullptr }; 
+		};
+
 		struct Instance_Cache {
 			/*GEO TO MERGE*/
-			std::vector<std::shared_ptr<threepp::BufferGeometry>> lstBuffGeo{};
+			std::vector<BuffCache> lstBuffGeo{};
 		};
 
 	public:

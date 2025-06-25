@@ -7,7 +7,7 @@
 #include "renderer/THREEPPRenderer.hpp"
 #include "view/MainViewPort.hpp"
 #include "threepp/utils/BufferGeometryUtils.hpp"
-
+#include "threepp/geometries/EdgesGeometry.hpp"
 #include "core/convert/IFCEntityConvert.hpp"
 #include <unordered_set>
 #include <ifcpp/IFC4X3/include/IfcBuildingStorey.h>
@@ -65,15 +65,33 @@ namespace dragon
 			group = threepp::Group::create(); 
 			converter.convertWithInstancing(m_GeometryConverter, m_GeometrySettings);
 			auto shapes = converter.getAllGeo();
-			auto material = threepp::MeshBasicMaterial::create();
-			material->as<threepp::MeshBasicMaterial>()->color = threepp::Color::lightgray;
 			for (auto& [id_entity, lstBuffer] : shapes)
 			{
-				auto buffer = threepp::mergeBufferGeometries(lstBuffer.lstBuffGeo); 
-				//material->transparent = true; 
-				//material->opacity = 0.7f; 
-				auto mesh = threepp::Mesh::create(buffer, material); 
+				int indexOffset{ 0 }; 
+				std::cout << id_entity << std::endl; 
+				std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{}; 
+				std::vector<std::shared_ptr<threepp::Material>> materials{}; 
+				for (int i = 0; i < lstBuffer.lstBuffGeo.size(); ++i)
+				{
+					geometries.push_back(lstBuffer.lstBuffGeo[i].buffer); 
+					materials.push_back(lstBuffer.lstBuffGeo[i].material); 
+				}
+				auto mergeo = threepp::mergeBufferGeometries(geometries); 
+				for (int i = 0; i < materials.size(); ++i)
+				{
+					int count = lstBuffer.lstBuffGeo[i].buffer->getIndex()->count(); 
+					mergeo->addGroup(indexOffset, count, i); 
+					indexOffset += count; 
+				}
+				auto mesh = threepp::Mesh::create(mergeo, materials);
+
+				const float thresholdAngle = 30.0f;
+				std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*mergeo, thresholdAngle);
+				std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
+				outline_material->color = threepp::Color::blanchedalmond;
+				std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
 				group->add(mesh); 
+				group->add(outlineEdge); 
 			}
 		}
 
@@ -119,7 +137,7 @@ namespace dragon
 		//std::shared_ptr<threepp::DirectionalLight> d_light_1 = threepp::DirectionalLight::create(threepp::Color::white);
 		//std::shared_ptr<threepp::DirectionalLight> d_light_2 = threepp::DirectionalLight::create(threepp::Color::white);
 		//std::shared_ptr<threepp::DirectionalLight> d_light_3 = threepp::DirectionalLight::create(threepp::Color::white, 0.6f);
-		std::shared_ptr<threepp::AmbientLight> a_light = threepp::AmbientLight::create((threepp::Color::white,0.5f));
+		std::shared_ptr<threepp::AmbientLight> a_light = threepp::AmbientLight::create((threepp::Color::gray));
 		scene.add(a_light);
 
 		//d_light_1->position.set(100, 50, -100); 
