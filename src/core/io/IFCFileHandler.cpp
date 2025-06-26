@@ -45,8 +45,6 @@ namespace dragon
 		m_GeometrySettings = std::make_shared<GeometrySettings>(); 
 		m_GeometryConverter = std::make_shared<GeometryConverter>(ifc_model, m_GeometrySettings);
 		m_GeometryConverter->setCsgEps(m_Eps);
-		/*adjust epsilon for boolean operations*/
-		//m_GeometryConverter->setCsgEps(m_Eps); 
 #ifdef _DEBUG
 		GeomDebugDump::clearMeshsetDump();
 #endif
@@ -54,45 +52,10 @@ namespace dragon
 		m_GeometryConverter->convertGeometry();
 		/*CONVERT ENTITY TO SCENE*/
 		IFCConverter converter{};
+		IFCConverter::MODE mode; 
 		std::shared_ptr<threepp::Group> group{ nullptr }; 
-		if (!m_bIsCreateInstance)
-		{
-			group = converter.convert(m_GeometryConverter, m_GeometrySettings);
-		}
-		else if (m_bIsCreateInstance) {
-			group = threepp::Group::create(); 
-			converter.convertWithInstancing(m_GeometryConverter, m_GeometrySettings);
-			auto shapes = converter.getAllGeo();
-			for (auto& [id_entity, lstBuffer] : shapes)
-			{
-				int indexOffset{ 0 }; 
-				std::cout << id_entity << std::endl; 
-				std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{}; 
-				std::vector<std::shared_ptr<threepp::Material>> materials{}; 
-				for (int i = 0; i < lstBuffer.lstBuffGeo.size(); ++i)
-				{
-					geometries.push_back(lstBuffer.lstBuffGeo[i].buffer); 
-					materials.push_back(lstBuffer.lstBuffGeo[i].material); 
-				}
-				auto mergeo = threepp::mergeBufferGeometries(geometries); 
-				for (int i = 0; i < materials.size(); ++i)
-				{
-					int count = lstBuffer.lstBuffGeo[i].buffer->getIndex()->count(); 
-					mergeo->addGroup(indexOffset, count, i); 
-					indexOffset += count; 
-				}
-				auto mesh = threepp::Mesh::create(mergeo, materials);
-				const float thresholdAngle = 10.0f;
-				std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*mergeo, thresholdAngle);
-				std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
-				outline_material->color = threepp::Color::darkslategray;
-				std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
-				std::cout << "Indices: " << indexOffset << std::endl; 
-				group->add(mesh); 
-				group->add(outlineEdge); 
-			}
-		}
-
+		m_bIsCreateInstance ? mode = IFCConverter::MODE::INSTANCING : mode = IFCConverter::MODE::MESH; 
+		group = converter.convert(m_GeometryConverter, m_GeometrySettings, mode); 
 		if (m_Window)
 		{
 			/*GET MAIN VIEWPORT*/
