@@ -3,10 +3,12 @@
 #include "ui/WindowFrame.hpp"
 #include "ui/RenderCanvas.hpp"
 #include "renderer/THREEPPRenderer.hpp"
-#include "view/MainViewPort.hpp"
+#include "renderer/THREEPPSceneBuilder.hpp"
+#include "core/utils/AppHelper.hpp"
 #include "threepp/utils/BufferGeometryUtils.hpp"
 #include "threepp/geometries/EdgesGeometry.hpp"
 #include "core/convert/IFCEntityConvert.hpp"
+#include "renderer/THREEPPSceneBuilder.hpp"
 #include <unordered_set>
 #include <ifcpp/IFC4X3/include/IfcBuildingStorey.h>
 #include <ifcpp/IFC4X3/include/IfcGloballyUniqueId.h>
@@ -59,30 +61,16 @@ namespace dragon
 		if (m_Window)
 		{
 			/*GET MAIN VIEWPORT*/
-			WindowFrame* window_frame = dynamic_cast<WindowFrame*>(m_Window); 
-			if (window_frame)
+			WindowFrame* window_frame = dynamic_cast<WindowFrame*>(m_Window);
+			auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
+			if (main_viewport)
 			{
-				IRenderer* renderer = window_frame->getRenderCanvas()->getRenderer(); 
-				/*CONVERT TO THREEPP*/
-				THREEPPRenderer* three_renderer = dynamic_cast<THREEPPRenderer*>(renderer); 
-				if (three_renderer)
-				{
-					MainViewPort* m_viewport = dynamic_cast<MainViewPort*>(three_renderer->getMainViewPort());
-					if (m_viewport)
-					{
-						auto viewport_scene = m_viewport->getScene(); 
-						auto camera = m_viewport->getCamera(); 
-						viewport_scene->clear();
-						group->rotation.x = -threepp::math::PI / 2;
-						viewport_scene->add(group); 
-						threepp::Box3 box{}; 
-						box.setFromObject(*group);
-						auto center = box.getCenter(); 
-						camera->lookAt(center);
-						addLight(*viewport_scene,
-							group); 
-					}
-				}
+				auto viewport_scene = main_viewport->getScene();
+				auto camera = main_viewport->getCamera();
+				viewport_scene->clear(); 
+				group->rotation.x = -threepp::math::PI / 2;
+				viewport_scene->add(group);
+				SceneBuilder::IFCBuildScene(group.get(), viewport_scene, camera); 
 			}
 		}
 
@@ -90,49 +78,5 @@ namespace dragon
 	std::shared_ptr<GeometryConverter>& IFCFileHandler::getGeometryConverter()
 	{
 		return m_GeometryConverter; 
-	}
-	void IFCFileHandler::addLight(threepp::Scene& scene,
-		std::shared_ptr<threepp::Group>& container)
-	{
-		//std::shared_ptr<threepp::DirectionalLight> d_light_1 = threepp::DirectionalLight::create(threepp::Color::white);
-		//std::shared_ptr<threepp::DirectionalLight> d_light_2 = threepp::DirectionalLight::create(threepp::Color::white);
-		//std::shared_ptr<threepp::DirectionalLight> d_light_3 = threepp::DirectionalLight::create(threepp::Color::white, 0.6f);
-		std::shared_ptr<threepp::AmbientLight> a_light = threepp::AmbientLight::create((threepp::Color::gray));
-		scene.add(a_light);
-
-		//d_light_1->position.set(100, 50, -100); 
-		//d_light_2->position.set(-100, 50, 0);
-		//d_light_3->position.set(100, 20, 0); 
-
-		//a_light->position.set(0,100,0); 
-
-		//d_light_1->setTarget(*container); 
-		//d_light_2->setTarget(*container); 
-		//d_light_3->setTarget(*container); 
-
-
-
-		//auto helper_d_light_1 = threepp::DirectionalLightHelper::create(*d_light_1, 1.0f, threepp::Color::lightyellow);
-		//auto helper_d_light_2 = threepp::DirectionalLightHelper::create(*d_light_2, 1.0f, threepp::Color::red);
-		//auto helper_d_light_3 = threepp::DirectionalLightHelper::create(*d_light_3, 1.0f, threepp::Color::blue);
-		//
-		//scene.add(helper_d_light_1); 
-		//scene.add(helper_d_light_2); 
-		//scene.add(helper_d_light_3); 
-	}
-	void IFCFileHandler::createPlane(threepp::Scene& scene)
-	{
-		auto geometry = threepp::PlaneGeometry::create(150, 150);
-		auto material = threepp::MeshBasicMaterial::create(); 
-		material->opacity = 0.2f; 
-		material->transparent = true; 
-		auto mesh = threepp::Mesh::create(geometry, material);
-		mesh->rotation.x = -threepp::math::PI / 2;
-		auto grid = threepp::GridHelper::create(150, 150);
-		grid->rotation.x = threepp::math::PI / 2;
-		grid->material()->opacity = 0.3f;
-		grid->material()->transparent = true;
-		mesh->add(grid);
-		scene.add(mesh); 
 	}
 }
