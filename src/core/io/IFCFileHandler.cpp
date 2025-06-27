@@ -23,6 +23,7 @@
 #include <ifcpp/geometry/GeometryConverter.h>
 #include "threepp/helpers/SpotLightHelper.hpp"
 #include "threepp/helpers/DirectionalLightHelper.hpp"
+#include "core/io/WebIFCConverter.hpp"
 
 
 namespace dragon
@@ -35,29 +36,40 @@ namespace dragon
 	}
 	void IFCFileHandler::open(const std::filesystem::path& file_path)
 	{
-		shared_ptr<BuildingModel> ifc_model(new BuildingModel());
-		/*CALLBACK MESSAGE HANDLER*/
-		IFCMessageHandler mh;
-		/*CRATE READER STEP*/
-		shared_ptr<ReaderSTEP> step_reader(new ReaderSTEP());
-		step_reader->setMessageCallBack(std::bind(&IFCMessageHandler::slotMessageWrapper, &mh, std::placeholders::_1));
-		/*LOAD MODEL*/
-		step_reader->loadModelFromFile(file_path.string(), ifc_model); 
-		/*CONVERT MODEL TO GEOMETRY*/
-		m_GeometrySettings = std::make_shared<GeometrySettings>(); 
-		m_GeometryConverter = std::make_shared<GeometryConverter>(ifc_model, m_GeometrySettings);
-		m_GeometryConverter->setCsgEps(m_Eps);
+		
+
+		std::shared_ptr<threepp::Group> group{ nullptr };
+
+		if (m_bIsUseWebIFCConvert)
+		{
+			WebIFCConverter IFCApi{};
+			group = IFCApi.convert(file_path);
+		}
+		else
+		{
+			shared_ptr<BuildingModel> ifc_model(new BuildingModel());
+			/*CALLBACK MESSAGE HANDLER*/
+			IFCMessageHandler mh;
+			/*CRATE READER STEP*/
+			shared_ptr<ReaderSTEP> step_reader(new ReaderSTEP());
+			step_reader->setMessageCallBack(std::bind(&IFCMessageHandler::slotMessageWrapper, &mh, std::placeholders::_1));
+			/*LOAD MODEL*/
+			step_reader->loadModelFromFile(file_path.string(), ifc_model);
+			/*CONVERT MODEL TO GEOMETRY*/
+			m_GeometrySettings = std::make_shared<GeometrySettings>();
+			m_GeometryConverter = std::make_shared<GeometryConverter>(ifc_model, m_GeometrySettings);
+			m_GeometryConverter->setCsgEps(m_Eps);
 #ifdef _DEBUG
-		GeomDebugDump::clearMeshsetDump();
+			GeomDebugDump::clearMeshsetDump();
 #endif
-		std::cout << "Converting IFC geometry: ";
-		m_GeometryConverter->convertGeometry();
-		/*CONVERT ENTITY TO SCENE*/
-		IFCConverter converter{};
-		IFCConverter::MODE mode; 
-		std::shared_ptr<threepp::Group> group{ nullptr }; 
-		m_bIsCreateInstance ? mode = IFCConverter::MODE::INSTANCING : mode = IFCConverter::MODE::MESH; 
-		group = converter.convert(m_GeometryConverter, m_GeometrySettings, mode); 
+			std::cout << "Converting IFC geometry: ";
+			m_GeometryConverter->convertGeometry();
+			/*CONVERT ENTITY TO SCENE*/
+			IFCConverter converter{};
+			IFCConverter::MODE mode;
+			m_bIsCreateInstance ? mode = IFCConverter::MODE::INSTANCING : mode = IFCConverter::MODE::MESH;
+			group = converter.convert(m_GeometryConverter, m_GeometrySettings, mode);
+		}
 		if (m_Window)
 		{
 			/*GET MAIN VIEWPORT*/

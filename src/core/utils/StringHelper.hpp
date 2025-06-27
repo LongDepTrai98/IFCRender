@@ -3,6 +3,7 @@
 #include <string>
 #include <algorithm>
 #include <cctype>
+#include <fstream>
 namespace dragon
 {
 	class StringHelper
@@ -12,6 +13,13 @@ namespace dragon
 		{
 			std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
 			return s; 
+		}
+		static std::string ReadFile(std::string filename)
+		{
+			std::ifstream t(filename);
+			std::stringstream buffer;
+			buffer << t.rdbuf();
+			return buffer.str();
 		}
 	private: 
 		StringHelper(); 

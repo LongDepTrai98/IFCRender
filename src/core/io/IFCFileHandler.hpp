@@ -25,6 +25,7 @@ namespace dragon
 		std::shared_ptr<GeometrySettings> m_GeometrySettings{ nullptr }; 
 		double m_Eps{ 1.5e-9 };
 		bool m_bIsCreateInstance{ true }; 
+		bool m_bIsUseWebIFCConvert{ true };
 	};
 }
 #endif // !_IFC_FILE_HANDLER_HPP_
