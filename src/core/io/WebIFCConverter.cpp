@@ -233,11 +233,4 @@ namespace dragon
 		}
 		return modelID;
 	}
-
-	std::shared_ptr<threepp::Mesh> WebIFCConverter::Mergeo(const std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries, const std::vector<std::shared_ptr<threepp::Material>>& materials)
-	{
-		std::cout << "Merging Phase:" << "----------------------------------------------" << std::endl;
-		std::shared_ptr<threepp::BufferGeometry> buffMerge = threepp::mergeBufferGeometries(geometries,true);
-		return threepp::Mesh::create(buffMerge, materials);
-	}
 }

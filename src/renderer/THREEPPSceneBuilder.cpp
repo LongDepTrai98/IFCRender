@@ -24,7 +24,7 @@ namespace dragon
 		auto min = box.min();
 		auto max = box.max();
 		/*BUILD PLANE*/
-	/*	auto geometry = threepp::PlaneGeometry::create(150, 150);
+		auto geometry = threepp::PlaneGeometry::create(150, 150);
 		auto material = threepp::MeshBasicMaterial::create();
 		material->opacity = 0.2f;
 		material->transparent = true;
@@ -32,9 +32,8 @@ namespace dragon
 		mesh->rotation.x = -threepp::math::PI / 2;
 		auto grid = threepp::GridHelper::create(150, 150);
 		grid->rotation.x = threepp::math::PI / 2;
-		grid->material()->opacity = 0.3f;
-		grid->material()->transparent = true;
+		grid->position.z = min.z; 
 		mesh->add(grid);
-		scene->add(mesh);*/
+		scene->add(mesh);
 	}
 }

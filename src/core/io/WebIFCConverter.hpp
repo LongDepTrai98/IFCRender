@@ -45,11 +45,6 @@ namespace dragon
 	public:
 		std::shared_ptr<threepp::Group> convert(const std::filesystem::path& path);
 	private:
-		void loadAllMesh(webifc::parsing::IfcLoader& loader,
-			webifc::geometry::IfcGeometryProcessor& geometryLoader,
-			std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries,
-			std::vector<std::shared_ptr<threepp::Material>>& materials);
-		std::shared_ptr<threepp::Mesh> Mergeo(const std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries, const std::vector<std::shared_ptr<threepp::Material>>& materials);
 		/*PORT FROM IFC API*/
 		void parseIfcFile(const std::string& buffer);
 		void loadAllGeometry(const uint32_t& modelID);
