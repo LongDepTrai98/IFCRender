@@ -21,6 +21,7 @@ namespace dragon
 	WebIFCConverter::~WebIFCConverter()
 	{
 		m_ModelManager->CloseModel(m_modelID);
+		geo_with_material.clear(); 
 	}
 
 	std::shared_ptr<threepp::Group> WebIFCConverter::convert(const std::filesystem::path& path)
@@ -41,11 +42,21 @@ namespace dragon
 		};
 		m_ModelManager->GetGeometryProcessor(m_modelID)->SetTransformation(double_array);
 		loadAllGeometry(m_modelID);
-		std::shared_ptr<threepp::Mesh> mergeMesh = Mergeo(geometries, materials);
-		mergeMesh->matrixAutoUpdate = false;
-		container->add(mergeMesh);
-		const float thresholdAngle = 45.0f;
-		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*mergeMesh->geometry(), thresholdAngle);
+		auto size_t = geo_with_material.size();
+		std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{}; 
+		std::vector<std::shared_ptr<threepp::Material>> materials{};
+		for (auto& [hashColor, geo_with_mat] : geo_with_material)
+		{
+			std::shared_ptr<threepp::BufferGeometry> merged = threepp::mergeBufferGeometries(geo_with_mat.geometries); 
+			geometries.emplace_back(merged);
+			materials.emplace_back(geo_with_mat.material); 
+		}
+		std::shared_ptr<threepp::BufferGeometry> merged_all = threepp::mergeBufferGeometries(geometries,true);
+		std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(merged_all,materials);
+		mesh->matrixAutoUpdate = false; 
+		container->add(mesh); 
+		const float thresholdAngle = 30.0f;
+		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*mesh->geometry(), thresholdAngle);
 		std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
 		outline_material->color = threepp::Color::lightslategray;
 		std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
@@ -147,6 +158,24 @@ namespace dragon
 			normals[i / 2 + 2] = vertexData[i + 5];
 			idAttribute[i / 6] = expressId;
 		}
+		auto placedColor = placedGeometry.color;
+		std::string str_hash_color = colorToHash(placedGeometry.color.x, placedColor.y, placedColor.z, placedColor.w);
+		if (geo_with_material.count(str_hash_color) == 0)
+		{
+			/*CREATE MATERIAL*/
+			std::shared_ptr<threepp::MeshLambertMaterial> material = threepp::MeshLambertMaterial::create();
+			threepp::Color color;
+			color.setRGB(placedColor.x, placedColor.y, placedColor.z);
+			std::cout << std::format("Hash color : {}", str_hash_color) << std::endl;
+			material->as<threepp::MeshLambertMaterial>()->color = color;
+			material->side = threepp::Side::Double;
+			material->transparent = placedColor.w != 1.0;
+			if (material->transparent) material->opacity = placedColor.w;
+			std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries; 
+			geo_with_material.insert({ str_hash_color,{material,geometries} }); 
+		}
+
+
 		std::shared_ptr<threepp::BufferGeometry> buff_geometry = threepp::BufferGeometry::create();
 		buff_geometry->setIndex(indices);
 		buff_geometry->setAttribute("position", threepp::FloatBufferAttribute::create(vertices, 3));
@@ -158,16 +187,7 @@ namespace dragon
 			matrix_float[i] = static_cast<float>(placedGeometry.flatTransformation[i]);
 		}
 		buff_geometry->applyMatrix4(threepp::Matrix4(matrix_float));
-		geometries.emplace_back(buff_geometry);
-		auto placedColor = placedGeometry.color;
-		std::shared_ptr<threepp::MeshLambertMaterial> material = threepp::MeshLambertMaterial::create();
-		threepp::Color color;
-		color.setRGB(placedColor.x, placedColor.y, placedColor.z);
-		material->as<threepp::MeshLambertMaterial>()->color = color;
-		material->side = threepp::Side::Double;
-		material->transparent = placedColor.w != 1.0;
-		if (material->transparent) material->opacity = placedColor.w;
-		materials.emplace_back(material);
+		geo_with_material[str_hash_color].geometries.emplace_back(buff_geometry); 
 	}
 
 	webifc::geometry::IfcGeometry& WebIFCConverter::getBufferGeometry(const uint32_t& modelId, const webifc::geometry::IfcPlacedGeometry& placedGeometry)
@@ -175,6 +195,16 @@ namespace dragon
 		if (m_ModelManager->IsModelOpen(modelId));
 		auto geomLoader = m_ModelManager->GetGeometryProcessor(modelId);
 		return geomLoader->GetGeometry(placedGeometry.geometryExpressID);
+	}
+
+	std::string WebIFCConverter::colorToHash(const float& r, const float& g, const float& b, const float& w)
+	{
+		std::ostringstream ss;
+		ss << std::setw(3) << std::setfill('0') << static_cast<int>(r * 255)
+			<< std::setw(3) << std::setfill('0') << static_cast<int>(g * 255)
+			<< std::setw(3) << std::setfill('0') << static_cast<int>(b * 255)
+			<< std::setw(3) << std::setfill('0') << static_cast<int>(w * 255);
+		return ss.str(); 
 	}
 
 	void WebIFCConverter::streamAllMeshesWithTypes(const uint32_t& modelID, const std::vector<uint32_t>& types)
