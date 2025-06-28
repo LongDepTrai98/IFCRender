@@ -58,7 +58,7 @@ namespace dragon
 			dispAttrs.PlatformDefaults()
 				.RGBA()
 				.DoubleBuffer()
-				.Depth(24)
+				//.Depth(24)
 				.SampleBuffers(1)
 				.Samplers(app_config::num_sampler)
 				.Stencil(8)

@@ -1,123 +1,209 @@
 #define FMT_UNICODE 0
-#include "threepp/threepp.hpp"
 #include "WebIFCConverter.hpp"
 #include "web-ifc/parsing/IfcLoader.h"
 #include "web-ifc/schema/IfcSchemaManager.h"
 #include "web-ifc/schema/ifc-schema.h"
-#include "io_helpers.h"
-#include "core/utils/StringHelper.hpp"
+#include "web-ifc/modelmanager/ModelManager.h"
 #include "web-ifc/geometry/IfcGeometryProcessor.h"
+#include "io_helpers.h"
+#include "threepp/threepp.hpp"
+#include "threepp/geometries/EdgesGeometry.hpp"
+#include "core/utils/StringHelper.hpp"
 #include "threepp/utils/BufferGeometryUtils.hpp"
 #include <glm/gtc/type_ptr.hpp>
 namespace dragon
 {
+    WebIFCConverter::WebIFCConverter()
+    {
+        m_ModelManager = std::make_shared<webifc::manager::ModelManager>(m_bMT_ENABLE); 
+    }
+
+    WebIFCConverter::~WebIFCConverter()
+    {
+        m_ModelManager->CloseModel(m_modelID); 
+    }
+
     std::shared_ptr<threepp::Group> WebIFCConverter::convert(const std::filesystem::path& path)
 	{
-		std::string content = StringHelper::ReadFile(path.string());
-        struct LoaderSettings
+		const std::string& buffer = StringHelper::ReadFile(path.string());
+        parseIfcFile(buffer); 
+        if (!m_ModelManager->IsModelOpen(m_modelID))
         {
-            bool COORDINATE_TO_ORIGIN = false;
-            uint16_t CIRCLE_SEGMENTS = 12;
-            uint32_t TAPE_SIZE = 67108864; // probably no need for anyone other than web-ifc devs to change this
-            uint32_t MEMORY_LIMIT = 2147483648;
-            uint16_t LINEWRITER_BUFFER = 10000;
-        };
-        LoaderSettings set;
-        set.COORDINATE_TO_ORIGIN = true;
-
-        webifc::schema::IfcSchemaManager schemaManager;
-        webifc::parsing::IfcLoader loader(set.TAPE_SIZE, set.MEMORY_LIMIT, set.LINEWRITER_BUFFER, schemaManager);
-
-        loader.LoadFile([&](char* dest, size_t sourceOffset, size_t destSize)
-            {
-                uint32_t length = std::min(content.size() - sourceOffset, destSize);
-                memcpy(dest, &content[sourceOffset], length);
-	               return length; });
-        webifc::geometry::IfcGeometryProcessor geometryLoader(loader, schemaManager, set.CIRCLE_SEGMENTS, set.COORDINATE_TO_ORIGIN);
-        std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{}; 
-        std::vector<std::shared_ptr<threepp::Material>> materials{}; 
-        loadAllMesh(loader, geometryLoader,geometries, materials);
-        std::shared_ptr<threepp::Group> container = threepp::Group::create(); 
+            std::cout << std::format("Model not open {}", m_modelID); 
+        }
+        auto model_size = m_ModelManager->GetIfcLoader(m_modelID)->GetTotalSize(); 
+        std::shared_ptr<threepp::Group> container = threepp::Group::create();
+        std::array<float, 16> default_array = container->matrix->elements;
+        std::array<double, 16> double_array{}; 
+        for (int i = 0; i < 16; ++i)
+        {
+            double_array[i] = static_cast<double>(default_array[i]);
+        }; 
+        m_ModelManager->GetGeometryProcessor(m_modelID)->SetTransformation(double_array);
+        loadAllGeometry(m_modelID); 
         std::shared_ptr<threepp::Mesh> mergeMesh = Mergeo(geometries, materials); 
+        mergeMesh->matrixAutoUpdate = false; 
         container->add(mergeMesh); 
+        const float thresholdAngle = 45.0f;
+        std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*mergeMesh->geometry(), thresholdAngle);
+        std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
+        outline_material->color = threepp::Color::lightslategray;
+        std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
+        container->add(outlineEdge);
         return container; 
 	}
-    void WebIFCConverter::loadAllMesh(webifc::parsing::IfcLoader& loader,
-        webifc::geometry::IfcGeometryProcessor& geometryLoader,
-        std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries, 
-        std::vector<std::shared_ptr<threepp::Material>>& materials)
+
+    void WebIFCConverter::parseIfcFile(const std::string& buffer)
     {
-        webifc::schema::IfcSchemaManager schema;
-        for (auto type : schema.GetIfcElementList())
+        //call back to load part of file data 
+        const std::function<uint32_t(char*, size_t, size_t)> request_data = [&](char* dest,size_t sourceOffset, size_t destSize) {
+                uint32_t length = std::min(buffer.size() - sourceOffset, destSize);
+                memcpy(dest, &buffer[sourceOffset], length);
+                std::cout << std::format("load part sourceOffSet {}, destSize {}", sourceOffset, destSize); 
+                return length;
+            }; 
+        webifc::manager::LoaderSettings settings = webifc::manager::LoaderSettings(); 
+        settings.COORDINATE_TO_ORIGIN = true; 
+        m_modelID = this->OpenModel(settings, request_data);
+    }
+
+    void WebIFCConverter::loadAllGeometry(const uint32_t& modelID)
+    {
+        /*INIT FOR UI*/
+        streamAllMeshes(modelID); 
+    }
+
+    void WebIFCConverter::streamAllMeshes(const uint32_t& modelID)
+    {
+        if (!m_ModelManager->IsModelOpen(modelID)) return;
+        std::vector<uint32_t> types{}; 
+        const std::unordered_set<uint32_t>& ifcElementList = m_ModelManager->GetSchemaManager().GetIfcElementList(); 
+        for (auto& type : ifcElementList)
         {
-            auto elements = loader.GetExpressIDsWithType(type);
-
-            for (unsigned int i = 0; i < elements.size(); i++)
+            if (type == webifc::schema::IFCOPENINGELEMENT 
+                || type == webifc::schema::IFCSPACE 
+                || type == webifc::schema::IFCOPENINGSTANDARDCASE)
             {
-                auto flatMesh = geometryLoader.GetFlatMesh(elements[i]);
-                for (auto& geom : flatMesh.geometries)
-                {
-                    auto flatGeom = geometryLoader.GetGeometry(geom.geometryExpressID);
-                    auto flatTrans = geom.transformation; 
-                    
-                    const double* ptr = glm::value_ptr(flatTrans);
-                    std::array<float, 16> matrix_f; 
+                continue;
+            }
+            types.push_back(type); 
+        }
+        streamAllMeshesWithTypes(modelID, types); 
+    }
 
-                    for (size_t i = 0; i < 16; ++i) {
-                        matrix_f[i] = static_cast<float>(ptr[i]);
-                    }
+    void WebIFCConverter::streamMeshes(const uint32_t& modelId, const std::vector<uint32_t>& expressIds)
+    {
+        if (!m_ModelManager->IsModelOpen(modelId)) return; 
+        auto geomLoader = m_ModelManager->GetGeometryProcessor(modelId);
+        int index = 0; 
+        int total = expressIds.size(); 
+        for (const auto& id : expressIds)
+        {
+            /*READ MESH FROM IFC FILE*/
+            webifc::geometry::IfcFlatMesh mesh = geomLoader->GetFlatMesh(id);
+            for (auto& geom : mesh.geometries)
+            {
+                auto& flatGeom = geomLoader->GetGeometry(geom.geometryExpressID);
+                flatGeom.GetVertexData();
+            }
+            if (!mesh.geometries.empty())
+            {
+                streamMesh(modelId, mesh); 
+            }
+        }
+        geomLoader->Clear();
+        index++; 
+    }
 
-                   /* for (size_t i = 0; i < 16; ++i) {
-                        matrix_f[i] = static_cast<float>(flatTrans[i]); 
-                    }*/
-                    threepp::Matrix4 flatTransformation = threepp::Matrix4(matrix_f);
-                    auto& color = geom.color; 
-                    float r = color[0];
-                    float g = color[1];
-                    float b = color[2];
-                    float opacity = color[3]; 
-                    /*CRATE GEOMETRY*/
-                    std::vector<float> vertices;
-                    std::vector<float> normals;
-                    std::vector<int> indices;
-                    const std::vector<uint32_t>& indexData = flatGeom.indexData;
-                    indices.reserve(indexData.size()); 
-                    for (uint32_t val : indexData)
-                    {
-                        indices.emplace_back(static_cast<int>(val)); 
-                    }
-                    flatGeom.fvertexData;
-                    for(int j = 0; j < flatGeom.numPoints; ++j)
-                    {
-                        auto point = flatGeom.GetPoint(j);
-                        vertices.insert(vertices.end(), { static_cast<float>(point.x),static_cast<float>(point.y),static_cast<float>(point.z) });
-                        normals.insert(normals.end(), { static_cast<float>(point.x),static_cast<float>(point.y),static_cast<float>(point.z) });
-                    }
-                    std::shared_ptr<threepp::BufferGeometry> geometry = threepp::BufferGeometry::create();
-                    geometry->applyMatrix4(flatTransformation); 
-                    geometry->setIndex(indices); 
-                    geometry->setAttribute("position", threepp::FloatBufferAttribute::create(vertices, 3));
-                    geometry->setAttribute("normal", threepp::FloatBufferAttribute::create(normals, 3));
-                    geometries.emplace_back(geometry); 
-                    /*CREATE MATERIAL*/
-                    std::shared_ptr<threepp::MeshBasicMaterial> material = threepp::MeshBasicMaterial::create();
-                    material->color = threepp::Color(r,g,b);
-                    bool isTransparent{ false }; 
-                    if(opacity < 1.0)
-                    { 
-                        isTransparent = true; 
-                    }
-                    material->transparent = isTransparent; 
-                    material->opacity = opacity; 
-                    material->polygonOffset = true;
-                    material->polygonOffsetFactor = 1.0f;
-                    material->polygonOffsetUnits = 1.0f;
-                    material->needsUpdate();
-                    materials.emplace_back(material); 
-                }
+    void WebIFCConverter::streamMesh(const uint32_t& modelId, const webifc::geometry::IfcFlatMesh& mesh)
+    {
+        const std::vector<webifc::geometry::IfcPlacedGeometry>& placedGeometries =  mesh.geometries;
+        for (int i = 0; i < placedGeometries.size(); ++i)
+        {
+            auto& placedGeometry = placedGeometries[i]; 
+            getPlacedGeometry(modelId, mesh.expressID, placedGeometry); 
+        }
+    }
+
+    void WebIFCConverter::getPlacedGeometry(const uint32_t& modelId, const uint32_t& expressId, const webifc::geometry::IfcPlacedGeometry& placedGeometry)
+    {
+        auto& geometry = getBufferGeometry(modelId, placedGeometry); 
+        auto vertexData = geometry.vertexData;
+        auto indices = geometry.indexData;
+
+        int vertices_size = vertexData.size() / 2; 
+        int normals_size = vertexData.size() / 2; 
+        int attribute_size = vertexData.size() / 6; 
+        std::vector<float> vertices(vertices_size); 
+        std::vector<float> normals(normals_size);
+        std::vector<uint32_t> idAttribute(attribute_size); 
+        for (int i = 0; i < vertexData.size(); i += 6)
+        {
+            vertices[i / 2] = vertexData[i];
+            vertices[i / 2 + 1] = vertexData[i + 1];
+            vertices[i / 2 + 2] = vertexData[i + 2];
+            normals[i / 2] = vertexData[i + 3];
+            normals[i / 2 + 1] = vertexData[i + 4];
+            normals[i / 2 + 2] = vertexData[i + 5];
+            idAttribute[i / 6] = expressId;
+        }
+        std::shared_ptr<threepp::BufferGeometry> buff_geometry = threepp::BufferGeometry::create(); 
+        buff_geometry->setIndex(indices); 
+        buff_geometry->setAttribute("position", threepp::FloatBufferAttribute::create(vertices, 3));
+        buff_geometry->setAttribute("normal", threepp::FloatBufferAttribute::create(normals, 3));
+        buff_geometry->setAttribute("expressID", threepp::IntBufferAttribute::create(idAttribute, 1));
+        std::array<float, 16> matrix_float{};
+        for (int i = 0; i < 16; ++i)
+        {
+            matrix_float[i] = static_cast<float>(placedGeometry.flatTransformation[i]);
+        }
+        buff_geometry->applyMatrix4(threepp::Matrix4(matrix_float));
+        geometries.emplace_back(buff_geometry);
+        auto placedColor = placedGeometry.color; 
+        std::shared_ptr<threepp::MeshLambertMaterial> material = threepp::MeshLambertMaterial::create();
+        threepp::Color color; 
+        color.setRGB(placedColor.x, placedColor.y, placedColor.z); 
+        material->as<threepp::MeshLambertMaterial>()->color = color;
+        material->side = threepp::Side::Double; 
+        material->transparent = placedColor.w != 1.0; 
+        if (material->transparent) material->opacity = placedColor.w; 
+        materials.emplace_back(material);  
+    }
+
+    webifc::geometry::IfcGeometry& WebIFCConverter::getBufferGeometry(const uint32_t& modelId, const webifc::geometry::IfcPlacedGeometry& placedGeometry)
+    {
+        if (m_ModelManager->IsModelOpen(modelId)); 
+        auto geomLoader = m_ModelManager->GetGeometryProcessor(modelId); 
+        return geomLoader->GetGeometry(placedGeometry.geometryExpressID);
+    }
+
+    void WebIFCConverter::streamAllMeshesWithTypes(const uint32_t& modelID, const std::vector<uint32_t>& types)
+    {
+        if (!m_ModelManager->IsModelOpen(modelID)) return;
+        auto loader = m_ModelManager->GetIfcLoader(modelID); 
+        for (auto& type : types)
+        {
+            auto elements = loader->GetExpressIDsWithType(type);
+            if (elements.size() != 0)
+            {
+                std::cout << std::format("Element size: {}", elements.size()) << std::endl;
+                streamMeshes(modelID, elements); 
             }
         }
     }
+
+    int WebIFCConverter::OpenModel(webifc::manager::LoaderSettings& settings, 
+        const std::function<uint32_t(char*, size_t, size_t)>& requestData)
+    {
+        if (!m_ModelManager) return -1; 
+        const int& modelID = m_ModelManager->CreateModel(settings); 
+        if (requestData)
+        {
+            m_ModelManager->GetIfcLoader(modelID)->LoadFile(requestData); 
+        }
+        return modelID; 
+    }
+
     std::shared_ptr<threepp::Mesh> WebIFCConverter::Mergeo(const std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries, const std::vector<std::shared_ptr<threepp::Material>>& materials)
     {
         std::cout << "Merging Phase:" << "----------------------------------------------" << std::endl;

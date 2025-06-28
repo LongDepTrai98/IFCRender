@@ -24,7 +24,7 @@ namespace dragon
 		wxGLContextAttrs ctxAttrs;
 		ctxAttrs.PlatformDefaults()
 			.CoreProfile()
-			.OGLVersion(4, 4)
+			.OGLVersion(3, 3)
 			.EndList();
 		if (!m_Context)
 			m_Context = std::make_unique<wxGLContext>(this, nullptr, &ctxAttrs);
