@@ -4,18 +4,18 @@
 #include "view/MainViewPort.hpp"
 namespace threepp
 {
-	class Scene; 
+	class Scene;
 }
 namespace dragon
 {
-	class WindowFrame; 
+	class WindowFrame;
 	class AppHelper
 	{
-	public: 
+	public:
 		/*APP HELPER GET MAIN VIEW PORT SCENE*/
 		static MainViewPort* getMainViewPortScene(WindowFrame* main_frame);
-	private: 
-		AppHelper() = default; 
+	private:
+		AppHelper() = default;
 	};
 }
 #endif // !_APP_HELPER_HPP_

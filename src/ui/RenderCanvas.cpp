@@ -37,7 +37,6 @@ namespace dragon
 	{
 		if (!m_Renderer)
 			m_Renderer = std::make_unique<THREEPPRenderer>(this);
-
 	}
 	void RenderCanvas::initUI()
 	{
@@ -74,7 +73,7 @@ namespace dragon
 	}
 	IRenderer* RenderCanvas::getRenderer()
 	{
-		return m_Renderer.get(); 
+		return m_Renderer.get();
 	}
 	void RenderCanvas::OnSize(wxSizeEvent& event)
 	{

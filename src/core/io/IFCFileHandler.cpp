@@ -25,7 +25,6 @@
 #include "threepp/helpers/DirectionalLightHelper.hpp"
 #include "core/io/WebIFCConverter.hpp"
 
-
 namespace dragon
 {
 	IFCFileHandler::IFCFileHandler()
@@ -36,8 +35,6 @@ namespace dragon
 	}
 	void IFCFileHandler::open(const std::filesystem::path& file_path)
 	{
-		
-
 		std::shared_ptr<threepp::Group> group{ nullptr };
 
 		if (m_bIsUseWebIFCConvert)
@@ -79,16 +76,15 @@ namespace dragon
 			{
 				auto viewport_scene = main_viewport->getScene();
 				auto camera = main_viewport->getCamera();
-				viewport_scene->clear(); 
+				viewport_scene->clear();
 				//group->rotation.x = -threepp::math::PI / 2;
 				viewport_scene->add(group);
-				SceneBuilder::IFCBuildScene(group.get(), viewport_scene, camera); 
+				SceneBuilder::IFCBuildScene(group.get(), viewport_scene, camera);
 			}
 		}
-
 	}
 	std::shared_ptr<GeometryConverter>& IFCFileHandler::getGeometryConverter()
 	{
-		return m_GeometryConverter; 
+		return m_GeometryConverter;
 	}
 }

@@ -35,21 +35,21 @@ namespace dragon
 	IFCConverter::~IFCConverter()
 	{
 	}
-	std::shared_ptr<threepp::Group> IFCConverter::convert(const std::shared_ptr<GeometryConverter>& geometryConverter, 
-		const std::shared_ptr<GeometrySettings>& geometrySettings, 
+	std::shared_ptr<threepp::Group> IFCConverter::convert(const std::shared_ptr<GeometryConverter>& geometryConverter,
+		const std::shared_ptr<GeometrySettings>& geometrySettings,
 		const MODE& open_mode)
 	{
 		/*CREAT GROUP TO STORE ENTITY*/
-		std::shared_ptr<threepp::Group> container = threepp::Group::create(); 
+		std::shared_ptr<threepp::Group> container = threepp::Group::create();
 		std::unordered_map<std::string, std::shared_ptr<ProductShapeData>>& map_shape_data = geometryConverter->getShapeInputData();
-		m_geomSettings = geometrySettings; 
+		m_geomSettings = geometrySettings;
 		shared_ptr<ProductShapeData> shapeDataIfcProject;
 		for (auto& it : map_shape_data)
 		{
 			std::shared_ptr<ProductShapeData> shapeData = it.second;
 			if (!shapeData)
 			{
-				continue; 
+				continue;
 			}
 			if (shapeData->m_ifc_object_definition.expired())
 			{
@@ -65,7 +65,7 @@ namespace dragon
 				break;
 			}
 		}
-		float transparency = 1.0f; 
+		float transparency = 1.0f;
 		if (shapeDataIfcProject)
 		{
 			if (open_mode == MODE::MESH)
@@ -77,16 +77,16 @@ namespace dragon
 			else if (open_mode == MODE::INSTANCING)
 			{
 				std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{};
-				std::vector<std::shared_ptr<threepp::Material>> materials{}; 
-				threepp::Matrix4 parent_matrix{}; 
+				std::vector<std::shared_ptr<threepp::Material>> materials{};
+				threepp::Matrix4 parent_matrix{};
 				convertProductShape(shapeDataIfcProject,
 					transparency,
 					parent_matrix,
 					geometries,
 					materials);
-				//Merge Geo 
-				std::shared_ptr<threepp::Mesh> geoMerge = Mergeo(geometries, materials); 
-				container->add(geoMerge); 
+				//Merge Geo
+				std::shared_ptr<threepp::Mesh> geoMerge = Mergeo(geometries, materials);
+				container->add(geoMerge);
 				//Create outline edge
 				const float thresholdAngle = 45.0f;
 				std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*geoMerge->geometry(), thresholdAngle);
@@ -95,28 +95,27 @@ namespace dragon
 				std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
 				container->add(outlineEdge);
 			}
-
 		}
-		return container; 
+		return container;
 	}
 	void IFCConverter::convertProductShape(const std::shared_ptr<ProductShapeData>& product_shape,
-		std::shared_ptr<threepp::Group>& container, 
+		std::shared_ptr<threepp::Group>& container,
 		float transparencyOverride)
 	{
-		std::string product_id{ "" }; 
+		std::string product_id{ "" };
 		try
 		{
-			product_shape->m_added_to_spatial_structure = true; 
-			std::string entityType{ "" }; 
+			product_shape->m_added_to_spatial_structure = true;
+			std::string entityType{ "" };
 			if (product_shape->m_ifc_object_definition.expired())
 			{
-				return; 
+				return;
 			}
 
 			/*GET PARENT MATRIX*/
 			carve::math::Matrix localTransform = product_shape->getTransform();
 			threepp::Matrix4 threepp_local_transform_matrix = convertCarveMatrix2ThreeppMatrix(localTransform);
-			std::shared_ptr<threepp::Group> new_product_group{ nullptr }; 
+			std::shared_ptr<threepp::Group> new_product_group{ nullptr };
 
 			/*UPDATE PARENT MATRIX INSTANCING MODE*/
 			new_product_group = threepp::Group::create();
@@ -164,7 +163,7 @@ namespace dragon
 				{
 					const shared_ptr<ItemShapeData>& geom_item = product_shape->getGeometricItems()[ii_representation];
 					convertGeometricItemEditMode(geom_item,
-						ifc_product, 
+						ifc_product,
 						ii_representation,
 						0,
 						new_product_group,
@@ -175,36 +174,34 @@ namespace dragon
 			for (size_t i_item = 0; i_item < product_shape->getChildElements().size(); ++i_item)
 			{
 				const std::shared_ptr<ProductShapeData>& child = product_shape->getChildElements()[i_item];
-				convertProductShape(child, 
-					new_product_group, 
+				convertProductShape(child,
+					new_product_group,
 					transparencyOverrideChildElements);
 			}
 
 			if (product_shape->getStyles().size() > 0)
 			{
-				int a = 3; 
-				//Root 
+				int a = 3;
+				//Root
 			 //child (matrix ) root matrix * child matrix (mesh )
 			}
-
-
 		}
 		catch (BuildingException& e)
 		{
-			std::cerr << e.what() << std::endl; 
+			std::cerr << e.what() << std::endl;
 		}
 		catch (carve::exception& e)
 		{
-			std::cerr << e.str() << std::endl; 
+			std::cerr << e.str() << std::endl;
 		}
 		catch (std::exception& e)
 		{
-			std::cerr << e.what() << std::endl; 
+			std::cerr << e.what() << std::endl;
 		}
 	}
 
-	void IFCConverter::convertProductShape(const std::shared_ptr<ProductShapeData>& product_shape, 
-		float transparencyOverride, 
+	void IFCConverter::convertProductShape(const std::shared_ptr<ProductShapeData>& product_shape,
+		float transparencyOverride,
 		threepp::Matrix4& parent_matrix,
 		std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries,
 		std::vector<std::shared_ptr<threepp::Material>>& materials)
@@ -254,7 +251,7 @@ namespace dragon
 						shared_ptr<IfcObjectDefinition>& relating_object = decomposes_ptr->m_RelatingObject;
 						if (relating_object)
 						{
-							if (dynamic_pointer_cast<IfcCurtainWall>(relating_object) 
+							if (dynamic_pointer_cast<IfcCurtainWall>(relating_object)
 								|| dynamic_pointer_cast<IfcWindow>(relating_object))
 							{
 								transparencyOverride = 0.6f;
@@ -290,11 +287,9 @@ namespace dragon
 			if (product_shape->getStyles().size() > 0)
 			{
 				int a = 3;
-				//Root 
+				//Root
 			 //child (matrix ) root matrix * child matrix (mesh )
 			}
-
-
 		}
 		catch (BuildingException& e)
 		{
@@ -308,32 +303,28 @@ namespace dragon
 		{
 			std::cerr << e.what() << std::endl;
 		}
-
-
 	}
 
 	void IFCConverter::convertGeometricItemEditMode(const std::shared_ptr<ItemShapeData>& item_data,
-		const std::shared_ptr<IfcProduct>& ifc_product, 
+		const std::shared_ptr<IfcProduct>& ifc_product,
 		size_t ii_representation, size_t ii_item,
-		std::shared_ptr<threepp::Group>& container, 
+		std::shared_ptr<threepp::Group>& container,
 		float transparencyOverride)
 	{
 		/*CONVERT GEOMETRIC ITEMS EDIT MODE*/
 		bool includeChildProducts = false;
 		bool includeGeometricChildItems = false;
-		bool isEnableBackFaceCulling = true; 
+		bool isEnableBackFaceCulling = true;
 		if (item_data->hasItemDataGeometricRepresentation(includeGeometricChildItems, true))
 		{
-
 			std::string product_guid;
 			if (ifc_product->m_GlobalId)
 			{
 				product_guid = ifc_product->m_GlobalId->m_value;
-				
 			}
 			std::string ifc_entity_type = EntityFactory::getStringForClassID(ifc_product->classID());
 			std::shared_ptr<threepp::Mesh> meshGeo{ nullptr };
-			std::shared_ptr<threepp::BufferGeometry> buffGeo{ nullptr }; 
+			std::shared_ptr<threepp::BufferGeometry> buffGeo{ nullptr };
 			std::shared_ptr<threepp::LineSegments> outlineEdge{ nullptr };
 			std::shared_ptr<threepp::Material> material{ nullptr };
 			if (item_data->m_meshsets_open.size() > 0)
@@ -341,15 +332,16 @@ namespace dragon
 				// disable back face culling for open meshes
 				convertMeshSetsToBuffGeom(item_data->m_meshsets_open,
 					buffGeo,
-					ii_item, 
-					true); 
-			} else if (item_data->m_meshsets.size() > 0)
+					ii_item,
+					true);
+			}
+			else if (item_data->m_meshsets.size() > 0)
 			{
-				// enable back face culling for open meshes 
+				// enable back face culling for open meshes
 				convertMeshSetsToBuffGeom(item_data->m_meshsets,
 					buffGeo,
 					ii_item,
-					false); 
+					false);
 				isEnableBackFaceCulling = false;
 			}
 			if (item_data->getStyles().size() > 0)
@@ -361,12 +353,12 @@ namespace dragon
 
 			if (buffGeo)
 			{
-				createOutlineEdgePolygon(outlineEdge,buffGeo);
+				createOutlineEdgePolygon(outlineEdge, buffGeo);
 				if (!material) createDefaultMaterial(material);
-				isEnableBackFaceCulling ? material->side = threepp::Side::Front : material->side = threepp::Side::Double; 
-				meshGeo = threepp::Mesh::create(buffGeo, material); 
-				container->add(meshGeo); 
-				container->add(outlineEdge); 
+				isEnableBackFaceCulling ? material->side = threepp::Side::Front : material->side = threepp::Side::Double;
+				meshGeo = threepp::Mesh::create(buffGeo, material);
+				container->add(meshGeo);
+				container->add(outlineEdge);
 			}
 		}
 
@@ -374,16 +366,16 @@ namespace dragon
 		{
 			const shared_ptr<ItemShapeData>& child = item_data->m_child_items[i_item];
 			convertGeometricItemEditMode(child,
-				ifc_product, 
+				ifc_product,
 				ii_representation,
-				i_item, 
+				i_item,
 				container,
 				transparencyOverride);
 		}
 	}
-	void IFCConverter::convertGeometricItemViewMode(const std::shared_ptr<ItemShapeData>& item_data, 
+	void IFCConverter::convertGeometricItemViewMode(const std::shared_ptr<ItemShapeData>& item_data,
 		const std::shared_ptr<IfcProduct>& ifc_product,
-		size_t ii_representation, size_t ii_item, 
+		size_t ii_representation, size_t ii_item,
 		float transparencyOverride,
 		threepp::Matrix4& matrix_transform,
 		std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries,
@@ -395,12 +387,10 @@ namespace dragon
 		bool isEnableBackFaceCulling = true;
 		if (item_data->hasItemDataGeometricRepresentation(includeGeometricChildItems, true))
 		{
-
 			std::string product_guid;
 			if (ifc_product->m_GlobalId)
 			{
 				product_guid = ifc_product->m_GlobalId->m_value;
-
 			}
 			std::string ifc_entity_type = EntityFactory::getStringForClassID(ifc_product->classID());
 			std::shared_ptr<threepp::BufferGeometry> buffGeo{ nullptr };
@@ -416,7 +406,7 @@ namespace dragon
 			}
 			else if (item_data->m_meshsets.size() > 0)
 			{
-				// enable back face culling for open meshes 
+				// enable back face culling for open meshes
 				convertMeshSetsToBuffGeom(item_data->m_meshsets,
 					buffGeo,
 					ii_item,
@@ -436,8 +426,8 @@ namespace dragon
 				buffGeo->applyMatrix4(matrix_transform);
 				if (!material)createDefaultMaterial(material);
 				isEnableBackFaceCulling ? material->side = threepp::Side::Front : material->side = threepp::Side::Double;
-				geometries.emplace_back(buffGeo); 
-				materials.emplace_back(material); 
+				geometries.emplace_back(buffGeo);
+				materials.emplace_back(material);
 			}
 		}
 
@@ -458,14 +448,14 @@ namespace dragon
 	void IFCConverter::createOutlineEdgePolygon(std::shared_ptr<threepp::LineSegments>& outlineEdge,
 		const std::shared_ptr<threepp::BufferGeometry>& geoBuffer)
 	{
-		//create edge geometry 
-		const float thresholdAngle = 30.0f; 
+		//create edge geometry
+		const float thresholdAngle = 30.0f;
 		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*geoBuffer, thresholdAngle);
 		if (!outlineEdge)
 		{
-			std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create(); 
-			outline_material->color = threepp::Color::darkgray; 
-			outlineEdge = threepp::LineSegments::create(edge_geo,outline_material);
+			std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
+			outline_material->color = threepp::Color::darkgray;
+			outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
 		}
 	}
 
@@ -486,18 +476,18 @@ namespace dragon
 			{
 				continue;
 			}
-			if (style->m_apply_to_geometry_type == StyleData::GEOM_TYPE_SURFACE 
+			if (style->m_apply_to_geometry_type == StyleData::GEOM_TYPE_SURFACE
 				|| style->m_apply_to_geometry_type == StyleData::GEOM_TYPE_ANY)
 			{
 				createMaterial(style,
 					transparencyOverride,
-					material); 
+					material);
 			}
 		}
 	}
 
 	void IFCConverter::createMaterial(const shared_ptr<StyleData>& appearence,
-		float transparencyOverride, 
+		float transparencyOverride,
 		std::shared_ptr<threepp::Material>& material)
 	{
 		if (!appearence)
@@ -529,32 +519,32 @@ namespace dragon
 		if (transparencyOverride > 0.0f)
 		{
 			set_transparent = true;
-			alpha = transparencyOverride; 
+			alpha = transparencyOverride;
 		}
-		else if(transparency > 0.0f)	// transparency: 0 = opaque, 1 = fully transparent
+		else if (transparency > 0.0f)	// transparency: 0 = opaque, 1 = fully transparent
 		{
 			set_transparent = true;
 			alpha = transparency;
 		}
-		material = threepp::MeshBasicMaterial::create(); 
-		//material->as<threepp::MeshBasicMaterial>()->vertexColors = true; 
+		material = threepp::MeshBasicMaterial::create();
+		//material->as<threepp::MeshBasicMaterial>()->vertexColors = true;
 		material->as<threepp::MeshBasicMaterial>()->color = threepp::Color(mix_r, mix_g, mix_b);
 		material->transparent = set_transparent;
-		material->polygonOffset = true; 
+		material->polygonOffset = true;
 		material->polygonOffsetFactor = 1.0f;
-		material->polygonOffsetUnits = 1.0f; 
+		material->polygonOffsetUnits = 1.0f;
 		material->opacity = alpha;
-		material->side = threepp::Side::Front; 
-		material->needsUpdate(); 
+		material->side = threepp::Side::Front;
+		material->needsUpdate();
 	}
 
 	void IFCConverter::setMaterialForGroup(const std::shared_ptr<threepp::Group>& group, const std::shared_ptr<threepp::Material>& material)
 	{
 	}
 
-	void IFCConverter::convertMeshSetsToBuffGeom(std::vector<shared_ptr<carve::mesh::MeshSet<3>>>& vecMeshSets, 
+	void IFCConverter::convertMeshSetsToBuffGeom(std::vector<shared_ptr<carve::mesh::MeshSet<3>>>& vecMeshSets,
 		std::shared_ptr<threepp::BufferGeometry>& geom,
-		size_t ii_item, 
+		size_t ii_item,
 		bool disableBackfaceCulling)
 	{
 		double min_triangle_area = m_geomSettings->getMinTriangleArea();
@@ -564,7 +554,7 @@ namespace dragon
 		std::vector<std::shared_ptr<threepp::BufferGeometry>> buffGeometries{};
 		for (size_t ii = 0; ii < vecMeshSets.size(); ++ii)
 		{
-			//Create buffer geometry 
+			//Create buffer geometry
 			std::vector<float> vertices;
 			std::vector<float> normals;
 			std::vector<int> indices;
@@ -580,7 +570,7 @@ namespace dragon
 			{
 				return;
 			}
-			//create new buffer geometry 
+			//create new buffer geometry
 			std::shared_ptr<threepp::BufferGeometry> bufferGeo = threepp::BufferGeometry::create();
 			for (const vec3& point : polyTriangulated.m_poly_data->points)
 			{
@@ -606,16 +596,16 @@ namespace dragon
 			bufferGeo->setIndex(indices);
 			bufferGeo->setAttribute("position", threepp::FloatBufferAttribute::create(vertices, 3));
 			bufferGeo->setAttribute("normal", threepp::FloatBufferAttribute::create(normals, 3));
-			buffGeometries.emplace_back(bufferGeo); 
+			buffGeometries.emplace_back(bufferGeo);
 		}
 		/*MERGE GEO*/
 		if (buffGeometries.size() != 1)
 		{
-			std::cout << std::format("buff size {}", buffGeometries.size()) << std::endl; 
+			std::cout << std::format("buff size {}", buffGeometries.size()) << std::endl;
 			geom = threepp::mergeBufferGeometries(buffGeometries);
 		}
 		else if (buffGeometries.size() == 1) {
-			geom = buffGeometries[0]; 
+			geom = buffGeometries[0];
 		}
 	}
 	threepp::Matrix4 IFCConverter::convertCarveMatrix2ThreeppMatrix(const carve::math::Matrix& matrix)
@@ -625,15 +615,15 @@ namespace dragon
 			(float)matrix._21,(float)matrix._22,(float)matrix._23,(float)matrix._24,
 			(float)matrix._31,(float)matrix._32,(float)matrix._33,(float)matrix._34,
 			(float)matrix._41,(float)matrix._42,(float)matrix._43,(float)matrix._44
-		}; 
+		};
 		return threepp::Matrix4(arr_matrix);
 	}
 	std::shared_ptr<threepp::Mesh> IFCConverter::Mergeo(const std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries, const std::vector<std::shared_ptr<threepp::Material>>& materials)
 	{
-		std::cout << "Merging Phase:" << "----------------------------------------------" << std::endl; 
+		std::cout << "Merging Phase:" << "----------------------------------------------" << std::endl;
 		std::shared_ptr<threepp::BufferGeometry> buffMerge = threepp::mergeBufferGeometries(geometries);
-		std::string mess{}; 
-		int32_t indexOffset{ 0 }; 
+		std::string mess{};
+		int32_t indexOffset{ 0 };
 		for (int i = 0; i < materials.size(); ++i)
 		{
 			int index_count = geometries[i]->getIndex()->count();
@@ -643,13 +633,13 @@ namespace dragon
 			{
 				std::cout << '\b';
 			}
-			mess = std::format("Merge geo {}, total {}", i + 1, materials.size()); 
+			mess = std::format("Merge geo {}, total {}", i + 1, materials.size());
 			strs << mess;
 			std::cout << strs.str();
 			indexOffset += index_count;
 		}
-		std::cout << std::endl; 
+		std::cout << std::endl;
 		std::cout << "Merged Done:" << "----------------------------------------------" << std::endl;
-		return threepp::Mesh::create(buffMerge, materials); 
+		return threepp::Mesh::create(buffMerge, materials);
 	}
 }

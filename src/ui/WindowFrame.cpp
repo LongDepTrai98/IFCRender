@@ -14,14 +14,14 @@ namespace dragon
 			app_config::app_name)
 	{
 		initUIManager();
-		initCommand(); 
+		initCommand();
 		initMenuBar();
 		initScene();
 		initTreeCtrl();
 	}
 	RenderCanvas* WindowFrame::getRenderCanvas()
 	{
-		return m_RenderCanvas.get(); 
+		return m_RenderCanvas.get();
 	}
 	void WindowFrame::initUIManager()
 	{
@@ -51,7 +51,6 @@ namespace dragon
 	}
 	void WindowFrame::initScene()
 	{
-
 		wxGLAttributes dispAttrs;
 		if (app_config::enable_msaa)
 		{
@@ -93,7 +92,7 @@ namespace dragon
 	void WindowFrame::initCommand()
 	{
 		if (!m_CommandHandler)
-			m_CommandHandler = std::make_unique<AppCommandHandler>(this); 
+			m_CommandHandler = std::make_unique<AppCommandHandler>(this);
 		/*BIND COMMAND*/
 		Bind(wxEVT_MENU, &AppCommandHandler::OnOpenFile, m_CommandHandler.get(), wxID_OPEN);
 	}

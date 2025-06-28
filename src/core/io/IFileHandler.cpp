@@ -3,7 +3,6 @@ namespace dragon
 {
 	void FileHandler::setViewport(wxWindow* window)
 	{
-		m_Window = window; 
+		m_Window = window;
 	}
 }
-
