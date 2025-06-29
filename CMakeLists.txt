@@ -26,6 +26,9 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/LongDepTrai98/ifcplusplus.git
 )
 FetchContent_MakeAvailable(ifcplusplus)
+#add submodule 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/lib)
+#add include dirs ifcpp
 set(IFCPP_INCLUDE_DIRS
     ${IFCPP_SOURCE_DIR}/IfcPlusPlus/src
     ${IFCPP_SOURCE_DIR}/IfcPlusPlus/src/ifcpp/IFC4X3/include
@@ -37,6 +40,18 @@ set(IFCPP_INCLUDE_DIRS
     ${IFCPP_SOURCE_DIR}/IfcPlusPlus/src/external/Carve/src/common
     ${IFCPP_SOURCE_DIR}/IfcPlusPlus/src/external/Carve/build/src
 )
+#add include dirs web-ifc 
+set(WEB_IFC_INCLUDE_DIRS 
+    ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/tinynurbs-src/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/fastfloat-src/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/cdt-src/CDT/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/earcut-src/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/spdlog-src/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/stduuid-src/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/tinycpptest-src/Sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/lib
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/lib/test
+)
 #project
 set(PROJECT_NAME Dragon)
 set(EDITOR_NAME_PROJECT App)
@@ -44,6 +59,7 @@ set(EDITOR_NAME_PROJECT App)
 set(WX_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.0/include)
 set(WX_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.0/lib/vc_x64_lib/)
 set(IFCPLUSPLUS_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/ifcplusplus-build/IfcPlusPlus)
+set(WEB_IFC_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build/3rdparty/lib)
 project(${PROJECT_NAME})
 #find_package(wxWidgets CONFIG REQUIRED)
 find_package(glew CONFIG REQUIRED)
@@ -92,17 +108,19 @@ add_executable(${EDITOR_NAME_PROJECT}
 	PRIVATE ${WX_INCLUDE_PATH}
 	PRIVATE ${WX_INCLUDE_PATH}/msvc
     PRIVATE ${IFCPP_INCLUDE_DIRS}
+    PRIVATE ${WEB_IFC_INCLUDE_DIRS}
  )
  #link lib 
 target_link_libraries(${EDITOR_NAME_PROJECT}  
 PRIVATE GLEW::glew
 PRIVATE threepp::threepp
-$<$<CONFIG:Debug>:IfcPlusPlusd.lib>
-$<$<CONFIG:Release>:IfcPlusPlus.lib>)
+$<$<CONFIG:Debug>:IfcPlusPlusd.lib;/Debug/web-ifc-library.lib>
+$<$<CONFIG:Release>:IfcPlusPlus.lib;/Release/web-ifc-library.lib>)
 #directories lib
 target_link_directories(${EDITOR_NAME_PROJECT}
 PRIVATE ${WX_LIB_PATH}
-PRIVATE ${IFCPLUSPLUS_LIB_PATH})
+PRIVATE ${IFCPLUSPLUS_LIB_PATH}
+PRIVATE ${WEB_IFC_LIB_PATH})
 
 target_compile_definitions(${EDITOR_NAME_PROJECT}
 PRIVATE _UNICODE UNICODE _CRT_SECURE_NO_WARNINGS IFCQUERY_STATIC_LIB)

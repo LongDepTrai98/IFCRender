@@ -11,6 +11,7 @@
 #include "core/utils/StringHelper.hpp"
 #include "threepp/utils/BufferGeometryUtils.hpp"
 #include <glm/gtc/type_ptr.hpp>
+#include "core/utils/MathHelper.hpp"
 namespace dragon
 {
 	WebIFCConverter::WebIFCConverter()
@@ -36,10 +37,7 @@ namespace dragon
 		std::shared_ptr<threepp::Group> container = threepp::Group::create();
 		std::array<float, 16> default_array = container->matrix->elements;
 		std::array<double, 16> double_array{};
-		for (int i = 0; i < 16; ++i)
-		{
-			double_array[i] = static_cast<double>(default_array[i]);
-		};
+		MathHelper::convertFloatArr2DoubleArr(default_array,double_array); 
 		m_ModelManager->GetGeometryProcessor(m_modelID)->SetTransformation(double_array);
 		loadAllGeometry(m_modelID);
 		auto size_t = geo_with_material.size();
@@ -181,10 +179,7 @@ namespace dragon
 		buff_geometry->setAttribute("normal", threepp::FloatBufferAttribute::create(normals, 3));
 		buff_geometry->setAttribute("expressID", threepp::IntBufferAttribute::create(idAttribute, 1));
 		std::array<float, 16> matrix_float{};
-		for (int i = 0; i < 16; ++i)
-		{
-			matrix_float[i] = static_cast<float>(placedGeometry.flatTransformation[i]);
-		}
+		MathHelper::convertDoubleArr2FloatArr(placedGeometry.flatTransformation,matrix_float);
 		buff_geometry->applyMatrix4(threepp::Matrix4(matrix_float));
 		geo_with_material[str_hash_color].geometries.emplace_back(buff_geometry);
 	}

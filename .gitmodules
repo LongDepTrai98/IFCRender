@@ -1,0 +1,3 @@
+[submodule "3rdparty/lib"]
+	path = 3rdparty/lib
+	url = https://github.com/LongDepTrai98/engine_web-ifc.git
