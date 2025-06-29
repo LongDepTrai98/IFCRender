@@ -28,11 +28,10 @@ namespace webifc::manager {
 	class ModelManager;
 }
 
-
 struct GeoWithMaterial
 {
-	std::shared_ptr<threepp::Material> material{ nullptr }; 
-	std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{}; 
+	std::shared_ptr<threepp::Material> material{ nullptr };
+	std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{};
 };
 
 namespace dragon
@@ -54,7 +53,7 @@ namespace dragon
 		void streamMesh(const uint32_t& modelId, const webifc::geometry::IfcFlatMesh& mesh);
 		void getPlacedGeometry(const uint32_t& modelId, const uint32_t& expressId, const webifc::geometry::IfcPlacedGeometry& placedGeometry);
 		webifc::geometry::IfcGeometry& getBufferGeometry(const uint32_t& modelId, const webifc::geometry::IfcPlacedGeometry& placedGeometry);
-		std::string colorToHash(const float& r, const float& g, const float& b, const float& w); 
+		std::string colorToHash(const float& r, const float& g, const float& b, const float& w);
 	private:
 		int OpenModel(webifc::manager::LoaderSettings& settings,
 			const std::function<uint32_t(char*, size_t, size_t)>& requestData = nullptr);

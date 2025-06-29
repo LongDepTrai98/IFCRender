@@ -14,11 +14,11 @@ namespace dragon
 			std::unique_ptr<FileHandler> file = FileHandlerFactory::create({ path.ToStdString() });
 			if (!file)
 			{
-				wxMessageBox("Read file error"); 
-				return; 
+				wxMessageBox("Read file error");
+				return;
 			}
-			file->setViewport(m_ParentWindow); 
-			file->open({ path.ToStdString() }); 
+			file->setViewport(m_ParentWindow);
+			file->open({ path.ToStdString() });
 		}
 	}
 }

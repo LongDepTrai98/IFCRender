@@ -21,7 +21,7 @@ namespace dragon
 	WebIFCConverter::~WebIFCConverter()
 	{
 		m_ModelManager->CloseModel(m_modelID);
-		geo_with_material.clear(); 
+		geo_with_material.clear();
 	}
 
 	std::shared_ptr<threepp::Group> WebIFCConverter::convert(const std::filesystem::path& path)
@@ -43,18 +43,18 @@ namespace dragon
 		m_ModelManager->GetGeometryProcessor(m_modelID)->SetTransformation(double_array);
 		loadAllGeometry(m_modelID);
 		auto size_t = geo_with_material.size();
-		std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{}; 
+		std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{};
 		std::vector<std::shared_ptr<threepp::Material>> materials{};
 		for (auto& [hashColor, geo_with_mat] : geo_with_material)
 		{
-			std::shared_ptr<threepp::BufferGeometry> merged = threepp::mergeBufferGeometries(geo_with_mat.geometries); 
+			std::shared_ptr<threepp::BufferGeometry> merged = threepp::mergeBufferGeometries(geo_with_mat.geometries);
 			geometries.emplace_back(merged);
-			materials.emplace_back(geo_with_mat.material); 
+			materials.emplace_back(geo_with_mat.material);
 		}
-		std::shared_ptr<threepp::BufferGeometry> merged_all = threepp::mergeBufferGeometries(geometries,true);
-		std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(merged_all,materials);
-		mesh->matrixAutoUpdate = false; 
-		container->add(mesh); 
+		std::shared_ptr<threepp::BufferGeometry> merged_all = threepp::mergeBufferGeometries(geometries, true);
+		std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(merged_all, materials);
+		mesh->matrixAutoUpdate = false;
+		container->add(mesh);
 		const float thresholdAngle = 30.0f;
 		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*mesh->geometry(), thresholdAngle);
 		std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
@@ -171,10 +171,9 @@ namespace dragon
 			material->side = threepp::Side::Double;
 			material->transparent = placedColor.w != 1.0;
 			if (material->transparent) material->opacity = placedColor.w;
-			std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries; 
-			geo_with_material.insert({ str_hash_color,{material,geometries} }); 
+			std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries;
+			geo_with_material.insert({ str_hash_color,{material,geometries} });
 		}
-
 
 		std::shared_ptr<threepp::BufferGeometry> buff_geometry = threepp::BufferGeometry::create();
 		buff_geometry->setIndex(indices);
@@ -187,7 +186,7 @@ namespace dragon
 			matrix_float[i] = static_cast<float>(placedGeometry.flatTransformation[i]);
 		}
 		buff_geometry->applyMatrix4(threepp::Matrix4(matrix_float));
-		geo_with_material[str_hash_color].geometries.emplace_back(buff_geometry); 
+		geo_with_material[str_hash_color].geometries.emplace_back(buff_geometry);
 	}
 
 	webifc::geometry::IfcGeometry& WebIFCConverter::getBufferGeometry(const uint32_t& modelId, const webifc::geometry::IfcPlacedGeometry& placedGeometry)
@@ -204,7 +203,7 @@ namespace dragon
 			<< std::setw(3) << std::setfill('0') << static_cast<int>(g * 255)
 			<< std::setw(3) << std::setfill('0') << static_cast<int>(b * 255)
 			<< std::setw(3) << std::setfill('0') << static_cast<int>(w * 255);
-		return ss.str(); 
+		return ss.str();
 	}
 
 	void WebIFCConverter::streamAllMeshesWithTypes(const uint32_t& modelID, const std::vector<uint32_t>& types)
