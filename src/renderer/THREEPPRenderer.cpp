@@ -79,7 +79,7 @@ namespace dragon
 
 		for (auto& viewport : m_lstViewPort)
 		{
-			viewport->handleRaycast(nor_mouse_pos.x,nor_mouse_pos.y); 
+			viewport->handleRaycast(nor_mouse_pos); 
 			viewport->render(m_Renderer.get()); 
 		}
 

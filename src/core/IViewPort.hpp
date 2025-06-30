@@ -1,6 +1,7 @@
 #ifndef _SCENE_CONTEXT_THREEPP_
 #define _SCENE_CONTEXT_THREEPP_
 #include "threepp/threepp.hpp"
+#include "threepp/math/Vector2.hpp"
 #include "core/io/IGeometryCache.hpp"
 #include <memory>
 namespace threepp
@@ -32,7 +33,7 @@ namespace dragon
 		virtual void initScene(threepp::WindowSize& w_size) = 0;
 		virtual void render(threepp::GLRenderer* main_render) = 0;
 		virtual void resize(const int& width, const int& height) = 0;
-		virtual void handleRaycast(const double& norX, const double& norY) = 0;
+		virtual void handleRaycast(threepp::Vector2& nor_mouse_pos) = 0;
 		//virtual void 
 	protected:
 		/*SCENE CONTEXT*/

@@ -41,6 +41,11 @@ namespace dragon
 	{
 		m_FileContext = std::move(file_context); 
 	}
+	void MainViewPort::resetFileContext()
+	{
+		if (!m_FileContext)m_FileContext.reset(); 
+		m_FileContext = nullptr; 
+	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{
 		m_Viewport_Size = { width,height }; 
@@ -50,11 +55,15 @@ namespace dragon
 			m_Camera->updateProjectionMatrix(); 
 		}
 	}
-	void MainViewPort::handleRaycast(const double& norX, const double& norY)
+	void MainViewPort::handleRaycast(threepp::Vector2& nor_mouse_pos)
 	{
-		m_RayCaster->setFromCamera(threepp::Vector2(norX, norY),
-			*m_Camera.get()); 
-		if (m_Scene->children.size() != 0)
+		m_RayCaster->setFromCamera(nor_mouse_pos,
+			*m_Camera.get());
+		if(m_FileContext)
+		{
+			m_FileContext->handleRaycast(*m_RayCaster.get(),nor_mouse_pos); 
+		}
+	/*	if (m_Scene->children.size() != 0)
 		{
 			const auto intersects = m_RayCaster->intersectObjects(m_Scene->children,true);
 			if (!intersects.empty())
@@ -80,7 +89,7 @@ namespace dragon
 					std::cout << std::format("expressID A: {} , B : {} , C : {}", expressIDA, expressIDB, expressIDC) << std::endl; 
 				}
 			}
-		}
+		}*/
 
 	}
 	void MainViewPort::update(const float& dtTime)

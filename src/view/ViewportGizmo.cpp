@@ -49,8 +49,9 @@ namespace dragon
 			glEnable(GL_DEPTH_TEST); 
 		}
 	}
-	void ViewPortGizmo::handleRaycast(const double& norX, const double& norY)
+	void ViewPortGizmo::handleRaycast(threepp::Vector2& nor_mouse_pos)
 	{
+		/*HANDLE RAY CASTER*/
 	}
 	std::shared_ptr<threepp::Group> ViewPortGizmo::createAxisArrow()
 	{

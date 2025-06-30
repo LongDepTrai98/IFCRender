@@ -47,13 +47,16 @@ namespace dragon
 			auto& geometryOffsetCache = IFCApi.getGeometryOffsetCache(); 
 			WindowFrame* window_frame = dynamic_cast<WindowFrame*>(m_Window);
 			auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
+			main_viewport->resetFileContext(); 
 			/*COPY DATA*/
 			std::unique_ptr<IFileContext> file_context = FileContextFactory::create(FileContextFactory::type::IFC);
+			auto ptr_ifc_file_context = dynamic_cast<IFCFileContext*>(file_context.get()); 
 			auto ptr_ifc_offset_cache = dynamic_cast<IFCGeometryCache*>(file_context->getGeometryCache());
-			ptr_ifc_offset_cache->copyData(IFCApi.getGeometryOffsetCache()); 
+			ptr_ifc_offset_cache->copyData(IFCApi.getGeometryOffsetCache());
 			if (file_context)
 			{
-				main_viewport->setFileContext(std::move(file_context)); 
+				main_viewport->setFileContext(std::move(file_context));
+				ptr_ifc_file_context->setRootObject(group->children[0]);
 			}
 		}
 		else

@@ -18,7 +18,7 @@ namespace dragon
 		void resize(const int& width, const int& height) override;
 		void update(const float& dtTime) override;
 		void render(threepp::GLRenderer* renderer) override;
-		void handleRaycast(const double& norX, const double& norY) override; 
+		void handleRaycast(threepp::Vector2& nor_mouse_pos) override; 
 	private: 
 		std::shared_ptr<threepp::Group> createAxisArrow(); 
 	protected:
