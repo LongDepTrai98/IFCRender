@@ -21,7 +21,8 @@ namespace dragon
 	void MainViewPort::initCamera(threepp::WindowSize& w_size)
 	{
 		if (!m_Camera)
-			m_Camera = std::make_unique<threepp::PerspectiveCamera>(60, w_size.aspect()); 
+			m_Camera = std::make_unique<threepp::PerspectiveCamera>(60, w_size.aspect(),0.1f, 1000);
+		m_Camera->layers.enableAll(); 
 		m_Camera->position.z = 10;
 	}
 	void MainViewPort::initScene(threepp::WindowSize& w_size)
@@ -38,7 +39,7 @@ namespace dragon
 	{
 		if (!m_RayCaster)
 			m_RayCaster = std::make_unique<threepp::Raycaster>();
-		m_RayCaster->params.lineThreshold = 0.1f;
+		//m_RayCaster->params.lineThreshold = 1.0f;
 	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{
@@ -55,8 +56,8 @@ namespace dragon
 			*m_Camera.get()); 
 		if (m_Scene->children.size() != 0)
 		{
-			const auto intersects = m_RayCaster->intersectObjects(m_Scene->children);
-			std::cout << std::format("nor_coord_mouse x : {}, y : {}", norX, norY) << std::endl;
+			const auto intersects = m_RayCaster->intersectObjects(m_Scene->children,true);
+			//std::cout << std::format("nor_coord_mouse x : {}, y : {}", norX, norY) << std::endl;
 			if (!intersects.empty())
 			{
 				std::cout << "Hover object" << std::endl;

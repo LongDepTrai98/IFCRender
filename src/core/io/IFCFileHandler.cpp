@@ -88,6 +88,7 @@ namespace dragon
 				auto viewport_scene = main_viewport->getScene();
 				auto camera = main_viewport->getCamera();
 				viewport_scene->clear();
+				viewport_scene->children; 
 				//group->rotation.x = -threepp::math::PI / 2;
 				viewport_scene->add(group);
 				SceneBuilder::IFCBuildScene(group.get(), viewport_scene, camera);

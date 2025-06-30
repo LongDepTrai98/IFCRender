@@ -19,7 +19,7 @@ namespace dragon
 		threepp::Box3 box{};
 		box.setFromObject(*container);
 		auto center = box.getCenter();
-		camera->lookAt(center);
+		//camera->lookAt(center);
 		//camera->updateMatrix();
 		auto min = box.min();
 		auto max = box.max();
