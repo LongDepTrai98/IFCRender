@@ -56,9 +56,11 @@ namespace dragon
 		const float thresholdAngle = 30.0f;
 		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*mesh->geometry(), thresholdAngle);
 		std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
-		outline_material->color = threepp::Color::lightslategray;
+		outline_material->color = threepp::Color::darkgray;
 		std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
 		container->add(outlineEdge);
+		geometries.clear();
+		materials.clear(); 
 		return container;
 	}
 
@@ -139,23 +141,45 @@ namespace dragon
 		auto& geometry = getBufferGeometry(modelId, placedGeometry);
 		auto vertexData = geometry.vertexData;
 		auto indices = geometry.indexData;
-
 		int vertices_size = vertexData.size() / 2;
 		int normals_size = vertexData.size() / 2;
 		int attribute_size = vertexData.size() / 6;
 		std::vector<float> vertices(vertices_size);
 		std::vector<float> normals(normals_size);
 		std::vector<uint32_t> idAttribute(attribute_size);
+		offset geometry_offset{};
+		bool isFirstPoint{ false }; 
 		for (int i = 0; i < vertexData.size(); i += 6)
 		{
+			/*POINT X*/
 			vertices[i / 2] = vertexData[i];
+			index_offset++;
+			if (!isFirstPoint)
+			{
+				geometry_offset.begin = index_offset;
+				isFirstPoint = true; 
+			}
+			/*POINT Y*/
 			vertices[i / 2 + 1] = vertexData[i + 1];
+			index_offset++;
+			/*POINT Z*/
 			vertices[i / 2 + 2] = vertexData[i + 2];
+			index_offset++;
+			/*NORMAL POINT*/
 			normals[i / 2] = vertexData[i + 3];
 			normals[i / 2 + 1] = vertexData[i + 4];
 			normals[i / 2 + 2] = vertexData[i + 5];
 			idAttribute[i / 6] = expressId;
 		}
+		if (index_offset == 47531)
+		{
+			if (m_Geometry_Offset.count(expressId) != 0)
+			{
+				std::cout << std::format("ExpressId exist {}", expressId); 
+			}
+		}
+		geometry_offset.end = index_offset; 
+		m_Geometry_Offset.insert({ expressId,geometry_offset }); 
 		auto placedColor = placedGeometry.color;
 		std::string str_hash_color = MathHelper::colorToHash(placedGeometry.color.x, placedColor.y, placedColor.z, placedColor.w);
 		if (geo_with_material.count(str_hash_color) == 0)

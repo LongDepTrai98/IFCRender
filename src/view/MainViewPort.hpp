@@ -17,7 +17,6 @@ namespace dragon
 		void update(const float& dtTime) override;
 		void render(threepp::GLRenderer* renderer) override;
 		void resize(const int& width, const int& height) override;
-	public:
 	};
 }
 #endif // !_MAIN_VIEW_PORT_HPP_

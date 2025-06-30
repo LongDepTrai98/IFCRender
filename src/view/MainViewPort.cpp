@@ -3,6 +3,7 @@
 #include "ui/RenderCanvas.hpp"
 #include "threepp/helpers/SpotLightHelper.hpp"
 #include "threepp/helpers/DirectionalLightHelper.hpp"
+#include "core/io/IFCGeometryCache.hpp"
 namespace dragon
 {
 	MainViewPort::MainViewPort(RenderCanvas* canvas) : IRenderer(canvas)

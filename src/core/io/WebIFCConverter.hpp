@@ -3,8 +3,7 @@
 #include <filesystem>
 #include <memory>
 #include <functional>
-//#include "web-ifc/parsing/IfcLoader.h"
-//#include "web-ifc/geometry/IfcGeometryProcessor.h"
+#include <map>
 
 namespace threepp
 {
@@ -38,6 +37,11 @@ namespace dragon
 			std::shared_ptr<threepp::Material> material{ nullptr };
 			std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{};
 		};
+		struct offset
+		{
+			int begin{ 0 };
+			int end{ 0 };
+		};
 	public:
 		WebIFCConverter();
 		~WebIFCConverter();
@@ -61,6 +65,8 @@ namespace dragon
 		int m_modelID{ -1 };
 		bool m_bMT_ENABLE{ true };
 		std::unordered_map<std::string, GeoWithMaterial> geo_with_material{};
+		std::map<uint32_t, offset> m_Geometry_Offset{};
+		int index_offset{ -1 }; 
 	};
 }
 #endif // !_WEB_IFC_CONVERTER_HPP_
