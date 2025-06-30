@@ -57,10 +57,17 @@ namespace dragon
 		if (m_Scene->children.size() != 0)
 		{
 			const auto intersects = m_RayCaster->intersectObjects(m_Scene->children,true);
-			//std::cout << std::format("nor_coord_mouse x : {}, y : {}", norX, norY) << std::endl;
 			if (!intersects.empty())
 			{
-				std::cout << "Hover object" << std::endl;
+				const auto& intersect = intersects.front();
+				if (intersect.face)
+				{
+					std::cout << std::format("Face {}, {}, {}, {}",
+						intersect.face.value().a,
+						intersect.face.value().b,
+						intersect.face.value().c,
+						intersect.faceIndex.value()) << std::endl;
+				}
 			}
 		}
 
