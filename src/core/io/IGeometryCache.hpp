@@ -12,6 +12,7 @@ namespace dragon
 		};
 	public: 
 		virtual void insert(const int& id, const offset& offset) = 0;
+		virtual void clear() = 0; 
 	};
 }
 #endif // !_INTERFACE_GEOMETRY_CACHE_HPP_

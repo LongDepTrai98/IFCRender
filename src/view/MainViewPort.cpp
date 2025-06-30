@@ -28,6 +28,10 @@ namespace dragon
 			m_Scene = std::make_unique<threepp::Scene>(); 
 		m_Scene->background = threepp::Color::aliceblue; 
 	}
+	void MainViewPort::setGeometryOffsetCache(std::unique_ptr<IGeometryCache> cache)
+	{
+		m_Geometry_Offset_Cache = std::move(cache);
+	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{
 		m_Viewport_Size = { width,height }; 

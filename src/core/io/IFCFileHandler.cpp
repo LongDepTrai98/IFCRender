@@ -24,6 +24,7 @@
 #include "threepp/helpers/SpotLightHelper.hpp"
 #include "threepp/helpers/DirectionalLightHelper.hpp"
 #include "core/io/WebIFCConverter.hpp"
+#include "core/io/GeometryCacheOffsetFactory.hpp"
 
 namespace dragon
 {
@@ -41,6 +42,16 @@ namespace dragon
 		{
 			WebIFCConverter IFCApi{};
 			group = IFCApi.convert(file_path);
+			auto& geometryOffsetCache = IFCApi.getGeometryOffsetCache(); 
+			WindowFrame* window_frame = dynamic_cast<WindowFrame*>(m_Window);
+			auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
+			auto cache = GeometryCacheOffsetFactory::create(GeometryCacheOffsetFactory::IFC); 
+			auto ptr_ifc_cache = dynamic_cast<IFCGeometryCache*>(cache.get()); 
+			if (ptr_ifc_cache)
+			{
+				ptr_ifc_cache->copyData(IFCApi.getGeometryOffsetCache()); 
+			}
+			main_viewport->setGeometryOffsetCache(std::move(cache));
 		}
 		else
 		{

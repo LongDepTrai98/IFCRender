@@ -147,7 +147,7 @@ namespace dragon
 		std::vector<float> vertices(vertices_size);
 		std::vector<float> normals(normals_size);
 		std::vector<uint32_t> idAttribute(attribute_size);
-		offset geometry_offset{};
+		IGeometryCache::offset geometry_offset{};
 		bool isFirstPoint{ false }; 
 		for (int i = 0; i < vertexData.size(); i += 6)
 		{
@@ -171,15 +171,8 @@ namespace dragon
 			normals[i / 2 + 2] = vertexData[i + 5];
 			idAttribute[i / 6] = expressId;
 		}
-		if (index_offset == 47531)
-		{
-			if (m_Geometry_Offset.count(expressId) != 0)
-			{
-				std::cout << std::format("ExpressId exist {}", expressId); 
-			}
-		}
 		geometry_offset.end = index_offset; 
-		m_Geometry_Offset.insert({ expressId,geometry_offset }); 
+		m_Geometry_Offset[expressId].emplace_back(geometry_offset);
 		auto placedColor = placedGeometry.color;
 		std::string str_hash_color = MathHelper::colorToHash(placedGeometry.color.x, placedColor.y, placedColor.z, placedColor.w);
 		if (geo_with_material.count(str_hash_color) == 0)
@@ -213,6 +206,11 @@ namespace dragon
 		if (m_ModelManager->IsModelOpen(modelId));
 		auto geomLoader = m_ModelManager->GetGeometryProcessor(modelId);
 		return geomLoader->GetGeometry(placedGeometry.geometryExpressID);
+	}
+
+	const std::map<int, std::vector<IGeometryCache::offset>>& WebIFCConverter::getGeometryOffsetCache()
+	{
+		return m_Geometry_Offset; 
 	}
 
 	void WebIFCConverter::streamAllMeshesWithTypes(const uint32_t& modelID, const std::vector<uint32_t>& types)

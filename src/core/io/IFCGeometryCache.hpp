@@ -2,17 +2,28 @@
 #define _IFC_GEOMETRY_CACHE_HPP_
 #include "IGeometryCache.hpp"
 #include <map>
+#include <vector>
 namespace dragon
 {
 	class IFCGeometryCache : public IGeometryCache
 	{
 	public: 
+		~IFCGeometryCache(); 
+	public: 
 		void insert(const int& id, const offset& offset) override
 		{
-			m_Data_Offset.insert({ id,offset }); 
+			m_Data_Offset[id].emplace_back(offset); 
+		}
+		void copyData(const std::map<int,std::vector<offset>>& anotherData)
+		{
+			m_Data_Offset = anotherData; 
+		}
+		void clear() override
+		{
+			m_Data_Offset.clear(); 
 		}
 	private:
-		std::map<int, offset> m_Data_Offset{}; 
+		std::map<int, std::vector<offset>> m_Data_Offset{}; 
 	};
 }
 #endif // !_IFC_GEOMETRY_CACHE_HPP_

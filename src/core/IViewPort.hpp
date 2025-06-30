@@ -32,7 +32,6 @@ namespace dragon
 		/*SCENE CONTEXT*/
 		std::unique_ptr<threepp::Scene> m_Scene{ nullptr };
 		std::unique_ptr<threepp::PerspectiveCamera> m_Camera{ nullptr };
-		std::unique_ptr<IGeometryCache> m_Geometry_Cache{ nullptr }; 
 		threepp::GLRenderer* m_Renderer{ nullptr };
 		threepp::WindowSize m_Viewport_Size{}; 
 	};

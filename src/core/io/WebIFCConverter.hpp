@@ -4,7 +4,8 @@
 #include <memory>
 #include <functional>
 #include <map>
-
+#include <vector>
+#include "core/io/IFCGeometryCache.hpp"
 namespace threepp
 {
 	class Group;
@@ -37,13 +38,9 @@ namespace dragon
 			std::shared_ptr<threepp::Material> material{ nullptr };
 			std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{};
 		};
-		struct offset
-		{
-			int begin{ 0 };
-			int end{ 0 };
-		};
 	public:
 		WebIFCConverter();
+		const std::map<int, std::vector<IGeometryCache::offset>>& getGeometryOffsetCache();
 		~WebIFCConverter();
 	public:
 		std::shared_ptr<threepp::Group> convert(const std::filesystem::path& path);
@@ -65,7 +62,7 @@ namespace dragon
 		int m_modelID{ -1 };
 		bool m_bMT_ENABLE{ true };
 		std::unordered_map<std::string, GeoWithMaterial> geo_with_material{};
-		std::map<uint32_t, offset> m_Geometry_Offset{};
+		std::map<int, std::vector<IGeometryCache::offset>> m_Geometry_Offset{};
 		int index_offset{ -1 }; 
 	};
 }
