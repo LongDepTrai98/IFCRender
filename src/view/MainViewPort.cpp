@@ -4,6 +4,7 @@
 #include "threepp/helpers/SpotLightHelper.hpp"
 #include "threepp/helpers/DirectionalLightHelper.hpp"
 #include "core/io/IFCGeometryCache.hpp"
+#include "core/io/IFileContext.hpp"
 namespace dragon
 {
 	MainViewPort::MainViewPort(RenderCanvas* canvas) : IRenderer(canvas)
@@ -16,7 +17,6 @@ namespace dragon
 	}
 	MainViewPort::~MainViewPort()
 	{
-		if(m_Geometry_Offset_Cache)m_Geometry_Offset_Cache->clear(); 
 	}
 	void MainViewPort::initCamera(threepp::WindowSize& w_size)
 	{
@@ -31,15 +31,15 @@ namespace dragon
 			m_Scene = std::make_unique<threepp::Scene>(); 
 		m_Scene->background = threepp::Color::aliceblue; 
 	}
-	void MainViewPort::setGeometryOffsetCache(std::unique_ptr<IGeometryCache> cache)
-	{
-		m_Geometry_Offset_Cache = std::move(cache);
-	}
 	void MainViewPort::initRayCaster()
 	{
 		if (!m_RayCaster)
 			m_RayCaster = std::make_unique<threepp::Raycaster>();
 		m_RayCaster->params.lineThreshold = 0.1f;
+	}
+	void MainViewPort::setFileContext(std::unique_ptr<IFileContext> file_context)
+	{
+		m_FileContext = std::move(file_context); 
 	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{

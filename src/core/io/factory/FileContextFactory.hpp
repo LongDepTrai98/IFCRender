@@ -6,6 +6,7 @@ namespace dragon
 	class IFileContext; 
 	class FileContextFactory
 	{
+	public: 
 		enum type
 		{
 			IFC,

@@ -1,9 +1,11 @@
 #include "IFCFileContext.hpp"
 #include "IFCGeometryCache.hpp"
+#include "core/io/factory/GeometryCacheOffsetFactory.hpp"
 namespace dragon
 {
 	IFCFileContext::IFCFileContext()
 	{
+		m_Geometry_Offset_Cache = std::move(GeometryCacheOffsetFactory::create(GeometryCacheOffsetFactory::TYPE::IFC)); 
 	}
 	IFCFileContext::~IFCFileContext()
 	{
@@ -14,6 +16,6 @@ namespace dragon
 	}
 	IGeometryCache* IFCFileContext::getGeometryCache()
 	{
-		return nullptr;
+		return m_Geometry_Offset_Cache.get(); 
 	}
 }

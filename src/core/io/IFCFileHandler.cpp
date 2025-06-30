@@ -24,8 +24,10 @@
 #include "threepp/helpers/SpotLightHelper.hpp"
 #include "threepp/helpers/DirectionalLightHelper.hpp"
 #include "core/io/WebIFCConverter.hpp"
-#include "core/io/factory/GeometryCacheOffsetFactory.hpp"
-
+#include "core/io/factory/FileContextFactory.hpp"
+#include "core/io/IFileContext.hpp"
+#include "core/io/IFCFileContext.hpp"
+#include "core/io/IFCGeometryCache.hpp"
 namespace dragon
 {
 	IFCFileHandler::IFCFileHandler()
@@ -45,13 +47,14 @@ namespace dragon
 			auto& geometryOffsetCache = IFCApi.getGeometryOffsetCache(); 
 			WindowFrame* window_frame = dynamic_cast<WindowFrame*>(m_Window);
 			auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
-			auto cache = GeometryCacheOffsetFactory::create(GeometryCacheOffsetFactory::IFC); 
-			auto ptr_ifc_cache = dynamic_cast<IFCGeometryCache*>(cache.get()); 
-			if (ptr_ifc_cache)
+			/*COPY DATA*/
+			std::unique_ptr<IFileContext> file_context = FileContextFactory::create(FileContextFactory::type::IFC);
+			auto ptr_ifc_offset_cache = dynamic_cast<IFCGeometryCache*>(file_context->getGeometryCache());
+			ptr_ifc_offset_cache->copyData(IFCApi.getGeometryOffsetCache()); 
+			if (file_context)
 			{
-				ptr_ifc_cache->copyData(IFCApi.getGeometryOffsetCache()); 
+				main_viewport->setFileContext(std::move(file_context)); 
 			}
-			main_viewport->setGeometryOffsetCache(std::move(cache));
 		}
 		else
 		{
