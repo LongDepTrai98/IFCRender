@@ -39,7 +39,7 @@ namespace dragon
 	{
 		if (!m_RayCaster)
 			m_RayCaster = std::make_unique<threepp::Raycaster>();
-		//m_RayCaster->params.lineThreshold = 1.0f;
+		m_RayCaster->params.lineThreshold = 0.1f;
 	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{
