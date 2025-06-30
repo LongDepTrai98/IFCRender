@@ -3,6 +3,10 @@
 #include "core/IRenderer.hpp"
 #include "core/IWindowEventHandler.hpp"
 #include "threepp/threepp.hpp"
+namespace threepp
+{
+	class Raycaster; 
+}
 namespace dragon
 {
 	/*
@@ -22,8 +26,8 @@ namespace dragon
 	private:
 		void initRenderer(threepp::WindowSize& w_size);
 		void initViewPort();
-		void initCamera(threepp::WindowSize& w_size);
-		void initScene(threepp::WindowSize& w_size);
+		//void initCamera(threepp::WindowSize& w_size);
+		//void initScene(threepp::WindowSize& w_size);
 		void validateContext();
 		void initController();
 		void ctxRender();
@@ -46,6 +50,8 @@ namespace dragon
 		std::unique_ptr<threepp::OrbitControls> m_OrbitControls{ nullptr };
 		/*LST VIEWPORT*/
 		std::vector<std::unique_ptr<ViewPort>> m_lstViewPort{};
+		/*RAY CASTER*/
+		threepp::Vector2 nor_mouse_pos{ -threepp::Infinity<float>, -threepp::Infinity<float> }; 
 	};
 }
 #endif // !_CONTEXT_RENDERER_HPP_

@@ -1,8 +1,10 @@
 #include "THREEPPRenderer.hpp"
 #include "ui/RenderCanvas.hpp"
 #include "threepp/threepp.hpp"
+#include "threepp/core/Raycaster.hpp"
 #include "view/MainViewPort.hpp"
 #include "view/ViewportGizmo.hpp"
+#include <format>
 /*
 * THREEPP CONTEXT RENDERER
 * BACKEND RENDERER IS OPENGL + THREEPP
@@ -73,11 +75,11 @@ namespace dragon
 
 		auto q = m_lstViewPort[0]->getCamera()->quaternion; 
 		auto axes = m_lstViewPort[1]->getScene()->children[0]; 
-
 		axes->quaternion.copy(q.invert());
-		
+
 		for (auto& viewport : m_lstViewPort)
 		{
+			viewport->handleRaycast(nor_mouse_pos.x,nor_mouse_pos.y); 
 			viewport->render(m_Renderer.get()); 
 		}
 
@@ -111,6 +113,9 @@ namespace dragon
 		wxPoint pos = event.GetPosition();
 		threepp::Vector2 mousePos(static_cast<float>(pos.x), static_cast<float>(pos.y));
 		onMouseMoveEvent(mousePos);
+		const wxSize size = m_Canvas->getSize(); 
+		nor_mouse_pos.x = (pos.x / static_cast<float>(size.GetWidth())) * 2 - 1;
+		nor_mouse_pos.y = -(pos.y / static_cast<float>(size.GetHeight())) * 2 + 1;
 	}
 	void THREEPPRenderer::OnMousePress(wxMouseEvent& event)
 	{

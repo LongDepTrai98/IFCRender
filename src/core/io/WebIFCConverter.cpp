@@ -185,6 +185,7 @@ namespace dragon
 			material->as<threepp::MeshLambertMaterial>()->color = color;
 			material->side = threepp::Side::Double;
 			material->transparent = placedColor.w != 1.0;
+			//material->wireframe = true; 
 			if (material->transparent) material->opacity = placedColor.w;
 			std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries;
 			geo_with_material.insert({ str_hash_color,{material,geometries} });

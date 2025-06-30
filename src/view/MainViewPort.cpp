@@ -12,9 +12,11 @@ namespace dragon
 		m_Viewport_Size = { canvas_size.x, canvas_size.y }; 
 		initScene(m_Viewport_Size);
 		initCamera(m_Viewport_Size);
+		initRayCaster();
 	}
 	MainViewPort::~MainViewPort()
 	{
+		if(m_Geometry_Offset_Cache)m_Geometry_Offset_Cache->clear(); 
 	}
 	void MainViewPort::initCamera(threepp::WindowSize& w_size)
 	{
@@ -32,6 +34,12 @@ namespace dragon
 	{
 		m_Geometry_Offset_Cache = std::move(cache);
 	}
+	void MainViewPort::initRayCaster()
+	{
+		if (!m_RayCaster)
+			m_RayCaster = std::make_unique<threepp::Raycaster>();
+		m_RayCaster->params.lineThreshold = 0.1f;
+	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{
 		m_Viewport_Size = { width,height }; 
@@ -40,6 +48,21 @@ namespace dragon
 			m_Camera->aspect = m_Viewport_Size.aspect(); 
 			m_Camera->updateProjectionMatrix(); 
 		}
+	}
+	void MainViewPort::handleRaycast(const double& norX, const double& norY)
+	{
+		m_RayCaster->setFromCamera(threepp::Vector2(norX, norY),
+			*m_Camera.get()); 
+		if (m_Scene->children.size() != 0)
+		{
+			const auto intersects = m_RayCaster->intersectObjects(m_Scene->children);
+			std::cout << std::format("nor_coord_mouse x : {}, y : {}", norX, norY) << std::endl;
+			if (!intersects.empty())
+			{
+				std::cout << "Hover object" << std::endl;
+			}
+		}
+
 	}
 	void MainViewPort::update(const float& dtTime)
 	{

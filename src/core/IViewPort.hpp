@@ -3,6 +3,10 @@
 #include "threepp/threepp.hpp"
 #include "core/io/IGeometryCache.hpp"
 #include <memory>
+namespace threepp
+{
+	class Raycaster; 
+}
 namespace dragon
 {
 	/*INTERFACE VIEWPORT*/
@@ -28,6 +32,8 @@ namespace dragon
 		virtual void initScene(threepp::WindowSize& w_size) = 0;
 		virtual void render(threepp::GLRenderer* main_render) = 0;
 		virtual void resize(const int& width, const int& height) = 0;
+		virtual void handleRaycast(const double& norX, const double& norY) = 0;
+		//virtual void 
 	protected:
 		/*SCENE CONTEXT*/
 		std::unique_ptr<threepp::Scene> m_Scene{ nullptr };
