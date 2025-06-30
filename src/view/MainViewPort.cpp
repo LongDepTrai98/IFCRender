@@ -62,11 +62,22 @@ namespace dragon
 				const auto& intersect = intersects.front();
 				if (intersect.face)
 				{
-					std::cout << std::format("Face {}, {}, {}, {}",
-						intersect.face.value().a,
-						intersect.face.value().b,
-						intersect.face.value().c,
-						intersect.faceIndex.value()) << std::endl;
+					const int& a = intersect.face.value().a; 
+					const int& b = intersect.face.value().b; 
+					const int& c = intersect.face.value().c; 
+					auto geo =  m_Scene->children[0]->children[0]->geometry();
+					auto attribute = geo->getAttribute<unsigned int>("expressID");
+					auto& arr = attribute->array();
+					const int& expressIDA = arr[a]; 
+					const int& expressIDB = arr[a]; 
+					const int& expressIDC = arr[a];
+					if (expressIDA != expressIDB
+						|| expressIDB != expressIDC
+						|| expressIDA != expressIDC)
+					{
+						std::cout << std::format("expressID A: {} , B : {} , C : {}", expressIDA, expressIDB, expressIDC); 
+					}
+					std::cout << std::format("expressID A: {} , B : {} , C : {}", expressIDA, expressIDB, expressIDC) << std::endl; 
 				}
 			}
 		}

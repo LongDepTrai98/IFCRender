@@ -1,5 +1,5 @@
 #include "AppCommandsHandler.hpp"
-#include "core/io/FileHandlerFactory.hpp"
+#include "core/io/factory/FileHandlerFactory.hpp"
 #include "core/io/IFileHandler.hpp"
 namespace dragon
 {

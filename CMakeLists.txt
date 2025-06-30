@@ -88,7 +88,7 @@ source_group("view" FILES ${APP_VIEWPORT_SRC})
 #geometry 
 file(GLOB_RECURSE LOADER_SRC "src/loader/*.cpp" "src/loader/*.hpp")
 source_group("loader" FILES ${LOADER_SRC})
-
+ 
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/wxInclude.hpp

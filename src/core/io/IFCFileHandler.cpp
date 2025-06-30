@@ -24,7 +24,7 @@
 #include "threepp/helpers/SpotLightHelper.hpp"
 #include "threepp/helpers/DirectionalLightHelper.hpp"
 #include "core/io/WebIFCConverter.hpp"
-#include "core/io/GeometryCacheOffsetFactory.hpp"
+#include "core/io/factory/GeometryCacheOffsetFactory.hpp"
 
 namespace dragon
 {

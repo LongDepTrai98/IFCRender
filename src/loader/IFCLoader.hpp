@@ -2,6 +2,6 @@
 #define _IFC_LOADER_HPP_
 namespace threepp
 {
-	class
+	
 }
 #endif // !_IFC_LOADER_HPP_
