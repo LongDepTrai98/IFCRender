@@ -157,7 +157,7 @@ namespace dragon
 			idAttribute[i / 6] = expressId;
 		}
 		auto placedColor = placedGeometry.color;
-		std::string str_hash_color = colorToHash(placedGeometry.color.x, placedColor.y, placedColor.z, placedColor.w);
+		std::string str_hash_color = MathHelper::colorToHash(placedGeometry.color.x, placedColor.y, placedColor.z, placedColor.w);
 		if (geo_with_material.count(str_hash_color) == 0)
 		{
 			/*CREATE MATERIAL*/
@@ -189,16 +189,6 @@ namespace dragon
 		if (m_ModelManager->IsModelOpen(modelId));
 		auto geomLoader = m_ModelManager->GetGeometryProcessor(modelId);
 		return geomLoader->GetGeometry(placedGeometry.geometryExpressID);
-	}
-
-	std::string WebIFCConverter::colorToHash(const float& r, const float& g, const float& b, const float& w)
-	{
-		std::ostringstream ss;
-		ss << std::setw(3) << std::setfill('0') << static_cast<int>(r * 255)
-			<< std::setw(3) << std::setfill('0') << static_cast<int>(g * 255)
-			<< std::setw(3) << std::setfill('0') << static_cast<int>(b * 255)
-			<< std::setw(3) << std::setfill('0') << static_cast<int>(w * 255);
-		return ss.str();
 	}
 
 	void WebIFCConverter::streamAllMeshesWithTypes(const uint32_t& modelID, const std::vector<uint32_t>& types)

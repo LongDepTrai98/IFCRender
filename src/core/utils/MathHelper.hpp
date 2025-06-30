@@ -1,6 +1,7 @@
 #ifndef _MATH_HELPER_HPP_
 #define _MATH_HELPER_HPP_
 #include <array>
+#include <string>
 namespace dragon
 {
 	class MathHelper
@@ -19,6 +20,15 @@ namespace dragon
 			{
 				dbArray[i] = static_cast<double>(flArray[i]);
 			}
+		}
+		static std::string colorToHash(const float& r, const float& g, const float& b, const float& w)
+		{
+			std::ostringstream ss;
+			ss << std::setw(3) << std::setfill('0') << static_cast<int>(r * 255)
+				<< std::setw(3) << std::setfill('0') << static_cast<int>(g * 255)
+				<< std::setw(3) << std::setfill('0') << static_cast<int>(b * 255)
+				<< std::setw(3) << std::setfill('0') << static_cast<int>(w * 255);
+			return ss.str();
 		}
 	private: 
 		MathHelper() = default; 
