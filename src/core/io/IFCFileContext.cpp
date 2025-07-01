@@ -1,14 +1,26 @@
 #include "IFCFileContext.hpp"
 #include "IFCGeometryCache.hpp"
 #include "threepp/threepp.hpp"
+#include "threepp/utils/BufferGeometryUtils.hpp"
 #include "core/io/factory/GeometryCacheOffsetFactory.hpp"
+#include "core/utils/ThreeHelper.hpp"
 #include <format>
 #include <iostream>
+#include <span>
+#include <array>
 namespace dragon
 {
 	IFCFileContext::IFCFileContext()
 	{
 		m_Geometry_Offset_Cache = std::move(GeometryCacheOffsetFactory::create(GeometryCacheOffsetFactory::TYPE::IFC)); 
+		/*INIT MATERIAL HOVER*/
+		if (!m_Material_Hover)
+		{
+			m_Material_Hover = threepp::MeshBasicMaterial::create(); 
+			m_Material_Hover->as<threepp::MeshBasicMaterial>()->color = threepp::Color::lightblue; 
+			//m_Material_Hover->transparent = true; 
+			//m_Material_Hover->opacity = 0.5f; 
+		}
 	}
 	IFCFileContext::~IFCFileContext()
 	{
@@ -32,24 +44,68 @@ namespace dragon
 				const auto& intersect = intersects.front();
 				if (intersect.face)
 				{
-					const int& a = intersect.face.value().a;
-					const int& b = intersect.face.value().b;
-					const int& c = intersect.face.value().c;
-					auto geo = m_Children_Objects[0]->geometry();
-					auto attribute = geo->getAttribute<unsigned int>("expressID");
-					auto& arr = attribute->array();
-					const int& expressIDA = arr[a];
-					const int& expressIDB = arr[a];
-					const int& expressIDC = arr[a];
-					if (expressIDA != expressIDB
-						|| expressIDB != expressIDC
-						|| expressIDA != expressIDC)
+					if (intersect.face)
 					{
-						std::cout << std::format("expressID A: {} , B : {} , C : {}", expressIDA, expressIDB, expressIDC);
+						const int& a = intersect.face.value().a;
+						auto root_object = m_Children_Objects[0]->geometry();
+						auto attribute_expressid = root_object->getAttribute<unsigned int>("expressID"); 
+						auto& arr = attribute_expressid->array(); 
+						const int& expressID = arr[a]; 
+						if (m_Current_ExpressID != expressID)
+						{
+							/*UPDATE EXPRESSID*/
+							m_Current_ExpressID = expressID; 
+						}
 					}
-					std::cout << std::format("expressID A: {} , B : {} , C : {}", expressIDA, expressIDB, expressIDC) << std::endl;
-				}
+				} 
 			}
+			else
+			{
+				m_Current_ExpressID = -1; 
+			}
+		}
+	}
+	void IFCFileContext::handleHoverResult(std::shared_ptr<threepp::Mesh>& object_hover)
+	{
+		if (m_Current_ExpressID != -1)
+		{
+			if (m_Current_ExpressID != m_Old_ExpressID)
+			{
+				if (!object_hover->visible)
+				{
+					object_hover->visible = true;
+				}
+				IFCGeometryCache* geo_cache = static_cast<IFCGeometryCache*>(m_Geometry_Offset_Cache.get());
+				if (!geo_cache) return;
+				auto& data_offset = geo_cache->getDataOffset();
+				auto it = data_offset.find(m_Current_ExpressID);
+				if (it == data_offset.end()) return;
+				auto& offsets = it->second;
+				std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{}; 
+				for (auto& offset : offsets)
+				{
+					const int& begin_offset = offset.begin;
+					const int& end_offset = offset.end;
+					const std::vector<uint32_t>& indices = offset.indices;
+					auto root_object = m_Children_Objects[0]->geometry();
+					auto attribute_postion = root_object->getAttribute<float>("position");
+					auto& array = attribute_postion->array();
+					std::vector<float> vertices(array.begin(), array.end());
+					geometries.emplace_back(ThreeHelper::createBufferGeometry(vertices,indices)); 
+					vertices.clear();
+				}
+				std::shared_ptr<threepp::BufferGeometry> mergeo = threepp::mergeBufferGeometries(geometries,false);
+				object_hover->setGeometry(mergeo);
+				object_hover->setMaterial(m_Material_Hover); 
+				object_hover->scale = { 1.01f,1.01f,1.01f }; 
+				m_Old_ExpressID = m_Current_ExpressID;
+			}
+			/*HIDE GEO*/
+		}
+		else
+		{
+			object_hover->visible = false;
+			m_Old_ExpressID = -1; 
 		}
 	}
 	void IFCFileContext::setRootObject(threepp::Object3D* root_mesh)

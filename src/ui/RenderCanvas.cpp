@@ -81,7 +81,7 @@ namespace dragon
 		auto viewPortSize = event.GetSize() * GetContentScaleFactor();
 		if (m_Renderer)
 		{
-			dynamic_cast<THREEPPRenderer*>(m_Renderer.get())->resize(viewPortSize.x,
+			static_cast<THREEPPRenderer*>(m_Renderer.get())->resize(viewPortSize.x,
 				viewPortSize.y);
 		}
 		deactiveContext();
@@ -95,7 +95,7 @@ namespace dragon
 		if (m_Renderer)
 		{
 			m_Renderer->update(m_dtTime);
-			dynamic_cast<THREEPPRenderer*>(m_Renderer.get())->render();
+			static_cast<THREEPPRenderer*>(m_Renderer.get())->render();
 		}
 		swapBuff();
 		disableMultisampling();
@@ -103,28 +103,28 @@ namespace dragon
 	}
 	void RenderCanvas::OnMouseMove(wxMouseEvent& event)
 	{
-		WindowEventHandler* event_handler = dynamic_cast<WindowEventHandler*>(m_Renderer.get());
+		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
 			event_handler->OnMouseMove(event);
 		event.Skip();
 	}
 	void RenderCanvas::OnMousePress(wxMouseEvent& event)
 	{
-		WindowEventHandler* event_handler = dynamic_cast<WindowEventHandler*>(m_Renderer.get());
+		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
 			event_handler->OnMousePress(event);
 		event.Skip();
 	}
 	void RenderCanvas::OnMouseRelease(wxMouseEvent& event)
 	{
-		WindowEventHandler* event_handler = dynamic_cast<WindowEventHandler*>(m_Renderer.get());
+		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
 			event_handler->OnMouseRelease(event);
 		event.Skip();
 	}
 	void RenderCanvas::OnMouseWheel(wxMouseEvent& event)
 	{
-		WindowEventHandler* event_handler = dynamic_cast<WindowEventHandler*>(m_Renderer.get());
+		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
 			event_handler->OnMouseWheel(event);
 		event.Skip();

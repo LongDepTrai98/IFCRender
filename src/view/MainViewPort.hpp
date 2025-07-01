@@ -19,6 +19,7 @@ namespace dragon
 		void initCamera(threepp::WindowSize& w_size) override;
 		void initScene(threepp::WindowSize& w_size) override;
 		void initRayCaster(); 
+		void initObjectHover(); 
 		void setFileContext(std::unique_ptr<IFileContext> file_context); 
 		void resetFileContext(); 
 	public:
@@ -29,6 +30,7 @@ namespace dragon
 	private: 
 		std::unique_ptr<threepp::Raycaster> m_RayCaster{ nullptr };
 		std::unique_ptr<IFileContext> m_FileContext{ nullptr };
+		std::shared_ptr<threepp::Mesh> m_Object_Hover{ nullptr };
 	};
 }
 #endif // !_MAIN_VIEW_PORT_HPP_

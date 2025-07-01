@@ -97,6 +97,7 @@ namespace dragon
 				viewport_scene->children; 
 				//group->rotation.x = -threepp::math::PI / 2;
 				viewport_scene->add(group);
+				main_viewport->initObjectHover(); 
 				SceneBuilder::IFCBuildScene(group.get(), viewport_scene, camera);
 			}
 		}

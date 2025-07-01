@@ -8,6 +8,7 @@
 #include "io_helpers.h"
 #include "threepp/threepp.hpp"
 #include "threepp/geometries/EdgesGeometry.hpp"
+#include "threepp/materials/ShaderMaterial.hpp"
 #include "core/utils/StringHelper.hpp"
 #include "threepp/utils/BufferGeometryUtils.hpp"
 #include <glm/gtc/type_ptr.hpp>
@@ -172,6 +173,7 @@ namespace dragon
 			idAttribute[i / 6] = expressId;
 		}
 		geometry_offset.end = index_offset; 
+		geometry_offset.indices = indices; 
 		m_Geometry_Offset[expressId].emplace_back(geometry_offset);
 		auto placedColor = placedGeometry.color;
 		std::string str_hash_color = MathHelper::colorToHash(placedGeometry.color.x, placedColor.y, placedColor.z, placedColor.w);
@@ -185,12 +187,10 @@ namespace dragon
 			material->as<threepp::MeshLambertMaterial>()->color = color;
 			material->side = threepp::Side::Double;
 			material->transparent = placedColor.w != 1.0;
-			//material->wireframe = true; 
 			if (material->transparent) material->opacity = placedColor.w;
 			std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries;
 			geo_with_material.insert({ str_hash_color,{material,geometries} });
 		}
-
 		std::shared_ptr<threepp::BufferGeometry> buff_geometry = threepp::BufferGeometry::create();
 		buff_geometry->setIndex(indices);
 		buff_geometry->setAttribute("position", threepp::FloatBufferAttribute::create(vertices, 3));

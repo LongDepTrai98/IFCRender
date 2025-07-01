@@ -10,9 +10,9 @@ namespace dragon
 	{
 		if (!main_frame) return nullptr;
 		IRenderer* renderer = main_frame->getRenderCanvas()->getRenderer();
-		THREEPPRenderer* three_renderer = dynamic_cast<THREEPPRenderer*>(renderer);
+		THREEPPRenderer* three_renderer = static_cast<THREEPPRenderer*>(renderer);
 		if (!renderer) return nullptr;
-		MainViewPort* viewport = dynamic_cast<MainViewPort*>(three_renderer->getMainViewPort());
+		MainViewPort* viewport = static_cast<MainViewPort*>(three_renderer->getMainViewPort());
 		return viewport;
 	}
 }

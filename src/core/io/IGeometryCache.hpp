@@ -1,5 +1,6 @@
 #ifndef _INTERFACE_GEOMETRY_CACHE_HPP_
 #define _INTERFACE_GEOMETRY_CACHE_HPP_
+#include <vector>
 namespace dragon
 {
 	class IGeometryCache
@@ -7,8 +8,9 @@ namespace dragon
 	public: 
 		struct offset
 		{
-			int begin; 
-			int end; 
+			int begin{ 0 };
+			int end{ 0 };
+			std::vector<uint32_t> indices{};
 		};
 	public: 
 		virtual void insert(const int& id, const offset& offset) = 0;

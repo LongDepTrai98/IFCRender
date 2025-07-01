@@ -22,6 +22,14 @@ namespace dragon
 		{
 			m_Data_Offset.clear(); 
 		}
+		bool existExpressID(const int& expressID)
+		{
+			return m_Data_Offset.count(expressID) != 0; 
+		}
+		std::map<int, std::vector<offset>>& getDataOffset()
+		{
+			return m_Data_Offset; 
+		}
 	private:
 		std::map<int, std::vector<offset>> m_Data_Offset{}; 
 	};
