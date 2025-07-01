@@ -84,20 +84,18 @@ namespace dragon
 				std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{}; 
 				for (auto& offset : offsets)
 				{
-					const int& begin_offset = offset.begin;
-					const int& end_offset = offset.end;
-					const std::vector<uint32_t>& indices = offset.indices;
-					auto root_object = m_Children_Objects[0]->geometry();
-					auto attribute_postion = root_object->getAttribute<float>("position");
-					auto& array = attribute_postion->array();
-					std::vector<float> vertices(array.begin(), array.end());
-					geometries.emplace_back(ThreeHelper::createBufferGeometry(vertices,indices)); 
-					vertices.clear();
+					//const int& begin_offset = offset.begin;
+					//const int& end_offset = offset.end;
+					//auto root_object = m_Children_Objects[0]->geometry();
+					//auto attribute_postion = root_object->getAttribute<float>("position");
+					//auto& array = attribute_postion->array();
+					//std::vector<float> vertices(array.begin() + begin_offset, array.begin() + end_offset + 1);
+					geometries.emplace_back(offset.geometry); 
+					//vertices.clear();
 				}
 				std::shared_ptr<threepp::BufferGeometry> mergeo = threepp::mergeBufferGeometries(geometries,false);
 				object_hover->setGeometry(mergeo);
 				object_hover->setMaterial(m_Material_Hover); 
-				object_hover->scale = { 1.01f,1.01f,1.01f }; 
 				m_Old_ExpressID = m_Current_ExpressID;
 			}
 			/*HIDE GEO*/

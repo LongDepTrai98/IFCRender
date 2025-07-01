@@ -1,6 +1,11 @@
 #ifndef _INTERFACE_GEOMETRY_CACHE_HPP_
 #define _INTERFACE_GEOMETRY_CACHE_HPP_
 #include <vector>
+#include "memory"
+namespace threepp
+{
+	class BufferGeometry; 
+}
 namespace dragon
 {
 	class IGeometryCache
@@ -11,6 +16,7 @@ namespace dragon
 			int begin{ 0 };
 			int end{ 0 };
 			std::vector<uint32_t> indices{};
+			std::shared_ptr<threepp::BufferGeometry> geometry{ nullptr }; 
 		};
 	public: 
 		virtual void insert(const int& id, const offset& offset) = 0;
