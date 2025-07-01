@@ -14,20 +14,20 @@ namespace dragon
 {
 	IFCFileContext::IFCFileContext()
 	{
-		m_Geometry_Offset_Cache = std::move(GeometryCacheOffsetFactory::create(GeometryCacheOffsetFactory::TYPE::IFC)); 
+		m_Geometry_Offset_Cache = std::move(GeometryCacheOffsetFactory::create(GeometryCacheOffsetFactory::TYPE::IFC));
 		/*INIT MATERIAL HOVER*/
 		if (!m_Material_Hover)
 		{
-			m_Material_Hover = threepp::MeshBasicMaterial::create(); 
-			m_Material_Hover->as<threepp::MeshBasicMaterial>()->color = threepp::Color::lightblue; 
-			m_Material_Hover->transparent = true; 
-			m_Material_Hover->depthWrite = false; 
-			m_Material_Hover->opacity = 0.8f; 
+			m_Material_Hover = threepp::MeshBasicMaterial::create();
+			m_Material_Hover->as<threepp::MeshBasicMaterial>()->color = threepp::Color::lightblue;
+			m_Material_Hover->transparent = true;
+			m_Material_Hover->depthWrite = false;
+			m_Material_Hover->opacity = 0.8f;
 		}
 	}
 	IFCFileContext::~IFCFileContext()
 	{
-		m_Children_Objects.clear(); 
+		m_Children_Objects.clear();
 	}
 	std::string IFCFileContext::getFileType()
 	{
@@ -35,7 +35,7 @@ namespace dragon
 	}
 	IGeometryCache* IFCFileContext::getGeometryCache()
 	{
-		return m_Geometry_Offset_Cache.get(); 
+		return m_Geometry_Offset_Cache.get();
 	}
 	void IFCFileContext::handleRaycast(threepp::Raycaster& RayCaster, threepp::Vector2& nor_mouse_pos)
 	{
@@ -51,20 +51,20 @@ namespace dragon
 					{
 						const int& a = intersect.face.value().a;
 						auto root_object = m_Children_Objects[0]->geometry();
-						auto attribute_expressid = root_object->getAttribute<unsigned int>("expressID"); 
-						auto& arr = attribute_expressid->array(); 
-						const int& expressID = arr[a]; 
+						auto attribute_expressid = root_object->getAttribute<unsigned int>("expressID");
+						auto& arr = attribute_expressid->array();
+						const int& expressID = arr[a];
 						if (m_Current_ExpressID != expressID)
 						{
 							/*UPDATE EXPRESSID*/
-							m_Current_ExpressID = expressID; 
+							m_Current_ExpressID = expressID;
 						}
 					}
-				} 
+				}
 			}
 			else
 			{
-				m_Current_ExpressID = -1; 
+				m_Current_ExpressID = -1;
 			}
 		}
 	}
@@ -84,14 +84,14 @@ namespace dragon
 				auto it = data_offset.find(m_Current_ExpressID);
 				if (it == data_offset.end()) return;
 				auto& offsets = it->second;
-				std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{}; 
+				std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{};
 				for (auto& offset : offsets)
 				{
-					geometries.emplace_back(offset.geometry); 
+					geometries.emplace_back(offset.geometry);
 				}
-				std::shared_ptr<threepp::BufferGeometry> mergeo = threepp::mergeBufferGeometries(geometries,false);
+				std::shared_ptr<threepp::BufferGeometry> mergeo = threepp::mergeBufferGeometries(geometries, false);
 				object_hover->setGeometry(mergeo);
-				object_hover->setMaterial(m_Material_Hover); 
+				object_hover->setMaterial(m_Material_Hover);
 				m_Old_ExpressID = m_Current_ExpressID;
 			}
 			/*HIDE GEO*/
@@ -99,13 +99,13 @@ namespace dragon
 		else
 		{
 			object_hover->visible = false;
-			m_Old_ExpressID = -1; 
+			m_Old_ExpressID = -1;
 		}
 	}
 	void IFCFileContext::setRootObject(threepp::Object3D* root_mesh)
 	{
 		std::vector<threepp::Object3D*> lstObject{};
-		lstObject.emplace_back(root_mesh); 
-		m_Children_Objects = std::move(lstObject); 
+		lstObject.emplace_back(root_mesh);
+		m_Children_Objects = std::move(lstObject);
 	}
 }

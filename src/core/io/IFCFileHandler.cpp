@@ -44,13 +44,13 @@ namespace dragon
 		{
 			WebIFCConverter IFCApi{};
 			group = IFCApi.convert(file_path);
-			auto& geometryOffsetCache = IFCApi.getGeometryOffsetCache(); 
+			auto& geometryOffsetCache = IFCApi.getGeometryOffsetCache();
 			WindowFrame* window_frame = dynamic_cast<WindowFrame*>(m_Window);
 			auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
-			main_viewport->resetFileContext(); 
+			main_viewport->resetFileContext();
 			/*COPY DATA*/
 			std::unique_ptr<IFileContext> file_context = FileContextFactory::create(FileContextFactory::type::IFC);
-			auto ptr_ifc_file_context = dynamic_cast<IFCFileContext*>(file_context.get()); 
+			auto ptr_ifc_file_context = dynamic_cast<IFCFileContext*>(file_context.get());
 			auto ptr_ifc_offset_cache = dynamic_cast<IFCGeometryCache*>(file_context->getGeometryCache());
 			ptr_ifc_offset_cache->copyData(IFCApi.getGeometryOffsetCache());
 			if (file_context)
@@ -94,10 +94,10 @@ namespace dragon
 				auto viewport_scene = main_viewport->getScene();
 				auto camera = main_viewport->getCamera();
 				viewport_scene->clear();
-				viewport_scene->children; 
+				viewport_scene->children;
 				//group->rotation.x = -threepp::math::PI / 2;
 				viewport_scene->add(group);
-				main_viewport->initObjectHover(); 
+				main_viewport->initObjectHover();
 				SceneBuilder::IFCBuildScene(group.get(), viewport_scene, camera);
 			}
 		}

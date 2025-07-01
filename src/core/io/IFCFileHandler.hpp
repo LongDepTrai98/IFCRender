@@ -3,11 +3,11 @@
 #include "core/io/IFileHandler.hpp"
 namespace threepp
 {
-	class Scene; 
-	class Group; 
+	class Scene;
+	class Group;
 }
 class GeometryConverter;
-class GeometrySettings; 
+class GeometrySettings;
 namespace dragon
 {
 	class IFCFileHandler : public FileHandler
@@ -18,13 +18,13 @@ namespace dragon
 	public:
 		/*OVERRIDE METHOD*/
 		void open(const std::filesystem::path& file_path) override;
-		std::shared_ptr<GeometryConverter>& getGeometryConverter(); 
+		std::shared_ptr<GeometryConverter>& getGeometryConverter();
 	private:
 		/*PRIVATE PARAM*/
 		std::shared_ptr<GeometryConverter> m_GeometryConverter{ nullptr };
-		std::shared_ptr<GeometrySettings> m_GeometrySettings{ nullptr }; 
+		std::shared_ptr<GeometrySettings> m_GeometrySettings{ nullptr };
 		double m_Eps{ 1.5e-9 };
-		bool m_bIsCreateInstance{ true }; 
+		bool m_bIsCreateInstance{ true };
 		bool m_bIsUseWebIFCConvert{ true };
 	};
 }

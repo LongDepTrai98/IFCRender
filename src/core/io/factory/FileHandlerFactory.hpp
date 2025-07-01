@@ -4,12 +4,12 @@
 #include <memory>
 namespace dragon
 {
-	class FileHandler; 
+	class FileHandler;
 	class FileHandlerFactory
 	{
-	public: 
-		static std::unique_ptr<FileHandler> create(const std::filesystem::path& file); 
-	private: 
+	public:
+		static std::unique_ptr<FileHandler> create(const std::filesystem::path& file);
+	private:
 		FileHandlerFactory();
 	};
 }

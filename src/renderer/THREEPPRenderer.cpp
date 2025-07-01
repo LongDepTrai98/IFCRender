@@ -18,7 +18,7 @@ namespace dragon
 		//create windows size
 		threepp::WindowSize window_size(canvas_size.x, canvas_size.y);
 		initRenderer(window_size);
-		initViewPort(); 
+		initViewPort();
 		initController();
 		m_OrbitControls->update();
 		m_Canvas->deactiveContext();
@@ -32,7 +32,7 @@ namespace dragon
 	}
 	ViewPort* THREEPPRenderer::getMainViewPort()
 	{
-		return m_lstViewPort[0].get(); 
+		return m_lstViewPort[0].get();
 	}
 	void THREEPPRenderer::initRenderer(threepp::WindowSize& w_size)
 	{
@@ -44,11 +44,11 @@ namespace dragon
 	}
 	void THREEPPRenderer::initViewPort()
 	{
-		m_lstViewPort.push_back(std::make_unique<MainViewPort>(m_Canvas)); 
-		m_lstViewPort.push_back(std::make_unique<ViewPortGizmo>(m_Canvas)); 
+		m_lstViewPort.push_back(std::make_unique<MainViewPort>(m_Canvas));
+		m_lstViewPort.push_back(std::make_unique<ViewPortGizmo>(m_Canvas));
 		for (auto& view_port : m_lstViewPort)
 		{
-			view_port->initRenderer(m_Renderer.get()); 
+			view_port->initRenderer(m_Renderer.get());
 		}
 	}
 	void THREEPPRenderer::validateContext()
@@ -62,7 +62,7 @@ namespace dragon
 	{
 		if (!m_OrbitControls)
 		{
-			ViewPort* main_viewport = m_lstViewPort[0].get(); 
+			ViewPort* main_viewport = m_lstViewPort[0].get();
 			if (main_viewport)
 			{
 				m_OrbitControls = std::make_unique<threepp::OrbitControls>(*main_viewport->getCamera(), *this);
@@ -73,27 +73,26 @@ namespace dragon
 	{
 		m_Renderer->clear();
 
-		auto q = m_lstViewPort[0]->getCamera()->quaternion; 
-		auto axes = m_lstViewPort[1]->getScene()->children[0]; 
+		auto q = m_lstViewPort[0]->getCamera()->quaternion;
+		auto axes = m_lstViewPort[1]->getScene()->children[0];
 		axes->quaternion.copy(q.invert());
 
 		for (auto& viewport : m_lstViewPort)
 		{
-			viewport->handleRaycast(nor_mouse_pos); 
-			viewport->render(m_Renderer.get()); 
+			viewport->handleRaycast(nor_mouse_pos);
+			viewport->render(m_Renderer.get());
 		}
-
 	}
 	void THREEPPRenderer::resize(const int& width, const int& height)
 	{
 		threepp::WindowSize window_size(width, height);
 		for (auto& viewport : m_lstViewPort)
 		{
-			viewport->resize(width, height); 
+			viewport->resize(width, height);
 		}
 		if (m_Renderer)
 		{
-			m_Renderer->setSize(window_size); 
+			m_Renderer->setSize(window_size);
 		}
 	}
 	void THREEPPRenderer::update(const float& dtTime)
@@ -113,7 +112,7 @@ namespace dragon
 		wxPoint pos = event.GetPosition();
 		threepp::Vector2 mousePos(static_cast<float>(pos.x), static_cast<float>(pos.y));
 		onMouseMoveEvent(mousePos);
-		const wxSize size = m_Canvas->getSize(); 
+		const wxSize size = m_Canvas->getSize();
 		nor_mouse_pos.x = (pos.x / static_cast<float>(size.GetWidth())) * 2 - 1;
 		nor_mouse_pos.y = -(pos.y / static_cast<float>(size.GetHeight())) * 2 + 1;
 	}

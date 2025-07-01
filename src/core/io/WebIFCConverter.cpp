@@ -38,7 +38,7 @@ namespace dragon
 		std::shared_ptr<threepp::Group> container = threepp::Group::create();
 		std::array<float, 16> default_array = container->matrix->elements;
 		std::array<double, 16> double_array{};
-		MathHelper::convertFloatArr2DoubleArr(default_array,double_array); 
+		MathHelper::convertFloatArr2DoubleArr(default_array, double_array);
 		m_ModelManager->GetGeometryProcessor(m_modelID)->SetTransformation(double_array);
 		loadAllGeometry(m_modelID);
 		auto size_t = geo_with_material.size();
@@ -61,7 +61,7 @@ namespace dragon
 		std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
 		container->add(outlineEdge);
 		geometries.clear();
-		materials.clear(); 
+		materials.clear();
 		return container;
 	}
 
@@ -149,7 +149,7 @@ namespace dragon
 		std::vector<float> normals(normals_size);
 		std::vector<uint32_t> idAttribute(attribute_size);
 		IGeometryCache::offset geometry_offset{};
-		bool isFirstPoint{ false }; 
+		bool isFirstPoint{ false };
 		for (int i = 0; i < vertexData.size(); i += 6)
 		{
 			/*POINT X*/
@@ -158,7 +158,7 @@ namespace dragon
 			if (!isFirstPoint)
 			{
 				geometry_offset.begin = index_offset;
-				isFirstPoint = true; 
+				isFirstPoint = true;
 			}
 			/*POINT Y*/
 			vertices[i / 2 + 1] = vertexData[i + 1];
@@ -172,7 +172,7 @@ namespace dragon
 			normals[i / 2 + 2] = vertexData[i + 5];
 			idAttribute[i / 6] = expressId;
 		}
-		geometry_offset.end = index_offset; 
+		geometry_offset.end = index_offset;
 		auto placedColor = placedGeometry.color;
 		std::string str_hash_color = MathHelper::colorToHash(placedGeometry.color.x, placedColor.y, placedColor.z, placedColor.w);
 		if (geo_with_material.count(str_hash_color) == 0)
@@ -195,8 +195,8 @@ namespace dragon
 		buff_geometry->setAttribute("normal", threepp::FloatBufferAttribute::create(normals, 3));
 		buff_geometry->setAttribute("expressID", threepp::IntBufferAttribute::create(idAttribute, 1));
 		std::array<float, 16> matrix_float{};
-		MathHelper::convertDoubleArr2FloatArr(placedGeometry.flatTransformation,matrix_float);
-		geometry_offset.geometry = buff_geometry; 
+		MathHelper::convertDoubleArr2FloatArr(placedGeometry.flatTransformation, matrix_float);
+		geometry_offset.geometry = buff_geometry;
 		m_Geometry_Offset[expressId].emplace_back(geometry_offset);
 		buff_geometry->applyMatrix4(threepp::Matrix4(matrix_float));
 		geo_with_material[str_hash_color].geometries.emplace_back(buff_geometry);
@@ -211,7 +211,7 @@ namespace dragon
 
 	const std::map<int, std::vector<IGeometryCache::offset>>& WebIFCConverter::getGeometryOffsetCache()
 	{
-		return m_Geometry_Offset; 
+		return m_Geometry_Offset;
 	}
 
 	void WebIFCConverter::streamAllMeshesWithTypes(const uint32_t& modelID, const std::vector<uint32_t>& types)

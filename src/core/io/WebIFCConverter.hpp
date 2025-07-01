@@ -32,7 +32,7 @@ namespace dragon
 {
 	class WebIFCConverter
 	{
-	public: 
+	public:
 		struct GeoWithMaterial
 		{
 			std::shared_ptr<threepp::Material> material{ nullptr };
@@ -63,7 +63,7 @@ namespace dragon
 		bool m_bMT_ENABLE{ true };
 		std::unordered_map<std::string, GeoWithMaterial> geo_with_material{};
 		std::map<int, std::vector<IGeometryCache::offset>> m_Geometry_Offset{};
-		int index_offset{ -1 }; 
+		int index_offset{ -1 };
 	};
 }
 #endif // !_WEB_IFC_CONVERTER_HPP_

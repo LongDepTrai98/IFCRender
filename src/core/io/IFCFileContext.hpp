@@ -5,29 +5,29 @@
 namespace threepp
 {
 	class Object3D;
-	class Material; 
+	class Material;
 }
 namespace dragon
 {
-	class IGeometryCache; 
+	class IGeometryCache;
 	class IFCFileContext : public IFileContext
 	{
-	public: 
+	public:
 		IFCFileContext();
-		~IFCFileContext(); 
-	public: 
-		std::string getFileType() override; 
+		~IFCFileContext();
+	public:
+		std::string getFileType() override;
 		IGeometryCache* getGeometryCache() override;
-		void handleRaycast(threepp::Raycaster& RayCaster, threepp::Vector2& nor_mouse_pos) override; 
+		void handleRaycast(threepp::Raycaster& RayCaster, threepp::Vector2& nor_mouse_pos) override;
 		void handleHoverResult(std::shared_ptr<threepp::Mesh>& object_hover) override;
-	public: 
+	public:
 		void setRootObject(threepp::Object3D* root_mesh);
-	private: 
+	private:
 		std::unique_ptr<IGeometryCache> m_Geometry_Offset_Cache{ nullptr };
-		std::vector<threepp::Object3D*> m_Children_Objects{ nullptr }; 
-		std::shared_ptr<threepp::Material> m_Material_Hover{ nullptr }; 
-		int m_Current_ExpressID{ -1 }; 
-		int m_Old_ExpressID{ -1 }; 
+		std::vector<threepp::Object3D*> m_Children_Objects{ nullptr };
+		std::shared_ptr<threepp::Material> m_Material_Hover{ nullptr };
+		int m_Current_ExpressID{ -1 };
+		int m_Old_ExpressID{ -1 };
 	};
 }
 #endif // !_IFC_FILE_CONTEXT_HPP_
