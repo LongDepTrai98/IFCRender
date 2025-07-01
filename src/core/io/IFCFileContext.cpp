@@ -18,8 +18,9 @@ namespace dragon
 		{
 			m_Material_Hover = threepp::MeshBasicMaterial::create(); 
 			m_Material_Hover->as<threepp::MeshBasicMaterial>()->color = threepp::Color::lightblue; 
-			//m_Material_Hover->transparent = true; 
-			//m_Material_Hover->opacity = 0.5f; 
+			m_Material_Hover->transparent = true; 
+			m_Material_Hover->depthWrite = false; 
+			m_Material_Hover->opacity = 0.5f; 
 		}
 	}
 	IFCFileContext::~IFCFileContext()
@@ -84,14 +85,7 @@ namespace dragon
 				std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{}; 
 				for (auto& offset : offsets)
 				{
-					//const int& begin_offset = offset.begin;
-					//const int& end_offset = offset.end;
-					//auto root_object = m_Children_Objects[0]->geometry();
-					//auto attribute_postion = root_object->getAttribute<float>("position");
-					//auto& array = attribute_postion->array();
-					//std::vector<float> vertices(array.begin() + begin_offset, array.begin() + end_offset + 1);
 					geometries.emplace_back(offset.geometry); 
-					//vertices.clear();
 				}
 				std::shared_ptr<threepp::BufferGeometry> mergeo = threepp::mergeBufferGeometries(geometries,false);
 				object_hover->setGeometry(mergeo);

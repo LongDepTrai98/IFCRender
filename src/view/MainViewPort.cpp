@@ -73,34 +73,6 @@ namespace dragon
 			m_FileContext->handleRaycast(*m_RayCaster.get(),nor_mouse_pos); 
 			m_FileContext->handleHoverResult(m_Object_Hover); 
 		}
-	/*	if (m_Scene->children.size() != 0)
-		{
-			const auto intersects = m_RayCaster->intersectObjects(m_Scene->children,true);
-			if (!intersects.empty())
-			{
-				const auto& intersect = intersects.front();
-				if (intersect.face)
-				{
-					const int& a = intersect.face.value().a; 
-					const int& b = intersect.face.value().b; 
-					const int& c = intersect.face.value().c; 
-					auto geo =  m_Scene->children[0]->children[0]->geometry();
-					auto attribute = geo->getAttribute<unsigned int>("expressID");
-					auto& arr = attribute->array();
-					const int& expressIDA = arr[a]; 
-					const int& expressIDB = arr[a]; 
-					const int& expressIDC = arr[a];
-					if (expressIDA != expressIDB
-						|| expressIDB != expressIDC
-						|| expressIDA != expressIDC)
-					{
-						std::cout << std::format("expressID A: {} , B : {} , C : {}", expressIDA, expressIDB, expressIDC); 
-					}
-					std::cout << std::format("expressID A: {} , B : {} , C : {}", expressIDA, expressIDB, expressIDC) << std::endl; 
-				}
-			}
-		}*/
-
 	}
 	void MainViewPort::update(const float& dtTime)
 	{
