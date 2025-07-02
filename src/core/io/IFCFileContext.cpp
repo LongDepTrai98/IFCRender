@@ -4,6 +4,7 @@
 #include "threepp/utils/BufferGeometryUtils.hpp"
 #include "core/io/factory/GeometryCacheOffsetFactory.hpp"
 #include "core/utils/ThreeHelper.hpp"
+#include "raycast/CustomRayCaster.hpp"
 #include <format>
 #include <iostream>
 #include <span>
@@ -60,6 +61,35 @@ namespace dragon
 							m_Current_ExpressID = expressID;
 						}
 					}
+				}
+			}
+			else
+			{
+				m_Current_ExpressID = -1;
+			}
+		}
+	}
+	void IFCFileContext::handleRaycast(CustomRayCaster& RayCaster, threepp::Vector2& nor_mouse_pos)
+	{
+		if (!m_Children_Objects.empty())
+		{
+			CustomRayCaster::Result result; 
+			bool hit = RayCaster.intersectObjects(result);
+			if (hit)
+			{
+				const int& prim_id = result.prim_id; 
+				const int& index_face_a = 3 * prim_id; 
+				const int& index_face_b = 3 * prim_id + 1; 
+				const int& index_face_c = 3 * prim_id + 2;
+				auto obj_geometry = m_Children_Objects[0]->geometry();
+				const int& a = obj_geometry->getIndex()->array()[index_face_a];
+				auto attribute_expressid = obj_geometry->getAttribute<unsigned int>("expressID");
+				auto& arr = attribute_expressid->array();
+				const int& expressID = arr[a];
+				if (m_Current_ExpressID != expressID)
+				{
+					/*UPDATE EXPRESSID*/
+					m_Current_ExpressID = expressID;
 				}
 			}
 			else

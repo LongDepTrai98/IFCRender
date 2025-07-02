@@ -8,7 +8,6 @@
 #include "threepp/utils/BufferGeometryUtils.hpp"
 #include "threepp/geometries/EdgesGeometry.hpp"
 #include "core/convert/IFCEntityConvert.hpp"
-#include "renderer/THREEPPSceneBuilder.hpp"
 #include <unordered_set>
 #include <ifcpp/IFC4X3/include/IfcBuildingStorey.h>
 #include <ifcpp/IFC4X3/include/IfcGloballyUniqueId.h>
@@ -58,6 +57,7 @@ namespace dragon
 				main_viewport->setFileContext(std::move(file_context));
 				ptr_ifc_file_context->setRootObject(group->children[0]);
 			}
+			main_viewport->clearBVH(); 
 			main_viewport->buildBVH(group->children[0]->geometry().get());
 		}
 		else
@@ -96,7 +96,6 @@ namespace dragon
 				auto camera = main_viewport->getCamera();
 				viewport_scene->clear();
 				viewport_scene->children;
-				//group->rotation.x = -threepp::math::PI / 2;
 				viewport_scene->add(group);
 				main_viewport->initObjectHover();
 				SceneBuilder::IFCBuildScene(group.get(), viewport_scene, camera);

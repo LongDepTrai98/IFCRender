@@ -65,6 +65,13 @@ namespace dragon
 			m_CustomRayCaster->buildBVH(geometry); 
 		}
 	}
+	void MainViewPort::clearBVH()
+	{
+		if (m_CustomRayCaster)
+		{
+			m_CustomRayCaster->clearBVH(); 
+		}
+	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{
 		m_Viewport_Size = { width,height };
@@ -78,9 +85,13 @@ namespace dragon
 	{
 		m_RayCaster->setFromCamera(nor_mouse_pos,
 			*m_Camera.get());
+		m_CustomRayCaster->setFromCamera(nor_mouse_pos,
+			*m_Camera.get()); 
 		if (m_FileContext)
 		{
-			m_FileContext->handleRaycast(*m_RayCaster.get(), nor_mouse_pos);
+			//m_FileContext->handleRaycast(*m_RayCaster.get(), nor_mouse_pos);
+			m_FileContext->handleRaycast(*m_CustomRayCaster.get(), nor_mouse_pos); 
+			//m_CustomRayCaster->intersectObjects(); 
 			m_FileContext->handleHoverResult(m_Object_Hover);
 		}
 	}
