@@ -9,7 +9,6 @@
 #include <span>
 #include <array>
 #define NANORT_USE_CPP11_FEATURE 1
-#include "geometry/nanort.hpp"
 namespace dragon
 {
 	IFCFileContext::IFCFileContext()
@@ -22,7 +21,8 @@ namespace dragon
 			m_Material_Hover->as<threepp::MeshBasicMaterial>()->color = threepp::Color::lightblue;
 			m_Material_Hover->transparent = true;
 			m_Material_Hover->depthWrite = false;
-			m_Material_Hover->opacity = 0.8f;
+			m_Material_Hover->depthTest = false;
+			m_Material_Hover->opacity = 0.5f;
 		}
 	}
 	IFCFileContext::~IFCFileContext()

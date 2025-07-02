@@ -58,6 +58,7 @@ namespace dragon
 				main_viewport->setFileContext(std::move(file_context));
 				ptr_ifc_file_context->setRootObject(group->children[0]);
 			}
+			main_viewport->buildBVH(group->children[0]->geometry().get());
 		}
 		else
 		{

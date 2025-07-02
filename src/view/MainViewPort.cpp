@@ -5,6 +5,7 @@
 #include "threepp/helpers/DirectionalLightHelper.hpp"
 #include "core/io/IFCGeometryCache.hpp"
 #include "core/io/IFileContext.hpp"
+#include "raycast/CustomRayCaster.hpp"
 namespace dragon
 {
 	MainViewPort::MainViewPort(RenderCanvas* canvas) : IRenderer(canvas)
@@ -36,6 +37,8 @@ namespace dragon
 		if (!m_RayCaster)
 			m_RayCaster = std::make_unique<threepp::Raycaster>();
 		m_RayCaster->params.lineThreshold = 0.1f;
+		if (!m_CustomRayCaster)
+			m_CustomRayCaster = std::make_unique<CustomRayCaster>(); 
 	}
 	void MainViewPort::initObjectHover()
 	{
@@ -44,6 +47,7 @@ namespace dragon
 		{
 			m_Scene->add(m_Object_Hover);
 			m_Object_Hover->visible = false;
+			m_Object_Hover->renderOrder = INT_MAX; 
 		}
 	}
 	void MainViewPort::setFileContext(std::unique_ptr<IFileContext> file_context)
@@ -54,6 +58,12 @@ namespace dragon
 	{
 		if (!m_FileContext)m_FileContext.reset();
 		m_FileContext = nullptr;
+	}
+	void MainViewPort::buildBVH(threepp::BufferGeometry* geometry)
+	{
+		if (m_CustomRayCaster) {
+			m_CustomRayCaster->buildBVH(geometry); 
+		}
 	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{

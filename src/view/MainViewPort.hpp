@@ -9,6 +9,7 @@ namespace threepp
 namespace dragon
 {
 	class IFileContext;
+	class CustomRayCaster;
 	class MainViewPort : public ViewPort,
 		public IRenderer
 	{
@@ -22,6 +23,7 @@ namespace dragon
 		void initObjectHover();
 		void setFileContext(std::unique_ptr<IFileContext> file_context);
 		void resetFileContext();
+		void buildBVH(threepp::BufferGeometry* geometry); 
 	public:
 		void update(const float& dtTime) override;
 		void render(threepp::GLRenderer* renderer) override;
@@ -29,6 +31,7 @@ namespace dragon
 		void handleRaycast(threepp::Vector2& nor_mouse_pos) override;
 	private:
 		std::unique_ptr<threepp::Raycaster> m_RayCaster{ nullptr };
+		std::unique_ptr<CustomRayCaster> m_CustomRayCaster{ nullptr };
 		std::unique_ptr<IFileContext> m_FileContext{ nullptr };
 		std::shared_ptr<threepp::Mesh> m_Object_Hover{ nullptr };
 	};
