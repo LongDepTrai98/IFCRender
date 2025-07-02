@@ -22,7 +22,7 @@ namespace dragon
 	void MainViewPort::initCamera(threepp::WindowSize& w_size)
 	{
 		if (!m_Camera)
-			m_Camera = std::make_unique<threepp::PerspectiveCamera>(60, w_size.aspect(), 0.1f, 1000);
+			m_Camera = std::make_unique<threepp::PerspectiveCamera>(60, w_size.aspect(), 0.1f, 2000.f);
 		m_Camera->layers.enableAll();
 		m_Camera->position.z = 10;
 	}
@@ -44,7 +44,7 @@ namespace dragon
 		{
 			m_Scene->add(m_Object_Hover);
 			m_Object_Hover->visible = false;
-			m_Object_Hover->renderOrder = INT_MAX; 
+			m_Object_Hover->renderOrder = INT_MAX;
 		}
 	}
 	void MainViewPort::setFileContext(std::unique_ptr<IFileContext> file_context)
@@ -81,7 +81,7 @@ namespace dragon
 	void MainViewPort::handleRaycast(threepp::Vector2& nor_mouse_pos)
 	{
 		m_RayCaster->setFromCamera(nor_mouse_pos,
-			*m_Camera.get()); 
+			*m_Camera.get());
 		if (m_FileContext)
 		{
 			m_FileContext->handleRaycast(*m_RayCaster.get(), nor_mouse_pos);

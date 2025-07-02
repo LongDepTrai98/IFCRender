@@ -42,13 +42,13 @@ namespace dragon
 	{
 		if (!m_Children_Objects.empty())
 		{
-			CustomRayCaster::Result result; 
+			CustomRayCaster::Result result;
 			bool hit = RayCaster.intersectObjects(result);
 			if (hit)
 			{
-				const int& prim_id = result.prim_id; 
-				const int& index_face_a = 3 * prim_id; 
-				const int& index_face_b = 3 * prim_id + 1; 
+				const int& prim_id = result.prim_id;
+				const int& index_face_a = 3 * prim_id;
+				const int& index_face_b = 3 * prim_id + 1;
 				const int& index_face_c = 3 * prim_id + 2;
 				auto obj_geometry = m_Children_Objects[0]->geometry();
 				const int& a = obj_geometry->getIndex()->array()[index_face_a];

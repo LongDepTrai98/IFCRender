@@ -11,7 +11,7 @@ namespace threepp
 namespace dragon
 {
 	class IGeometryCache;
-	class CustomRayCaster; 
+	class CustomRayCaster;
 	class IFileContext
 	{
 	public:

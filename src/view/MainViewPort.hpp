@@ -23,8 +23,8 @@ namespace dragon
 		void initObjectHover();
 		void setFileContext(std::unique_ptr<IFileContext> file_context);
 		void resetFileContext();
-		void buildBVH(threepp::BufferGeometry* geometry); 
-		void clearBVH(); 
+		void buildBVH(threepp::BufferGeometry* geometry);
+		void clearBVH();
 	public:
 		void update(const float& dtTime) override;
 		void render(threepp::GLRenderer* renderer) override;

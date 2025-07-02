@@ -8,7 +8,7 @@ namespace dragon
 		// Constructor implementation
 		if (!m_BVHAccel)
 		{
-			m_BVHAccel = std::make_unique<nanort::BVHAccel<float>>(); 
+			m_BVHAccel = std::make_unique<nanort::BVHAccel<float>>();
 			ray.min_t = 0.0f;
 			ray.max_t = std::numeric_limits<float>::max();
 			ray.org[0] = ray.org[1] = ray.org[2] = 0.0f;
@@ -21,12 +21,12 @@ namespace dragon
 	}
 	bool CustomRayCaster::buildBVH(threepp::BufferGeometry* geometry)
 	{
-		auto& vertices = geometry->getAttribute<float>("position")->array(); 
+		auto& vertices = geometry->getAttribute<float>("position")->array();
 		auto& indices = geometry->getIndex()->array();
 		nanort::BVHBuildOptions<float> build_options;
 		nanort::TriangleMesh<float> triangle_mesh(vertices.data(), indices.data(), /* stride */sizeof(float) * 3);
 		nanort::TriangleSAHPred<float> triangle_pred(vertices.data(), indices.data(), /* stride */sizeof(float) * 3);
-		if(!m_BVHAccel)
+		if (!m_BVHAccel)
 			m_BVHAccel = std::make_unique<nanort::BVHAccel<float>>();
 		auto ret = m_BVHAccel->Build(indices.size() / 3, triangle_mesh, triangle_pred, build_options);
 		triangle_intersecter = std::make_unique<nanort::TriangleIntersector<>>(vertices.data(), indices.data(), /* stride */sizeof(float) * 3);
@@ -47,12 +47,11 @@ namespace dragon
 					intersect.u = isect.u; // Set the barycentric coordinate u
 					intersect.v = isect.v; // Set the barycentric coordinate v
 					intersect.prim_id = isect.prim_id; // Set the primitive ID
-					std::cout << intersect.t << " " << intersect.u << " " << intersect.v << " " << intersect.prim_id << std::endl;
-					return true; 
+					return true;
 				}
 			}
 		}
-		return false; 
+		return false;
 	}
 	void CustomRayCaster::setFromCamera(const threepp::Vector2& coords, threepp::Camera& camera)
 	{
