@@ -53,6 +53,9 @@ namespace dragon
 	{
 		/*HANDLE RAY CASTER*/
 	}
+	void ViewPortGizmo::clearScene()
+	{
+	}
 	std::shared_ptr<threepp::Group> ViewPortGizmo::createAxisArrow()
 	{
 		std::shared_ptr<threepp::Group> axisGroup = threepp::Group::create(); 

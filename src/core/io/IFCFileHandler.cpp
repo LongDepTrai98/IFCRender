@@ -25,32 +25,24 @@ namespace dragon
 	void IFCFileHandler::open(const std::filesystem::path& file_path)
 	{
 		std::shared_ptr<threepp::Group> group{ nullptr };
-
-		if (m_bIsUseWebIFCConvert)
+		WebIFCConverter IFCApi{};
+		group = IFCApi.convert(file_path);
+		auto& geometryOffsetCache = IFCApi.getGeometryOffsetCache();
+		WindowFrame* window_frame = dynamic_cast<WindowFrame*>(m_Window);
+		auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
+		main_viewport->resetFileContext();
+		/*COPY DATA*/
+		std::unique_ptr<IFileContext> file_context = FileContextFactory::create(FileContextFactory::type::IFC);
+		auto ptr_ifc_file_context = dynamic_cast<IFCFileContext*>(file_context.get());
+		auto ptr_ifc_offset_cache = dynamic_cast<IFCGeometryCache*>(file_context->getGeometryCache());
+		ptr_ifc_offset_cache->copyData(IFCApi.getGeometryOffsetCache());
+		if (file_context)
 		{
-			WebIFCConverter IFCApi{};
-			group = IFCApi.convert(file_path);
-			auto& geometryOffsetCache = IFCApi.getGeometryOffsetCache();
-			WindowFrame* window_frame = dynamic_cast<WindowFrame*>(m_Window);
-			auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
-			main_viewport->resetFileContext();
-			/*COPY DATA*/
-			std::unique_ptr<IFileContext> file_context = FileContextFactory::create(FileContextFactory::type::IFC);
-			auto ptr_ifc_file_context = dynamic_cast<IFCFileContext*>(file_context.get());
-			auto ptr_ifc_offset_cache = dynamic_cast<IFCGeometryCache*>(file_context->getGeometryCache());
-			ptr_ifc_offset_cache->copyData(IFCApi.getGeometryOffsetCache());
-			if (file_context)
-			{
-				main_viewport->setFileContext(std::move(file_context));
-				ptr_ifc_file_context->setRootObject(group->children[0]);
-			}
-			main_viewport->clearBVH();
-			main_viewport->buildBVH(group->children[0]->geometry().get());
+			main_viewport->setFileContext(std::move(file_context));
+			ptr_ifc_file_context->setRootObject(group->children[0]);
 		}
-		else
-		{
-		
-		}
+		main_viewport->clearScene(); 
+		main_viewport->buildBVH(group->children[0]->geometry().get());
 		if (m_Window)
 		{
 			/*GET MAIN VIEWPORT*/
@@ -60,16 +52,11 @@ namespace dragon
 			{
 				auto viewport_scene = main_viewport->getScene();
 				auto camera = main_viewport->getCamera();
-				viewport_scene->clear();
 				viewport_scene->children;
 				viewport_scene->add(group);
 				main_viewport->initObjectHover();
 				SceneBuilder::IFCBuildScene(group.get(), viewport_scene, camera);
 			}
 		}
-	}
-	std::shared_ptr<GeometryConverter>& IFCFileHandler::getGeometryConverter()
-	{
-		return m_GeometryConverter;
 	}
 }

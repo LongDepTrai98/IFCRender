@@ -19,6 +19,7 @@ namespace dragon
 		void update(const float& dtTime) override;
 		void render(threepp::GLRenderer* renderer) override;
 		void handleRaycast(threepp::Vector2& nor_mouse_pos) override; 
+		void clearScene() override;
 	private: 
 		std::shared_ptr<threepp::Group> createAxisArrow(); 
 	protected:

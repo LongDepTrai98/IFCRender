@@ -1,5 +1,6 @@
 #include "CustomRayCaster.hpp"
 #include "threepp/threepp.hpp"
+#include "spdlog/spdlog.h"
 #include <iostream>
 namespace dragon
 {
@@ -22,6 +23,7 @@ namespace dragon
 	bool CustomRayCaster::buildBVH(threepp::BufferGeometry* geometry)
 	{
 		auto& vertices = geometry->getAttribute<float>("position")->array();
+		spdlog::info(std::format("Create BVH for Geo with Num Vertices : {}, Num indices : {}", vertices.size(), geometry->getIndex()->count()));
 		auto& indices = geometry->getIndex()->array();
 		nanort::BVHBuildOptions<float> build_options;
 		nanort::TriangleMesh<float> triangle_mesh(vertices.data(), indices.data(), /* stride */sizeof(float) * 3);
@@ -30,6 +32,7 @@ namespace dragon
 			m_BVHAccel = std::make_unique<nanort::BVHAccel<float>>();
 		auto ret = m_BVHAccel->Build(indices.size() / 3, triangle_mesh, triangle_pred, build_options);
 		triangle_intersecter = std::make_unique<nanort::TriangleIntersector<>>(vertices.data(), indices.data(), /* stride */sizeof(float) * 3);
+		spdlog::info("End build BVH");
 		return ret;
 	}
 	bool CustomRayCaster::intersectObjects(Result& intersect)

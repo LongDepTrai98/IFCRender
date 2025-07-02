@@ -69,6 +69,14 @@ namespace dragon
 			m_RayCaster->clearBVH();
 		}
 	}
+	void MainViewPort::clearScene()
+	{
+		if (m_Scene)
+		{
+			m_Scene->clear(); 
+		}
+		clearBVH(); 
+	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{
 		m_Viewport_Size = { width,height };

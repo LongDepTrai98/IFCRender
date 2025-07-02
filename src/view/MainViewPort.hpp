@@ -25,6 +25,7 @@ namespace dragon
 		void resetFileContext();
 		void buildBVH(threepp::BufferGeometry* geometry);
 		void clearBVH();
+		void clearScene() override; 
 	public:
 		void update(const float& dtTime) override;
 		void render(threepp::GLRenderer* renderer) override;

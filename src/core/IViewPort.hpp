@@ -34,6 +34,7 @@ namespace dragon
 		virtual void render(threepp::GLRenderer* main_render) = 0;
 		virtual void resize(const int& width, const int& height) = 0;
 		virtual void handleRaycast(threepp::Vector2& nor_mouse_pos) = 0;
+		virtual void clearScene() = 0; 
 		//virtual void
 	protected:
 		/*SCENE CONTEXT*/

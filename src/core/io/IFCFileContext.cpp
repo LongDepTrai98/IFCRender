@@ -23,7 +23,7 @@ namespace dragon
 			m_Material_Hover->transparent = true;
 			m_Material_Hover->depthWrite = false;
 			m_Material_Hover->depthTest = false;
-			m_Material_Hover->opacity = 0.5f;
+			m_Material_Hover->opacity = 0.8f;
 		}
 	}
 	IFCFileContext::~IFCFileContext()
