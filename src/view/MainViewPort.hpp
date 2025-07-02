@@ -31,8 +31,7 @@ namespace dragon
 		void resize(const int& width, const int& height) override;
 		void handleRaycast(threepp::Vector2& nor_mouse_pos) override;
 	private:
-		std::unique_ptr<threepp::Raycaster> m_RayCaster{ nullptr };
-		std::unique_ptr<CustomRayCaster> m_CustomRayCaster{ nullptr };
+		std::unique_ptr<CustomRayCaster> m_RayCaster{ nullptr };
 		std::unique_ptr<IFileContext> m_FileContext{ nullptr };
 		std::shared_ptr<threepp::Mesh> m_Object_Hover{ nullptr };
 	};

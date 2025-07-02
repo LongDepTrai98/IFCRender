@@ -18,7 +18,6 @@ namespace dragon
 	public:
 		std::string getFileType() override;
 		IGeometryCache* getGeometryCache() override;
-		void handleRaycast(threepp::Raycaster& RayCaster, threepp::Vector2& nor_mouse_pos) override;
 		void handleRaycast(CustomRayCaster& RayCaster, threepp::Vector2& nor_mouse_pos) override;
 		void handleHoverResult(std::shared_ptr<threepp::Mesh>& object_hover) override;
 	public:

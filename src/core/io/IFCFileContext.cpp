@@ -38,37 +38,6 @@ namespace dragon
 	{
 		return m_Geometry_Offset_Cache.get();
 	}
-	void IFCFileContext::handleRaycast(threepp::Raycaster& RayCaster, threepp::Vector2& nor_mouse_pos)
-	{
-		if (!m_Children_Objects.empty())
-		{
-			const auto intersects = RayCaster.intersectObjects(m_Children_Objects, true);
-			if (!intersects.empty())
-			{
-				const auto& intersect = intersects.front();
-				if (intersect.face)
-				{
-					if (intersect.face)
-					{
-						const int& a = intersect.face.value().a;
-						auto root_object = m_Children_Objects[0]->geometry();
-						auto attribute_expressid = root_object->getAttribute<unsigned int>("expressID");
-						auto& arr = attribute_expressid->array();
-						const int& expressID = arr[a];
-						if (m_Current_ExpressID != expressID)
-						{
-							/*UPDATE EXPRESSID*/
-							m_Current_ExpressID = expressID;
-						}
-					}
-				}
-			}
-			else
-			{
-				m_Current_ExpressID = -1;
-			}
-		}
-	}
 	void IFCFileContext::handleRaycast(CustomRayCaster& RayCaster, threepp::Vector2& nor_mouse_pos)
 	{
 		if (!m_Children_Objects.empty())

@@ -35,10 +35,7 @@ namespace dragon
 	void MainViewPort::initRayCaster()
 	{
 		if (!m_RayCaster)
-			m_RayCaster = std::make_unique<threepp::Raycaster>();
-		m_RayCaster->params.lineThreshold = 0.1f;
-		if (!m_CustomRayCaster)
-			m_CustomRayCaster = std::make_unique<CustomRayCaster>(); 
+			m_RayCaster = std::make_unique<CustomRayCaster>();
 	}
 	void MainViewPort::initObjectHover()
 	{
@@ -61,15 +58,15 @@ namespace dragon
 	}
 	void MainViewPort::buildBVH(threepp::BufferGeometry* geometry)
 	{
-		if (m_CustomRayCaster) {
-			m_CustomRayCaster->buildBVH(geometry); 
+		if (m_RayCaster) {
+			m_RayCaster->buildBVH(geometry);
 		}
 	}
 	void MainViewPort::clearBVH()
 	{
-		if (m_CustomRayCaster)
+		if (m_RayCaster)
 		{
-			m_CustomRayCaster->clearBVH(); 
+			m_RayCaster->clearBVH();
 		}
 	}
 	void MainViewPort::resize(const int& width, const int& height)
@@ -84,14 +81,10 @@ namespace dragon
 	void MainViewPort::handleRaycast(threepp::Vector2& nor_mouse_pos)
 	{
 		m_RayCaster->setFromCamera(nor_mouse_pos,
-			*m_Camera.get());
-		m_CustomRayCaster->setFromCamera(nor_mouse_pos,
 			*m_Camera.get()); 
 		if (m_FileContext)
 		{
-			//m_FileContext->handleRaycast(*m_RayCaster.get(), nor_mouse_pos);
-			m_FileContext->handleRaycast(*m_CustomRayCaster.get(), nor_mouse_pos); 
-			//m_CustomRayCaster->intersectObjects(); 
+			m_FileContext->handleRaycast(*m_RayCaster.get(), nor_mouse_pos);
 			m_FileContext->handleHoverResult(m_Object_Hover);
 		}
 	}
