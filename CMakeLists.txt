@@ -30,7 +30,8 @@ set(WEB_IFC_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/earcut-src/include
     ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/spdlog-src/include
     ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/stduuid-src/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/tinycpptest-src/Sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/glm-src/glm
+    ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/glm-src
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/lib
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/lib/test
 )
