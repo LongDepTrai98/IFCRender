@@ -25,7 +25,8 @@ namespace dragon
 	}
 	void IFCProperties::getSpatialTreeChunks(const int& modelID)
 	{
-		getChunks(modelID, m_propsNamesMap["aggregates"]);
+		//getChunks(modelID, m_propsNamesMap["aggregates"]);
+		getChunks(modelID, m_propsNamesMap["spatial"]);
 	}
 	void IFCProperties::getChunks(const int& modelID, PropsNames prop)
 	{

@@ -176,7 +176,9 @@ namespace dragon
         IFCProperties build_props(IFCApi.getModelId(),IFCApi.getModelManager().get());
         build_props.getProperties(); 
 
-		auto t = WebIFCHelper::getLine(*IFCApi.getModelManager().get(), IFCApi.getModelId(), 148, false, false);
+		auto t = WebIFCHelper::getLine(*IFCApi.getModelManager().get(), IFCApi.getModelId(), 138, false, false);
+		spdlog::info(t.dump());
+        int a = 3; 
         //std::string d = t.dump(); 
         //int a = 3; 
 		//{
