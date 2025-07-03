@@ -14,7 +14,7 @@ namespace dragon
 {
 	IFCFileContext::IFCFileContext()
 	{
-		m_Geometry_Offset_Cache = std::move(GeometryCacheOffsetFactory::create(GeometryCacheOffsetFactory::TYPE::IFC));
+		m_Geometry_Offset_Cache = std::make_unique<IFCGeometryCache>();
 		/*INIT MATERIAL HOVER*/
 		if (!m_Material_Hover)
 		{
@@ -29,6 +29,12 @@ namespace dragon
 	IFCFileContext::~IFCFileContext()
 	{
 		m_Children_Objects.clear();
+		if (m_Geometry_Offset_Cache)
+		{
+			m_Geometry_Offset_Cache->clear();
+			m_Geometry_Offset_Cache.reset();
+			m_Geometry_Offset_Cache = nullptr;
+		}
 	}
 	std::string IFCFileContext::getFileType()
 	{
@@ -40,6 +46,7 @@ namespace dragon
 	}
 	void IFCFileContext::handleRaycast(CustomRayCaster& RayCaster, threepp::Vector2& nor_mouse_pos)
 	{
+		if (!m_bIsEnableHover) return;
 		if (!m_Children_Objects.empty())
 		{
 			CustomRayCaster::Result result;
@@ -69,6 +76,7 @@ namespace dragon
 	}
 	void IFCFileContext::handleHoverResult(std::shared_ptr<threepp::Mesh>& object_hover)
 	{
+		if (!m_bIsEnableHover) return;
 		if (m_Current_ExpressID != -1)
 		{
 			if (m_Current_ExpressID != m_Old_ExpressID)
@@ -79,7 +87,7 @@ namespace dragon
 				}
 				IFCGeometryCache* geo_cache = static_cast<IFCGeometryCache*>(m_Geometry_Offset_Cache.get());
 				if (!geo_cache) return;
-				auto& data_offset = geo_cache->getDataOffset();
+				/*auto& data_offset = geo_cache->getDataOffset();
 				auto it = data_offset.find(m_Current_ExpressID);
 				if (it == data_offset.end()) return;
 				auto& offsets = it->second;
@@ -90,7 +98,7 @@ namespace dragon
 				}
 				std::shared_ptr<threepp::BufferGeometry> mergeo = threepp::mergeBufferGeometries(geometries, false);
 				object_hover->setGeometry(mergeo);
-				object_hover->setMaterial(m_Material_Hover);
+				object_hover->setMaterial(m_Material_Hover);*/
 				m_Old_ExpressID = m_Current_ExpressID;
 			}
 			/*HIDE GEO*/

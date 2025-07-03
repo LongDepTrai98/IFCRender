@@ -10,6 +10,7 @@ namespace threepp
 namespace dragon
 {
 	class IGeometryCache;
+	class IFCGeometryCache;
 	class IFCFileContext : public IFileContext
 	{
 	public:
@@ -23,7 +24,7 @@ namespace dragon
 	public:
 		void setRootObject(threepp::Object3D* root_mesh);
 	private:
-		std::unique_ptr<IGeometryCache> m_Geometry_Offset_Cache{ nullptr };
+		std::unique_ptr<IFCGeometryCache> m_Geometry_Offset_Cache{ nullptr };
 		std::vector<threepp::Object3D*> m_Children_Objects{ nullptr };
 		std::shared_ptr<threepp::Material> m_Material_Hover{ nullptr };
 		int m_Current_ExpressID{ -1 };

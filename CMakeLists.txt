@@ -45,6 +45,7 @@ set(WEB_IFC_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build/3rdparty/lib)
 project(${PROJECT_NAME})
 #find_package(wxWidgets CONFIG REQUIRED)
 find_package(glew CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 #add file 
 #ui
 file(GLOB_RECURSE UI_SRC "src/ui/*.cpp" "src/ui/*.hpp")
@@ -99,6 +100,7 @@ add_executable(${EDITOR_NAME_PROJECT}
 target_link_libraries(${EDITOR_NAME_PROJECT}  
 PRIVATE GLEW::glew
 PRIVATE threepp::threepp
+PRIVATE nlohmann_json
 $<$<CONFIG:Debug>:/Debug/web-ifc-library.lib>
 $<$<CONFIG:Release>:/Release/web-ifc-library.lib>)
 #directories lib
@@ -107,4 +109,4 @@ PRIVATE ${WX_LIB_PATH}
 PRIVATE ${WEB_IFC_LIB_PATH})
 
 target_compile_definitions(${EDITOR_NAME_PROJECT}
-PRIVATE _UNICODE UNICODE _CRT_SECURE_NO_WARNINGS  NANORT_ENABLE_PARALLEL_BUILD FMT_UNICODE=0)
+PRIVATE _UNICODE UNICODE _CRT_SECURE_NO_WARNINGS NANORT_ENABLE_PARALLEL_BUILD FMT_UNICODE=0)

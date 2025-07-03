@@ -6,15 +6,15 @@ namespace dragon
 	class IGeometryCache;
 	class GeometryCacheOffsetFactory
 	{
-	public: 
+	public:
 		enum TYPE
 		{
 			IFC,
 		};
-	public: 
+	public:
 		static std::unique_ptr<IGeometryCache> create(TYPE type);
-	private: 
-		GeometryCacheOffsetFactory() = default; 
+	private:
+		GeometryCacheOffsetFactory() = default;
 	};
 }
 #endif // !_GEOMETRY_CACHE_OFFSET_FACTORY_HPP_

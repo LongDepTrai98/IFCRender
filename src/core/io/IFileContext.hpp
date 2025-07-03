@@ -21,6 +21,8 @@ namespace dragon
 		virtual IGeometryCache* getGeometryCache() = 0;
 		virtual void handleRaycast(CustomRayCaster& RayCaster, threepp::Vector2& nor_mouse_pos) = 0;
 		virtual void handleHoverResult(std::shared_ptr<threepp::Mesh>& object_hover) = 0;
+	public: 
+		bool m_bIsEnableHover{ false }; 
 	};
 }
 #endif // !_IFILE_CONTEXT_HPP_

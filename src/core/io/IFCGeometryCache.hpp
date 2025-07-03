@@ -3,35 +3,22 @@
 #include "IGeometryCache.hpp"
 #include <map>
 #include <vector>
+namespace webifc::manager {
+	class ModelManager;
+}
 namespace dragon
 {
 	class IFCGeometryCache : public IGeometryCache
 	{
-	public: 
-		~IFCGeometryCache(); 
-	public: 
-		void insert(const int& id, const offset& offset) override
-		{
-			m_Data_Offset[id].emplace_back(offset); 
-		}
-		void copyData(const std::map<int,std::vector<offset>>& anotherData)
-		{
-			m_Data_Offset = anotherData; 
-		}
-		void clear() override
-		{
-			m_Data_Offset.clear(); 
-		}
-		bool existExpressID(const int& expressID)
-		{
-			return m_Data_Offset.count(expressID) != 0; 
-		}
-		std::map<int, std::vector<offset>>& getDataOffset()
-		{
-			return m_Data_Offset; 
-		}
+	public:
+		~IFCGeometryCache();
+		IFCGeometryCache() = default;
+	public:
+		void clear() override;
+		void setModelManager(std::shared_ptr<webifc::manager::ModelManager> modelManager, const int& modelID);
 	private:
-		std::map<int, std::vector<offset>> m_Data_Offset{}; 
+		std::shared_ptr<webifc::manager::ModelManager> m_ModelManager{ nullptr };
+		int m_modelID{ -1 };
 	};
 }
 #endif // !_IFC_GEOMETRY_CACHE_HPP_

@@ -13,6 +13,7 @@
 #include "threepp/utils/BufferGeometryUtils.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include "core/utils/MathHelper.hpp"
+
 namespace dragon
 {
 	WebIFCConverter::WebIFCConverter()
@@ -32,7 +33,7 @@ namespace dragon
 		parseIfcFile(buffer);
 		if (!m_ModelManager->IsModelOpen(m_modelID))
 		{
-			std::cout << std::format("Model not open {}", m_modelID);
+			spdlog::error(std::format("Model not open {}", path.string()));
 		}
 		auto model_size = m_ModelManager->GetIfcLoader(m_modelID)->GetTotalSize();
 		std::shared_ptr<threepp::Group> container = threepp::Group::create();
@@ -148,7 +149,7 @@ namespace dragon
 		std::vector<float> vertices(vertices_size);
 		std::vector<float> normals(normals_size);
 		std::vector<uint32_t> idAttribute(attribute_size);
-		IGeometryCache::offset geometry_offset{};
+		//IGeometryCache::offset geometry_offset{};
 		bool isFirstPoint{ false };
 		for (int i = 0; i < vertexData.size(); i += 6)
 		{
@@ -157,7 +158,7 @@ namespace dragon
 			index_offset++;
 			if (!isFirstPoint)
 			{
-				geometry_offset.begin = index_offset;
+				//geometry_offset.begin = index_offset;
 				isFirstPoint = true;
 			}
 			/*POINT Y*/
@@ -172,7 +173,7 @@ namespace dragon
 			normals[i / 2 + 2] = vertexData[i + 5];
 			idAttribute[i / 6] = expressId;
 		}
-		geometry_offset.end = index_offset;
+		//geometry_offset.end = index_offset;
 		auto placedColor = placedGeometry.color;
 		std::string str_hash_color = MathHelper::colorToHash(placedGeometry.color.x, placedColor.y, placedColor.z, placedColor.w);
 		if (geo_with_material.count(str_hash_color) == 0)
@@ -196,8 +197,8 @@ namespace dragon
 		buff_geometry->setAttribute("expressID", threepp::IntBufferAttribute::create(idAttribute, 1));
 		std::array<float, 16> matrix_float{};
 		MathHelper::convertDoubleArr2FloatArr(placedGeometry.flatTransformation, matrix_float);
-		geometry_offset.geometry = buff_geometry;
-		m_Geometry_Offset[expressId].emplace_back(geometry_offset);
+		//geometry_offset.geometry = buff_geometry;
+		//m_Geometry_Offset[expressId].emplace_back(geometry_offset);
 		buff_geometry->applyMatrix4(threepp::Matrix4(matrix_float));
 		geo_with_material[str_hash_color].geometries.emplace_back(buff_geometry);
 	}
@@ -209,10 +210,20 @@ namespace dragon
 		return geomLoader->GetGeometry(placedGeometry.geometryExpressID);
 	}
 
-	const std::map<int, std::vector<IGeometryCache::offset>>& WebIFCConverter::getGeometryOffsetCache()
+	std::shared_ptr<webifc::manager::ModelManager> WebIFCConverter::getModelManager()
 	{
-		return m_Geometry_Offset;
+		return m_ModelManager;
 	}
+
+	const int& WebIFCConverter::getModelId() const
+	{
+		return m_modelID;
+	}
+
+	//const std::map<int, std::vector<IGeometryCache::offset>>& WebIFCConverter::getGeometryOffsetCache()
+	//{
+	//	return m_Geometry_Offset;
+	//}
 
 	void WebIFCConverter::streamAllMeshesWithTypes(const uint32_t& modelID, const std::vector<uint32_t>& types)
 	{
@@ -223,7 +234,6 @@ namespace dragon
 			auto elements = loader->GetExpressIDsWithType(type);
 			if (elements.size() != 0)
 			{
-				std::cout << std::format("Element size: {}", elements.size()) << std::endl;
 				streamMeshes(modelID, elements);
 			}
 		}

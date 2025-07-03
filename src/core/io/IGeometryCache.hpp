@@ -11,15 +11,6 @@ namespace dragon
 	class IGeometryCache
 	{
 	public:
-		struct offset
-		{
-			int begin{ 0 };
-			int end{ 0 };
-			std::vector<uint32_t> indices{};
-			std::shared_ptr<threepp::BufferGeometry> geometry{ nullptr };
-		};
-	public:
-		virtual void insert(const int& id, const offset& offset) = 0;
 		virtual void clear() = 0;
 	};
 }

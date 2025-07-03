@@ -49,6 +49,11 @@ namespace dragon
 	}
 	void MainViewPort::setFileContext(std::unique_ptr<IFileContext> file_context)
 	{
+		if (m_FileContext)
+		{
+			m_FileContext.reset();
+			m_FileContext = nullptr;
+		}
 		m_FileContext = std::move(file_context);
 	}
 	void MainViewPort::resetFileContext()
@@ -73,9 +78,9 @@ namespace dragon
 	{
 		if (m_Scene)
 		{
-			m_Scene->clear(); 
+			m_Scene->clear();
 		}
-		clearBVH(); 
+		clearBVH();
 	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{
