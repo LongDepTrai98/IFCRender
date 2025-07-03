@@ -25,16 +25,18 @@ namespace dragon
 	}
 	void IFCProperties::getSpatialTreeChunks(const int& modelID)
 	{
-		//getChunks(modelID, m_propsNamesMap["aggregates"]);
-		getChunks(modelID, m_propsNamesMap["spatial"]);
+		std::unordered_map<int, std::vector<int>> chunks{}; 
+		getChunks(modelID,m_propsNamesMap["spatial"], chunks);
+		getChunks(modelID, m_propsNamesMap["aggregates"]);
 	}
-	void IFCProperties::getChunks(const int& modelID, PropsNames prop)
+	void IFCProperties::getChunks(const int& modelID, PropsNames prop, std::unordered_map<int, std::vector<int>>& chunk)
 	{
 		auto loader = m_modelManager->GetIfcLoader(modelID);
 		auto ids = loader->GetExpressIDsWithType(prop.expressID);
 		for (int i = 0; i < ids.size(); ++i)
 		{
 			auto line = WebIFCHelper::getLine(*m_modelManager,modelID,ids[i],true,true);
+			int a = 3; 
 			spdlog::info(line.dump()); 
 		}
 	}

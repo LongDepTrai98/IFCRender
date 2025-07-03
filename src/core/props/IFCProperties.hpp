@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
-#include <map>
+#include <unordered_map>
 #include "core/utils/WebIFCHelper.hpp"
 namespace dragon
 {
@@ -29,7 +29,9 @@ namespace dragon
 	public: 
 		void getProperties(); 
 		void getSpatialTreeChunks(const int& modelID); 
-		void getChunks(const int& modelID, PropsNames prop);
+		void getChunks(const int& modelID,
+			PropsNames prop, 
+			std::unordered_map<int,std::vector<int>>& chunk);
 	private: 
 		webifc::manager::ModelManager* m_modelManager{ nullptr };
 		std::map<std::string, PropsNames> m_propsNamesMap;
