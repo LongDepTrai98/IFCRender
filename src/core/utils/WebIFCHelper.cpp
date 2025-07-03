@@ -129,4 +129,31 @@ namespace dragon
         if (arguments.size() == 1 && inObject) return arguments[0];
         return arguments;
     }
+    nlohmann::json WebIFCHelper::getLine(webifc::manager::ModelManager& manager,
+        const uint32_t& modelID,
+        const uint32_t& expressID,
+        bool flatten,
+        bool inverse)
+    {
+        auto loader = manager.GetIfcLoader(modelID);
+        if (!manager.IsModelOpen(modelID)) return nullptr; 
+        if (!loader->IsValidExpressID(expressID)) return nullptr; 
+        uint32_t lineType = loader->GetLineType(expressID);
+        if (lineType == 0) return nullptr; 
+        loader->MoveToArgumentOffset(expressID, 0);
+        nlohmann::json data; 
+        data["ID"] = expressID; 
+        data["type"] = lineType; 
+        data["arguments"] = GetArgs(manager, modelID);
+        return data;
+    }
+    std::vector<uint32_t> WebIFCHelper::GetLineIDsWithType(webifc::manager::ModelManager& manager, const uint32_t& modelID, const uint32_t& expressID)
+    {
+        if (!manager.IsModelOpen(modelID)) return {};
+        auto loader = manager.GetIfcLoader(modelID);
+        std::vector<uint32_t> expressIDs;
+        auto ids = loader->GetExpressIDsWithType(expressID);
+        expressIDs.insert(expressIDs.end(), ids.begin(), ids.end());
+        return expressIDs;
+    }
 }

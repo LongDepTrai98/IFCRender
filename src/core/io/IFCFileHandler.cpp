@@ -20,9 +20,9 @@
 #include "web-ifc/schema/ifc-schema.h"
 #include "web-ifc/modelmanager/ModelManager.h"
 #include "web-ifc/geometry/IfcGeometryProcessor.h"
-//#include "core/utils/WebIFCHelper.hpp"
 #include <unordered_set>
 #include <spdlog/spdlog.h>
+#include "core/props/IFCProperties.hpp"
 
 
 std::string ReadValue(webifc::parsing::IfcLoader& loader, webifc::parsing::IfcTokenType t)
@@ -173,29 +173,34 @@ namespace dragon
 		auto ptr_ifc_file_context = static_cast<IFCFileContext*>(file_context.get());
 		auto ptr_ifc_offset_cache = static_cast<IFCGeometryCache*>(file_context->getGeometryCache());
 
+        IFCProperties build_props(IFCApi.getModelId(),IFCApi.getModelManager().get());
+        build_props.getProperties(); 
 
-		{
-			/*TEST API IFC C++*/
-			auto manager = IFCApi.getModelManager(); 
-			uint32_t modelID = IFCApi.getModelId(); 
-			auto loader = manager->GetIfcLoader(modelID);
-			std::vector<uint32_t> expressIDs;
+		auto t = WebIFCHelper::getLine(*IFCApi.getModelManager().get(), IFCApi.getModelId(), 148, false, false);
+        //std::string d = t.dump(); 
+        //int a = 3; 
+		//{
+		//	/*TEST API IFC C++*/
+		//	auto manager = IFCApi.getModelManager(); 
+		//	uint32_t modelID = IFCApi.getModelId(); 
+		//	auto loader = manager->GetIfcLoader(modelID);
+		//	std::vector<uint32_t> expressIDs;
 
-			auto ids = loader->GetExpressIDsWithType(webifc::schema::IFCRELAGGREGATES);
-			for (int i = 0; i < ids.size(); ++i)
-			{
-				auto lineType = loader->GetLineType(ids[i]);
-				if (lineType == 0) return; 
-				auto t = GetLine(*loader, ids[i]);
-                spdlog::info(t);
-                int a = 3; 
-				/*loader->MoveToArgumentOffset(ids[i], 0);
-                auto json = WebIFCHelper::GetArgs(*manager, modelID, false, false);
-				spdlog::info(json.dump()); */
-			}
+		//	auto ids = loader->GetExpressIDsWithType(webifc::schema::IFCRELAGGREGATES);
+		//	for (int i = 0; i < ids.size(); ++i)
+		//	{
+		//		auto lineType = loader->GetLineType(ids[i]);
+		//		if (lineType == 0) return; 
+		//		auto t = GetLine(*loader, ids[i]);
+  //              spdlog::info(t);
+  //              int a = 3; 
+		//		/*loader->MoveToArgumentOffset(ids[i], 0);
+  //              auto json = WebIFCHelper::GetArgs(*manager, modelID, false, false);
+		//		spdlog::info(json.dump()); */
+		//	}
 
 
-		}
+		//}
 
 		ptr_ifc_offset_cache->setModelManager(IFCApi.getModelManager(), IFCApi.getModelId());
 		//ptr_ifc_offset_cache->copyData(IFCApi.getGeometryOffsetCache());
