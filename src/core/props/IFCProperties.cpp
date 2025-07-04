@@ -27,7 +27,7 @@ namespace dragon
 	{
 		std::unordered_map<int, std::vector<int>> chunks{}; 
 		getChunks(modelID,m_propsNamesMap["spatial"], chunks);
-		getChunks(modelID, m_propsNamesMap["aggregates"]);
+		getChunks(modelID, m_propsNamesMap["aggregates"], chunks);
 	}
 	void IFCProperties::getChunks(const int& modelID, PropsNames prop, std::unordered_map<int, std::vector<int>>& chunk)
 	{
@@ -36,7 +36,6 @@ namespace dragon
 		for (int i = 0; i < ids.size(); ++i)
 		{
 			auto line = WebIFCHelper::getLine(*m_modelManager,modelID,ids[i],true,true);
-			int a = 3; 
 			spdlog::info(line.dump()); 
 		}
 	}
