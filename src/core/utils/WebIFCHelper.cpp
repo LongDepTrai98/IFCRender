@@ -25,8 +25,8 @@ namespace dragon
             return std::string(s); 
         }
         case webifc::parsing::IfcTokenType::REAL:
-        {
-            return std::string(loader->GetDoubleArgumentAsString());
+        { 
+            return loader->GetDoubleArgument(); 
         }
         case webifc::parsing::IfcTokenType::INTEGER:
         {
@@ -129,7 +129,7 @@ namespace dragon
         if (arguments.size() == 1 && inObject) return arguments[0];
         return arguments;
     }
-    nlohmann::json WebIFCHelper::getLine(webifc::manager::ModelManager& manager,
+    nlohmann::json WebIFCHelper::GetLine(webifc::manager::ModelManager& manager,
         const uint32_t& modelID,
         const uint32_t& expressID,
         bool flatten,
@@ -155,5 +155,49 @@ namespace dragon
         auto ids = loader->GetExpressIDsWithType(expressID);
         expressIDs.insert(expressIDs.end(), ids.begin(), ids.end());
         return expressIDs;
+    }
+    nlohmann::json WebIFCHelper::GetLineFromRawLine(const nlohmann::json& RawLine)
+    {
+        nlohmann::json line; 
+        const uint32_t& type = RawLine["type"].get<uint32_t>();
+        if (type == webifc::schema::IFCRELAGGREGATES)
+        {
+            /*aggregates*/
+            auto& relating = RawLine["arguments"][4];
+            if (relating.is_object())
+            {
+                const uint32_t& lineID = relating["value"].get<uint32_t>();
+                line["relating"] = lineID; 
+            }
+            auto& related = RawLine["arguments"][5];
+            if (related.is_array())
+            {
+                for (auto& lineOBJ : related)
+                {
+                    const uint32_t& lineID = lineOBJ["value"].get<uint32_t>(); 
+                    line["related"].push_back(lineID); 
+                }
+            }
+        }
+        if (type == webifc::schema::IFCRELCONTAINEDINSPATIALSTRUCTURE)
+        {
+            /*spatial*/
+            auto& relating = RawLine["arguments"][5]; 
+            if (relating.is_object())
+            {
+                const uint32_t& lineID = relating["value"].get<uint32_t>();
+                line["relating"] = lineID;
+            }
+            auto& related = RawLine["arguments"][4]; 
+            if (related.is_array())
+            {
+                for (auto& lineOBJ : related)
+                {
+                    const uint32_t& lineID = lineOBJ["value"].get<uint32_t>();
+                    line["related"].push_back(lineID);
+                }
+            }
+        }
+        return line; 
     }
 }

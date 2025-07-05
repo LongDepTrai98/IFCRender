@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdint>
 #include <unordered_map>
+#include <memory>
 #include "core/utils/WebIFCHelper.hpp"
 namespace dragon
 {
@@ -23,6 +24,13 @@ namespace dragon
 			std::string related{ "" }; 
 			std::string key{ "" };
 		};
+
+		struct IFCNode
+		{
+			uint32_t expressID{ 0 }; 
+			std::vector<std::shared_ptr<IFCNode>> children{}; 
+		};
+
 	public:
 		IFCProperties(const int& modelID, webifc::manager::ModelManager* model);
 		~IFCProperties(); 
@@ -32,6 +40,7 @@ namespace dragon
 		void getChunks(const int& modelID,
 			PropsNames prop, 
 			std::unordered_map<int,std::vector<int>>& chunk);
+		std::shared_ptr<IFCNode> createTree(const std::unordered_map<int, std::vector<int>>& chunk);
 	private: 
 		webifc::manager::ModelManager* m_modelManager{ nullptr };
 		std::map<std::string, PropsNames> m_propsNamesMap;

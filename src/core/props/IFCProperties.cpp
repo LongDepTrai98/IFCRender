@@ -28,6 +28,8 @@ namespace dragon
 		std::unordered_map<int, std::vector<int>> chunks{}; 
 		getChunks(modelID,m_propsNamesMap["spatial"], chunks);
 		getChunks(modelID, m_propsNamesMap["aggregates"], chunks);
+		auto tree = createTree(chunks); 
+		/*TEST CHUNK*/
 	}
 	void IFCProperties::getChunks(const int& modelID, PropsNames prop, std::unordered_map<int, std::vector<int>>& chunk)
 	{
@@ -35,8 +37,24 @@ namespace dragon
 		auto ids = loader->GetExpressIDsWithType(prop.expressID);
 		for (int i = 0; i < ids.size(); ++i)
 		{
-			auto line = WebIFCHelper::getLine(*m_modelManager,modelID,ids[i],true,true);
-			spdlog::info(line.dump()); 
+			auto RawLine = WebIFCHelper::GetLine(*m_modelManager,modelID,ids[i],true,true);
+			auto line = WebIFCHelper::GetLineFromRawLine(RawLine);
+			const uint32_t& relatingLineID = line["relating"].get<uint32_t>(); 
+			std::vector<uint32_t> vecRelatedLineID;
+			vecRelatedLineID.reserve(line["related"].size());
+			for (auto& id : line["related"])
+			{
+				if (id.is_number_integer())
+				{
+					vecRelatedLineID.emplace_back(id); 
+				}
+			}
+			chunk[relatingLineID].insert(chunk[relatingLineID].end(), vecRelatedLineID.begin(), vecRelatedLineID.end()); 
 		}
+	}
+	std::shared_ptr<IFCProperties::IFCNode> IFCProperties::createTree(const std::unordered_map<int, std::vector<int>>& chunk)
+	{
+		//for(int i = 0; i < )
+		return std::shared_ptr<IFCNode>();
 	}
 }

@@ -6,27 +6,18 @@
 #include "web-ifc/modelmanager/ModelManager.h"
 #include "web-ifc/geometry/IfcGeometryProcessor.h"
 #include <nlohmann/json.hpp>
-#include <variant>
-#include <string_view>
 #include <optional>
 #include <vector>
 namespace dragon
 {
 	class WebIFCHelper
 	{
-	public: 
-		using variant_value = std::variant<std::string,
-			bool,
-			std::string_view,
-			int,
-			float,
-			double,
-			uint32_t>; 
 	public:
 		static nlohmann::json ReadValue(webifc::manager::ModelManager& manager, uint32_t modelID, webifc::parsing::IfcTokenType t); 
 		static nlohmann::json GetArgs(webifc::manager::ModelManager& manager, uint32_t modelID, bool inObject = false, bool inList = false);
-		static nlohmann::json getLine(webifc::manager::ModelManager& manager, const uint32_t& modelID, const uint32_t& line, bool flatten, bool inverse);
+		static nlohmann::json GetLine(webifc::manager::ModelManager& manager, const uint32_t& modelID, const uint32_t& line, bool flatten, bool inverse);
 		static std::vector<uint32_t> GetLineIDsWithType(webifc::manager::ModelManager& manager, const uint32_t& modelID, const uint32_t& expressID);
+		static nlohmann::json GetLineFromRawLine(const nlohmann::json& json); 
 	private:
 		WebIFCHelper() = default;
 	}; 
