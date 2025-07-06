@@ -5,6 +5,7 @@ namespace dragon
 {
 	bool App::OnInit()
 	{
+		this->SetAppearance(Appearance::Dark);
 		if (!m_Frame)
 		{
 			m_Frame = new WindowFrame();
