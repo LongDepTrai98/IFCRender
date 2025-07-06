@@ -57,6 +57,7 @@ namespace dragon
 		//std::unordered_map<int, std::pair<std::shared_ptr<IFCNode>,bool>> m_mapNodes{};
 		std::unordered_map<int, std::shared_ptr<IFCNode>> mapNode{}; 
 		std::unordered_map<int, bool> mapCheckParentNode{}; 
+		uint32_t parent_ExpressID{ 0 }; 
 		//int, shared_ptr<>
 		//int, bool isChildren
 		for (const auto& [relatingId, relatedIDs] : chunk)
@@ -69,13 +70,18 @@ namespace dragon
 				parentNode = std::make_shared<IFCNode>(); 
 				parentNode->expressID = relatingId;
 				mapNode[relatingId] = parentNode;
+				mapCheckParentNode[relatingId] = true; 
 			}
 			else
 			{
 				parentNode = mapNode[relatingId];
 			}
 			/*UPDATE STATE PARENT NODE*/
-			mapCheckParentNode[relatingId] = true; 
+			if (mapCheckParentNode[relatingId])
+			{
+				mapCheckParentNode[relatingId] = true;
+				parent_ExpressID = relatingId;
+			}
 			for (const auto& relatedID : relatedIDs)
 			{
 				/*CREATE NEW NODE*/
@@ -85,6 +91,7 @@ namespace dragon
 					childNode = std::make_shared<IFCNode>(); 
 					childNode->expressID = relatedID; 
 					mapNode[relatedID] = childNode;
+					mapCheckParentNode[relatedID] = true; 
 				}
 				else
 				{
@@ -92,27 +99,15 @@ namespace dragon
 				}
 				parentNode->children.emplace_back(childNode);
 				/*UPDATE STATE CHILD NODE*/
-				mapCheckParentNode[relatedID] = false; 
+				if (mapCheckParentNode[relatedID])
+				{
+					mapCheckParentNode[relatedID] = false; 
+				}
 			}
 		}
-
-		int parentNodeID{};
-		uint32_t count{ 0 }; 
-		for (auto& [expressId, check] : mapCheckParentNode)
-		{
-			/*IS PARENT NODE*/
-			if (check)
-			{
-				spdlog::info("Node not have parent : {}", expressId); 
-				parentNodeID = expressId; 
-				auto RawLine = WebIFCHelper::GetLine(*m_modelManager, modelID, expressId, true, true);
-				spdlog::info(RawLine.dump()); 
-				++count; 
-			}
-		}
-
-		auto parentNode = mapNode[parentNodeID]; 
-
-		return std::shared_ptr<IFCNode>();
+		auto RawLine = WebIFCHelper::GetLine(*m_modelManager, modelID, parent_ExpressID, true, true);
+		spdlog::info(RawLine.dump()); 
+		auto parentNode = mapNode[parent_ExpressID];
+		return parentNode; 
 	}
 }
