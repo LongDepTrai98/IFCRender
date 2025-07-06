@@ -4,6 +4,7 @@
 #include "config/app_config.hpp"
 #include "config/pannel_config.hpp"
 #include "commands/AppCommandsHandler.hpp"
+#include "ElementTreeCtrl.hpp"
 namespace dragon
 {
 	wxBEGIN_EVENT_TABLE(WindowFrame, wxFrame)
@@ -39,12 +40,17 @@ namespace dragon
 		// create panel store tree ctrl
 		wxPanel* treePanel = new wxPanel(this);
 		wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-		wxTreeCtrl* tree = new wxTreeCtrl(treePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize);
-		wxTreeItemId root = tree->AddRoot("Root");
-		tree->AppendItem(root, "Child 1");
-		tree->AppendItem(root, "Child 2");
-		tree->Expand(root);
-		sizer->Add(tree, 1, wxEXPAND | wxALL, 5);
+		//wxTreeCtrl* tree = new wxTreeCtrl(treePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+
+		long style = wxTR_DEFAULT_STYLE ^ wxTR_TWIST_BUTTONS ^ wxSUNKEN_BORDER;
+
+
+		m_ElementTreeCtrl = new ElementTreeCtrl(treePanel, wxDefaultPosition, wxDefaultSize, style);
+		wxTreeItemId root = m_ElementTreeCtrl->AddRoot("Root");
+		m_ElementTreeCtrl->AppendItem(root, "Child 1");
+		m_ElementTreeCtrl->AppendItem(root, "Child 2");
+		m_ElementTreeCtrl->Expand(root);
+		sizer->Add(m_ElementTreeCtrl, 1, wxEXPAND | wxALL, 5);
 		treePanel->SetSizer(sizer);
 		m_UIManager->AddPane(treePanel, panel_config::tree_ctrl_panel_info);
 		m_UIManager->Update();

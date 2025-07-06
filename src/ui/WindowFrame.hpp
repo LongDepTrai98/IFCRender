@@ -6,6 +6,7 @@ namespace dragon
 	class AppMenubar;
 	class RenderCanvas;
 	class AppCommandHandler;
+	class ElementTreeCtrl; 
 	class WindowFrame : public wxFrame
 	{
 	public:
@@ -26,6 +27,7 @@ namespace dragon
 		wxDECLARE_EVENT_TABLE();
 	private:
 		AppMenubar* m_AppMenuBar{ nullptr };
+		ElementTreeCtrl* m_ElementTreeCtrl{ nullptr }; 
 		std::unique_ptr<RenderCanvas> m_RenderCanvas{ nullptr };
 		std::unique_ptr<wxAuiManager> m_UIManager{ nullptr };
 		std::unique_ptr<AppCommandHandler> m_CommandHandler{ nullptr };
