@@ -28,7 +28,7 @@ namespace dragon
 		std::unordered_map<int, std::vector<int>> chunks{}; 
 		getChunks(modelID,m_propsNamesMap["spatial"], chunks);
 		getChunks(modelID, m_propsNamesMap["aggregates"], chunks);
-		auto tree = createTree(chunks); 
+		auto tree = createTree(modelID,chunks); 
 		/*TEST CHUNK*/
 	}
 	void IFCProperties::getChunks(const int& modelID, PropsNames prop, std::unordered_map<int, std::vector<int>>& chunk)
@@ -52,9 +52,67 @@ namespace dragon
 			chunk[relatingLineID].insert(chunk[relatingLineID].end(), vecRelatedLineID.begin(), vecRelatedLineID.end()); 
 		}
 	}
-	std::shared_ptr<IFCProperties::IFCNode> IFCProperties::createTree(const std::unordered_map<int, std::vector<int>>& chunk)
+	std::shared_ptr<IFCProperties::IFCNode> IFCProperties::createTree(const uint32_t& modelID, const std::unordered_map<int, std::vector<int>>& chunk)
 	{
-		//for(int i = 0; i < )
+		//std::unordered_map<int, std::pair<std::shared_ptr<IFCNode>,bool>> m_mapNodes{};
+		std::unordered_map<int, std::shared_ptr<IFCNode>> mapNode{}; 
+		std::unordered_map<int, bool> mapCheckParentNode{}; 
+		//int, shared_ptr<>
+		//int, bool isChildren
+		for (const auto& [relatingId, relatedIDs] : chunk)
+		{
+			//is parent node
+			std::shared_ptr<IFCNode> parentNode{nullptr}; 
+			if (mapNode.find(relatingId) == mapNode.end())
+			{
+				/*CREATE NEW NODE*/
+				parentNode = std::make_shared<IFCNode>(); 
+				parentNode->expressID = relatingId;
+				mapNode[relatingId] = parentNode;
+			}
+			else
+			{
+				parentNode = mapNode[relatingId];
+			}
+			/*UPDATE STATE PARENT NODE*/
+			mapCheckParentNode[relatingId] = true; 
+			for (const auto& relatedID : relatedIDs)
+			{
+				/*CREATE NEW NODE*/
+				std::shared_ptr<IFCNode> childNode{ nullptr }; 
+				if (mapNode.find(relatedID) == mapNode.end())
+				{
+					childNode = std::make_shared<IFCNode>(); 
+					childNode->expressID = relatedID; 
+					mapNode[relatedID] = childNode;
+				}
+				else
+				{
+					childNode = mapNode[relatedID];
+				}
+				parentNode->children.emplace_back(childNode);
+				/*UPDATE STATE CHILD NODE*/
+				mapCheckParentNode[relatedID] = false; 
+			}
+		}
+
+		int parentNodeID{};
+		uint32_t count{ 0 }; 
+		for (auto& [expressId, check] : mapCheckParentNode)
+		{
+			/*IS PARENT NODE*/
+			if (check)
+			{
+				spdlog::info("Node not have parent : {}", expressId); 
+				parentNodeID = expressId; 
+				auto RawLine = WebIFCHelper::GetLine(*m_modelManager, modelID, expressId, true, true);
+				spdlog::info(RawLine.dump()); 
+				++count; 
+			}
+		}
+
+		auto parentNode = mapNode[parentNodeID]; 
+
 		return std::shared_ptr<IFCNode>();
 	}
 }

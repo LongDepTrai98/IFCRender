@@ -40,7 +40,7 @@ namespace dragon
 		void getChunks(const int& modelID,
 			PropsNames prop, 
 			std::unordered_map<int,std::vector<int>>& chunk);
-		std::shared_ptr<IFCNode> createTree(const std::unordered_map<int, std::vector<int>>& chunk);
+		std::shared_ptr<IFCNode> createTree(const uint32_t& modelID, const std::unordered_map<int, std::vector<int>>& chunk);
 	private: 
 		webifc::manager::ModelManager* m_modelManager{ nullptr };
 		std::map<std::string, PropsNames> m_propsNamesMap;
