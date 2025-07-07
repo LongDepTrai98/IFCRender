@@ -4,7 +4,19 @@
 namespace dragon
 {
 	class ElementTree;
-	class TreeNode; 
+	class TreeNode;
+
+	class ItemData : public wxTreeItemData
+	{
+	public:
+		ItemData(int* data_id) : m_data_id(data_id) {}
+		//void ShowInfo(wxTreeCtrl* tree);
+		int* GetData() const { return m_data_id; }
+
+	private:
+		int* m_data_id{ 0 };
+	};
+
 	class ElementTreeCtrl : public wxTreeCtrl
 	{
 	public: 

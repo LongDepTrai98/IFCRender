@@ -9,6 +9,7 @@ namespace dragon
 	public: 
 		virtual ~TreeNode() = default; 
 		virtual std::string getLabelNode() = 0; 
+		virtual int& getData() = 0; 
 	public: 
 		std::vector<std::shared_ptr<TreeNode>> children{}; 
 	};

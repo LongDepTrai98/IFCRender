@@ -10,27 +10,31 @@ namespace dragon
 {
 	class IFCElementTree : public ElementTree
 	{
-	public: 
+	public:
 		struct Node : public TreeNode
 		{
-			uint32_t expressID{ 0 }; 
-			std::string label{ "" }; 
-		public: 
+			int expressID{ 0 };
+			std::string label{ "" };
+		public:
 			std::string getLabelNode() override
 			{
 				return label;
 			}
+			int& getData() override
+			{
+				return expressID; 
+			}
 		};
-	public: 
+	public:
 		IFCElementTree() = default;
 		~IFCElementTree() = default;
-	public: 
-		std::shared_ptr<Node> create(const int& modelID, webifc::manager::ModelManager* model_manager, const std::unordered_map<int,std::vector<int>>& chunk)
+	public:
+		std::shared_ptr<Node> create(const int& modelID, webifc::manager::ModelManager* model_manager, const std::unordered_map<int, std::vector<int>>& chunk)
 		{
 			std::unordered_map<int, std::shared_ptr<IFCElementTree::Node>> mapNode{};
 			std::unordered_map<int, bool> mapCheckParentNode{};
 			uint32_t parent_ExpressID{ 0 };
-			auto schemaManager = model_manager->GetSchemaManager(); 
+			auto schemaManager = model_manager->GetSchemaManager();
 			for (const auto& [relatingId, relatedIDs] : chunk)
 			{
 				//is parent node
@@ -88,11 +92,11 @@ namespace dragon
 					}
 				}
 			}
-			m_Parent = mapNode[parent_ExpressID]; 
-			return mapNode[parent_ExpressID]; 
+			m_Parent = mapNode[parent_ExpressID];
+			return mapNode[parent_ExpressID];
 		}
 	public:
-		std::shared_ptr<Node> parent_node{ nullptr }; 
+		std::shared_ptr<Node> parent_node{ nullptr };
 	};
 }
 #endif // !_NODE_IFC_PROPERTIES_HPP_

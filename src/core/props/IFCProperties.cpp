@@ -4,7 +4,7 @@
 #include "spdlog/spdlog.h"
 namespace dragon
 {
-	IFCProperties::IFCProperties(const int& modelID, 
+	IFCProperties::IFCProperties(const int& modelID,
 		webifc::manager::ModelManager* model) : m_modelManager(model)
 	{
 		m_propsNamesMap = {
@@ -26,19 +26,19 @@ namespace dragon
 		auto ids = loader->GetExpressIDsWithType(prop.expressID);
 		for (int i = 0; i < ids.size(); ++i)
 		{
-			auto RawLine = WebIFCHelper::GetLine(*m_modelManager,modelID,ids[i],true,true);
+			auto RawLine = WebIFCHelper::GetLine(*m_modelManager, modelID, ids[i], true, true);
 			auto line = WebIFCHelper::GetLineFromRawLine(RawLine, schemaManager);
-			const uint32_t& relatingLineID = line["relating"].get<uint32_t>(); 
+			const uint32_t& relatingLineID = line["relating"].get<uint32_t>();
 			std::vector<uint32_t> vecRelatedLineID;
 			vecRelatedLineID.reserve(line["related"].size());
 			for (auto& id : line["related"])
 			{
 				if (id.is_number_integer())
 				{
-					vecRelatedLineID.emplace_back(id); 
+					vecRelatedLineID.emplace_back(id);
 				}
 			}
-			chunk[relatingLineID].insert(chunk[relatingLineID].end(), vecRelatedLineID.begin(), vecRelatedLineID.end()); 
+			chunk[relatingLineID].insert(chunk[relatingLineID].end(), vecRelatedLineID.begin(), vecRelatedLineID.end());
 		}
 	}
 	std::shared_ptr<ElementTree> IFCProperties::createTreeNode(const uint32_t& modelID)
@@ -48,16 +48,16 @@ namespace dragon
 		getChunks(modelID, m_propsNamesMap["aggregates"], chunks);
 		/*CREATE IFC NODE TREE*/
 		std::shared_ptr<IFCElementTree> tree_nodes = std::make_shared<IFCElementTree>();
-		auto parent_node = tree_nodes->create(modelID,m_modelManager,chunks);
-		auto RawLine = WebIFCHelper::GetLine(*m_modelManager, modelID, parent_node->expressID, true, true); 
-		spdlog::info(RawLine.dump()); 
+		auto parent_node = tree_nodes->create(modelID, m_modelManager, chunks);
+		auto RawLine = WebIFCHelper::GetLine(*m_modelManager, modelID, parent_node->expressID, true, true);
+		spdlog::info(RawLine.dump());
 		if (parent_node)
 		{
-			return tree_nodes; 
+			return tree_nodes;
 		}
 		else
 		{
-			return nullptr; 
+			return nullptr;
 		}
 	}
 }

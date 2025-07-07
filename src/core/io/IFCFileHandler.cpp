@@ -14,7 +14,6 @@
 #include "core/io/IFCFileContext.hpp"
 #include "core/io/IFCGeometryCache.hpp"
 
-
 #include "web-ifc/parsing/IfcLoader.h"
 #include "web-ifc/schema/IfcSchemaManager.h"
 #include "web-ifc/schema/ifc-schema.h"
@@ -65,12 +64,12 @@ namespace dragon
 				main_viewport->initObjectHover();
 				SceneBuilder::IFCBuildScene(group.get(), viewport_scene, camera);
 			}
-			auto element_tree = AppHelper::getMainTreeCtrl(window_frame); 
+			auto element_tree = AppHelper::getMainTreeCtrl(window_frame);
 			if (element_tree)
 			{
 				IFCProperties build_props(IFCApi.getModelId(), IFCApi.getModelManager().get());
-				auto tree = build_props.createTreeNode(IFCApi.getModelId()); 
-				element_tree->setData(tree); 
+				auto tree = build_props.createTreeNode(IFCApi.getModelId());
+				element_tree->setData(std::move(tree));
 			}
 		}
 	}

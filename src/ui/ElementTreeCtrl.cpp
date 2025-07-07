@@ -27,7 +27,7 @@ namespace dragon
 		for (auto& childNode : node->children)
 		{
 			str.Printf(childNode->getLabelNode().c_str());
-			wxTreeItemId id_item = AppendItem(idParent,str);
+			wxTreeItemId id_item = AppendItem(idParent,str,-1,-1, new ItemData(&childNode->getData()));
 			AddItemsRecursively(id_item, childNode); 
 		}
 	}
