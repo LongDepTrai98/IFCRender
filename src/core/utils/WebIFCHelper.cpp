@@ -156,7 +156,7 @@ namespace dragon
         expressIDs.insert(expressIDs.end(), ids.begin(), ids.end());
         return expressIDs;
     }
-    nlohmann::json WebIFCHelper::GetLineFromRawLine(const nlohmann::json& RawLine)
+    nlohmann::json WebIFCHelper::GetLineFromRawLine(const nlohmann::json& RawLine, webifc::schema::IfcSchemaManager& schemaManager)
     {
         nlohmann::json line; 
         const uint32_t& type = RawLine["type"].get<uint32_t>();
@@ -206,14 +206,20 @@ namespace dragon
                     if (!RawLine["arguments"][2]["value"].is_null())
                     {
                         std::string name = RawLine["arguments"][2]["value"];
-                        line["name"] = name;
+                        if (name.empty())
+                        {
+                            line["name"] = schemaManager.IfcTypeCodeToType(type);
+                        } 
+                        else
+                        {
+                            line["name"] = name;
+                        }
                     }
                 }
             }
             else
             {
-                std::cout << RawLine.dump() << std::endl; 
-                line["name"] = RawLine["arguments"][0]["value"].get<std::string>();
+                line["name"] = schemaManager.IfcTypeCodeToType(type);
             }
         }
         return line; 

@@ -30,6 +30,7 @@ namespace dragon
 			std::unordered_map<int, std::shared_ptr<IFCElementTree::Node>> mapNode{};
 			std::unordered_map<int, bool> mapCheckParentNode{};
 			uint32_t parent_ExpressID{ 0 };
+			auto schemaManager = model_manager->GetSchemaManager(); 
 			for (const auto& [relatingId, relatedIDs] : chunk)
 			{
 				//is parent node
@@ -44,7 +45,7 @@ namespace dragon
 					}
 					parentNode = std::make_shared<IFCElementTree::Node>();
 					parentNode->expressID = relatingId;
-					parentNode->label = WebIFCHelper::GetLineFromRawLine(RawLine)["name"];
+					parentNode->label = WebIFCHelper::GetLineFromRawLine(RawLine, schemaManager)["name"];
 					mapNode[relatingId] = parentNode;
 					mapCheckParentNode[relatingId] = true;
 				}
@@ -71,7 +72,7 @@ namespace dragon
 						}
 						childNode = std::make_shared<IFCElementTree::Node>();
 						childNode->expressID = relatedID;
-						childNode->label = WebIFCHelper::GetLineFromRawLine(RawLine)["name"];
+						childNode->label = WebIFCHelper::GetLineFromRawLine(RawLine, schemaManager)["name"];
 						mapNode[relatedID] = childNode;
 						mapCheckParentNode[relatedID] = true;
 					}

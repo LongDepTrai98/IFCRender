@@ -22,11 +22,12 @@ namespace dragon
 	void IFCProperties::getChunks(const int& modelID, PropsNames prop, std::unordered_map<int, std::vector<int>>& chunk)
 	{
 		auto loader = m_modelManager->GetIfcLoader(modelID);
+		auto schemaManager = m_modelManager->GetSchemaManager();
 		auto ids = loader->GetExpressIDsWithType(prop.expressID);
 		for (int i = 0; i < ids.size(); ++i)
 		{
 			auto RawLine = WebIFCHelper::GetLine(*m_modelManager,modelID,ids[i],true,true);
-			auto line = WebIFCHelper::GetLineFromRawLine(RawLine);
+			auto line = WebIFCHelper::GetLineFromRawLine(RawLine, schemaManager);
 			const uint32_t& relatingLineID = line["relating"].get<uint32_t>(); 
 			std::vector<uint32_t> vecRelatedLineID;
 			vecRelatedLineID.reserve(line["related"].size());
