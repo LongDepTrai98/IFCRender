@@ -62,18 +62,12 @@ source_group("core" FILES ${APP_CORE_SRC})
 #renderer 
 file(GLOB_RECURSE APP_RENDERER_SRC "src/renderer/*.cpp" "src/renderer/*.hpp")
 source_group("renderer" FILES ${APP_RENDERER_SRC})
-#controller
-file(GLOB_RECURSE APP_CONTROLLER_SRC "src/controller/*.cpp" "src/controller/*.hpp")
-source_group("controller" FILES ${APP_CONTROLLER_SRC})
 #view port 
 file(GLOB_RECURSE APP_VIEWPORT_SRC "src/view/*.cpp" "src/view/*.hpp")
 source_group("view" FILES ${APP_VIEWPORT_SRC})
 #geometry 
 file(GLOB_RECURSE RAYCAST_SRC "src/raycast/*.cpp" "src/raycast/*.hpp")
 source_group("raycast" FILES ${RAYCAST_SRC})
-#loader
-file(GLOB_RECURSE LOADER_SRC "src/loader/*.cpp" "src/loader/*.hpp")
-source_group("loader" FILES ${LOADER_SRC})
  
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
@@ -83,9 +77,7 @@ add_executable(${EDITOR_NAME_PROJECT}
 	${APP_CONFIG_SRC}
 	${APP_CORE_SRC}
 	${APP_RENDERER_SRC}
-	${APP_CONTROLLER_SRC}
     ${APP_VIEWPORT_SRC}
-    ${LOADER_SRC}
     ${RAYCAST_SRC}
 )
 
