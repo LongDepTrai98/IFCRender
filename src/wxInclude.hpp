@@ -7,3 +7,4 @@
 #include <wx/treectrl.h>
 #include <wx/glcanvas.h>
 #include <wx/dcclient.h>
+#include <wx/treelist.h>

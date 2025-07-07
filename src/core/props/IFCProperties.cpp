@@ -1,6 +1,6 @@
 #include "IFCProperties.hpp"
 #include "core/utils/WebIFCHelper.hpp"
-#include "core/node/IFCNodeProperties.hpp"
+#include "core/node/IFCElementTree.hpp"
 #include "spdlog/spdlog.h"
 namespace dragon
 {
@@ -14,15 +14,10 @@ namespace dragon
 			{ "materials",  { webifc::schema::IFCRELASSOCIATESMATERIAL, "RelatingMaterial", "RelatedObjects", "HasAssociations" } },
 			{ "type",       { webifc::schema::IFCRELDEFINESBYTYPE, "RelatingType", "RelatedObjects", "IsDefinedBy" } }
 		};
-		createTreeNode(modelID); 
 	}
 	IFCProperties::~IFCProperties()
 	{
 		m_modelManager = nullptr;
-	}
-	void IFCProperties::getProperties()
-	{
-
 	}
 	void IFCProperties::getChunks(const int& modelID, PropsNames prop, std::unordered_map<int, std::vector<int>>& chunk)
 	{
@@ -45,14 +40,14 @@ namespace dragon
 			chunk[relatingLineID].insert(chunk[relatingLineID].end(), vecRelatedLineID.begin(), vecRelatedLineID.end()); 
 		}
 	}
-	std::shared_ptr<NodeProperties> IFCProperties::createTreeNode(const uint32_t& modelID)
+	std::shared_ptr<ElementTree> IFCProperties::createTreeNode(const uint32_t& modelID)
 	{
 		std::unordered_map<int, std::vector<int>> chunks{};
 		getChunks(modelID, m_propsNamesMap["spatial"], chunks);
 		getChunks(modelID, m_propsNamesMap["aggregates"], chunks);
 		/*CREATE IFC NODE TREE*/
-		std::shared_ptr<NodeIFCProperties> tree_nodes = std::make_shared<NodeIFCProperties>();
-		auto parent_node = tree_nodes->create(chunks); 
+		std::shared_ptr<IFCElementTree> tree_nodes = std::make_shared<IFCElementTree>();
+		auto parent_node = tree_nodes->create(modelID,m_modelManager,chunks);
 		auto RawLine = WebIFCHelper::GetLine(*m_modelManager, modelID, parent_node->expressID, true, true); 
 		spdlog::info(RawLine.dump()); 
 		if (parent_node)
@@ -64,62 +59,4 @@ namespace dragon
 			return nullptr; 
 		}
 	}
-	//std::shared_ptr<IFCProperties::IFCNode> IFCProperties::createTree(const uint32_t& modelID, const std::unordered_map<int, std::vector<int>>& chunk)
-	//{
-	//	//std::unordered_map<int, std::pair<std::shared_ptr<IFCNode>,bool>> m_mapNodes{};
-	//	std::unordered_map<int, std::shared_ptr<IFCNode>> mapNode{}; 
-	//	std::unordered_map<int, bool> mapCheckParentNode{}; 
-	//	uint32_t parent_ExpressID{ 0 }; 
-	//	//int, shared_ptr<>
-	//	//int, bool isChildren
-	//	for (const auto& [relatingId, relatedIDs] : chunk)
-	//	{
-	//		//is parent node
-	//		std::shared_ptr<IFCNode> parentNode{nullptr}; 
-	//		if (mapNode.find(relatingId) == mapNode.end())
-	//		{
-	//			/*CREATE NEW NODE*/
-	//			parentNode = std::make_shared<IFCNode>(); 
-	//			parentNode->expressID = relatingId;
-	//			mapNode[relatingId] = parentNode;
-	//			mapCheckParentNode[relatingId] = true; 
-	//		}
-	//		else
-	//		{
-	//			parentNode = mapNode[relatingId];
-	//		}
-	//		/*UPDATE STATE PARENT NODE*/
-	//		if (mapCheckParentNode[relatingId])
-	//		{
-	//			mapCheckParentNode[relatingId] = true;
-	//			parent_ExpressID = relatingId;
-	//		}
-	//		for (const auto& relatedID : relatedIDs)
-	//		{
-	//			/*CREATE NEW NODE*/
-	//			std::shared_ptr<IFCNode> childNode{ nullptr }; 
-	//			if (mapNode.find(relatedID) == mapNode.end())
-	//			{
-	//				childNode = std::make_shared<IFCNode>(); 
-	//				childNode->expressID = relatedID; 
-	//				mapNode[relatedID] = childNode;
-	//				mapCheckParentNode[relatedID] = true; 
-	//			}
-	//			else
-	//			{
-	//				childNode = mapNode[relatedID];
-	//			}
-	//			parentNode->children.emplace_back(childNode);
-	//			/*UPDATE STATE CHILD NODE*/
-	//			if (mapCheckParentNode[relatedID])
-	//			{
-	//				mapCheckParentNode[relatedID] = false; 
-	//			}
-	//		}
-	//	}
-	//	auto RawLine = WebIFCHelper::GetLine(*m_modelManager, modelID, parent_ExpressID, true, true);
-	//	spdlog::info(RawLine.dump()); 
-	//	auto parentNode = mapNode[parent_ExpressID];
-	//	return parentNode; 
-	//}
 }

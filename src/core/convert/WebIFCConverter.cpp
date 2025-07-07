@@ -1,4 +1,3 @@
-#define FMT_UNICODE 0
 #include "WebIFCConverter.hpp"
 #include "web-ifc/parsing/IfcLoader.h"
 #include "web-ifc/schema/IfcSchemaManager.h"
@@ -58,7 +57,7 @@ namespace dragon
 		const float thresholdAngle = 30.0f;
 		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*mesh->geometry(), thresholdAngle);
 		std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
-		outline_material->color = threepp::Color::black;
+		outline_material->color = threepp::Color::darkgray;
 		std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
 		container->add(outlineEdge);
 		geometries.clear();
@@ -182,7 +181,6 @@ namespace dragon
 			std::shared_ptr<threepp::MeshLambertMaterial> material = threepp::MeshLambertMaterial::create();
 			threepp::Color color;
 			color.setRGB(placedColor.x, placedColor.y, placedColor.z);
-			std::cout << std::format("Hash color : {}", str_hash_color) << std::endl;
 			material->as<threepp::MeshLambertMaterial>()->color = color;
 			material->side = threepp::Side::Double;
 			material->transparent = placedColor.w != 1.0;

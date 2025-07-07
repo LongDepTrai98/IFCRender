@@ -13,6 +13,7 @@ namespace dragon
 		WindowFrame();
 	public: 
 		RenderCanvas* getRenderCanvas(); 
+		ElementTreeCtrl* getElementTreeCtrl(); 
 	private:
 		void initUIManager();
 		void initMenuBar();

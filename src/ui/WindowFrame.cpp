@@ -24,6 +24,10 @@ namespace dragon
 	{
 		return m_RenderCanvas.get();
 	}
+	ElementTreeCtrl* WindowFrame::getElementTreeCtrl()
+	{
+		return m_ElementTreeCtrl; 
+	}
 	void WindowFrame::initUIManager()
 	{
 		m_UIManager = std::make_unique<wxAuiManager>(this);
@@ -41,15 +45,12 @@ namespace dragon
 		wxPanel* treePanel = new wxPanel(this);
 		wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 		//wxTreeCtrl* tree = new wxTreeCtrl(treePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize);
-
-		long style = wxTR_DEFAULT_STYLE ^ wxTR_TWIST_BUTTONS ^ wxSUNKEN_BORDER;
-
-
+		long style = wxTR_HAS_BUTTONS
+			^ wxTR_LINES_AT_ROOT
+			^ wxTR_ROW_LINES
+			^ wxTR_FULL_ROW_HIGHLIGHT
+			^ wxTR_TWIST_BUTTONS; 
 		m_ElementTreeCtrl = new ElementTreeCtrl(treePanel, wxDefaultPosition, wxDefaultSize, style);
-		wxTreeItemId root = m_ElementTreeCtrl->AddRoot("Root");
-		m_ElementTreeCtrl->AppendItem(root, "Child 1");
-		m_ElementTreeCtrl->AppendItem(root, "Child 2");
-		m_ElementTreeCtrl->Expand(root);
 		sizer->Add(m_ElementTreeCtrl, 1, wxEXPAND | wxALL, 5);
 		treePanel->SetSizer(sizer);
 		m_UIManager->AddPane(treePanel, panel_config::tree_ctrl_panel_info);

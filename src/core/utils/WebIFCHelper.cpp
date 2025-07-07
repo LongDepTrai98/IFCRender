@@ -178,8 +178,7 @@ namespace dragon
                     line["related"].push_back(lineID); 
                 }
             }
-        }
-        if (type == webifc::schema::IFCRELCONTAINEDINSPATIALSTRUCTURE)
+        } else if (type == webifc::schema::IFCRELCONTAINEDINSPATIALSTRUCTURE)
         {
             /*spatial*/
             auto& relating = RawLine["arguments"][5]; 
@@ -196,6 +195,25 @@ namespace dragon
                     const uint32_t& lineID = lineOBJ["value"].get<uint32_t>();
                     line["related"].push_back(lineID);
                 }
+            }
+        }
+        else
+        {
+            if (!RawLine["arguments"][2].is_null())
+            {
+                if (RawLine["arguments"][2]["type"] == 1)
+                {
+                    if (!RawLine["arguments"][2]["value"].is_null())
+                    {
+                        std::string name = RawLine["arguments"][2]["value"];
+                        line["name"] = name;
+                    }
+                }
+            }
+            else
+            {
+                std::cout << RawLine.dump() << std::endl; 
+                line["name"] = RawLine["arguments"][0]["value"].get<std::string>();
             }
         }
         return line; 

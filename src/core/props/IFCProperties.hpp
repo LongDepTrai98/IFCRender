@@ -8,7 +8,7 @@
 #include "core/utils/WebIFCHelper.hpp"
 namespace dragon
 {
-	class NodeProperties; 
+	class ElementTree;
 	class IFCProperties
 	{
 	public: 
@@ -19,23 +19,14 @@ namespace dragon
 			std::string related{ "" }; 
 			std::string key{ "" };
 		};
-		struct IFCNode
-		{
-			uint32_t expressID{ 0 }; 
-			std::vector<std::shared_ptr<IFCNode>> children{}; 
-		};
-
 	public:
 		IFCProperties(const int& modelID, webifc::manager::ModelManager* model);
 		~IFCProperties(); 
 	public: 
-		void getProperties(); 
-		//void getSpatialTreeChunks(const int& modelID); 
 		void getChunks(const int& modelID,
 			PropsNames prop, 
 			std::unordered_map<int,std::vector<int>>& chunk);
-		//std::shared_ptr<IFCNode> createTreeNode(const uint32_t& modelID, const std::unordered_map<int, std::vector<int>>& chunk);
-		std::shared_ptr<NodeProperties> createTreeNode(const uint32_t& modelID);
+		std::shared_ptr<ElementTree> createTreeNode(const uint32_t& modelID);
 	private: 
 		webifc::manager::ModelManager* m_modelManager{ nullptr };
 		std::map<std::string, PropsNames> m_propsNamesMap;
