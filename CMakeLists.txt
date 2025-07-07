@@ -57,8 +57,23 @@ source_group("commands" FILES ${UI_COMMANDS_SRC})
 file(GLOB_RECURSE APP_CONFIG_SRC "src/config/*.cpp" "src/config/*.hpp")
 source_group("config" FILES ${APP_CONFIG_SRC})
 #core 
-file(GLOB_RECURSE APP_CORE_SRC "src/core/*.cpp" "src/core/*.hpp")
+file(GLOB APP_CORE_SRC "src/core/*.cpp" "src/core/*.hpp")
 source_group("core" FILES ${APP_CORE_SRC})
+#convert 
+file(GLOB APP_CONVERT_CORE_SRC "src/core/convert/*.cpp" "src/core/convert/*.hpp")
+source_group("core//convert" FILES ${APP_CONVERT_CORE_SRC})
+#io
+file(GLOB_RECURSE APP_IO_CORE_SRC "src/core/io/*.cpp" "src/core/io/*.hpp")
+source_group("core//io" FILES ${APP_IO_CORE_SRC})
+#node
+file(GLOB APP_NODE_CORE_SRC "src/core/node/*.cpp" "src/core/node/*.hpp")
+source_group("core//node" FILES ${APP_NODE_CORE_SRC})
+#props
+file(GLOB APP_PROPS_CORE_SRC "src/core/props/*.cpp" "src/core/props/*.hpp")
+source_group("core//props" FILES ${APP_PROPS_CORE_SRC})
+#utils
+file(GLOB APP_UTILS_CORE_SRC "src/core/utils/*.cpp" "src/core/utils/*.hpp")
+source_group("core//utils" FILES ${APP_UTILS_CORE_SRC})
 #renderer 
 file(GLOB_RECURSE APP_RENDERER_SRC "src/renderer/*.cpp" "src/renderer/*.hpp")
 source_group("renderer" FILES ${APP_RENDERER_SRC})
@@ -76,6 +91,11 @@ add_executable(${EDITOR_NAME_PROJECT}
     ${UI_COMMANDS_SRC}
 	${APP_CONFIG_SRC}
 	${APP_CORE_SRC}
+    ${APP_CONVERT_CORE_SRC}
+    ${APP_IO_CORE_SRC}
+    ${APP_NODE_CORE_SRC}
+    ${APP_PROPS_CORE_SRC}
+    ${APP_UTILS_CORE_SRC}
 	${APP_RENDERER_SRC}
     ${APP_VIEWPORT_SRC}
     ${RAYCAST_SRC}
