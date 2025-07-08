@@ -195,8 +195,6 @@ namespace dragon
 		buff_geometry->setAttribute("expressID", threepp::IntBufferAttribute::create(idAttribute, 1));
 		std::array<float, 16> matrix_float{};
 		MathHelper::convertDoubleArr2FloatArr(placedGeometry.flatTransformation, matrix_float);
-		//geometry_offset.geometry = buff_geometry;
-		//m_Geometry_Offset[expressId].emplace_back(geometry_offset);
 		buff_geometry->applyMatrix4(threepp::Matrix4(matrix_float));
 		geo_with_material[str_hash_color].geometries.emplace_back(buff_geometry);
 	}
@@ -217,11 +215,6 @@ namespace dragon
 	{
 		return m_modelID;
 	}
-
-	//const std::map<int, std::vector<IGeometryCache::offset>>& WebIFCConverter::getGeometryOffsetCache()
-	//{
-	//	return m_Geometry_Offset;
-	//}
 
 	void WebIFCConverter::streamAllMeshesWithTypes(const uint32_t& modelID, const std::vector<uint32_t>& types)
 	{

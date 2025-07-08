@@ -6,39 +6,38 @@ namespace dragon
 	class ElementTree;
 	class TreeNode;
 
-    class FixedSizeImpl : public wxBitmapBundleImpl
-    {
-    public:
-        FixedSizeImpl(const wxSize& sizeDef, const wxIcon& icon)
-            : m_sizeDef(sizeDef),
-            m_icon(icon)
-        {
-        }
+	class FixedSizeImpl : public wxBitmapBundleImpl
+	{
+	public:
+		FixedSizeImpl(const wxSize& sizeDef, const wxIcon& icon)
+			: m_sizeDef(sizeDef),
+			m_icon(icon)
+		{
+		}
 
-        wxSize GetDefaultSize() const override
-        {
-            return m_sizeDef;
-        }
+		wxSize GetDefaultSize() const override
+		{
+			return m_sizeDef;
+		}
 
-        wxSize GetPreferredBitmapSizeAtScale(double scale) const override
-        {
-            return m_sizeDef * scale;
-        }
+		wxSize GetPreferredBitmapSizeAtScale(double scale) const override
+		{
+			return m_sizeDef * scale;
+		}
 
-        wxBitmap GetBitmap(const wxSize& size) override
-        {
-            wxBitmap bmp(m_icon);
-            if (size != bmp.GetSize())
-                wxBitmap::Rescale(bmp, size);
+		wxBitmap GetBitmap(const wxSize& size) override
+		{
+			wxBitmap bmp(m_icon);
+			if (size != bmp.GetSize())
+				wxBitmap::Rescale(bmp, size);
 
-            return bmp;
-        }
+			return bmp;
+		}
 
-    private:
-        const wxSize m_sizeDef;
-        const wxIcon m_icon;
-    };
-
+	private:
+		const wxSize m_sizeDef;
+		const wxIcon m_icon;
+	};
 
 	class ItemData : public wxTreeItemData
 	{
@@ -53,14 +52,14 @@ namespace dragon
 
 	class ElementTreeCtrl : public wxTreeCtrl
 	{
-	public: 
+	public:
 		ElementTreeCtrl(wxWindow* parent, const wxPoint& postion, const wxSize& size, long style);
-	public: 
+	public:
 		void setData(std::shared_ptr<ElementTree> treeData);
 		void AddItemsRecursively(const wxTreeItemId& idParent, const std::shared_ptr<TreeNode>& node);
 		void clearData();
-		void CreateStateImages(); 
-	private: 
+		void CreateStateImages();
+	private:
 		std::shared_ptr<ElementTree> m_Tree{ nullptr };
 	};
 }

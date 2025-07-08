@@ -22,7 +22,7 @@ namespace dragon
 			}
 			int& getData() override
 			{
-				return expressID; 
+				return expressID;
 			}
 		};
 	public:

@@ -5,6 +5,7 @@
 #include "config/pannel_config.hpp"
 #include "commands/AppCommandsHandler.hpp"
 #include "ElementTreeCtrl.hpp"
+#include "core/Paths.hpp"
 namespace dragon
 {
 	wxBEGIN_EVENT_TABLE(WindowFrame, wxFrame)
@@ -15,10 +16,13 @@ namespace dragon
 			app_config::app_name)
 	{
 		initUIManager();
+		initUI(); 
 		initCommand();
 		initMenuBar();
 		initScene();
 		initTreeCtrl();
+		CreateStatusBar(2);
+		SetStatusText("Welcome to wxWidgets!");
 	}
 	RenderCanvas* WindowFrame::getRenderCanvas()
 	{
@@ -26,7 +30,12 @@ namespace dragon
 	}
 	ElementTreeCtrl* WindowFrame::getElementTreeCtrl()
 	{
-		return m_ElementTreeCtrl; 
+		return m_ElementTreeCtrl;
+	}
+	void WindowFrame::initUI()
+	{
+		const std::string& iconAppPath = assets::Icons + "app.png";
+		this->SetIcon(wxIcon(iconAppPath, wxBITMAP_TYPE_PNG));
 	}
 	void WindowFrame::initUIManager()
 	{
@@ -49,7 +58,7 @@ namespace dragon
 			^ wxTR_LINES_AT_ROOT
 			^ wxTR_ROW_LINES
 			^ wxTR_FULL_ROW_HIGHLIGHT
-			^ wxTR_TWIST_BUTTONS; 
+			^ wxTR_TWIST_BUTTONS;
 		m_ElementTreeCtrl = new ElementTreeCtrl(treePanel, wxDefaultPosition, wxDefaultSize, style);
 		sizer->Add(m_ElementTreeCtrl, 1, wxEXPAND | wxALL, 5);
 		treePanel->SetSizer(sizer);
