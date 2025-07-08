@@ -10,7 +10,7 @@ namespace dragon
 			wxID_ANY,
 			postion,
 			size,
-			wxTR_DEFAULT_STYLE)
+			style)
 	{
 		CreateStateImages();
 		bindFunc(); 

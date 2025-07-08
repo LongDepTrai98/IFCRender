@@ -10,7 +10,8 @@ namespace dragon::panel_config
 		.MinimizeButton(true)
 		.MaximizeButton(true)
 		.CloseButton(false)
-		.Dockable(true);
+		.Dockable(true)
+		.Maximize();
 	static wxAuiPaneInfo tree_ctrl_panel_info = wxAuiPaneInfo()
 		.Name("tree")
 		.Caption("Entity")

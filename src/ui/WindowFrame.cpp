@@ -6,6 +6,7 @@
 #include "commands/AppCommandsHandler.hpp"
 #include "ElementTreeCtrl.hpp"
 #include "core/Paths.hpp"
+#include "core/utils/AppHelper.hpp"
 namespace dragon
 {
 	wxBEGIN_EVENT_TABLE(WindowFrame, wxFrame)
@@ -54,15 +55,14 @@ namespace dragon
 		wxPanel* treePanel = new wxPanel(this);
 		wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 		//wxTreeCtrl* tree = new wxTreeCtrl(treePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize);
-		long style = wxTR_HAS_BUTTONS
-			^ wxTR_LINES_AT_ROOT
-			^ wxTR_ROW_LINES
-			^ wxTR_FULL_ROW_HIGHLIGHT
-			^ wxTR_TWIST_BUTTONS;
+		long style = wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT | wxTR_TWIST_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT;
 		m_ElementTreeCtrl = new ElementTreeCtrl(treePanel, wxDefaultPosition, wxDefaultSize, style);
-		sizer->Add(m_ElementTreeCtrl, 1, wxEXPAND | wxALL, 5);
+		sizer->Add(m_ElementTreeCtrl, 1, wxEXPAND | wxALL, 1);
 		treePanel->SetSizer(sizer);
-		m_UIManager->AddPane(treePanel, panel_config::tree_ctrl_panel_info);
+		const std::string& checkedPath = assets::Icons + "ElementTree.png";
+		wxIcon icon(checkedPath, wxBITMAP_TYPE_PNG);
+		wxSize iconSize(icon.GetWidth(),icon.GetHeight()); 
+		m_UIManager->AddPane(treePanel, panel_config::tree_ctrl_panel_info.Icon(wxBitmapBundle::FromImpl(new FixedSizeImpl(iconSize, icon))));
 		m_UIManager->Update();
 	}
 	void WindowFrame::initScene()
@@ -101,7 +101,10 @@ namespace dragon
 		{
 			m_RenderCanvas = std::make_unique<RenderCanvas>(this,
 				dispAttrs);
-			m_UIManager->AddPane(m_RenderCanvas.get(), panel_config::scene_view_panel_info);
+			const std::string& checkedPath = assets::Icons + "scene.png";
+			wxIcon icon(checkedPath, wxBITMAP_TYPE_PNG);
+			wxSize iconSize(icon.GetWidth(), icon.GetHeight());
+			m_UIManager->AddPane(m_RenderCanvas.get(), panel_config::scene_view_panel_info.Icon(wxBitmapBundle::FromImpl(new FixedSizeImpl(iconSize, icon))));
 			m_UIManager->Update();
 		}
 	}
