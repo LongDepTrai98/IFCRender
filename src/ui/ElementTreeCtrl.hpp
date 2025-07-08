@@ -1,44 +1,11 @@
 #ifndef _ELEMENT_TREE_CTRL_HPP_
 #define _ELEMENT_TREE_CTRL_HPP_
 #include "wxInclude.hpp"
+#include <functional>
 namespace dragon
 {
 	class ElementTree;
 	class TreeNode;
-
-	class FixedSizeImpl : public wxBitmapBundleImpl
-	{
-	public:
-		FixedSizeImpl(const wxSize& sizeDef, const wxIcon& icon)
-			: m_sizeDef(sizeDef),
-			m_icon(icon)
-		{
-		}
-
-		wxSize GetDefaultSize() const override
-		{
-			return m_sizeDef;
-		}
-
-		wxSize GetPreferredBitmapSizeAtScale(double scale) const override
-		{
-			return m_sizeDef * scale;
-		}
-
-		wxBitmap GetBitmap(const wxSize& size) override
-		{
-			wxBitmap bmp(m_icon);
-			if (size != bmp.GetSize())
-				wxBitmap::Rescale(bmp, size);
-
-			return bmp;
-		}
-
-	private:
-		const wxSize m_sizeDef;
-		const wxIcon m_icon;
-	};
-
 	class ItemData : public wxTreeItemData
 	{
 	public:
@@ -54,11 +21,20 @@ namespace dragon
 	{
 	public:
 		ElementTreeCtrl(wxWindow* parent, const wxPoint& postion, const wxSize& size, long style);
+		void bindFunc(); 
 	public:
 		void setData(std::shared_ptr<ElementTree> treeData);
-		void AddItemsRecursively(const wxTreeItemId& idParent, const std::shared_ptr<TreeNode>& node);
 		void clearData();
 		void CreateStateImages();
+		void OnItemStateClick(wxTreeEvent& event);
+		void DoToggleState(const wxTreeItemId& item);
+		void DoSetItemState(const wxTreeItemId& item, const int& state); 
+	private: 
+		void RecursiveChildItems(const wxTreeItemId& itemID,const int& parent_item_state);
+		void AddItemsRecursively(const wxTreeItemId& idParent, const std::shared_ptr<TreeNode>& node);
+	public: 
+		std::function<void(const wxTreeItemId&)> toggleStateCallBack{ nullptr }; 
+		bool m_bIsItemClickRecursively{ true };
 	private:
 		std::shared_ptr<ElementTree> m_Tree{ nullptr };
 	};

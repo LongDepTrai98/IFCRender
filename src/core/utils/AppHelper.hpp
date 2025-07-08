@@ -10,6 +10,40 @@ namespace threepp
 namespace dragon
 {
 	class WindowFrame;
+
+	static class FixedSizeImpl : public wxBitmapBundleImpl
+	{
+	public:
+		FixedSizeImpl(const wxSize& sizeDef, const wxIcon& icon)
+			: m_sizeDef(sizeDef),
+			m_icon(icon)
+		{
+		}
+
+		wxSize GetDefaultSize() const override
+		{
+			return m_sizeDef;
+		}
+
+		wxSize GetPreferredBitmapSizeAtScale(double scale) const override
+		{
+			return m_sizeDef * scale;
+		}
+
+		wxBitmap GetBitmap(const wxSize& size) override
+		{
+			wxBitmap bmp(m_icon);
+			if (size != bmp.GetSize())
+				wxBitmap::Rescale(bmp, size);
+
+			return bmp;
+		}
+
+	private:
+		const wxSize m_sizeDef;
+		const wxIcon m_icon;
+	};
+
 	class AppHelper
 	{
 	public:

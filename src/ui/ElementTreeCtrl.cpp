@@ -1,6 +1,8 @@
 #include "ElementTreeCtrl.hpp"
 #include "core/node/ElementTree.hpp"
 #include "core/Paths.hpp"
+#include "core/utils/AppHelper.hpp"
+#include "spdlog/spdlog.h"
 namespace dragon
 {
 	ElementTreeCtrl::ElementTreeCtrl(wxWindow* parent, const wxPoint& postion, const wxSize& size, long style)
@@ -11,6 +13,11 @@ namespace dragon
 			wxTR_DEFAULT_STYLE)
 	{
 		CreateStateImages();
+		bindFunc(); 
+	}
+	void ElementTreeCtrl::bindFunc()
+	{
+		this->Bind(wxEVT_TREE_STATE_IMAGE_CLICK,&ElementTreeCtrl::OnItemStateClick,this);
 	}
 	void ElementTreeCtrl::setData(std::shared_ptr<ElementTree> treeData)
 	{
@@ -21,7 +28,6 @@ namespace dragon
 		str.Printf(parent->getLabelNode().c_str());
 		wxTreeItemId root_id = this->AddRoot(str);
 		AddItemsRecursively(root_id, parent);
-		this->ExpandAll();
 	}
 	void ElementTreeCtrl::AddItemsRecursively(const wxTreeItemId& idParent, const std::shared_ptr<TreeNode>& node)
 	{
@@ -55,5 +61,50 @@ namespace dragon
 		}
 		SetStateImages(images);
 		Update();
+	}
+	void ElementTreeCtrl::OnItemStateClick(wxTreeEvent& event)
+	{
+		wxTreeItemId itemId = event.GetItem();
+		if (!m_bIsItemClickRecursively)
+		{
+			DoToggleState(itemId);
+		}
+		else
+		{
+			DoToggleState(itemId); 
+			RecursiveChildItems(itemId,this->GetItemState(itemId)); 
+		}
+	}
+	void ElementTreeCtrl::RecursiveChildItems(const wxTreeItemId& itemID, const int& parent_item_state)
+	{
+		if (this->GetItemState(itemID) != parent_item_state)
+		{
+			DoSetItemState(itemID, parent_item_state);
+		}
+
+		if (this->ItemHasChildren(itemID))
+		{
+			//toggle state all child items
+			wxString text = this->GetItemText(itemID);
+			wxTreeItemIdValue cookie;
+			wxTreeItemId firstChild = this->GetFirstChild(itemID, cookie);
+			while (firstChild.IsOk())
+			{
+				RecursiveChildItems(firstChild, parent_item_state);
+				firstChild = this->GetNextChild(firstChild, cookie);
+			}
+		}
+	}
+	void ElementTreeCtrl::DoToggleState(const wxTreeItemId& item)
+	{
+		int state = GetItemState(item);
+		DoSetItemState(item, state == 0 ? 1 : 0);
+
+	}
+	void ElementTreeCtrl::DoSetItemState(const wxTreeItemId& item, const int& state)
+	{
+		this->SetItemState(item, state);
+		if (toggleStateCallBack)
+			toggleStateCallBack(item);
 	}
 }
