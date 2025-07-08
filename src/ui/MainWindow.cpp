@@ -6,6 +6,7 @@ namespace dragon
 	bool App::OnInit()
 	{
 		this->SetAppearance(Appearance::Dark);
+		wxInitAllImageHandlers();
 		if (!m_Frame)
 		{
 			m_Frame = new WindowFrame();

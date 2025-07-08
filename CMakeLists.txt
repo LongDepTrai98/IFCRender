@@ -42,6 +42,8 @@ set(EDITOR_NAME_PROJECT App)
 set(WX_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.0/include)
 set(WX_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.0/lib/vc_x64_lib/)
 set(WEB_IFC_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build/3rdparty/lib)
+set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
+set(DEST_ASSETS_DIR "$<TARGET_FILE_DIR:${EDITOR_NAME_PROJECT}>/assets")
 project(${PROJECT_NAME})
 #find_package(wxWidgets CONFIG REQUIRED)
 find_package(glew CONFIG REQUIRED)
@@ -113,8 +115,8 @@ target_link_libraries(${EDITOR_NAME_PROJECT}
 PRIVATE GLEW::glew
 PRIVATE threepp::threepp
 PRIVATE nlohmann_json
-$<$<CONFIG:Debug>:/Debug/web-ifc-library.lib>
-$<$<CONFIG:Release>:/Release/web-ifc-library.lib>)
+$<$<CONFIG:Debug>:/Debug/web-ifc-library.lib;wxpngd.lib;wxwebpd.lib;wxjpegd.lib>
+$<$<CONFIG:Release>:/Release/web-ifc-library.lib;wxpng.lib;wxwebp.lib;wxjpeg.lib>)
 #directories lib
 target_link_directories(${EDITOR_NAME_PROJECT}
 PRIVATE ${WX_LIB_PATH}
@@ -122,3 +124,12 @@ PRIVATE ${WEB_IFC_LIB_PATH})
 
 target_compile_definitions(${EDITOR_NAME_PROJECT}
 PRIVATE _UNICODE UNICODE _CRT_SECURE_NO_WARNINGS NANORT_ENABLE_PARALLEL_BUILD FMT_UNICODE=0)
+
+# Custom command to copy assets
+add_custom_command(
+    TARGET ${EDITOR_NAME_PROJECT} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${ASSETS_DIR}"
+            "${DEST_ASSETS_DIR}"
+    COMMENT "Copying assets folder to output directory..."
+)

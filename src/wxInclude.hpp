@@ -8,3 +8,17 @@
 #include <wx/glcanvas.h>
 #include <wx/dcclient.h>
 #include <wx/treelist.h>
+#include <wx/image.h>
+#include <wx/imaglist.h>
+#include "wx/wxprec.h"
+#ifndef WX_PRECOMP
+#include "wx/wx.h"
+#include "wx/log.h"
+#endif
+#include "wx/colordlg.h"
+#include "wx/numdlg.h"
+#include "wx/artprov.h"
+#include "wx/math.h"
+#include "wx/renderer.h"
+#include "wx/wupdlock.h"
+#include "wx/imagpng.h"
