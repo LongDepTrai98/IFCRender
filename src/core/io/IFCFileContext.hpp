@@ -21,6 +21,7 @@ namespace dragon
 		IGeometryCache* getGeometryCache() override;
 		void handleRaycast(CustomRayCaster& RayCaster, threepp::Vector2& nor_mouse_pos) override;
 		void handleHoverResult(std::shared_ptr<threepp::Mesh>& object_hover) override;
+		void hideParts(const std::vector<uint32_t>& parts); 
 	public:
 		void setRootObject(threepp::Object3D* root_mesh);
 	private:

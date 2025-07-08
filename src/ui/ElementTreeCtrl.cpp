@@ -36,7 +36,7 @@ namespace dragon
 		{
 			str.Printf(childNode->getLabelNode().c_str());
 			wxTreeItemId id_item = AppendItem(idParent, str, -1, -1, new ItemData(&childNode->getData()));
-			SetItemState(id_item, 0);
+			SetItemState(id_item, 1);
 			AddItemsRecursively(id_item, childNode);
 		}
 	}

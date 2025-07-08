@@ -109,6 +109,9 @@ namespace dragon
 			m_Old_ExpressID = -1;
 		}
 	}
+	void IFCFileContext::hideParts(const std::vector<uint32_t>& parts)
+	{
+	}
 	void IFCFileContext::setRootObject(threepp::Object3D* root_mesh)
 	{
 		std::vector<threepp::Object3D*> lstObject{};
