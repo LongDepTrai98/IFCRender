@@ -2,6 +2,7 @@
 #define _IFC_FILE_CONTEXT_HPP_
 #include "IFileContext.hpp"
 #include <vector>
+#include <functional>
 namespace threepp
 {
 	class Object3D;
@@ -11,6 +12,7 @@ namespace dragon
 {
 	class IGeometryCache;
 	class IFCGeometryCache;
+	class ItemData; 
 	class IFCFileContext : public IFileContext
 	{
 	public:
@@ -24,6 +26,10 @@ namespace dragon
 		void hideParts(const std::vector<uint32_t>& parts); 
 	public:
 		void setRootObject(threepp::Object3D* root_mesh);
+		void initCallback(); 
+	public: 
+		std::shared_ptr<std::function<void(const std::pair<int, ItemData*>&)>> m_Toggle_Component_Callback{ nullptr };
+		std::shared_ptr<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>> m_Toggle_Components_Callback{ nullptr };
 	private:
 		std::unique_ptr<IFCGeometryCache> m_Geometry_Offset_Cache{ nullptr };
 		std::vector<threepp::Object3D*> m_Children_Objects{ nullptr };

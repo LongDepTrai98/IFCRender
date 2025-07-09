@@ -5,11 +5,12 @@
 #include "core/io/factory/GeometryCacheOffsetFactory.hpp"
 #include "core/utils/ThreeHelper.hpp"
 #include "raycast/CustomRayCaster.hpp"
+#include "spdlog/spdlog.h"
 #include <format>
 #include <iostream>
 #include <span>
 #include <array>
-#define NANORT_USE_CPP11_FEATURE 1
+#include "ui/ElementTreeCtrl.hpp"
 namespace dragon
 {
 	IFCFileContext::IFCFileContext()
@@ -35,6 +36,8 @@ namespace dragon
 			m_Geometry_Offset_Cache.reset();
 			m_Geometry_Offset_Cache = nullptr;
 		}
+		//m_Toggle_Component_Callback = nullptr; 
+		//m_Toggle_Components_Callback = nullptr; 
 	}
 	std::string IFCFileContext::getFileType()
 	{
@@ -117,5 +120,24 @@ namespace dragon
 		std::vector<threepp::Object3D*> lstObject{};
 		lstObject.emplace_back(root_mesh);
 		m_Children_Objects = std::move(lstObject);
+	}
+	void IFCFileContext::initCallback()
+	{
+		auto lambda_toggle_component_callback = [&](const std::pair<int, ItemData*>& entity)
+			{
+				spdlog::info("callback ifc file context run : {}", entity.first);
+			}; 
+		auto lambda_toggle_componenents_callback = [&](const std::vector<std::pair<int, ItemData*>>& entities)
+			{
+				for (int i = 0; i < entities.size(); ++i)
+				{
+					int idEntity = *std::get<int*>(entities[i].second->GetData());
+					spdlog::info("callback ifc file context run with item ID : {} , state : {}",
+						idEntity,
+						entities[i].first);
+				};
+			}; 
+		m_Toggle_Component_Callback = std::make_shared<std::function<void(const std::pair<int, ItemData*>&)>>(lambda_toggle_component_callback);
+		m_Toggle_Components_Callback = std::make_shared<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>>(lambda_toggle_componenents_callback);
 	}
 }

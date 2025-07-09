@@ -28,6 +28,7 @@ namespace dragon
 		str.Printf(parent->getLabelNode().c_str());
 		wxTreeItemId root_id = this->AddRoot(str);
 		AddItemsRecursively(root_id, parent);
+		this->ExpandAll(); 
 	}
 	void ElementTreeCtrl::AddItemsRecursively(const wxTreeItemId& idParent, const std::shared_ptr<TreeNode>& node)
 	{
@@ -72,14 +73,23 @@ namespace dragon
 		else
 		{
 			DoToggleState(itemId); 
-			RecursiveChildItems(itemId,this->GetItemState(itemId)); 
+			std::vector<std::pair<int, ItemData*>> itemsData{};
+			ItemData* ptr_data = static_cast<ItemData*>(this->GetItemData(itemId));
+			itemsData.push_back({ this->GetItemState(itemId),ptr_data });
+			RecursiveChildItems(itemId,this->GetItemState(itemId),itemsData); 
+			if (m_ToggleStateCallBackRecursively)
+				(*m_ToggleStateCallBackRecursively)(itemsData); 
 		}
 	}
-	void ElementTreeCtrl::RecursiveChildItems(const wxTreeItemId& itemID, const int& parent_item_state)
+	void ElementTreeCtrl::RecursiveChildItems(const wxTreeItemId& itemID, 
+		const int& parent_item_state, 
+		std::vector<std::pair<int, ItemData*>>& itemsData)
 	{
 		if (this->GetItemState(itemID) != parent_item_state)
 		{
 			DoSetItemState(itemID, parent_item_state);
+			ItemData* ptr_data = static_cast<ItemData*>(this->GetItemData(itemID));
+			itemsData.push_back({ this->GetItemState(itemID),ptr_data });
 		}
 
 		if (this->ItemHasChildren(itemID))
@@ -90,7 +100,7 @@ namespace dragon
 			wxTreeItemId firstChild = this->GetFirstChild(itemID, cookie);
 			while (firstChild.IsOk())
 			{
-				RecursiveChildItems(firstChild, parent_item_state);
+				RecursiveChildItems(firstChild, parent_item_state, itemsData);
 				firstChild = this->GetNextChild(firstChild, cookie);
 			}
 		}
@@ -104,7 +114,8 @@ namespace dragon
 	void ElementTreeCtrl::DoSetItemState(const wxTreeItemId& item, const int& state)
 	{
 		this->SetItemState(item, state);
-		if (toggleStateCallBack)
-			toggleStateCallBack(item);
+		ItemData* ptr_data = static_cast<ItemData*>(this->GetItemData(item)); 
+		if (m_ToggleStateCallBack)
+			(*m_ToggleStateCallBack)({ state, ptr_data });
 	}
 }
