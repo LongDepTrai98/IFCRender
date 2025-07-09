@@ -1,4 +1,4 @@
-#include "IFCFileContext.hpp"
+﻿#include "IFCFileContext.hpp"
 #include "IFCGeometryCache.hpp"
 #include "threepp/threepp.hpp"
 #include "threepp/utils/BufferGeometryUtils.hpp"
@@ -15,7 +15,7 @@ namespace dragon
 {
 	IFCFileContext::IFCFileContext()
 	{
-		m_Geometry_Offset_Cache = std::make_unique<IFCGeometryCache>();
+		m_Geometries_Cache = std::make_unique<IFCGeometryCache>();
 		/*INIT MATERIAL HOVER*/
 		if (!m_Material_Hover)
 		{
@@ -30,14 +30,14 @@ namespace dragon
 	IFCFileContext::~IFCFileContext()
 	{
 		m_Children_Objects.clear();
-		if (m_Geometry_Offset_Cache)
+		if (m_Geometries_Cache)
 		{
-			m_Geometry_Offset_Cache->clear();
-			m_Geometry_Offset_Cache.reset();
-			m_Geometry_Offset_Cache = nullptr;
+			m_Geometries_Cache->clear();
+			m_Geometries_Cache.reset();
+			m_Geometries_Cache = nullptr;
 		}
-		//m_Toggle_Component_Callback = nullptr; 
-		//m_Toggle_Components_Callback = nullptr; 
+		m_Toggle_Component_Callback = nullptr;
+		m_Toggle_Components_Callback = nullptr;
 	}
 	std::string IFCFileContext::getFileType()
 	{
@@ -45,7 +45,7 @@ namespace dragon
 	}
 	IGeometryCache* IFCFileContext::getGeometryCache()
 	{
-		return m_Geometry_Offset_Cache.get();
+		return m_Geometries_Cache.get();
 	}
 	void IFCFileContext::handleRaycast(CustomRayCaster& RayCaster, threepp::Vector2& nor_mouse_pos)
 	{
@@ -88,7 +88,7 @@ namespace dragon
 				{
 					object_hover->visible = true;
 				}
-				IFCGeometryCache* geo_cache = static_cast<IFCGeometryCache*>(m_Geometry_Offset_Cache.get());
+				IFCGeometryCache* geo_cache = static_cast<IFCGeometryCache*>(m_Geometries_Cache.get());
 				if (!geo_cache) return;
 				/*auto& data_offset = geo_cache->getDataOffset();
 				auto it = data_offset.find(m_Current_ExpressID);
@@ -112,8 +112,50 @@ namespace dragon
 			m_Old_ExpressID = -1;
 		}
 	}
-	void IFCFileContext::hideParts(const std::vector<uint32_t>& parts)
+
+		static void copy_index_range(
+			std::vector<int>& destination,
+			const std::vector<unsigned int>& source,
+			int begin_offset,
+			int end_offset_inclusive
+		) {
+			if (begin_offset < 0 || begin_offset >= (int)source.size()) {
+				throw std::out_of_range("copy_index_range: begin_offset out of range");
+			}
+
+			if (end_offset_inclusive < begin_offset || end_offset_inclusive >= (int)source.size()) {
+				throw std::out_of_range("copy_index_range: end_offset_inclusive out of range");
+			}
+
+			auto start_it = source.begin() + begin_offset;
+			auto end_it = source.begin() + end_offset_inclusive + 1; // end is inclusive → +1 (safe: can be == end())
+			destination.insert(destination.end(), start_it, end_it); 
+	}
+
+	void IFCFileContext::rebuildVisibleIndices(std::unordered_set<uint32_t> set_hides_offset)
 	{
+		std::vector<int> rebuild_indices{};
+		std::shared_ptr<threepp::BufferGeometry> root_geometry = m_Children_Objects[0]->geometry(); 
+		const std::vector<unsigned int>& source_indices = root_geometry->getIndex()->array(); 
+		for (auto& [expressID, offsets] : m_Geometries_Cache->m_Geometry_Offset)
+		{
+			if (set_hides_offset.find(expressID) != set_hides_offset.end())
+			{
+				for (auto& offset : offsets)
+				{
+					std::vector<int> destination_vector; 
+					int begin_offset = offset.begin_indices_offset; 
+					int end_offset = offset.end_indices_offset; 
+					destination_vector.reserve(end_offset - begin_offset + 1); 
+					for (int i = begin_offset; i <= end_offset; ++i)
+					{
+						rebuild_indices.emplace_back(source_indices[i]);
+					}
+				}
+			}
+		}
+		//update indices 
+		root_geometry->setIndex(rebuild_indices); 
 	}
 	void IFCFileContext::setRootObject(threepp::Object3D* root_mesh)
 	{
@@ -126,17 +168,24 @@ namespace dragon
 		auto lambda_toggle_component_callback = [&](const std::pair<int, ItemData*>& entity)
 			{
 				spdlog::info("callback ifc file context run : {}", entity.first);
-			}; 
+			};
 		auto lambda_toggle_componenents_callback = [&](const std::vector<std::pair<int, ItemData*>>& entities)
 			{
-				for (int i = 0; i < entities.size(); ++i)
+				std::unordered_set<uint32_t> set_hide_items{}; 
+				for (auto& [state, item_data] : entities)
 				{
-					int idEntity = *std::get<int*>(entities[i].second->GetData());
-					spdlog::info("callback ifc file context run with item ID : {} , state : {}",
-						idEntity,
-						entities[i].first);
-				};
-			}; 
+					if (!state)
+					{
+						const int& expressID = *std::get<int*>(item_data->GetData()); 
+						if (m_Geometries_Cache->m_Geometry_Offset.find(expressID) != m_Geometries_Cache->m_Geometry_Offset.end())
+						{
+							set_hide_items.insert({ (uint32_t)expressID });
+						}
+					}
+				}
+				//rebuild indices 
+				rebuildVisibleIndices(std::move(set_hide_items)); 
+			};
 		m_Toggle_Component_Callback = std::make_shared<std::function<void(const std::pair<int, ItemData*>&)>>(lambda_toggle_component_callback);
 		m_Toggle_Components_Callback = std::make_shared<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>>(lambda_toggle_componenents_callback);
 	}

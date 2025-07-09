@@ -46,6 +46,7 @@ namespace dragon
 		std::shared_ptr<threepp::Group> convert(const std::filesystem::path& path);
 		std::shared_ptr<webifc::manager::ModelManager> getModelManager();
 		const int& getModelId() const;
+		std::unordered_map<int, std::vector<IFCGeometryCache::offset>>& getGeometryOffset();
 	private:
 		/*PORT FROM IFC API*/
 		void parseIfcFile(const std::string& buffer);
@@ -64,8 +65,9 @@ namespace dragon
 		int m_modelID{ -1 };
 		bool m_bMT_ENABLE{ true };
 		std::unordered_map<std::string, GeoWithMaterial> geo_with_material{};
-		//std::map<int, std::vector<IGeometryCache::offset>> m_Geometry_Offset{};
+		std::unordered_map<int, std::vector<IFCGeometryCache::offset>> m_Geometry_Offset{};
 		int index_offset{ -1 };
+		int index_indices{ -1 }; 
 	};
 }
 #endif // !_WEB_IFC_CONVERTER_HPP_

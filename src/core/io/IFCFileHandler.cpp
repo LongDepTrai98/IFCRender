@@ -42,6 +42,7 @@ namespace dragon
 		auto ptr_ifc_file_context = static_cast<IFCFileContext*>(file_context.get());
 		auto ptr_ifc_offset_cache = static_cast<IFCGeometryCache*>(file_context->getGeometryCache());
 		ptr_ifc_offset_cache->setModelManager(IFCApi.getModelManager(), IFCApi.getModelId());
+		ptr_ifc_offset_cache->m_Geometry_Offset = IFCApi.getGeometryOffset();
 		if (file_context)
 		{
 			main_viewport->setFileContext(std::move(file_context));
@@ -68,11 +69,11 @@ namespace dragon
 			{
 				IFCProperties build_props(IFCApi.getModelId(), IFCApi.getModelManager().get());
 				auto tree = build_props.createTreeNode(IFCApi.getModelId());
-				//create callback for tree 
-				ptr_ifc_file_context->initCallback(); 
+				//create callback for tree
+				ptr_ifc_file_context->initCallback();
 				/*BIND CALLBACK*/
-				element_tree->m_ToggleStateCallBack = ptr_ifc_file_context->m_Toggle_Component_Callback; 
-				element_tree->m_ToggleStateCallBackRecursively = ptr_ifc_file_context->m_Toggle_Components_Callback; 
+				element_tree->m_ToggleStateCallBack = ptr_ifc_file_context->m_Toggle_Component_Callback;
+				element_tree->m_ToggleStateCallBackRecursively = ptr_ifc_file_context->m_Toggle_Components_Callback;
 				element_tree->setData(std::move(tree));
 			}
 		}

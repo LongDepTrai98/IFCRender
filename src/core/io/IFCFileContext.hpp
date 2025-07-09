@@ -3,6 +3,7 @@
 #include "IFileContext.hpp"
 #include <vector>
 #include <functional>
+#include <unordered_set>
 namespace threepp
 {
 	class Object3D;
@@ -23,7 +24,7 @@ namespace dragon
 		IGeometryCache* getGeometryCache() override;
 		void handleRaycast(CustomRayCaster& RayCaster, threepp::Vector2& nor_mouse_pos) override;
 		void handleHoverResult(std::shared_ptr<threepp::Mesh>& object_hover) override;
-		void hideParts(const std::vector<uint32_t>& parts); 
+		void rebuildVisibleIndices(std::unordered_set<uint32_t> set_hides_offset); 
 	public:
 		void setRootObject(threepp::Object3D* root_mesh);
 		void initCallback(); 
@@ -31,7 +32,7 @@ namespace dragon
 		std::shared_ptr<std::function<void(const std::pair<int, ItemData*>&)>> m_Toggle_Component_Callback{ nullptr };
 		std::shared_ptr<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>> m_Toggle_Components_Callback{ nullptr };
 	private:
-		std::unique_ptr<IFCGeometryCache> m_Geometry_Offset_Cache{ nullptr };
+		std::unique_ptr<IFCGeometryCache> m_Geometries_Cache{ nullptr };
 		std::vector<threepp::Object3D*> m_Children_Objects{ nullptr };
 		std::shared_ptr<threepp::Material> m_Material_Hover{ nullptr };
 		int m_Current_ExpressID{ -1 };
