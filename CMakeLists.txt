@@ -85,6 +85,9 @@ source_group("view" FILES ${APP_VIEWPORT_SRC})
 #geometry 
 file(GLOB_RECURSE RAYCAST_SRC "src/raycast/*.cpp" "src/raycast/*.hpp")
 source_group("raycast" FILES ${RAYCAST_SRC})
+#tsl
+file(GLOB_RECURSE TSL_SRC "src/tsl/*.h")
+source_group("tsl" FILES ${TSL_SRC})
  
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
@@ -101,6 +104,7 @@ add_executable(${EDITOR_NAME_PROJECT}
 	${APP_RENDERER_SRC}
     ${APP_VIEWPORT_SRC}
     ${RAYCAST_SRC}
+    ${TSL_SRC}
 )
 
  #add include 

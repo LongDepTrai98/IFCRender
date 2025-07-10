@@ -16,8 +16,8 @@ namespace dragon
 		{
 			int begin_vertex_offset{ 0 };
 			int end_vertext_offset{ 0 };
-			int begin_indices_offset{ 0 }; 
-			int end_indices_offset{ 0 }; 
+			int begin_indices_offset{ 0 };
+			int end_indices_offset{ 0 };
 		};
 	public:
 		~IFCGeometryCache();

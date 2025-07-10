@@ -41,16 +41,49 @@ namespace dragon
 		MathHelper::convertFloatArr2DoubleArr(default_array, double_array);
 		m_ModelManager->GetGeometryProcessor(m_modelID)->SetTransformation(double_array);
 		loadAllGeometry(m_modelID);
-		auto size_t = geo_with_material.size();
 		std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{};
 		std::vector<std::shared_ptr<threepp::Material>> materials{};
 		for (auto& [hashColor, geo_with_mat] : geo_with_material)
 		{
-			std::shared_ptr<threepp::BufferGeometry> merged = threepp::mergeBufferGeometries(geo_with_mat.geometries);
+			/*CREATE DUNG INDEX*/
+			std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries_in_mat{};
+			for (auto& geometry_with_expressID : geo_with_mat.geometries)
+			{
+				index_offset++;
+				vertex_offset++;
+				auto begin_offset_index = index_offset;
+				auto begin_offset_vertex = vertex_offset;
+				uint32_t expressID = geometry_with_expressID.expressID;
+				geometries_in_mat.emplace_back(geometry_with_expressID.geometry);
+				size_t geometry_index_size = geometries_in_mat.back()->getIndex()->array().size();
+				index_offset += geometry_index_size - 1;
+				//position
+				auto geometry_vertex_size = geometries_in_mat.back()->getAttribute<float>("position")->array().size();
+				vertex_offset += geometry_vertex_size - 1;
+				auto end_offset_index = index_offset;
+				auto end_offset_vertex = vertex_offset;
+				spdlog::info("geo with expressID {} , begin index offset {} , end index offset {}", expressID, begin_offset_index, end_offset_index);
+				spdlog::info("geo with expressID {} , begin vertex offset {} , end vertex offset {}", expressID, begin_offset_vertex, end_offset_vertex);
+				if (geometry_offset_with_expressID.find(expressID) == geometry_offset_with_expressID.end())
+				{
+					std::vector<IFCGeometryCache::offset> offsets{};
+					geometry_offset_with_expressID.insert({ expressID,offsets });
+				}
+				geometry_offset_with_expressID[expressID].push_back({ begin_offset_vertex,end_offset_vertex,begin_offset_index,end_offset_index });
+			}
+			std::shared_ptr<threepp::BufferGeometry> merged = threepp::mergeBufferGeometries(geometries_in_mat);
 			geometries.emplace_back(merged);
 			materials.emplace_back(geo_with_mat.material);
 		}
 		std::shared_ptr<threepp::BufferGeometry> merged_all = threepp::mergeBufferGeometries(geometries, true);
+		if (index_offset != merged_all->getIndex()->array().size() - 1)
+		{
+			spdlog::error("index_offset diff mer_array_indices - 1 : {}, {}", index_offset, merged_all->getIndex()->array().size() - 1);
+		}
+		if (vertex_offset != merged_all->getAttribute<float>("position")->array().size() - 1)
+		{
+			spdlog::error("vertex_offset diff mer_vertex_offset - 1 : {}, {}", vertex_offset, merged_all->getAttribute<float>("position")->array().size() - 1);
+		}
 		std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(merged_all, materials);
 		mesh->matrixAutoUpdate = false;
 		container->add(mesh);
@@ -59,7 +92,7 @@ namespace dragon
 		std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
 		outline_material->color = threepp::Color::darkgray;
 		std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
-		//container->add(outlineEdge);
+		container->add(outlineEdge);
 		geometries.clear();
 		materials.clear();
 		return container;
@@ -139,6 +172,7 @@ namespace dragon
 
 	void WebIFCConverter::getPlacedGeometry(const uint32_t& modelId, const uint32_t& expressId, const webifc::geometry::IfcPlacedGeometry& placedGeometry)
 	{
+		spdlog::info("Create geo from placedGeometry with expressID {}", expressId);
 		auto& geometry = getBufferGeometry(modelId, placedGeometry);
 		auto vertexData = geometry.vertexData;
 		auto indices = geometry.indexData;
@@ -154,30 +188,17 @@ namespace dragon
 		{
 			/*POINT X*/
 			vertices[i / 2] = vertexData[i];
-			index_offset++;
-			if (!isFirstPoint)
-			{
-				index_indices++; 
-				geometry_offset.begin_vertex_offset = index_offset;
-				geometry_offset.begin_indices_offset = index_indices; 
-				isFirstPoint = true;
-			}
 			/*POINT Y*/
 			vertices[i / 2 + 1] = vertexData[i + 1];
-			index_offset++;
+			//index_offset++;
 			/*POINT Z*/
 			vertices[i / 2 + 2] = vertexData[i + 2];
-			index_offset++;
 			/*NORMAL POINT*/
 			normals[i / 2] = vertexData[i + 3];
 			normals[i / 2 + 1] = vertexData[i + 4];
 			normals[i / 2 + 2] = vertexData[i + 5];
 			idAttribute[i / 6] = expressId;
 		}
-		geometry_offset.end_vertext_offset = index_offset;
-		index_indices += indices.size() - 1; 
-		geometry_offset.end_indices_offset = index_indices; 
-		/*ADD OFFSET*/
 		auto placedColor = placedGeometry.color;
 		std::string str_hash_color = MathHelper::colorToHash(placedGeometry.color.x, placedColor.y, placedColor.z, placedColor.w);
 		if (geo_with_material.count(str_hash_color) == 0)
@@ -190,8 +211,8 @@ namespace dragon
 			material->side = threepp::Side::Double;
 			material->transparent = placedColor.w != 1.0;
 			if (material->transparent) material->opacity = placedColor.w;
-			std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries;
-			geo_with_material.insert({ str_hash_color,{material,geometries} });
+			std::vector<GeoWithExpressID> geometriesWithExpressID;
+			geo_with_material.insert({ str_hash_color,{material,geometriesWithExpressID} });
 		}
 		std::shared_ptr<threepp::BufferGeometry> buff_geometry = threepp::BufferGeometry::create();
 		buff_geometry->setIndex(indices);
@@ -200,9 +221,8 @@ namespace dragon
 		buff_geometry->setAttribute("expressID", threepp::IntBufferAttribute::create(idAttribute, 1));
 		std::array<float, 16> matrix_float{};
 		MathHelper::convertDoubleArr2FloatArr(placedGeometry.flatTransformation, matrix_float);
-		m_Geometry_Offset[expressId].emplace_back(geometry_offset);
 		buff_geometry->applyMatrix4(threepp::Matrix4(matrix_float));
-		geo_with_material[str_hash_color].geometries.emplace_back(buff_geometry);
+		geo_with_material[str_hash_color].geometries.push_back({ buff_geometry ,expressId });
 	}
 
 	webifc::geometry::IfcGeometry& WebIFCConverter::getBufferGeometry(const uint32_t& modelId, const webifc::geometry::IfcPlacedGeometry& placedGeometry)
@@ -224,7 +244,7 @@ namespace dragon
 
 	std::unordered_map<int, std::vector<IFCGeometryCache::offset>>& WebIFCConverter::getGeometryOffset()
 	{
-		return m_Geometry_Offset;
+		return geometry_offset_with_expressID;
 	}
 
 	void WebIFCConverter::streamAllMeshesWithTypes(const uint32_t& modelID, const std::vector<uint32_t>& types)

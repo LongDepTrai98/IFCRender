@@ -35,6 +35,7 @@ namespace dragon
 		std::unique_ptr<IFCGeometryCache> m_Geometries_Cache{ nullptr };
 		std::vector<threepp::Object3D*> m_Children_Objects{ nullptr };
 		std::shared_ptr<threepp::Material> m_Material_Hover{ nullptr };
+		std::vector<unsigned int> source_indices{}; 
 		int m_Current_ExpressID{ -1 };
 		int m_Old_ExpressID{ -1 };
 	};

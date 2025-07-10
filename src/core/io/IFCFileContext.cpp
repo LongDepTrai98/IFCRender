@@ -139,23 +139,16 @@ namespace dragon
 	{
 		std::vector<int> rebuild_indices{};
 		std::shared_ptr<threepp::BufferGeometry> root_geometry = m_Children_Objects[0]->geometry(); 
-		const std::vector<unsigned int>& source_indices = root_geometry->getIndex()->array(); 
 		std::set<std::pair<int, int>> offset_set; 
 		for (auto& [expressID, offsets] : m_Geometries_Cache->m_Geometry_Offset)
 		{
-			if (set_hides_offset.find(expressID) != set_hides_offset.end())
+			if (set_hides_offset.find(expressID) == set_hides_offset.end())
 			{
 				for (auto& offset : offsets)
 				{
-					//std::vector<int> destination_vector; 
 					int begin_offset = offset.begin_indices_offset; 
 					int end_offset = offset.end_indices_offset; 
 					offset_set.insert({ begin_offset,end_offset }); 
-					/*destination_vector.reserve(end_offset - begin_offset + 1); 
-					for (int i = begin_offset; i <= end_offset; ++i)
-					{
-						rebuild_indices.emplace_back(source_indices[i]);
-					}*/
 				}
 			}
 		}
@@ -163,10 +156,11 @@ namespace dragon
 		for (auto& [begin, end] : offset_set)
 		{
 			spdlog::info("Begin : {}, End : {}", begin,end);
-			for (int i = begin; i <= end; ++i)
-			{
-				rebuild_indices.emplace_back(source_indices[i]);
-			}
+			rebuild_indices.insert(
+				rebuild_indices.end(),
+				source_indices.begin() + begin,
+				source_indices.begin() + end + 1
+			);
 		}
 		root_geometry->setIndex(rebuild_indices); 
 	}
@@ -175,6 +169,8 @@ namespace dragon
 		std::vector<threepp::Object3D*> lstObject{};
 		lstObject.emplace_back(root_mesh);
 		m_Children_Objects = std::move(lstObject);
+		std::shared_ptr<threepp::BufferGeometry> root_geometry = m_Children_Objects[0]->geometry();
+		source_indices = root_geometry->getIndex()->array();
 	}
 	void IFCFileContext::initCallback()
 	{

@@ -88,9 +88,11 @@ namespace dragon
 		if (this->GetItemState(itemID) != parent_item_state)
 		{
 			DoSetItemState(itemID, parent_item_state);
-			ItemData* ptr_data = static_cast<ItemData*>(this->GetItemData(itemID));
-			itemsData.push_back({ this->GetItemState(itemID),ptr_data });
+			
 		}
+
+		ItemData* ptr_data = static_cast<ItemData*>(this->GetItemData(itemID));
+		itemsData.push_back({ this->GetItemState(itemID),ptr_data });
 
 		if (this->ItemHasChildren(itemID))
 		{

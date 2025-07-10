@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 #include "core/io/IFCGeometryCache.hpp"
+#include "tsl/ordered_map.h"
 namespace threepp
 {
 	class Group;
@@ -33,10 +34,16 @@ namespace dragon
 	class WebIFCConverter
 	{
 	public:
+		struct GeoWithExpressID
+		{
+			std::shared_ptr<threepp::BufferGeometry> geometry{ nullptr };
+			uint32_t expressID{ 0 };
+		};
 		struct GeoWithMaterial
 		{
 			std::shared_ptr<threepp::Material> material{ nullptr };
-			std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{};
+			//std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{};
+			std::vector<GeoWithExpressID> geometries{};
 		};
 	public:
 		WebIFCConverter();
@@ -65,9 +72,9 @@ namespace dragon
 		int m_modelID{ -1 };
 		bool m_bMT_ENABLE{ true };
 		std::unordered_map<std::string, GeoWithMaterial> geo_with_material{};
-		std::unordered_map<int, std::vector<IFCGeometryCache::offset>> m_Geometry_Offset{};
+		std::unordered_map<int, std::vector<IFCGeometryCache::offset>> geometry_offset_with_expressID{};
+		int vertex_offset{ -1 };
 		int index_offset{ -1 };
-		int index_indices{ -1 }; 
 	};
 }
 #endif // !_WEB_IFC_CONVERTER_HPP_
