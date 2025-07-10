@@ -8,7 +8,7 @@ namespace dragon
 		{
 		case TYPE::IFC:
 		{
-			return std::make_unique<IFCGeometryCache>();
+			return std::make_unique<IFCModelCache>();
 			break;
 		}
 		default:

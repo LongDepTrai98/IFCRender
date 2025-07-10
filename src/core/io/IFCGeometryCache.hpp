@@ -4,12 +4,18 @@
 #include <map>
 #include <vector>
 #include <unordered_map>
+#include "threepp/core/misc.hpp"
 namespace webifc::manager {
 	class ModelManager;
 }
+namespace threepp
+{
+	class Object3D;
+	class Material;
+}
 namespace dragon
 {
-	class IFCGeometryCache : public IGeometryCache
+	class IFCModelCache : public IGeometryCache
 	{
 	public:
 		struct offset
@@ -18,16 +24,19 @@ namespace dragon
 			int end_vertext_offset{ 0 };
 			int begin_indices_offset{ 0 };
 			int end_indices_offset{ 0 };
+			/*DRAW RANGE BEGIN, START, MATERIAL*/
+			threepp::GeometryGroup group{ 0,0,0 };
 		};
 	public:
-		~IFCGeometryCache();
-		IFCGeometryCache() = default;
+		~IFCModelCache();
+		IFCModelCache() = default;
 	public:
 		void clear() override;
 		void setModelManager(std::shared_ptr<webifc::manager::ModelManager> modelManager, const int& modelID);
 	public:
-		std::unordered_map<int, std::vector<IFCGeometryCache::offset>> m_Geometry_Offset{};
-	private:
+		std::unordered_map<int, std::vector<IFCModelCache::offset>> m_Geometry_Offset{};
+		threepp::Object3D* m_Object_Model{ nullptr };
+		std::vector<unsigned int> m_Object_indices{};
 		std::shared_ptr<webifc::manager::ModelManager> m_ModelManager{ nullptr };
 		int m_modelID{ -1 };
 	};

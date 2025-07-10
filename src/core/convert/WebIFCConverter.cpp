@@ -43,13 +43,22 @@ namespace dragon
 		loadAllGeometry(m_modelID);
 		std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{};
 		std::vector<std::shared_ptr<threepp::Material>> materials{};
+		int material_index{ 0 };
+		int drawRange_begin{ 0 }; 
+		int drawRange_end{ 0 }; 
 		for (auto& [hashColor, geo_with_mat] : geo_with_material)
 		{
 			/*CREATE DUNG INDEX*/
 			std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries_in_mat{};
+			bool isFirstGeo{ false }; 
 			for (auto& geometry_with_expressID : geo_with_mat.geometries)
 			{
 				index_offset++;
+				if (!isFirstGeo)
+				{
+
+				}
+
 				vertex_offset++;
 				auto begin_offset_index = index_offset;
 				auto begin_offset_vertex = vertex_offset;
@@ -66,7 +75,7 @@ namespace dragon
 				spdlog::info("geo with expressID {} , begin vertex offset {} , end vertex offset {}", expressID, begin_offset_vertex, end_offset_vertex);
 				if (geometry_offset_with_expressID.find(expressID) == geometry_offset_with_expressID.end())
 				{
-					std::vector<IFCGeometryCache::offset> offsets{};
+					std::vector<IFCModelCache::offset> offsets{};
 					geometry_offset_with_expressID.insert({ expressID,offsets });
 				}
 				geometry_offset_with_expressID[expressID].push_back({ begin_offset_vertex,end_offset_vertex,begin_offset_index,end_offset_index });
@@ -84,6 +93,7 @@ namespace dragon
 		{
 			spdlog::error("vertex_offset diff mer_vertex_offset - 1 : {}, {}", vertex_offset, merged_all->getAttribute<float>("position")->array().size() - 1);
 		}
+		auto groups = merged_all->groups; 
 		std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(merged_all, materials);
 		mesh->matrixAutoUpdate = false;
 		container->add(mesh);
@@ -182,7 +192,6 @@ namespace dragon
 		std::vector<float> vertices(vertices_size);
 		std::vector<float> normals(normals_size);
 		std::vector<uint32_t> idAttribute(attribute_size);
-		IFCGeometryCache::offset geometry_offset{};
 		bool isFirstPoint{ false };
 		for (int i = 0; i < vertexData.size(); i += 6)
 		{
@@ -242,7 +251,7 @@ namespace dragon
 		return m_modelID;
 	}
 
-	std::unordered_map<int, std::vector<IFCGeometryCache::offset>>& WebIFCConverter::getGeometryOffset()
+	std::unordered_map<int, std::vector<IFCModelCache::offset>>& WebIFCConverter::getGeometryOffset()
 	{
 		return geometry_offset_with_expressID;
 	}

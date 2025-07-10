@@ -8,12 +8,12 @@ namespace dragon
 		{
 		case dragon::FileContextFactory::IFC:
 		{
-			return std::make_unique<IFCFileContext>(); 
+			return std::make_unique<IFCFileContext>();
 			break;
 		}
 		default:
 			break;
 		}
-		return nullptr; 
+		return nullptr;
 	}
 }

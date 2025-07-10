@@ -40,13 +40,16 @@ namespace dragon
 		/*COPY DATA*/
 		std::unique_ptr<IFileContext> file_context = FileContextFactory::create(FileContextFactory::type::IFC);
 		auto ptr_ifc_file_context = static_cast<IFCFileContext*>(file_context.get());
-		auto ptr_ifc_offset_cache = static_cast<IFCGeometryCache*>(file_context->getGeometryCache());
+		auto ptr_ifc_offset_cache = ptr_ifc_file_context->getModelCache();
 		ptr_ifc_offset_cache->setModelManager(IFCApi.getModelManager(), IFCApi.getModelId());
-		ptr_ifc_offset_cache->m_Geometry_Offset = IFCApi.getGeometryOffset();
 		if (file_context)
 		{
 			main_viewport->setFileContext(std::move(file_context));
-			ptr_ifc_file_context->setRootObject(group->children[0]);
+			ptr_ifc_offset_cache->m_Object_Model = group->children[0];
+			std::shared_ptr<threepp::BufferGeometry> root_geometry = group->children[0]->geometry();
+			//ptr_ifc_file_context->setRootObject(group->children[0]);
+			ptr_ifc_offset_cache->m_Object_indices = root_geometry->getIndex()->array();
+			ptr_ifc_offset_cache->m_Geometry_Offset = IFCApi.getGeometryOffset();
 		}
 		main_viewport->clearScene();
 		main_viewport->buildBVH(group->children[0]->geometry().get());

@@ -6,7 +6,7 @@ namespace dragon
 	void SceneBuilder::IFCBuildScene(threepp::Group* container, threepp::Scene* scene, threepp::Camera* camera)
 	{
 		/*BUILD LIGHT*/
-		std::shared_ptr<threepp::AmbientLight> a_light = threepp::AmbientLight::create(0xffffee, 0.25);
+		std::shared_ptr<threepp::AmbientLight> a_light = threepp::AmbientLight::create(0xffffee, 0.4);
 		scene->add(a_light);
 		std::shared_ptr<threepp::Light> directionalLight1 = threepp::DirectionalLight::create(0xffeeff, 0.8);
 		directionalLight1->position.set(1, 1, 1);

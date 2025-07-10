@@ -16,7 +16,7 @@ namespace dragon
 {
 	IFCFileContext::IFCFileContext()
 	{
-		m_Geometries_Cache = std::make_unique<IFCGeometryCache>();
+		m_Model = std::make_unique<IFCModelCache>();
 		/*INIT MATERIAL HOVER*/
 		if (!m_Material_Hover)
 		{
@@ -30,13 +30,7 @@ namespace dragon
 	}
 	IFCFileContext::~IFCFileContext()
 	{
-		m_Children_Objects.clear();
-		if (m_Geometries_Cache)
-		{
-			m_Geometries_Cache->clear();
-			m_Geometries_Cache.reset();
-			m_Geometries_Cache = nullptr;
-		}
+		m_Model->clear();
 		m_Toggle_Component_Callback = nullptr;
 		m_Toggle_Components_Callback = nullptr;
 	}
@@ -44,14 +38,14 @@ namespace dragon
 	{
 		return std::string("IFC");
 	}
-	IGeometryCache* IFCFileContext::getGeometryCache()
+	IFCModelCache* IFCFileContext::getModelCache()
 	{
-		return m_Geometries_Cache.get();
+		return m_Model.get();
 	}
 	void IFCFileContext::handleRaycast(CustomRayCaster& RayCaster, threepp::Vector2& nor_mouse_pos)
 	{
 		if (!m_bIsEnableHover) return;
-		if (!m_Children_Objects.empty())
+		if (!m_Model->m_Object_Model)
 		{
 			CustomRayCaster::Result result;
 			bool hit = RayCaster.intersectObjects(result);
@@ -61,7 +55,7 @@ namespace dragon
 				const int& index_face_a = 3 * prim_id;
 				const int& index_face_b = 3 * prim_id + 1;
 				const int& index_face_c = 3 * prim_id + 2;
-				auto obj_geometry = m_Children_Objects[0]->geometry();
+				auto obj_geometry = m_Model->m_Object_Model->geometry();
 				const int& a = obj_geometry->getIndex()->array()[index_face_a];
 				auto attribute_expressid = obj_geometry->getAttribute<unsigned int>("expressID");
 				auto& arr = attribute_expressid->array();
@@ -91,8 +85,6 @@ namespace dragon
 				{
 					object_hover->visible = true;
 				}
-				IFCGeometryCache* geo_cache = static_cast<IFCGeometryCache*>(m_Geometries_Cache.get());
-				if (!geo_cache) return;
 				/*auto& data_offset = geo_cache->getDataOffset();
 				auto it = data_offset.find(m_Current_ExpressID);
 				if (it == data_offset.end()) return;
@@ -116,62 +108,55 @@ namespace dragon
 		}
 	}
 
-		static void copy_index_range(
-			std::vector<int>& destination,
-			const std::vector<unsigned int>& source,
-			int begin_offset,
-			int end_offset_inclusive
-		) {
-			if (begin_offset < 0 || begin_offset >= (int)source.size()) {
-				throw std::out_of_range("copy_index_range: begin_offset out of range");
-			}
+	static void copy_index_range(
+		std::vector<int>& destination,
+		const std::vector<unsigned int>& source,
+		int begin_offset,
+		int end_offset_inclusive
+	) {
+		if (begin_offset < 0 || begin_offset >= (int)source.size()) {
+			throw std::out_of_range("copy_index_range: begin_offset out of range");
+		}
 
-			if (end_offset_inclusive < begin_offset || end_offset_inclusive >= (int)source.size()) {
-				throw std::out_of_range("copy_index_range: end_offset_inclusive out of range");
-			}
+		if (end_offset_inclusive < begin_offset || end_offset_inclusive >= (int)source.size()) {
+			throw std::out_of_range("copy_index_range: end_offset_inclusive out of range");
+		}
 
-			auto start_it = source.begin() + begin_offset;
-			auto end_it = source.begin() + end_offset_inclusive + 1; // end is inclusive → +1 (safe: can be == end())
-			destination.insert(destination.end(), start_it, end_it); 
+		auto start_it = source.begin() + begin_offset;
+		auto end_it = source.begin() + end_offset_inclusive + 1; // end is inclusive → +1 (safe: can be == end())
+		destination.insert(destination.end(), start_it, end_it);
 	}
 
 	void IFCFileContext::rebuildVisibleIndices(std::unordered_set<uint32_t> set_hides_offset)
 	{
 		std::vector<int> rebuild_indices{};
-		std::shared_ptr<threepp::BufferGeometry> root_geometry = m_Children_Objects[0]->geometry(); 
-		std::set<std::pair<int, int>> offset_set; 
-		for (auto& [expressID, offsets] : m_Geometries_Cache->m_Geometry_Offset)
+		std::shared_ptr<threepp::BufferGeometry> root_geometry = m_Model->m_Object_Model->geometry();
+		std::set<std::pair<int, int>> offset_set;
+		for (auto& [expressID, offsets] : m_Model->m_Geometry_Offset)
 		{
 			if (set_hides_offset.find(expressID) == set_hides_offset.end())
 			{
 				for (auto& offset : offsets)
 				{
-					int begin_offset = offset.begin_indices_offset; 
-					int end_offset = offset.end_indices_offset; 
-					offset_set.insert({ begin_offset,end_offset }); 
+					int begin_offset = offset.begin_indices_offset;
+					int end_offset = offset.end_indices_offset;
+					offset_set.insert({ begin_offset,end_offset });
 				}
 			}
 		}
-		//update indices 
+		//update indices
 		for (auto& [begin, end] : offset_set)
 		{
-			spdlog::info("Begin : {}, End : {}", begin,end);
+			spdlog::info("Begin : {}, End : {}", begin, end);
 			rebuild_indices.insert(
 				rebuild_indices.end(),
-				source_indices.begin() + begin,
-				source_indices.begin() + end + 1
+				m_Model->m_Object_indices.begin() + begin,
+				m_Model->m_Object_indices.begin() + end + 1
 			);
 		}
-		root_geometry->setIndex(rebuild_indices); 
+		root_geometry->setIndex(rebuild_indices);
 	}
-	void IFCFileContext::setRootObject(threepp::Object3D* root_mesh)
-	{
-		std::vector<threepp::Object3D*> lstObject{};
-		lstObject.emplace_back(root_mesh);
-		m_Children_Objects = std::move(lstObject);
-		std::shared_ptr<threepp::BufferGeometry> root_geometry = m_Children_Objects[0]->geometry();
-		source_indices = root_geometry->getIndex()->array();
-	}
+
 	void IFCFileContext::initCallback()
 	{
 		auto lambda_toggle_component_callback = [&](const std::pair<int, ItemData*>& entity)
@@ -180,20 +165,20 @@ namespace dragon
 			};
 		auto lambda_toggle_componenents_callback = [&](const std::vector<std::pair<int, ItemData*>>& entities)
 			{
-				std::unordered_set<uint32_t> set_hide_items{}; 
+				std::unordered_set<uint32_t> set_hide_items{};
 				for (auto& [state, item_data] : entities)
 				{
 					if (!state)
 					{
-						const int& expressID = *std::get<int*>(item_data->GetData()); 
-						if (m_Geometries_Cache->m_Geometry_Offset.find(expressID) != m_Geometries_Cache->m_Geometry_Offset.end())
+						const int& expressID = *std::get<int*>(item_data->GetData());
+						if (m_Model->m_Geometry_Offset.find(expressID) != m_Model->m_Geometry_Offset.end())
 						{
 							set_hide_items.insert({ (uint32_t)expressID });
 						}
 					}
 				}
-				//rebuild indices 
-				rebuildVisibleIndices(std::move(set_hide_items)); 
+				//rebuild indices
+				rebuildVisibleIndices(std::move(set_hide_items));
 			};
 		m_Toggle_Component_Callback = std::make_shared<std::function<void(const std::pair<int, ItemData*>&)>>(lambda_toggle_component_callback);
 		m_Toggle_Components_Callback = std::make_shared<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>>(lambda_toggle_componenents_callback);

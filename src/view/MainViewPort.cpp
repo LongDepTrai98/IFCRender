@@ -30,7 +30,7 @@ namespace dragon
 	{
 		if (!m_Scene)
 			m_Scene = std::make_unique<threepp::Scene>();
-		m_Scene->background = threepp::Color::aliceblue;
+		m_Scene->background = 0x2A2A2A;
 	}
 	void MainViewPort::initRayCaster()
 	{

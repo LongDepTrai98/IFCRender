@@ -11,9 +11,9 @@ namespace threepp
 }
 namespace dragon
 {
-	class IGeometryCache;
+	class IFCModelCache;
 	class IFCGeometryCache;
-	class ItemData; 
+	class ItemData;
 	class IFCFileContext : public IFileContext
 	{
 	public:
@@ -21,21 +21,20 @@ namespace dragon
 		~IFCFileContext();
 	public:
 		std::string getFileType() override;
-		IGeometryCache* getGeometryCache() override;
+		IFCModelCache* getModelCache();
 		void handleRaycast(CustomRayCaster& RayCaster, threepp::Vector2& nor_mouse_pos) override;
 		void handleHoverResult(std::shared_ptr<threepp::Mesh>& object_hover) override;
-		void rebuildVisibleIndices(std::unordered_set<uint32_t> set_hides_offset); 
+		void rebuildVisibleIndices(std::unordered_set<uint32_t> set_hides_offset);
 	public:
-		void setRootObject(threepp::Object3D* root_mesh);
-		void initCallback(); 
-	public: 
+		void initCallback();
+	public:
 		std::shared_ptr<std::function<void(const std::pair<int, ItemData*>&)>> m_Toggle_Component_Callback{ nullptr };
 		std::shared_ptr<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>> m_Toggle_Components_Callback{ nullptr };
 	private:
-		std::unique_ptr<IFCGeometryCache> m_Geometries_Cache{ nullptr };
-		std::vector<threepp::Object3D*> m_Children_Objects{ nullptr };
+		std::unique_ptr<IFCModelCache> m_Model{ nullptr };
+		//std::vector<threepp::Object3D*> m_Children_Objects{ nullptr };
 		std::shared_ptr<threepp::Material> m_Material_Hover{ nullptr };
-		std::vector<unsigned int> source_indices{}; 
+		//std::vector<unsigned int> source_indices{};
 		int m_Current_ExpressID{ -1 };
 		int m_Old_ExpressID{ -1 };
 	};

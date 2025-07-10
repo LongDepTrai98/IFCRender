@@ -2,15 +2,18 @@
 #include "web-ifc/modelmanager/ModelManager.h"
 namespace dragon
 {
-	IFCGeometryCache::~IFCGeometryCache()
+	IFCModelCache::~IFCModelCache()
+	{
+	}
+	void IFCModelCache::clear()
 	{
 		m_ModelManager->CloseAllModels();
+		m_Geometry_Offset.clear();
+		m_Object_indices.clear();
+		m_Object_Model = nullptr;
+		m_ModelManager = nullptr;
 	}
-	void IFCGeometryCache::clear()
-	{
-		m_ModelManager->CloseAllModels();
-	}
-	void IFCGeometryCache::setModelManager(std::shared_ptr<webifc::manager::ModelManager> modelManager, const int& modelID)
+	void IFCModelCache::setModelManager(std::shared_ptr<webifc::manager::ModelManager> modelManager, const int& modelID)
 	{
 		m_modelID = modelID;
 		m_ModelManager = modelManager;

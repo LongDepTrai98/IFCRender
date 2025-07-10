@@ -5,7 +5,6 @@ namespace dragon::app_config
 	constexpr const char* app_name = "Dragon";
 	constexpr const int num_sampler = 8;
 	constexpr const bool enable_msaa = true;
-
 }
 namespace dragon::component_id
 {
