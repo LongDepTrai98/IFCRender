@@ -27,6 +27,13 @@ namespace dragon
 			/*DRAW RANGE BEGIN, START, MATERIAL*/
 			int material_index{ 0 }; 
 			int state{ 0 };
+			std::shared_ptr<threepp::BufferGeometry> buffGeo{ nullptr }; 
+		};
+		struct element
+		{
+			/*AUTO SHOW*/
+			int state{ 1 }; 
+			std::vector<IFCModelCache::offset> offsets{}; 
 		};
 	public:
 		~IFCModelCache();
@@ -35,7 +42,7 @@ namespace dragon
 		void clear() override;
 		void setModelManager(std::shared_ptr<webifc::manager::ModelManager> modelManager, const int& modelID);
 	public:
-		std::unordered_map<int, std::vector<IFCModelCache::offset>> m_Geometry_Offset{};
+		std::unordered_map<int, element> m_Geometry_Offset{};
 		threepp::Object3D* m_Object_Model{ nullptr };
 		std::vector<unsigned int> m_Object_Indices{};
 		std::shared_ptr<webifc::manager::ModelManager> m_ModelManager{ nullptr };

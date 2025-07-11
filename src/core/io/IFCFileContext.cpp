@@ -112,12 +112,41 @@ namespace dragon
 	{
 		std::vector<int> rebuild_indices{};
 		std::shared_ptr<threepp::BufferGeometry> root_geometry = m_Model->m_Object_Model->geometry();
-		std::unordered_map<int,std::vector<std::pair<int,int>>> offset_set;
-		for (auto& [expressID, offsets] : m_Model->m_Geometry_Offset)
+		std::map<int,std::set<std::pair<int,int>>> offset_set;
+		for (auto& [expressID, element] : m_Model->m_Geometry_Offset)
 		{
-			if (set_hides_offset.find(expressID) == set_hides_offset.end())
+			/*SHOW ELEMENT*/
+			if (element.state == 1)
 			{
-				for (auto& offset : offsets)
+				for (auto& offset : element.offsets)
+				{
+					int begin_offset = offset.begin_indices_offset;
+					int end_offset = offset.end_indices_offset;
+					const int& index_material = offset.material_index;
+					std::pair<int, int> pair = { begin_offset,end_offset };
+					offset_set[index_material].insert(pair);
+				}
+			}
+			else
+			{
+				spdlog::error("none draw with expressID : {}", expressID); 
+				for (auto& offset : element.offsets)
+				{
+					const int& index_material = offset.material_index;
+					spdlog::info("Mat index : {}", index_material); 
+				}
+				/*for (auto& offset : element.offsets)
+				{
+					int begin_offset = offset.begin_indices_offset;
+					int end_offset = offset.end_indices_offset;
+					const int& index_material = offset.material_index;
+					std::pair<int, int> pair = { begin_offset,end_offset };
+					offset_set[index_material].insert(pair);
+				}*/
+			}
+			/*if (set_hides_offset.find(expressID) == set_hides_offset.end())
+			{
+				for (auto& offset : element.offsets)
 				{
 					int begin_offset = offset.begin_indices_offset;
 					int end_offset = offset.end_indices_offset;
@@ -125,11 +154,12 @@ namespace dragon
 					std::pair<int,int> pair = { begin_offset,end_offset }; 
 					offset_set[index_material].emplace_back(pair);
 				}
-			}
+			}*/
 		}
 		//update indices
 		int index_offset{ 0 }; 
 		std::vector<threepp::GeometryGroup> groups;
+		std::vector<std::shared_ptr<threepp::Material>> mats; 
 		int start = 0; 
 		for (int i = 0; i < m_Model->m_Object_Materials.size(); ++i)
 		{
@@ -138,9 +168,11 @@ namespace dragon
 			group.start = start; 
 			group.materialIndex = i; 
 			auto& set = offset_set[i];
-			std::sort(set.begin(), set.end(), [](const auto& a, const auto& b) {
+			if (set.size() == 0)
+				continue; 
+			/*std::sort(set.begin(), set.end(), [](const auto& a, const auto& b) {
 				return a.first < b.first;
-				});
+				});*/
 			for (auto& [begin, end] : set)
 			{
 				count += (end - begin) + 1; 
@@ -153,32 +185,45 @@ namespace dragon
 			group.count = count; 
 			start += count; 
 			groups.emplace_back(group); 
+			mats.emplace_back(m_Model->m_Object_Materials[i]);
 		}
+		spdlog::info("indices {}",rebuild_indices.size());
 		/*UPDATE GROUP*/
+		root_geometry->getIndex()->array().clear();
+		root_geometry->setIndex(rebuild_indices);
+		root_geometry->getIndex()->needsUpdate();
 		root_geometry->clearGroups();
 		root_geometry->groups = groups;
-		root_geometry->setIndex(rebuild_indices);
+		root_geometry->computeBoundingBox();
+		root_geometry->computeBoundingSphere();
+		//update materials 
 	}
 
 	void IFCFileContext::initCallback()
 	{
 		auto lambda_toggle_component_callback = [&](const std::pair<int, ItemData*>& entity)
 			{
-				spdlog::info("callback ifc file context run : {}", entity.first);
+				//spdlog::info("callback ifc file context run : {}", entity.first);
 			};
 		auto lambda_toggle_componenents_callback = [&](const std::vector<std::pair<int, ItemData*>>& entities)
 			{
 				std::unordered_set<uint32_t> set_hide_items{};
 				for (auto& [state, item_data] : entities)
 				{
-					if (!state)
+					const int& expressID = *std::get<int*>(item_data->GetData());
+					if (m_Model->m_Geometry_Offset.find(expressID) != m_Model->m_Geometry_Offset.end())
 					{
-						const int& expressID = *std::get<int*>(item_data->GetData());
-						if (m_Model->m_Geometry_Offset.find(expressID) != m_Model->m_Geometry_Offset.end())
-						{
-							set_hide_items.insert({ (uint32_t)expressID });
-						}
+						m_Model->m_Geometry_Offset[expressID].state = state; 
 					}
+					//if (!state)
+					//{
+					//	//m_Model->m_Geometry_Offset
+					//	/*if (m_Model->m_Geometry_Offset.find(expressID) != m_Model->m_Geometry_Offset.end())
+					//	{
+					//		set_hide_items.insert({ (uint32_t)expressID });
+					//	}*/
+					//	
+					//}
 				}
 				//rebuild indices
 				rebuildVisibleIndices(std::move(set_hide_items));

@@ -48,7 +48,6 @@ namespace dragon
 		{
 			/*CREATE DUNG INDEX*/
 			std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries_in_mat{};
-			bool isFirstGeo{ false }; 
 			for (auto& geometry_with_expressID : geo_with_mat.geometries)
 			{
 				index_offset++;
@@ -69,14 +68,16 @@ namespace dragon
 				spdlog::info("geo with expressID {} , material index {}", expressID, material_index);
 				if (geometry_offset_with_expressID.find(expressID) == geometry_offset_with_expressID.end())
 				{
-					std::vector<IFCModelCache::offset> offsets{};
-					geometry_offset_with_expressID.insert({ expressID,offsets });
+					IFCModelCache::element element; 
+					element.state = 1; 
+					geometry_offset_with_expressID.insert({ expressID,element });
 				}
-				geometry_offset_with_expressID[expressID].push_back({ begin_offset_vertex,
+				geometry_offset_with_expressID[expressID].offsets.push_back({ begin_offset_vertex,
 					end_offset_vertex,
 					begin_offset_index,
 					end_offset_index,
-					material_index
+					material_index, 
+					1
 				});
 			}
 			std::shared_ptr<threepp::BufferGeometry> merged = threepp::mergeBufferGeometries(geometries_in_mat);
@@ -93,7 +94,7 @@ namespace dragon
 		{
 			spdlog::error("vertex_offset diff mer_vertex_offset - 1 : {}, {}", vertex_offset, merged_all->getAttribute<float>("position")->array().size() - 1);
 		}
-		auto groups = merged_all->groups; 
+
 		std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(merged_all, materials);
 		mesh->matrixAutoUpdate = false;
 		container->add(mesh);
@@ -251,7 +252,7 @@ namespace dragon
 		return m_modelID;
 	}
 
-	std::unordered_map<int, std::vector<IFCModelCache::offset>>& WebIFCConverter::getGeometryOffset()
+	std::unordered_map<int, IFCModelCache::element>& WebIFCConverter::getGeometryOffset()
 	{
 		return geometry_offset_with_expressID;
 	}

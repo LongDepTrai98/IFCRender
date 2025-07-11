@@ -76,7 +76,16 @@ namespace dragon
 			std::vector<std::pair<int, ItemData*>> itemsData{};
 			ItemData* ptr_data = static_cast<ItemData*>(this->GetItemData(itemId));
 			itemsData.push_back({ this->GetItemState(itemId),ptr_data });
-			RecursiveChildItems(itemId,this->GetItemState(itemId),itemsData); 
+			if (this->ItemHasChildren(itemId))
+			{
+				wxTreeItemIdValue cookie;
+				wxTreeItemId firstChild = this->GetFirstChild(itemId, cookie);
+				while (firstChild.IsOk())
+				{
+					RecursiveChildItems(firstChild, this->GetItemState(itemId), itemsData);
+					firstChild = this->GetNextChild(firstChild, cookie);
+				}
+			}
 			if (m_ToggleStateCallBackRecursively)
 				(*m_ToggleStateCallBackRecursively)(itemsData); 
 		}
@@ -88,7 +97,6 @@ namespace dragon
 		if (this->GetItemState(itemID) != parent_item_state)
 		{
 			DoSetItemState(itemID, parent_item_state);
-			
 		}
 
 		ItemData* ptr_data = static_cast<ItemData*>(this->GetItemData(itemID));
@@ -97,7 +105,6 @@ namespace dragon
 		if (this->ItemHasChildren(itemID))
 		{
 			//toggle state all child items
-			wxString text = this->GetItemText(itemID);
 			wxTreeItemIdValue cookie;
 			wxTreeItemId firstChild = this->GetFirstChild(itemID, cookie);
 			while (firstChild.IsOk())
