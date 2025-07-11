@@ -76,7 +76,7 @@ namespace dragon
 					end_offset_vertex,
 					begin_offset_index,
 					end_offset_index,
-					threepp::GeometryGroup(begin_offset_index,end_offset_index,material_index)
+					material_index
 				});
 			}
 			std::shared_ptr<threepp::BufferGeometry> merged = threepp::mergeBufferGeometries(geometries_in_mat);

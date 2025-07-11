@@ -25,7 +25,8 @@ namespace dragon
 			int begin_indices_offset{ 0 };
 			int end_indices_offset{ 0 };
 			/*DRAW RANGE BEGIN, START, MATERIAL*/
-			threepp::GeometryGroup group{ 0,0,0 };
+			int material_index{ 0 }; 
+			int state{ 0 };
 		};
 	public:
 		~IFCModelCache();

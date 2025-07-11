@@ -121,7 +121,7 @@ namespace dragon
 				{
 					int begin_offset = offset.begin_indices_offset;
 					int end_offset = offset.end_indices_offset;
-					const int& index_material = offset.group.materialIndex; 
+					const int& index_material = offset.material_index; 
 					std::pair<int,int> pair = { begin_offset,end_offset }; 
 					offset_set[index_material].emplace_back(pair);
 				}
