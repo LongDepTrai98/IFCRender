@@ -9,7 +9,8 @@ namespace dragon
 	{
 		m_ModelManager->CloseAllModels();
 		m_Geometry_Offset.clear();
-		m_Object_indices.clear();
+		m_Object_Indices.clear();
+		m_Object_Materials.clear(); 
 		m_Object_Model = nullptr;
 		m_ModelManager = nullptr;
 	}

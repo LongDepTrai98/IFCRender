@@ -108,30 +108,11 @@ namespace dragon
 		}
 	}
 
-	static void copy_index_range(
-		std::vector<int>& destination,
-		const std::vector<unsigned int>& source,
-		int begin_offset,
-		int end_offset_inclusive
-	) {
-		if (begin_offset < 0 || begin_offset >= (int)source.size()) {
-			throw std::out_of_range("copy_index_range: begin_offset out of range");
-		}
-
-		if (end_offset_inclusive < begin_offset || end_offset_inclusive >= (int)source.size()) {
-			throw std::out_of_range("copy_index_range: end_offset_inclusive out of range");
-		}
-
-		auto start_it = source.begin() + begin_offset;
-		auto end_it = source.begin() + end_offset_inclusive + 1; // end is inclusive → +1 (safe: can be == end())
-		destination.insert(destination.end(), start_it, end_it);
-	}
-
 	void IFCFileContext::rebuildVisibleIndices(std::unordered_set<uint32_t> set_hides_offset)
 	{
 		std::vector<int> rebuild_indices{};
 		std::shared_ptr<threepp::BufferGeometry> root_geometry = m_Model->m_Object_Model->geometry();
-		std::set<std::pair<int, int>> offset_set;
+		std::unordered_map<int,std::vector<std::pair<int,int>>> offset_set;
 		for (auto& [expressID, offsets] : m_Model->m_Geometry_Offset)
 		{
 			if (set_hides_offset.find(expressID) == set_hides_offset.end())
@@ -140,20 +121,42 @@ namespace dragon
 				{
 					int begin_offset = offset.begin_indices_offset;
 					int end_offset = offset.end_indices_offset;
-					offset_set.insert({ begin_offset,end_offset });
+					const int& index_material = offset.group.materialIndex; 
+					std::pair<int,int> pair = { begin_offset,end_offset }; 
+					offset_set[index_material].emplace_back(pair);
 				}
 			}
 		}
 		//update indices
-		for (auto& [begin, end] : offset_set)
+		int index_offset{ 0 }; 
+		std::vector<threepp::GeometryGroup> groups;
+		int start = 0; 
+		for (int i = 0; i < m_Model->m_Object_Materials.size(); ++i)
 		{
-			spdlog::info("Begin : {}, End : {}", begin, end);
-			rebuild_indices.insert(
-				rebuild_indices.end(),
-				m_Model->m_Object_indices.begin() + begin,
-				m_Model->m_Object_indices.begin() + end + 1
-			);
+			int count{ 0 }; 
+			threepp::GeometryGroup group;
+			group.start = start; 
+			group.materialIndex = i; 
+			auto& set = offset_set[i];
+			std::sort(set.begin(), set.end(), [](const auto& a, const auto& b) {
+				return a.first < b.first;
+				});
+			for (auto& [begin, end] : set)
+			{
+				count += (end - begin) + 1; 
+				rebuild_indices.insert(
+					rebuild_indices.end(),
+					m_Model->m_Object_Indices.begin() + begin,
+					m_Model->m_Object_Indices.begin() + end + 1
+				);
+			}
+			group.count = count; 
+			start += count; 
+			groups.emplace_back(group); 
 		}
+		/*UPDATE GROUP*/
+		root_geometry->clearGroups();
+		root_geometry->groups = groups;
 		root_geometry->setIndex(rebuild_indices);
 	}
 

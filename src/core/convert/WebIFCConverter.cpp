@@ -43,9 +43,7 @@ namespace dragon
 		loadAllGeometry(m_modelID);
 		std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{};
 		std::vector<std::shared_ptr<threepp::Material>> materials{};
-		int material_index{ 0 };
-		int drawRange_begin{ 0 }; 
-		int drawRange_end{ 0 }; 
+		int material_index{ 0 }; 
 		for (auto& [hashColor, geo_with_mat] : geo_with_material)
 		{
 			/*CREATE DUNG INDEX*/
@@ -54,11 +52,6 @@ namespace dragon
 			for (auto& geometry_with_expressID : geo_with_mat.geometries)
 			{
 				index_offset++;
-				if (!isFirstGeo)
-				{
-
-				}
-
 				vertex_offset++;
 				auto begin_offset_index = index_offset;
 				auto begin_offset_vertex = vertex_offset;
@@ -73,16 +66,23 @@ namespace dragon
 				auto end_offset_vertex = vertex_offset;
 				spdlog::info("geo with expressID {} , begin index offset {} , end index offset {}", expressID, begin_offset_index, end_offset_index);
 				spdlog::info("geo with expressID {} , begin vertex offset {} , end vertex offset {}", expressID, begin_offset_vertex, end_offset_vertex);
+				spdlog::info("geo with expressID {} , material index {}", expressID, material_index);
 				if (geometry_offset_with_expressID.find(expressID) == geometry_offset_with_expressID.end())
 				{
 					std::vector<IFCModelCache::offset> offsets{};
 					geometry_offset_with_expressID.insert({ expressID,offsets });
 				}
-				geometry_offset_with_expressID[expressID].push_back({ begin_offset_vertex,end_offset_vertex,begin_offset_index,end_offset_index });
+				geometry_offset_with_expressID[expressID].push_back({ begin_offset_vertex,
+					end_offset_vertex,
+					begin_offset_index,
+					end_offset_index,
+					threepp::GeometryGroup(begin_offset_index,end_offset_index,material_index)
+				});
 			}
 			std::shared_ptr<threepp::BufferGeometry> merged = threepp::mergeBufferGeometries(geometries_in_mat);
 			geometries.emplace_back(merged);
 			materials.emplace_back(geo_with_mat.material);
+			material_index++; 
 		}
 		std::shared_ptr<threepp::BufferGeometry> merged_all = threepp::mergeBufferGeometries(geometries, true);
 		if (index_offset != merged_all->getIndex()->array().size() - 1)

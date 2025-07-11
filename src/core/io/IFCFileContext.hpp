@@ -32,9 +32,7 @@ namespace dragon
 		std::shared_ptr<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>> m_Toggle_Components_Callback{ nullptr };
 	private:
 		std::unique_ptr<IFCModelCache> m_Model{ nullptr };
-		//std::vector<threepp::Object3D*> m_Children_Objects{ nullptr };
 		std::shared_ptr<threepp::Material> m_Material_Hover{ nullptr };
-		//std::vector<unsigned int> source_indices{};
 		int m_Current_ExpressID{ -1 };
 		int m_Old_ExpressID{ -1 };
 	};

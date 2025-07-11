@@ -48,8 +48,9 @@ namespace dragon
 			ptr_ifc_offset_cache->m_Object_Model = group->children[0];
 			std::shared_ptr<threepp::BufferGeometry> root_geometry = group->children[0]->geometry();
 			//ptr_ifc_file_context->setRootObject(group->children[0]);
-			ptr_ifc_offset_cache->m_Object_indices = root_geometry->getIndex()->array();
+			ptr_ifc_offset_cache->m_Object_Indices = root_geometry->getIndex()->array();
 			ptr_ifc_offset_cache->m_Geometry_Offset = IFCApi.getGeometryOffset();
+			ptr_ifc_offset_cache->m_Object_Materials = group->children[0]->as<threepp::ObjectWithMaterials>()->materials();
 		}
 		main_viewport->clearScene();
 		main_viewport->buildBVH(group->children[0]->geometry().get());

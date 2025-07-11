@@ -21,7 +21,7 @@ namespace dragon
 		struct offset
 		{
 			int begin_vertex_offset{ 0 };
-			int end_vertext_offset{ 0 };
+			int end_vertex_offset{ 0 };
 			int begin_indices_offset{ 0 };
 			int end_indices_offset{ 0 };
 			/*DRAW RANGE BEGIN, START, MATERIAL*/
@@ -36,8 +36,9 @@ namespace dragon
 	public:
 		std::unordered_map<int, std::vector<IFCModelCache::offset>> m_Geometry_Offset{};
 		threepp::Object3D* m_Object_Model{ nullptr };
-		std::vector<unsigned int> m_Object_indices{};
+		std::vector<unsigned int> m_Object_Indices{};
 		std::shared_ptr<webifc::manager::ModelManager> m_ModelManager{ nullptr };
+		std::vector<std::shared_ptr<threepp::Material>> m_Object_Materials{ nullptr }; 
 		int m_modelID{ -1 };
 	};
 }
