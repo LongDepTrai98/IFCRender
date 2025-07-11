@@ -51,6 +51,10 @@ namespace dragon
 			ptr_ifc_offset_cache->m_Object_Indices = root_geometry->getIndex()->array();
 			ptr_ifc_offset_cache->m_Geometry_Offset = IFCApi.getGeometryOffset();
 			ptr_ifc_offset_cache->m_Object_Materials = group->children[0]->as<threepp::ObjectWithMaterials>()->materials();
+			auto& array_vertices = group->children[0]->geometry()->getAttribute<float>("position")->array(); 
+			ptr_ifc_offset_cache->m_Object_Vertices.assign(array_vertices.begin(),array_vertices.end()); 
+			auto& array_normals = group->children[0]->geometry()->getAttribute<float>("normal")->array();
+			ptr_ifc_offset_cache->m_Object_Normals.assign(array_vertices.begin(), array_vertices.end());
 		}
 		main_viewport->clearScene();
 		main_viewport->buildBVH(group->children[0]->geometry().get());

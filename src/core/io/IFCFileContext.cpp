@@ -127,34 +127,6 @@ namespace dragon
 					offset_set[index_material].insert(pair);
 				}
 			}
-			else
-			{
-				spdlog::error("none draw with expressID : {}", expressID); 
-				for (auto& offset : element.offsets)
-				{
-					const int& index_material = offset.material_index;
-					spdlog::info("Mat index : {}", index_material); 
-				}
-				/*for (auto& offset : element.offsets)
-				{
-					int begin_offset = offset.begin_indices_offset;
-					int end_offset = offset.end_indices_offset;
-					const int& index_material = offset.material_index;
-					std::pair<int, int> pair = { begin_offset,end_offset };
-					offset_set[index_material].insert(pair);
-				}*/
-			}
-			/*if (set_hides_offset.find(expressID) == set_hides_offset.end())
-			{
-				for (auto& offset : element.offsets)
-				{
-					int begin_offset = offset.begin_indices_offset;
-					int end_offset = offset.end_indices_offset;
-					const int& index_material = offset.material_index; 
-					std::pair<int,int> pair = { begin_offset,end_offset }; 
-					offset_set[index_material].emplace_back(pair);
-				}
-			}*/
 		}
 		//update indices
 		int index_offset{ 0 }; 
@@ -170,9 +142,6 @@ namespace dragon
 			auto& set = offset_set[i];
 			if (set.size() == 0)
 				continue; 
-			/*std::sort(set.begin(), set.end(), [](const auto& a, const auto& b) {
-				return a.first < b.first;
-				});*/
 			for (auto& [begin, end] : set)
 			{
 				count += (end - begin) + 1; 
@@ -188,15 +157,13 @@ namespace dragon
 			mats.emplace_back(m_Model->m_Object_Materials[i]);
 		}
 		spdlog::info("indices {}",rebuild_indices.size());
-		/*UPDATE GROUP*/
-		root_geometry->getIndex()->array().clear();
-		root_geometry->setIndex(rebuild_indices);
-		root_geometry->getIndex()->needsUpdate();
-		root_geometry->clearGroups();
-		root_geometry->groups = groups;
-		root_geometry->computeBoundingBox();
-		root_geometry->computeBoundingSphere();
-		//update materials 
+		auto tmp_buffer = threepp::BufferGeometry::create(); 
+		tmp_buffer->setIndex(rebuild_indices);
+		tmp_buffer->setAttribute("position", threepp::FloatBufferAttribute::create(m_Model->m_Object_Vertices, 3));
+		tmp_buffer->setAttribute("normal", threepp::FloatBufferAttribute::create(m_Model->m_Object_Normals, 3));
+		tmp_buffer->groups = groups; 
+		tmp_buffer->computeVertexNormals(); 
+		m_Model->m_Object_Model->as<threepp::Mesh>()->setGeometry(tmp_buffer);
 	}
 
 	void IFCFileContext::initCallback()
@@ -215,15 +182,6 @@ namespace dragon
 					{
 						m_Model->m_Geometry_Offset[expressID].state = state; 
 					}
-					//if (!state)
-					//{
-					//	//m_Model->m_Geometry_Offset
-					//	/*if (m_Model->m_Geometry_Offset.find(expressID) != m_Model->m_Geometry_Offset.end())
-					//	{
-					//		set_hide_items.insert({ (uint32_t)expressID });
-					//	}*/
-					//	
-					//}
 				}
 				//rebuild indices
 				rebuildVisibleIndices(std::move(set_hide_items));
