@@ -20,7 +20,7 @@ namespace dragon
 			{
 				return label;
 			}
-			int& getData() override
+			int& getID() override
 			{
 				return expressID;
 			}

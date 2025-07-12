@@ -25,15 +25,15 @@ namespace dragon
 			int begin_indices_offset{ 0 };
 			int end_indices_offset{ 0 };
 			/*DRAW RANGE BEGIN, START, MATERIAL*/
-			int material_index{ 0 }; 
+			int material_index{ 0 };
 			int state{ 0 };
-			std::shared_ptr<threepp::BufferGeometry> buffGeo{ nullptr }; 
+			std::shared_ptr<threepp::BufferGeometry> buffGeo{ nullptr };
 		};
 		struct element
 		{
 			/*AUTO SHOW*/
-			int state{ 1 }; 
-			std::vector<IFCModelCache::offset> offsets{}; 
+			int state{ 1 };
+			std::vector<IFCModelCache::offset> offsets{};
 		};
 	public:
 		~IFCModelCache();
@@ -48,7 +48,7 @@ namespace dragon
 		std::vector<float> m_Object_Vertices{};
 		std::vector<float> m_Object_Normals{};
 		std::shared_ptr<webifc::manager::ModelManager> m_ModelManager{ nullptr };
-		std::vector<std::shared_ptr<threepp::Material>> m_Object_Materials{ nullptr }; 
+		std::vector<std::shared_ptr<threepp::Material>> m_Object_Materials{ nullptr };
 		int m_modelID{ -1 };
 	};
 }

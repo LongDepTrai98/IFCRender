@@ -51,8 +51,8 @@ namespace dragon
 			ptr_ifc_offset_cache->m_Object_Indices = root_geometry->getIndex()->array();
 			ptr_ifc_offset_cache->m_Geometry_Offset = IFCApi.getGeometryOffset();
 			ptr_ifc_offset_cache->m_Object_Materials = group->children[0]->as<threepp::ObjectWithMaterials>()->materials();
-			auto& array_vertices = group->children[0]->geometry()->getAttribute<float>("position")->array(); 
-			ptr_ifc_offset_cache->m_Object_Vertices.assign(array_vertices.begin(),array_vertices.end()); 
+			auto& array_vertices = group->children[0]->geometry()->getAttribute<float>("position")->array();
+			ptr_ifc_offset_cache->m_Object_Vertices.assign(array_vertices.begin(), array_vertices.end());
 			auto& array_normals = group->children[0]->geometry()->getAttribute<float>("normal")->array();
 			ptr_ifc_offset_cache->m_Object_Normals.assign(array_vertices.begin(), array_vertices.end());
 		}
@@ -82,6 +82,7 @@ namespace dragon
 				/*BIND CALLBACK*/
 				element_tree->m_ToggleStateCallBack = ptr_ifc_file_context->m_Toggle_Component_Callback;
 				element_tree->m_ToggleStateCallBackRecursively = ptr_ifc_file_context->m_Toggle_Components_Callback;
+				element_tree->m_GetData_Item_Callback = ptr_ifc_file_context->m_GetData_Item_Callback; 
 				element_tree->setData(std::move(tree));
 			}
 		}

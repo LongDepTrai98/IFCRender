@@ -43,7 +43,7 @@ namespace dragon
 		loadAllGeometry(m_modelID);
 		std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{};
 		std::vector<std::shared_ptr<threepp::Material>> materials{};
-		int material_index{ 0 }; 
+		int material_index{ 0 };
 		for (auto& [hashColor, geo_with_mat] : geo_with_material)
 		{
 			/*CREATE DUNG INDEX*/
@@ -68,22 +68,22 @@ namespace dragon
 				spdlog::info("geo with expressID {} , material index {}", expressID, material_index);
 				if (geometry_offset_with_expressID.find(expressID) == geometry_offset_with_expressID.end())
 				{
-					IFCModelCache::element element; 
-					element.state = 1; 
+					IFCModelCache::element element;
+					element.state = 1;
 					geometry_offset_with_expressID.insert({ expressID,element });
 				}
 				geometry_offset_with_expressID[expressID].offsets.push_back({ begin_offset_vertex,
 					end_offset_vertex,
 					begin_offset_index,
 					end_offset_index,
-					material_index, 
+					material_index,
 					1
-				});
+					});
 			}
 			std::shared_ptr<threepp::BufferGeometry> merged = threepp::mergeBufferGeometries(geometries_in_mat);
 			geometries.emplace_back(merged);
 			materials.emplace_back(geo_with_mat.material);
-			material_index++; 
+			material_index++;
 		}
 		std::shared_ptr<threepp::BufferGeometry> merged_all = threepp::mergeBufferGeometries(geometries, true);
 		if (index_offset != merged_all->getIndex()->array().size() - 1)

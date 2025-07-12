@@ -168,25 +168,34 @@ namespace dragon
 
 	void IFCFileContext::initCallback()
 	{
-		auto lambda_toggle_component_callback = [&](const std::pair<int, ItemData*>& entity)
-			{
+		auto lambda_toggle_component_callback = [&](const std::pair<int, ItemData*>& entity){
 				//spdlog::info("callback ifc file context run : {}", entity.first);
-			};
-		auto lambda_toggle_componenents_callback = [&](const std::vector<std::pair<int, ItemData*>>& entities)
+		};
+		auto lambda_toggle_componenents_callback = [&](const std::vector<std::pair<int, ItemData*>>& entities) {
+			for (auto& [state, ItemData] : entities)
 			{
-				std::unordered_set<uint32_t> set_hide_items{};
-				for (auto& [state, item_data] : entities)
+				IFCModelCache::element* ptr_element = static_cast<IFCModelCache::element*>(ItemData->GetData());
+				if (ptr_element)
 				{
-					const int& expressID = *std::get<int*>(item_data->GetData());
-					if (m_Model->m_Geometry_Offset.find(expressID) != m_Model->m_Geometry_Offset.end())
-					{
-						m_Model->m_Geometry_Offset[expressID].state = state; 
-					}
+					ptr_element->state = state;
 				}
-				//rebuild indices
-				rebuildVisibleIndices(std::move(set_hide_items));
-			};
+			}
+			////rebuild indices
+			rebuildVisibleIndices({});
+		};
+		auto lambda_get_item_value_callback = [&](const int& itemId) {
+			auto it = m_Model->m_Geometry_Offset.find(itemId); 
+			if (it != m_Model->m_Geometry_Offset.end())
+			{
+				void* voidPtr = static_cast<void*>(&it->second);
+				return voidPtr;
+			}
+			else
+				return ((void*)0); 
+		}; 
+
 		m_Toggle_Component_Callback = std::make_shared<std::function<void(const std::pair<int, ItemData*>&)>>(lambda_toggle_component_callback);
 		m_Toggle_Components_Callback = std::make_shared<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>>(lambda_toggle_componenents_callback);
+		m_GetData_Item_Callback = std::make_shared<std::function<void*(const int&)>>(lambda_get_item_value_callback);
 	}
 }
