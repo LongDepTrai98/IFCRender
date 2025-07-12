@@ -11,8 +11,8 @@ namespace dragon
 	class TreeNode;
 	class ItemData : public wxTreeItemData
 	{
-	public: 
-		typedef void* ItemValue; 
+	public:
+		typedef void* ItemValue;
 	public:
 		ItemData(ItemValue data) : m_data(data) {}
 		//void ShowInfo(wxTreeCtrl* tree);

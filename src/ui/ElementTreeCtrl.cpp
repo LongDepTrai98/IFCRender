@@ -29,6 +29,7 @@ namespace dragon
 		wxTreeItemId root_id = this->AddRoot(str);
 		AddItemsRecursively(root_id, parent);
 		this->ExpandAll();
+		//this->AssignImageList(new wxImageList(1, 1));
 	}
 	void ElementTreeCtrl::AddItemsRecursively(const wxTreeItemId& idParent, const std::shared_ptr<TreeNode>& node)
 	{
@@ -40,8 +41,8 @@ namespace dragon
 			ItemData::ItemValue item_value{ nullptr };
 			const int& idNode = childNode->getID();
 			if (m_GetData_Item_Callback)
-				item_value = (*m_GetData_Item_Callback)(idNode); 
-			SetItemData(id_item, new ItemData(item_value)); 
+				item_value = (*m_GetData_Item_Callback)(idNode);
+			SetItemData(id_item, new ItemData(item_value));
 			SetItemState(id_item, 1);
 			AddItemsRecursively(id_item, childNode);
 		}

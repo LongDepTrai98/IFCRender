@@ -21,7 +21,9 @@ namespace dragon
 		void handleRaycast(threepp::Vector2& nor_mouse_pos) override; 
 		void clearScene() override;
 	private: 
-		std::shared_ptr<threepp::Group> createAxisArrow(); 
+		std::shared_ptr<threepp::BufferGeometry> loadCubeGeometry(); 
+		void createCubeMesh(threepp::Scene& scene);
+		std::shared_ptr<threepp::Light> createLight(); 
 	protected:
 		int m_Padding{ 0 };
 		float m_AxisLength{ 2.5f }; 

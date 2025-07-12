@@ -82,7 +82,7 @@ namespace dragon
 				/*BIND CALLBACK*/
 				element_tree->m_ToggleStateCallBack = ptr_ifc_file_context->m_Toggle_Component_Callback;
 				element_tree->m_ToggleStateCallBackRecursively = ptr_ifc_file_context->m_Toggle_Components_Callback;
-				element_tree->m_GetData_Item_Callback = ptr_ifc_file_context->m_GetData_Item_Callback; 
+				element_tree->m_GetData_Item_Callback = ptr_ifc_file_context->m_GetData_Item_Callback;
 				element_tree->setData(std::move(tree));
 			}
 		}

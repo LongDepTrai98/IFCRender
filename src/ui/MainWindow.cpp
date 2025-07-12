@@ -5,7 +5,7 @@ namespace dragon
 {
 	bool App::OnInit()
 	{
-		this->SetAppearance(Appearance::Dark);
+		this->SetAppearance(Appearance::System);
 		wxInitAllImageHandlers();
 		if (!m_Frame)
 		{

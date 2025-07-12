@@ -8,6 +8,7 @@ namespace threepp
 {
 	class Object3D;
 	class Material;
+	class BufferGeometry; 
 }
 namespace dragon
 {
@@ -30,7 +31,7 @@ namespace dragon
 	public:
 		std::shared_ptr<std::function<void(const std::pair<int, ItemData*>&)>> m_Toggle_Component_Callback{ nullptr };
 		std::shared_ptr<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>> m_Toggle_Components_Callback{ nullptr };
-		std::shared_ptr<std::function<void* (const int&)>> m_GetData_Item_Callback{ nullptr }; 
+		std::shared_ptr<std::function<void* (const int&)>> m_GetData_Item_Callback{ nullptr };
 	private:
 		std::unique_ptr<IFCModelCache> m_Model{ nullptr };
 		std::shared_ptr<threepp::Material> m_Material_Hover{ nullptr };

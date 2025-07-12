@@ -1,16 +1,12 @@
 #include "ViewportGizmo.hpp"
 #include "wxInclude.hpp"
 #include "ui/RenderCanvas.hpp"
+#include "core/Paths.hpp"
+#include "threepp/geometries/EdgesGeometry.hpp"
+#include <spdlog/spdlog.h>
+
 namespace dragon
 {
-	namespace example
-	{
-		using namespace threepp;
-		auto createAxes() {
-			const auto axes = AxesHelper::create(2.0f);
-			return axes; 
-		}
-	}
 	ViewPortGizmo::ViewPortGizmo(RenderCanvas* canvas) : IRenderer(canvas)
 	{
 		m_Canvas->activeContext();
@@ -18,9 +14,9 @@ namespace dragon
 		wxSize canvas_size = canvas->getSize();
 		initCamera(m_Viewport_Size);
 		initScene(m_Viewport_Size);
-		m_Camera->position.z = 5;
-		example::createAxes();
-		m_Scene->add(createAxisArrow());
+		m_Camera->position.z = 8;
+		createCubeMesh(*m_Scene); 
+		m_Scene->add(createLight());
 		m_Canvas->deactiveContext();
 	}
 	ViewPortGizmo::~ViewPortGizmo()
@@ -43,10 +39,9 @@ namespace dragon
 			&& m_Scene
 			&& m_Camera)
 		{
-			glDisable(GL_DEPTH_TEST); 
+			renderer->clearDepth(); 
 			renderer->setViewport({ m_Padding, m_Padding, m_Viewport_Size.width(), m_Viewport_Size.height() });
 			renderer->render(*m_Scene, *m_Camera);
-			glEnable(GL_DEPTH_TEST); 
 		}
 	}
 	void ViewPortGizmo::handleRaycast(threepp::Vector2& nor_mouse_pos)
@@ -56,16 +51,36 @@ namespace dragon
 	void ViewPortGizmo::clearScene()
 	{
 	}
-	std::shared_ptr<threepp::Group> ViewPortGizmo::createAxisArrow()
+	std::shared_ptr<threepp::BufferGeometry> ViewPortGizmo::loadCubeGeometry()
 	{
-		std::shared_ptr<threepp::Group> axisGroup = threepp::Group::create(); 
-		auto xAxis = threepp::ArrowHelper::create({ 1, 0, 0 }, { 0, 0, 0 }, m_AxisLength, 0xff0000,m_HeadLength,m_HeadWidth);
-		auto yAxis = threepp::ArrowHelper::create({ 0, 1, 0 }, { 0, 0, 0 }, m_AxisLength, 0x00ff00,m_HeadLength,m_HeadWidth);
-		auto zAxis = threepp::ArrowHelper::create({ 0, 0, 1 }, { 0, 0, 0 }, m_AxisLength, 0x0000ff,m_HeadLength,m_HeadWidth);
-		axisGroup->add(xAxis); 
-		axisGroup->add(yAxis); 
-		axisGroup->add(zAxis); 
-		return axisGroup;
+		threepp::STLLoader loader; 
+		const std::string& cube_path = assets::Cube; 
+		spdlog::info("Load model {}", cube_path); 
+		return loader.load(cube_path); 
+	}
+	void ViewPortGizmo::createCubeMesh(threepp::Scene& scene)
+	{
+		std::shared_ptr<threepp::BufferGeometry> cube = loadCubeGeometry();
+		cube->center();
+		auto material = threepp::MeshPhongMaterial::create({ {"flatShading", true}, {"color", threepp::Color::lightgray} });
+		auto mesh = threepp::Mesh::create(cube, material);
+		mesh->position.set(0.0f, 0.0f, 0.0f);
+		mesh->scale.set(0.2f, 0.2f, 0.2f);
+		const float thresholdAngle = 30.0f;
+		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*cube, thresholdAngle);
+		std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
+		outline_material->color = threepp::Color::darkslategray;
+		std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
+		outlineEdge->position.set(0.0f, 0.0f, 0.0f);
+		outlineEdge->scale.set(0.2f, 0.2f, 0.2f);
+		auto group = threepp::Group::create(); 
+		group->add(mesh); 
+		group->add(outlineEdge); 
+		scene.add(group); 
+	}
+	std::shared_ptr<threepp::Light> ViewPortGizmo::createLight()
+	{
+		return threepp::HemisphereLight::create(threepp::Color::white, threepp::Color::grey);
 	}
 	void ViewPortGizmo::initCamera(threepp::WindowSize& w_size)
 	{

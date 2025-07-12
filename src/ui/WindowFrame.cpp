@@ -55,7 +55,7 @@ namespace dragon
 		wxPanel* treePanel = new wxPanel(this);
 		wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 		//wxTreeCtrl* tree = new wxTreeCtrl(treePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize);
-		long style = wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT | wxTR_TWIST_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT;
+		long style = wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT | wxTR_TWIST_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT | wxBORDER_SUNKEN;
 		m_ElementTreeCtrl = new ElementTreeCtrl(treePanel, wxDefaultPosition, wxDefaultSize, style);
 		sizer->Add(m_ElementTreeCtrl, 1, wxEXPAND | wxALL, 1);
 		treePanel->SetSizer(sizer);

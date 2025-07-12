@@ -66,6 +66,7 @@ namespace dragon
 			if (main_viewport)
 			{
 				m_OrbitControls = std::make_unique<threepp::OrbitControls>(*main_viewport->getCamera(), *this);
+				m_OrbitControls->target.set(0.0f, 0.0f, 0.0f);
 			}
 		}
 	}
@@ -75,8 +76,10 @@ namespace dragon
 
 		auto q = m_lstViewPort[0]->getCamera()->quaternion;
 		auto axes = m_lstViewPort[1]->getScene()->children[0];
-		axes->quaternion.copy(q.invert());
-
+		axes->position.set(0.0f, 0.0f, 0.0f);
+		axes->quaternion.copy(q).invert();
+		axes->updateMatrix();
+		axes->updateMatrixWorld(true);
 		for (auto& viewport : m_lstViewPort)
 		{
 			viewport->handleRaycast(nor_mouse_pos);
