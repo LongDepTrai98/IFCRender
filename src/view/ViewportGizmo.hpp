@@ -18,17 +18,17 @@ namespace dragon
 		void resize(const int& width, const int& height) override;
 		void update(const float& dtTime) override;
 		void render(threepp::GLRenderer* renderer) override;
-		void handleRaycast(threepp::Vector2& nor_mouse_pos) override; 
+		void handleRaycast(threepp::Vector2& nor_mouse_pos) override;
 		void clearScene() override;
-	private: 
-		std::shared_ptr<threepp::BufferGeometry> loadCubeGeometry(); 
+	private:
+		std::shared_ptr<threepp::BufferGeometry> loadCubeGeometry();
 		void createCubeMesh(threepp::Scene& scene);
-		std::shared_ptr<threepp::Light> createLight(); 
+		std::shared_ptr<threepp::Light> createLight();
 	protected:
 		int m_Padding{ 0 };
-		float m_AxisLength{ 2.5f }; 
-		float m_HeadLength{0.3f}; 
-		float m_HeadWidth{0.4f}; 
+		float m_AxisLength{ 2.5f };
+		float m_HeadLength{ 0.3f };
+		float m_HeadWidth{ 0.4f };
 	};
 }
 #endif // !_VIEW_PORT_GIZMO_HPP_

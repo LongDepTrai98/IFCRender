@@ -5,7 +5,7 @@
 #include "threepp/threepp.hpp"
 namespace threepp
 {
-	class Raycaster; 
+	class Raycaster;
 }
 namespace dragon
 {
@@ -22,7 +22,7 @@ namespace dragon
 		virtual ~THREEPPRenderer();
 	public:
 		threepp::GLRenderer* getRenderer();
-		ViewPort* getMainViewPort(); 
+		ViewPort* getMainViewPort();
 	private:
 		void initRenderer(threepp::WindowSize& w_size);
 		void initViewPort();
@@ -34,7 +34,7 @@ namespace dragon
 		//example
 	private:
 	public:
-		void render(); 
+		void render();
 		void resize(const int& width, const int& height);
 		virtual void update(const float& dtTime) override;
 		//event
@@ -51,7 +51,7 @@ namespace dragon
 		/*LST VIEWPORT*/
 		std::vector<std::unique_ptr<ViewPort>> m_lstViewPort{};
 		/*RAY CASTER*/
-		threepp::Vector2 nor_mouse_pos{ -threepp::Infinity<float>, -threepp::Infinity<float> }; 
+		threepp::Vector2 nor_mouse_pos{ -threepp::Infinity<float>, -threepp::Infinity<float> };
 	};
 }
 #endif // !_CONTEXT_RENDERER_HPP_

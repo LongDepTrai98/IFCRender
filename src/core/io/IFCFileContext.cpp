@@ -147,9 +147,9 @@ namespace dragon
 			auto& set = offset_set[i];
 			if (set.size() == 0)
 				continue;
-	/*		std::sort(set.begin(), set.end(), [](const auto& a, const auto& b) {
-				return a.first < b.first;
-				});*/
+			/*		std::sort(set.begin(), set.end(), [](const auto& a, const auto& b) {
+						return a.first < b.first;
+						});*/
 			for (auto& [begin, end] : set)
 			{
 				count += (end - begin) + 1;

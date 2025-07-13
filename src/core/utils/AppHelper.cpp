@@ -17,7 +17,7 @@ namespace dragon
 	}
 	ElementTreeCtrl* AppHelper::getMainTreeCtrl(WindowFrame* main_frame)
 	{
-		if (!main_frame) return nullptr; 
+		if (!main_frame) return nullptr;
 		return main_frame->getElementTreeCtrl();
 	}
 }

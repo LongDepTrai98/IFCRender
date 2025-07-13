@@ -16,8 +16,12 @@ namespace dragon
 			wxID_ANY,
 			app_config::app_name)
 	{
+		if (m_bIsMaximize)
+		{
+			this->Maximize(true); 
+		}
 		initUIManager();
-		initUI(); 
+		initUI();
 		initCommand();
 		initMenuBar();
 		initScene();
@@ -61,7 +65,7 @@ namespace dragon
 		treePanel->SetSizer(sizer);
 		const std::string& checkedPath = assets::Icons + "ElementTree.png";
 		wxIcon icon(checkedPath, wxBITMAP_TYPE_PNG);
-		wxSize iconSize(icon.GetWidth(),icon.GetHeight()); 
+		wxSize iconSize(icon.GetWidth(), icon.GetHeight());
 		m_UIManager->AddPane(treePanel, panel_config::tree_ctrl_panel_info.Icon(wxBitmapBundle::FromImpl(new FixedSizeImpl(iconSize, icon))));
 		m_UIManager->Update();
 	}

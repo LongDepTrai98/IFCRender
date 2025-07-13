@@ -10,12 +10,12 @@ namespace dragon
 	ViewPortGizmo::ViewPortGizmo(RenderCanvas* canvas) : IRenderer(canvas)
 	{
 		m_Canvas->activeContext();
-		m_Viewport_Size = { 100,100 }; 
+		m_Viewport_Size = { 100,100 };
 		wxSize canvas_size = canvas->getSize();
 		initCamera(m_Viewport_Size);
 		initScene(m_Viewport_Size);
 		m_Camera->position.z = 8;
-		createCubeMesh(*m_Scene); 
+		createCubeMesh(*m_Scene);
 		m_Scene->add(createLight());
 		m_Canvas->deactiveContext();
 	}
@@ -39,7 +39,7 @@ namespace dragon
 			&& m_Scene
 			&& m_Camera)
 		{
-			renderer->clearDepth(); 
+			renderer->clearDepth();
 			renderer->setViewport({ m_Padding, m_Padding, m_Viewport_Size.width(), m_Viewport_Size.height() });
 			renderer->render(*m_Scene, *m_Camera);
 		}
@@ -53,10 +53,10 @@ namespace dragon
 	}
 	std::shared_ptr<threepp::BufferGeometry> ViewPortGizmo::loadCubeGeometry()
 	{
-		threepp::STLLoader loader; 
-		const std::string& cube_path = assets::Cube; 
-		spdlog::info("Load model {}", cube_path); 
-		return loader.load(cube_path); 
+		threepp::STLLoader loader;
+		const std::string& cube_path = assets::Cube;
+		spdlog::info("Load model {}", cube_path);
+		return loader.load(cube_path);
 	}
 	void ViewPortGizmo::createCubeMesh(threepp::Scene& scene)
 	{
@@ -69,14 +69,16 @@ namespace dragon
 		const float thresholdAngle = 30.0f;
 		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*cube, thresholdAngle);
 		std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
-		outline_material->color = threepp::Color::darkslategray;
+		outline_material->color = threepp::Color::black;
+		outline_material->opacity = 0.25f; 
+		outline_material->transparent = true; 
 		std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
 		outlineEdge->position.set(0.0f, 0.0f, 0.0f);
 		outlineEdge->scale.set(0.2f, 0.2f, 0.2f);
-		auto group = threepp::Group::create(); 
-		group->add(mesh); 
-		group->add(outlineEdge); 
-		scene.add(group); 
+		auto group = threepp::Group::create();
+		group->add(mesh);
+		group->add(outlineEdge);
+		scene.add(group);
 	}
 	std::shared_ptr<threepp::Light> ViewPortGizmo::createLight()
 	{

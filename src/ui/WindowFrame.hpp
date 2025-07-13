@@ -33,6 +33,7 @@ namespace dragon
 		std::unique_ptr<RenderCanvas> m_RenderCanvas{ nullptr };
 		std::unique_ptr<wxAuiManager> m_UIManager{ nullptr };
 		std::unique_ptr<AppCommandHandler> m_CommandHandler{ nullptr };
+		bool m_bIsMaximize{ true }; 
 	};
 }
 #endif // !_WINDOW_FRAME_HPP_
