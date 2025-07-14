@@ -60,10 +60,8 @@ namespace dragon
 			const int& index_face_b = 3 * prim_id + 1;
 			const int& index_face_c = 3 * prim_id + 2;
 			auto obj_geometry = m_Model->m_Object_Model->geometry();
-			const int& a = obj_geometry->getIndex()->array()[index_face_a];
-			auto attribute_expressid = obj_geometry->getAttribute<unsigned int>("expressID");
-			auto& arr = attribute_expressid->array();
-			const int& expressID = arr[a];
+			const int& a = m_Model->m_Object_Indices [index_face_a];
+			const int& expressID = m_Model->m_Object_ExpressID[a];
 			if (m_Current_ExpressID != expressID)
 			{
 				/*UPDATE EXPRESSID*/
@@ -208,9 +206,20 @@ namespace dragon
 		auto lambda_select_object = [&](const unsigned index_face_a, const unsigned index_face_b, const unsigned index_face_c)
 			{
 				const int& a = m_Model->m_Object_Indices[index_face_a];
-				const unsigned int& expressID = m_Model->m_Object_ExpressID[a]; 
-				auto it = m_Hidden_Express_IDs.find(expressID); 
-				return it == m_Hidden_Express_IDs.end(); 
+				const unsigned int& expressID = m_Model->m_Object_ExpressID[a];
+				auto it = m_Hidden_Express_IDs.find(expressID);
+				return it == m_Hidden_Express_IDs.end();
+				//const int& b = m_Model->m_Object_Indices[index_face_b];
+				/*const int& c = m_Model->m_Object_Indices[index_face_c];
+				const unsigned int& expressID_FaceA = m_Model->m_Object_ExpressID[a]; 
+				const unsigned int& expressID_FaceB = m_Model->m_Object_ExpressID[b]; 
+				const unsigned int& expressID_FaceC = m_Model->m_Object_ExpressID[c]; 
+				auto it_a = m_Hidden_Express_IDs.find(expressID_FaceA);
+				auto it_b = m_Hidden_Express_IDs.find(expressID_FaceB); 
+				auto it_c = m_Hidden_Express_IDs.find(expressID_FaceC); 
+				return it_a != m_Hidden_Express_IDs.end() 
+					|| it_b != m_Hidden_Express_IDs.end() 
+					|| it_c != m_Hidden_Express_IDs.end(); */
 			}; 
 		m_Toggle_Component_Callback = std::make_shared<std::function<void(const std::pair<int, ItemData*>&)>>(lambda_toggle_component_callback);
 		m_Toggle_Components_Callback = std::make_shared<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>>(lambda_toggle_componenents_callback);
