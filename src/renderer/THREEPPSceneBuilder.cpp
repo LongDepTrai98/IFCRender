@@ -21,8 +21,8 @@ namespace dragon
 		auto center = box.getCenter();
 		//camera->lookAt(center);
 		//camera->updateMatrix();
-		auto min = box.min();
-		auto max = box.max();
+		//auto min = box.min();
+		//auto max = box.max();
 		/*BUILD PLANE*/
 		//auto geometry = threepp::PlaneGeometry::create(150, 150);
 		//auto material = threepp::MeshBasicMaterial::create();

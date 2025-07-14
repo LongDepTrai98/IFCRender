@@ -10,3 +10,14 @@ namespace dragon::component_id
 {
 	constexpr int ID_MENUBAR = 1;
 }
+namespace dragon::index
+{
+	constexpr int INDEX_MAIN_VIEWPORT = 0; 
+	constexpr int INDEX_GIZMO_VIEWPORT = 1; 
+	constexpr int INDEX_MODEL = 0; 
+	constexpr int INDEX_LAYER_OVERLAY = 1; 
+}
+namespace dragon::outline_edge
+{
+	constexpr float THRESHOLD_ANGLE = 30.0f; 
+}

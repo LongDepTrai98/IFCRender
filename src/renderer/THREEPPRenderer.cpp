@@ -4,6 +4,7 @@
 #include "threepp/core/Raycaster.hpp"
 #include "view/MainViewPort.hpp"
 #include "view/ViewportGizmo.hpp"
+#include "config/app_config.hpp"
 #include <format>
 /*
 * THREEPP CONTEXT RENDERER
@@ -32,7 +33,7 @@ namespace dragon
 	}
 	ViewPort* THREEPPRenderer::getMainViewPort()
 	{
-		return m_lstViewPort[0].get();
+		return m_lstViewPort[index::INDEX_MAIN_VIEWPORT].get();
 	}
 	void THREEPPRenderer::initRenderer(threepp::WindowSize& w_size)
 	{
@@ -62,7 +63,7 @@ namespace dragon
 	{
 		if (!m_OrbitControls)
 		{
-			ViewPort* main_viewport = m_lstViewPort[0].get();
+			ViewPort* main_viewport = m_lstViewPort[index::INDEX_MAIN_VIEWPORT].get();
 			if (main_viewport)
 			{
 				m_OrbitControls = std::make_unique<threepp::OrbitControls>(*main_viewport->getCamera(), *this);
@@ -73,13 +74,7 @@ namespace dragon
 	void THREEPPRenderer::ctxRender()
 	{
 		m_Renderer->clear();
-
-		auto q = m_lstViewPort[0]->getCamera()->quaternion;
-		auto axes = m_lstViewPort[1]->getScene()->children[0];
-		axes->position.set(0.0f, 0.0f, 0.0f);
-		axes->quaternion.copy(q).invert();
-		axes->updateMatrix();
-		axes->updateMatrixWorld(true);
+		UpdateGizmoFromCamera();
 		for (auto& viewport : m_lstViewPort)
 		{
 			viewport->handleRaycast(nor_mouse_pos);
@@ -153,6 +148,15 @@ namespace dragon
 		int xoffset = 0;
 		int yoffset = direction;
 		onMouseWheelEvent({ static_cast<float>(xoffset), static_cast<float>(yoffset) });
+	}
+	void THREEPPRenderer::UpdateGizmoFromCamera()
+	{
+		auto q_main_camera = m_lstViewPort[index::INDEX_MAIN_VIEWPORT]->getCamera()->quaternion;
+		auto cube_gizmo = m_lstViewPort[index::INDEX_GIZMO_VIEWPORT]->getScene()->children[0];
+		//cube_gizmo->position.set(0.0f, 0.0f, 0.0f);
+		cube_gizmo->quaternion.copy(q_main_camera).invert();
+		/*cube_gizmo->updateMatrix();
+		cube_gizmo->updateMatrixWorld(true);*/
 	}
 	threepp::WindowSize THREEPPRenderer::size() const
 	{

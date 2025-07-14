@@ -48,30 +48,28 @@ namespace dragon
 		if (!m_bIsEnableHover) return;
 		if (!m_Model->m_Object_Model)
 		{
-			CustomRayCaster::Result result;
-			bool hit = RayCaster.intersectObjects(result);
-			if (hit)
+			m_Current_ExpressID = -1;
+			return;
+		}
+		CustomRayCaster::Result result;
+		bool hit = RayCaster.intersectObjects(result);
+		if (hit)
+		{
+			const int& prim_id = result.prim_id;
+			const int& index_face_a = 3 * prim_id;
+			const int& index_face_b = 3 * prim_id + 1;
+			const int& index_face_c = 3 * prim_id + 2;
+			auto obj_geometry = m_Model->m_Object_Model->geometry();
+			const int& a = obj_geometry->getIndex()->array()[index_face_a];
+			auto attribute_expressid = obj_geometry->getAttribute<unsigned int>("expressID");
+			auto& arr = attribute_expressid->array();
+			const int& expressID = arr[a];
+			if (m_Current_ExpressID != expressID)
 			{
-				const int& prim_id = result.prim_id;
-				const int& index_face_a = 3 * prim_id;
-				const int& index_face_b = 3 * prim_id + 1;
-				const int& index_face_c = 3 * prim_id + 2;
-				auto obj_geometry = m_Model->m_Object_Model->geometry();
-				const int& a = obj_geometry->getIndex()->array()[index_face_a];
-				auto attribute_expressid = obj_geometry->getAttribute<unsigned int>("expressID");
-				auto& arr = attribute_expressid->array();
-				const int& expressID = arr[a];
-				if (m_Current_ExpressID != expressID)
-				{
-					/*UPDATE EXPRESSID*/
-					m_Current_ExpressID = expressID;
-					spdlog::info("current expressID : {}", m_Current_ExpressID);
-					spdlog::info("A : {}, B : {}, C: {}", index_face_a, index_face_b, index_face_c);
-				}
-			}
-			else
-			{
-				m_Current_ExpressID = -1;
+				/*UPDATE EXPRESSID*/
+				m_Current_ExpressID = expressID;
+			/*	spdlog::info("current expressID : {}", m_Current_ExpressID);
+				spdlog::info("A : {}, B : {}, C: {}", index_face_a, index_face_b, index_face_c);*/
 			}
 		}
 	}
@@ -109,8 +107,9 @@ namespace dragon
 		}
 	}
 
-	void IFCFileContext::rebuildVisibleIndices(std::unordered_set<uint32_t> set_hides_offset)
+	void IFCFileContext::rebuildVisibleIndices()
 	{
+		m_Hidden_Express_IDs.clear(); 
 		std::shared_ptr<threepp::BufferGeometry> root_geometry = m_Model->m_Object_Model->geometry();
 		std::map<int, std::vector<std::pair<int, int>>> offset_set;
 		size_t total_indices = 0;
@@ -130,10 +129,12 @@ namespace dragon
 					offset_set[index_material].emplace_back(pair);
 				}
 			}
+			else
+				m_Hidden_Express_IDs.insert({ expressID }); 
 		}
 		//update indices
 		int index_offset{ 0 };
-		std::vector<int> rebuild_indices{};
+		std::vector<unsigned int> rebuild_indices{};
 		rebuild_indices.reserve(total_indices);
 		std::vector<threepp::GeometryGroup> groups;
 		std::vector<std::shared_ptr<threepp::Material>> mats;
@@ -169,9 +170,12 @@ namespace dragon
 		tmp_buffer->setIndex(rebuild_indices);
 		tmp_buffer->setAttribute("position", threepp::FloatBufferAttribute::create(m_Model->m_Object_Vertices, 3));
 		tmp_buffer->setAttribute("normal", threepp::FloatBufferAttribute::create(m_Model->m_Object_Normals, 3));
+		tmp_buffer->setAttribute("expressID", threepp::IntBufferAttribute::create(m_Model->m_Object_ExpressID, 1));
 		tmp_buffer->groups = groups;
 		tmp_buffer->computeVertexNormals();
 		m_Model->m_Object_Model->as<threepp::Mesh>()->setGeometry(tmp_buffer);
+		//RayCast->test(m_Model->m_Object_Vertices,rebuild_indices); 
+		m_Current_ExpressID = -1; 
 	}
 
 	void IFCFileContext::initCallback()
@@ -189,7 +193,7 @@ namespace dragon
 				}
 			}
 			////rebuild indices
-			rebuildVisibleIndices({});
+			rebuildVisibleIndices();
 			};
 		auto lambda_get_item_value_callback = [&](const int& itemId) {
 			auto it = m_Model->m_Geometry_Offset.find(itemId);
@@ -201,9 +205,18 @@ namespace dragon
 			else
 				return ((void*)0);
 			};
-
+		auto lambda_select_object = [&](const unsigned index_face_a, const unsigned index_face_b, const unsigned index_face_c)
+			{
+				const int& a = m_Model->m_Object_Indices[index_face_a];
+				const unsigned int& expressID = m_Model->m_Object_ExpressID[a]; 
+				auto it = m_Hidden_Express_IDs.find(expressID); 
+				return it == m_Hidden_Express_IDs.end(); 
+			}; 
 		m_Toggle_Component_Callback = std::make_shared<std::function<void(const std::pair<int, ItemData*>&)>>(lambda_toggle_component_callback);
 		m_Toggle_Components_Callback = std::make_shared<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>>(lambda_toggle_componenents_callback);
 		m_GetData_Item_Callback = std::make_shared<std::function<void* (const int&)>>(lambda_get_item_value_callback);
+		m_callback_intersect = std::make_shared<std::function<bool(const unsigned int,
+			const unsigned int,
+			const unsigned int)>>(lambda_select_object); 
 	}
 }

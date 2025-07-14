@@ -21,6 +21,7 @@
 #include <unordered_set>
 #include <spdlog/spdlog.h>
 #include "core/props/IFCProperties.hpp"
+#include "raycast/CustomRayCaster.hpp"
 namespace dragon
 {
 	IFCFileHandler::IFCFileHandler()
@@ -55,9 +56,9 @@ namespace dragon
 			ptr_ifc_offset_cache->m_Object_Vertices.assign(array_vertices.begin(), array_vertices.end());
 			auto& array_normals = group->children[0]->geometry()->getAttribute<float>("normal")->array();
 			ptr_ifc_offset_cache->m_Object_Normals.assign(array_vertices.begin(), array_vertices.end());
+			auto& array_expressID = group->children[0]->geometry()->getAttribute<unsigned int>("expressID")->array();
+			ptr_ifc_offset_cache->m_Object_ExpressID = array_expressID; 
 		}
-		main_viewport->clearScene();
-		main_viewport->buildBVH(group->children[0]->geometry().get());
 		if (m_Window)
 		{
 			/*GET MAIN VIEWPORT*/
@@ -65,6 +66,7 @@ namespace dragon
 			auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
 			if (main_viewport)
 			{
+				main_viewport->clearScene();
 				auto viewport_scene = main_viewport->getScene();
 				auto camera = main_viewport->getCamera();
 				viewport_scene->children;
@@ -85,6 +87,11 @@ namespace dragon
 				element_tree->m_GetData_Item_Callback = ptr_ifc_file_context->m_GetData_Item_Callback;
 				element_tree->setData(std::move(tree));
 			}
+
+			main_viewport->buildBVH(ptr_ifc_offset_cache->m_Object_Vertices, ptr_ifc_offset_cache->m_Object_Indices);
+			auto RayCast = main_viewport->getRayCaster();
+			ptr_ifc_file_context->RayCast = RayCast;
+			RayCast->getIntersector()->custom_callback_checkface = ptr_ifc_file_context->m_callback_intersect; 
 		}
 	}
 }

@@ -2,7 +2,9 @@
 #include "wxInclude.hpp"
 #include "ui/RenderCanvas.hpp"
 #include "core/Paths.hpp"
+#include "config/app_config.hpp"
 #include "threepp/geometries/EdgesGeometry.hpp"
+#include "threepp/utils/BufferGeometryUtils.hpp"
 #include <spdlog/spdlog.h>
 
 namespace dragon
@@ -60,25 +62,22 @@ namespace dragon
 	}
 	void ViewPortGizmo::createCubeMesh(threepp::Scene& scene)
 	{
-		std::shared_ptr<threepp::BufferGeometry> cube = loadCubeGeometry();
-		cube->center();
-		auto material = threepp::MeshPhongMaterial::create({ {"flatShading", true}, {"color", threepp::Color::lightgray} });
-		auto mesh = threepp::Mesh::create(cube, material);
-		mesh->position.set(0.0f, 0.0f, 0.0f);
-		mesh->scale.set(0.2f, 0.2f, 0.2f);
-		const float thresholdAngle = 30.0f;
-		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*cube, thresholdAngle);
-		std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
-		outline_material->color = threepp::Color::black;
-		outline_material->opacity = 0.25f; 
-		outline_material->transparent = true; 
-		std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
-		outlineEdge->position.set(0.0f, 0.0f, 0.0f);
-		outlineEdge->scale.set(0.2f, 0.2f, 0.2f);
+		std::shared_ptr<threepp::BufferGeometry> cube_geometry = loadCubeGeometry();
+		cube_geometry->center();
+		std::shared_ptr<threepp::MeshPhongMaterial> cube_material = threepp::MeshPhongMaterial::create({ {"flatShading", true}, {"color", threepp::Color::lightgray} });
+		std::shared_ptr<threepp::LineBasicMaterial> outline_edge_material = threepp::LineBasicMaterial::create(); 
+		std::shared_ptr<threepp::EdgesGeometry> outline_edge_geometry = threepp::EdgesGeometry::create(*cube_geometry, outline_edge::THRESHOLD_ANGLE);
+		//std::shared_ptr<threepp::BufferGeometry> cube_geometry_merge = threepp::mergeBufferGeometries({cube_geometry,outline_edge_geometry},true);
+		std::shared_ptr<threepp::Mesh> cube_mesh = threepp::Mesh::create(cube_geometry,cube_material);
+		std::shared_ptr<threepp::LineSegments> outline_edge = threepp::LineSegments::create(outline_edge_geometry, outline_edge_material);
+		cube_mesh->position.set(0.0f,0.0f,0.0f);
+		cube_mesh->scale.set(0.2f,0.2f,0.2f); 
+		outline_edge->position.set(0.0f, 0.0f, 0.0f);
+		outline_edge->scale.set(0.2f, 0.2f, 0.2f);
 		auto group = threepp::Group::create();
-		group->add(mesh);
-		group->add(outlineEdge);
-		scene.add(group);
+		group->add(cube_mesh);
+		group->add(outline_edge);
+		scene.add(group); 
 	}
 	std::shared_ptr<threepp::Light> ViewPortGizmo::createLight()
 	{

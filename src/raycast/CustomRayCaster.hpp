@@ -1,18 +1,19 @@
 #ifndef _CUSTOM_RAY_CASTER_HPP_
 #define _CUSTOM_RAY_CASTER_HPP_
-#include "nanort.hpp"
+#include "CustomIntersector.hpp"
 #include "threepp/math/Vector3.hpp"
 #include "threepp/math/Vector2.hpp"
 #include <memory>
+#include <vector>
 namespace threepp
 {
 	class BufferGeometry;
-	class Camera; 
+	class Camera;
 }
 namespace dragon
 {
 	template<typename T>
-	struct Ray{
+	struct Ray {
 		T org[3];        // [in] must set
 		T dir[3];        // [in] must set
 		T min_t;         // [in] must set
@@ -22,7 +23,7 @@ namespace dragon
 
 	class CustomRayCaster
 	{
-	public: 
+	public:
 		struct Result
 		{
 			float t{ 0.0f }; // hit distance
@@ -33,15 +34,17 @@ namespace dragon
 	public:
 		CustomRayCaster();
 		~CustomRayCaster();
-	public: 
-		bool buildBVH(threepp::BufferGeometry* geometry);
+	public:
+		bool buildBVH(std::vector<float>& vertices,
+			std::vector<unsigned int>& indices);
 		bool intersectObjects(Result& result);
-		void setFromCamera(const threepp::Vector2& coords, threepp::Camera& camera); 
+		void setFromCamera(const threepp::Vector2& coords, threepp::Camera& camera);
 		void clearBVH();
+		nanort::CustomIntersector<>* getIntersector(); 
 	private:
 		std::unique_ptr<nanort::BVHAccel<float>> m_BVHAccel{ nullptr };
-		std::unique_ptr<nanort::TriangleIntersector<>> triangle_intersecter{ nullptr };
-		nanort::Ray<float> ray; 
+		std::unique_ptr<nanort::CustomIntersector<>> triangle_intersecter{ nullptr };
+		nanort::Ray<float> ray;
 		threepp::Vector3 rayOrigin;
 		threepp::Vector3 rayDirection;
 	};

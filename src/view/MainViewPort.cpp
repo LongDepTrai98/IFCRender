@@ -61,10 +61,11 @@ namespace dragon
 		if (!m_FileContext)m_FileContext.reset();
 		m_FileContext = nullptr;
 	}
-	void MainViewPort::buildBVH(threepp::BufferGeometry* geometry)
+	void MainViewPort::buildBVH(std::vector<float>& vertices,
+		std::vector<unsigned int>& indices)
 	{
 		if (m_RayCaster) {
-			m_RayCaster->buildBVH(geometry);
+			m_RayCaster->buildBVH(vertices,indices);
 		}
 	}
 	void MainViewPort::clearBVH()
@@ -81,6 +82,10 @@ namespace dragon
 			m_Scene->clear();
 		}
 		clearBVH();
+	}
+	CustomRayCaster* MainViewPort::getRayCaster()
+	{
+		return m_RayCaster.get(); 
 	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{

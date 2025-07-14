@@ -1,7 +1,9 @@
-#include "CustomRayCaster.hpp"
+﻿#include "CustomRayCaster.hpp"
 #include "threepp/threepp.hpp"
 #include "spdlog/spdlog.h"
 #include <iostream>
+#include <vector>
+
 namespace dragon
 {
 	CustomRayCaster::CustomRayCaster()
@@ -20,18 +22,28 @@ namespace dragon
 	{
 		// Destructor implementation
 	}
-	bool CustomRayCaster::buildBVH(threepp::BufferGeometry* geometry)
+	bool CustomRayCaster::buildBVH(std::vector<float>& vertices,
+		std::vector<unsigned int>& indices)
 	{
-		auto& vertices = geometry->getAttribute<float>("position")->array();
-		spdlog::info(std::format("Create BVH for Geo with Num Vertices : {}, Num indices : {}", vertices.size(), geometry->getIndex()->count()));
-		auto& indices = geometry->getIndex()->array();
+		if (m_BVHAccel)
+		{
+			m_BVHAccel.reset(); 
+			m_BVHAccel = nullptr; 
+		}
+		if (triangle_intersecter)
+		{
+			triangle_intersecter.reset(); 
+			triangle_intersecter = nullptr;
+		}
+		//auto& vertices = geometry->getAttribute<float>("position")->array();
+		spdlog::info(std::format("Create BVH for Geo with Num Vertices : {}, Num indices : {}", vertices.size(), indices.size()));
+		//auto& indices = geometry->getIndex()->array();
 		nanort::BVHBuildOptions<float> build_options;
 		nanort::TriangleMesh<float> triangle_mesh(vertices.data(), indices.data(), /* stride */sizeof(float) * 3);
 		nanort::TriangleSAHPred<float> triangle_pred(vertices.data(), indices.data(), /* stride */sizeof(float) * 3);
-		if (!m_BVHAccel)
-			m_BVHAccel = std::make_unique<nanort::BVHAccel<float>>();
+		m_BVHAccel = std::make_unique<nanort::BVHAccel<float>>();
 		auto ret = m_BVHAccel->Build(indices.size() / 3, triangle_mesh, triangle_pred, build_options);
-		triangle_intersecter = std::make_unique<nanort::TriangleIntersector<>>(vertices.data(), indices.data(), /* stride */sizeof(float) * 3);
+		triangle_intersecter = std::make_unique<nanort::CustomIntersector<>>(vertices.data(), indices.data(), /* stride */sizeof(float) * 3);
 		spdlog::info("End build BVH");
 		return ret;
 	}
@@ -93,5 +105,9 @@ namespace dragon
 		ray.max_t = std::numeric_limits<float>::max();
 		ray.org[0] = ray.org[1] = ray.org[2] = 0.0f;
 		ray.dir[0] = ray.dir[1] = ray.dir[2] = 0.0f;
+	}
+	nanort::CustomIntersector<>* CustomRayCaster::getIntersector()
+	{
+		return triangle_intersecter.get(); 
 	}
 }

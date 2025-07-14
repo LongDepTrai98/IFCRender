@@ -10,9 +10,9 @@
 #include "threepp/materials/ShaderMaterial.hpp"
 #include "core/utils/StringHelper.hpp"
 #include "threepp/utils/BufferGeometryUtils.hpp"
-#include <glm/gtc/type_ptr.hpp>
 #include "core/utils/MathHelper.hpp"
-
+#include "config/app_config.hpp"
+#include <glm/gtc/type_ptr.hpp>
 namespace dragon
 {
 	WebIFCConverter::WebIFCConverter()
@@ -95,11 +95,12 @@ namespace dragon
 			spdlog::error("vertex_offset diff mer_vertex_offset - 1 : {}, {}", vertex_offset, merged_all->getAttribute<float>("position")->array().size() - 1);
 		}
 
+		/*CREATE MESH*/
 		std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(merged_all, materials);
 		mesh->matrixAutoUpdate = false;
 		container->add(mesh);
-		const float thresholdAngle = 30.0f;
-		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*mesh->geometry(), thresholdAngle);
+		/*CREATE OUTLINE EDGE*/
+		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*mesh->geometry(), outline_edge::THRESHOLD_ANGLE);
 		std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
 		outline_material->color = threepp::Color::darkgray;
 		std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
@@ -194,9 +195,11 @@ namespace dragon
 		int normals_size = vertexData.size() / 2;
 		int attribute_size = vertexData.size() / 6;
 		std::vector<float> vertices(vertices_size);
+		vertices.reserve(vertices_size);
 		std::vector<float> normals(normals_size);
+		normals.reserve(normals_size);
 		std::vector<uint32_t> idAttribute(attribute_size);
-		bool isFirstPoint{ false };
+		idAttribute.reserve(attribute_size); 
 		for (int i = 0; i < vertexData.size(); i += 6)
 		{
 			/*POINT X*/
@@ -255,7 +258,7 @@ namespace dragon
 		return m_modelID;
 	}
 
-	std::unordered_map<int, IFCModelCache::element>& WebIFCConverter::getGeometryOffset()
+	std::unordered_map<unsigned int, IFCModelCache::element>& WebIFCConverter::getGeometryOffset()
 	{
 		return geometry_offset_with_expressID;
 	}

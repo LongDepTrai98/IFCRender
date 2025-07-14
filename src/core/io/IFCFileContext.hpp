@@ -15,6 +15,7 @@ namespace dragon
 	class IFCModelCache;
 	class IFCGeometryCache;
 	class ItemData;
+	class CustomRayCaster; 
 	class IFCFileContext : public IFileContext
 	{
 	public:
@@ -25,15 +26,21 @@ namespace dragon
 		IFCModelCache* getModelCache();
 		void handleRaycast(CustomRayCaster& RayCaster, threepp::Vector2& nor_mouse_pos) override;
 		void handleHoverResult(std::shared_ptr<threepp::Mesh>& object_hover) override;
-		void rebuildVisibleIndices(std::unordered_set<uint32_t> set_hides_offset);
+		void rebuildVisibleIndices();
 	public:
 		void initCallback();
 	public:
 		std::shared_ptr<std::function<void(const std::pair<int, ItemData*>&)>> m_Toggle_Component_Callback{ nullptr };
 		std::shared_ptr<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>> m_Toggle_Components_Callback{ nullptr };
 		std::shared_ptr<std::function<void* (const int&)>> m_GetData_Item_Callback{ nullptr };
+		std::shared_ptr<std::function<bool(const unsigned int, 
+			const unsigned int, 
+			const unsigned int)>> m_callback_intersect{ nullptr }; 
+	public: 
+		CustomRayCaster* RayCast{ nullptr }; 
 	private:
 		std::unique_ptr<IFCModelCache> m_Model{ nullptr };
+		std::unordered_set<unsigned int> m_Hidden_Express_IDs;
 		std::shared_ptr<threepp::Material> m_Material_Hover{ nullptr };
 		int m_Current_ExpressID{ -1 };
 		int m_Old_ExpressID{ -1 };

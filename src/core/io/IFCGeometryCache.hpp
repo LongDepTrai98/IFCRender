@@ -42,9 +42,10 @@ namespace dragon
 		void clear() override;
 		void setModelManager(std::shared_ptr<webifc::manager::ModelManager> modelManager, const int& modelID);
 	public:
-		std::unordered_map<int, element> m_Geometry_Offset{};
 		threepp::Object3D* m_Object_Model{ nullptr };
+		std::unordered_map<unsigned int, element> m_Geometry_Offset{};
 		std::vector<unsigned int> m_Object_Indices{};
+		std::vector<unsigned int> m_Object_ExpressID{}; 
 		std::vector<float> m_Object_Vertices{};
 		std::vector<float> m_Object_Normals{};
 		std::shared_ptr<webifc::manager::ModelManager> m_ModelManager{ nullptr };
