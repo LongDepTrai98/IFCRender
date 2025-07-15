@@ -27,7 +27,7 @@ namespace dragon
 			/*DRAW RANGE BEGIN, START, MATERIAL*/
 			int material_index{ 0 };
 			int state{ 0 };
-			std::shared_ptr<threepp::BufferGeometry> buffGeo{ nullptr };
+			//std::shared_ptr<threepp::BufferGeometry> buffGeo{ nullptr };
 		};
 		struct element
 		{

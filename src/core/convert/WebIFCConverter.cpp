@@ -100,11 +100,6 @@ namespace dragon
 		mesh->matrixAutoUpdate = false;
 		container->add(mesh);
 		/*CREATE OUTLINE EDGE*/
-		std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*mesh->geometry(), outline_edge::THRESHOLD_ANGLE);
-		std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
-		outline_material->color = threepp::Color::darkgray;
-		std::shared_ptr<threepp::LineSegments> outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
-		container->add(outlineEdge);
 		geometries.clear();
 		materials.clear();
 		return container;

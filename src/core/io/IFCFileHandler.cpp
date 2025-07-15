@@ -13,6 +13,7 @@
 #include "core/io/IFileContext.hpp"
 #include "core/io/IFCFileContext.hpp"
 #include "core/io/IFCGeometryCache.hpp"
+#include "config/app_config.hpp"
 #include "web-ifc/parsing/IfcLoader.h"
 #include "web-ifc/schema/IfcSchemaManager.h"
 #include "web-ifc/schema/ifc-schema.h"
@@ -32,9 +33,10 @@ namespace dragon
 	}
 	void IFCFileHandler::open(const std::filesystem::path& file_path)
 	{
-		std::shared_ptr<threepp::Group> group{ nullptr };
+		std::shared_ptr<threepp::Group> container{ nullptr };
+		std::shared_ptr<threepp::BufferGeometry> model_geometry{ nullptr }; 
 		WebIFCConverter IFCApi{};
-		group = IFCApi.convert(file_path);
+		container = IFCApi.convert(file_path);
 		WindowFrame* window_frame = static_cast<WindowFrame*>(m_Window);
 		auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
 		main_viewport->resetFileContext();
@@ -46,22 +48,28 @@ namespace dragon
 		if (file_context)
 		{
 			main_viewport->setFileContext(std::move(file_context));
-			ptr_ifc_offset_cache->m_Object_Model = group->children[0];
-			std::shared_ptr<threepp::BufferGeometry> root_geometry = group->children[0]->geometry();
+			ptr_ifc_offset_cache->m_Object_Model = container->children[0];
+			std::shared_ptr<threepp::BufferGeometry> root_geometry = container->children[0]->geometry();
 			//ptr_ifc_file_context->setRootObject(group->children[0]);
 			ptr_ifc_offset_cache->m_Object_Indices = root_geometry->getIndex()->array();
 			ptr_ifc_offset_cache->m_Geometry_Offset = IFCApi.getGeometryOffset();
-			ptr_ifc_offset_cache->m_Object_Materials = group->children[0]->as<threepp::ObjectWithMaterials>()->materials();
-			auto& array_vertices = group->children[0]->geometry()->getAttribute<float>("position")->array();
+			threepp::Object3D* model = container->children[0];
+			if (!model) return;
+			model_geometry = model->geometry();
+			if (!root_geometry) return;
+			ptr_ifc_offset_cache->m_Object_Materials = model->as<threepp::ObjectWithMaterials>()->materials();
+			auto& array_vertices = model_geometry->getAttribute<float>("position")->array();
 			ptr_ifc_offset_cache->m_Object_Vertices.assign(array_vertices.begin(), array_vertices.end());
-			auto& array_normals = group->children[0]->geometry()->getAttribute<float>("normal")->array();
+			auto& array_normals = model_geometry->getAttribute<float>("normal")->array();
 			ptr_ifc_offset_cache->m_Object_Normals.assign(array_vertices.begin(), array_vertices.end());
-			auto& array_expressID = group->children[0]->geometry()->getAttribute<unsigned int>("expressID")->array();
+			auto& array_expressID = model_geometry->getAttribute<unsigned int>("expressID")->array();
 			ptr_ifc_offset_cache->m_Object_ExpressID = array_expressID;
+			/*INDEX MODEL IS 0*/
 		}
+
 		if (m_Window)
 		{
-			/*GET MAIN VIEWPORT*/
+			/*GET MAIN VIEWPORT AND BUILD MAIN SCENE*/
 			WindowFrame* window_frame = dynamic_cast<WindowFrame*>(m_Window);
 			auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
 			if (main_viewport)
@@ -69,11 +77,24 @@ namespace dragon
 				main_viewport->clearScene();
 				auto viewport_scene = main_viewport->getScene();
 				auto camera = main_viewport->getCamera();
-				viewport_scene->children;
-				viewport_scene->add(group);
-				main_viewport->initObjectHover();
-				SceneBuilder::IFCBuildScene(group.get(), viewport_scene, camera);
+				viewport_scene->add(container);
+				/*CREATE OUTLINE EDGE INDEX IS 1*/
+				std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*model_geometry, outline_edge::THRESHOLD_ANGLE);
+				std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
+				outline_material->color = threepp::Color::darkgray;
+				std::shared_ptr<threepp::LineSegments>  outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
+				viewport_scene->add(outlineEdge);
+				/*CREATE OVERLAY LAYER INDEX IS 2*/
+				std::shared_ptr<threepp::Group> overlay_group = threepp::Group::create(); 
+				overlay_group->name = "Overlay"; 
+				overlay_group->add(ptr_ifc_file_context->createHoverMesh()); 
+				viewport_scene->add(overlay_group); 
+				//main_viewport->initObjectHover();
+				/*CREATE */
+				SceneBuilder::IFCBuildScene(container.get(), viewport_scene, camera);
 			}
+
+			/*CREATE ELEMENT TREE AND BIND FUNC*/
 			auto element_tree = AppHelper::getMainTreeCtrl(window_frame);
 			if (element_tree)
 			{
@@ -88,10 +109,11 @@ namespace dragon
 				element_tree->setData(std::move(tree));
 			}
 
+			/*SET CALLBACK RAYCAST*/
 			main_viewport->buildBVH(ptr_ifc_offset_cache->m_Object_Vertices, ptr_ifc_offset_cache->m_Object_Indices);
 			auto RayCast = main_viewport->getRayCaster();
 			ptr_ifc_file_context->RayCast = RayCast;
-			RayCast->getIntersector()->custom_callback_checkface = ptr_ifc_file_context->m_callback_intersect;
+			RayCast->getIntersector()->custom_callback_checkface = ptr_ifc_file_context->m_Callback_Intersect;
 		}
 	}
 }

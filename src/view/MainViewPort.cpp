@@ -37,16 +37,7 @@ namespace dragon
 		if (!m_RayCaster)
 			m_RayCaster = std::make_unique<CustomRayCaster>();
 	}
-	void MainViewPort::initObjectHover()
-	{
-		m_Object_Hover = threepp::Mesh::create();
-		if (m_Scene)
-		{
-			m_Scene->add(m_Object_Hover);
-			m_Object_Hover->visible = false;
-			m_Object_Hover->renderOrder = INT_MAX;
-		}
-	}
+	
 	void MainViewPort::setFileContext(std::unique_ptr<IFileContext> file_context)
 	{
 		if (m_FileContext)
@@ -103,7 +94,7 @@ namespace dragon
 		if (m_FileContext)
 		{
 			m_FileContext->handleRaycast(*m_RayCaster.get(), nor_mouse_pos);
-			m_FileContext->handleHoverResult(m_Object_Hover);
+			m_FileContext->handleHoverResult();
 		}
 	}
 	void MainViewPort::update(const float& dtTime)

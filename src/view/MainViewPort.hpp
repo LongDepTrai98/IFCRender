@@ -36,7 +36,7 @@ namespace dragon
 	private:
 		std::unique_ptr<CustomRayCaster> m_RayCaster{ nullptr };
 		std::unique_ptr<IFileContext> m_FileContext{ nullptr };
-		std::shared_ptr<threepp::Mesh> m_Object_Hover{ nullptr };
+		//std::shared_ptr<threepp::Mesh> m_Object_Hover{ nullptr };
 	};
 }
 #endif // !_MAIN_VIEW_PORT_HPP_
