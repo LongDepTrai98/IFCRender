@@ -17,7 +17,6 @@ namespace nanort
 			int kz;
 		} RayCoeff;
 
-
 	public:
 		template<class M>
 		CustomIntersector(const M& m)
@@ -59,15 +58,14 @@ namespace nanort
 			const unsigned int f2 = faces_[3 * prim_index + 2];
 
 			//add callback function check face
-			bool bCustomCheck{ true }; 
+			bool bCustomCheck{ true };
 			if (custom_callback_checkface)
 			{
 				/*CHECK FACE A,B,C FOR CUSTOM HIDE GEO*/
-				bCustomCheck = (*custom_callback_checkface)(f0,f1,f2); 
+				bCustomCheck = (*custom_callback_checkface)(f0, f1, f2);
 			}
-			
-			if (!bCustomCheck) return false; 
 
+			if (!bCustomCheck) return false;
 
 			const real3<T> p0(get_vertex_addr(vertices_, f0 + 0, vertex_stride_bytes_));
 			const real3<T> p1(get_vertex_addr(vertices_, f1 + 0, vertex_stride_bytes_));
@@ -195,8 +193,8 @@ namespace nanort
 
 			u_ = static_cast<T>(0.0);
 			v_ = static_cast<T>(0.0);
-		} 
-		T GetT() const { return t_; }; 
+		}
+		T GetT() const { return t_; };
 		void PostTraversal(const Ray<T>& ray, bool hit, H* isect) const {
 			if (hit && isect) {
 				(*isect).t = t_;

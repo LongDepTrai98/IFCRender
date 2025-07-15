@@ -27,12 +27,12 @@ namespace dragon
 	{
 		if (m_BVHAccel)
 		{
-			m_BVHAccel.reset(); 
-			m_BVHAccel = nullptr; 
+			m_BVHAccel.reset();
+			m_BVHAccel = nullptr;
 		}
 		if (triangle_intersecter)
 		{
-			triangle_intersecter.reset(); 
+			triangle_intersecter.reset();
 			triangle_intersecter = nullptr;
 		}
 		//auto& vertices = geometry->getAttribute<float>("position")->array();
@@ -108,6 +108,6 @@ namespace dragon
 	}
 	nanort::CustomIntersector<>* CustomRayCaster::getIntersector()
 	{
-		return triangle_intersecter.get(); 
+		return triangle_intersecter.get();
 	}
 }

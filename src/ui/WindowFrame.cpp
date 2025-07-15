@@ -18,7 +18,7 @@ namespace dragon
 	{
 		if (m_bIsMaximize)
 		{
-			this->Maximize(true); 
+			this->Maximize(true);
 		}
 		initUIManager();
 		initUI();

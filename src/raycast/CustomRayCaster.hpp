@@ -40,7 +40,7 @@ namespace dragon
 		bool intersectObjects(Result& result);
 		void setFromCamera(const threepp::Vector2& coords, threepp::Camera& camera);
 		void clearBVH();
-		nanort::CustomIntersector<>* getIntersector(); 
+		nanort::CustomIntersector<>* getIntersector();
 	private:
 		std::unique_ptr<nanort::BVHAccel<float>> m_BVHAccel{ nullptr };
 		std::unique_ptr<nanort::CustomIntersector<>> triangle_intersecter{ nullptr };

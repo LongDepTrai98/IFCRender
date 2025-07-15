@@ -57,7 +57,7 @@ namespace dragon
 			auto& array_normals = group->children[0]->geometry()->getAttribute<float>("normal")->array();
 			ptr_ifc_offset_cache->m_Object_Normals.assign(array_vertices.begin(), array_vertices.end());
 			auto& array_expressID = group->children[0]->geometry()->getAttribute<unsigned int>("expressID")->array();
-			ptr_ifc_offset_cache->m_Object_ExpressID = array_expressID; 
+			ptr_ifc_offset_cache->m_Object_ExpressID = array_expressID;
 		}
 		if (m_Window)
 		{
@@ -91,7 +91,7 @@ namespace dragon
 			main_viewport->buildBVH(ptr_ifc_offset_cache->m_Object_Vertices, ptr_ifc_offset_cache->m_Object_Indices);
 			auto RayCast = main_viewport->getRayCaster();
 			ptr_ifc_file_context->RayCast = RayCast;
-			RayCast->getIntersector()->custom_callback_checkface = ptr_ifc_file_context->m_callback_intersect; 
+			RayCast->getIntersector()->custom_callback_checkface = ptr_ifc_file_context->m_callback_intersect;
 		}
 	}
 }

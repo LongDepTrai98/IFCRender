@@ -68,8 +68,8 @@ namespace dragon
 			{
 				/*UPDATE EXPRESSID*/
 				m_Current_ExpressID = expressID;
-			/*	spdlog::info("current expressID : {}", m_Current_ExpressID);
-				spdlog::info("A : {}, B : {}, C: {}", index_face_a, index_face_b, index_face_c);*/
+				/*	spdlog::info("current expressID : {}", m_Current_ExpressID);
+					spdlog::info("A : {}, B : {}, C: {}", index_face_a, index_face_b, index_face_c);*/
 			}
 		}
 	}
@@ -109,7 +109,7 @@ namespace dragon
 
 	void IFCFileContext::rebuildVisibleIndices()
 	{
-		m_Hidden_Express_IDs.clear(); 
+		m_Hidden_Express_IDs.clear();
 		std::shared_ptr<threepp::BufferGeometry> root_geometry = m_Model->m_Object_Model->geometry();
 		std::map<int, std::vector<std::pair<int, int>>> offset_set;
 		size_t total_indices = 0;
@@ -130,7 +130,7 @@ namespace dragon
 				}
 			}
 			else
-				m_Hidden_Express_IDs.insert({ expressID }); 
+				m_Hidden_Express_IDs.insert({ expressID });
 		}
 		//update indices
 		int index_offset{ 0 };
@@ -174,8 +174,8 @@ namespace dragon
 		tmp_buffer->groups = groups;
 		tmp_buffer->computeVertexNormals();
 		m_Model->m_Object_Model->as<threepp::Mesh>()->setGeometry(tmp_buffer);
-		//RayCast->test(m_Model->m_Object_Vertices,rebuild_indices); 
-		m_Current_ExpressID = -1; 
+		//RayCast->test(m_Model->m_Object_Vertices,rebuild_indices);
+		m_Current_ExpressID = -1;
 	}
 
 	void IFCFileContext::initCallback()
@@ -208,15 +208,15 @@ namespace dragon
 		auto lambda_select_object = [&](const unsigned index_face_a, const unsigned index_face_b, const unsigned index_face_c)
 			{
 				const int& a = m_Model->m_Object_Indices[index_face_a];
-				const unsigned int& expressID = m_Model->m_Object_ExpressID[a]; 
-				auto it = m_Hidden_Express_IDs.find(expressID); 
-				return it == m_Hidden_Express_IDs.end(); 
-			}; 
+				const unsigned int& expressID = m_Model->m_Object_ExpressID[a];
+				auto it = m_Hidden_Express_IDs.find(expressID);
+				return it == m_Hidden_Express_IDs.end();
+			};
 		m_Toggle_Component_Callback = std::make_shared<std::function<void(const std::pair<int, ItemData*>&)>>(lambda_toggle_component_callback);
 		m_Toggle_Components_Callback = std::make_shared<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>>(lambda_toggle_componenents_callback);
 		m_GetData_Item_Callback = std::make_shared<std::function<void* (const int&)>>(lambda_get_item_value_callback);
 		m_callback_intersect = std::make_shared<std::function<bool(const unsigned int,
 			const unsigned int,
-			const unsigned int)>>(lambda_select_object); 
+			const unsigned int)>>(lambda_select_object);
 	}
 }
