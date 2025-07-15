@@ -19,6 +19,11 @@ namespace dragon
 	public:
 		void initCamera(threepp::WindowSize& w_size) override;
 		void initScene(threepp::WindowSize& w_size) override;
+		void OnLButtonDown() override;
+		void OnLButtonUp() override;
+		void OnRButtonDown() override;
+		void OnRButtonUp() override;
+	public: 
 		void initRayCaster();
 		void initObjectHover();
 		void setFileContext(std::unique_ptr<IFileContext> file_context);
@@ -32,7 +37,7 @@ namespace dragon
 		void update(const float& dtTime) override;
 		void render(threepp::GLRenderer* renderer) override;
 		void resize(const int& width, const int& height) override;
-		void handleRaycast(threepp::Vector2& nor_mouse_pos) override;
+		void handleRaycast(MouseState& mouse_state) override;
 	private:
 		std::unique_ptr<CustomRayCaster> m_RayCaster{ nullptr };
 		std::unique_ptr<IFileContext> m_FileContext{ nullptr };

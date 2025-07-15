@@ -12,13 +12,14 @@ namespace dragon
 {
 	class IGeometryCache;
 	class CustomRayCaster;
+	class MouseState; 
 	class IFileContext
 	{
 	public:
 		virtual ~IFileContext() {};
 	public:
 		virtual std::string getFileType() = 0;
-		virtual void handleRaycast(CustomRayCaster& RayCaster, threepp::Vector2& nor_mouse_pos) = 0;
+		virtual void handleRaycast(CustomRayCaster& RayCaster, MouseState& mouse_state) = 0;
 		virtual void handleHoverResult() = 0;
 	public:
 		bool m_bIsEnableHover{ true };

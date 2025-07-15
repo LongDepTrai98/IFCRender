@@ -46,7 +46,7 @@ namespace dragon
 			renderer->render(*m_Scene, *m_Camera);
 		}
 	}
-	void ViewPortGizmo::handleRaycast(threepp::Vector2& nor_mouse_pos)
+	void ViewPortGizmo::handleRaycast(MouseState& mouse_state)
 	{
 		/*HANDLE RAY CASTER*/
 	}
@@ -92,5 +92,17 @@ namespace dragon
 	{
 		if (!m_Scene)
 			m_Scene = std::make_unique<threepp::Scene>();
+	}
+	void ViewPortGizmo::OnLButtonDown()
+	{
+	}
+	void ViewPortGizmo::OnLButtonUp()
+	{
+	}
+	void ViewPortGizmo::OnRButtonDown()
+	{
+	}
+	void ViewPortGizmo::OnRButtonUp()
+	{
 	}
 }

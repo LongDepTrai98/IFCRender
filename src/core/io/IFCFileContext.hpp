@@ -24,7 +24,7 @@ namespace dragon
 	public:
 		std::string getFileType() override;
 		IFCModelCache* getModelCache();
-		void handleRaycast(CustomRayCaster& RayCaster, threepp::Vector2& nor_mouse_pos) override;
+		void handleRaycast(CustomRayCaster& RayCaster, MouseState& mouse_state) override;
 		void handleHoverResult() override;
 		void rebuildVisibleIndices();
 		std::shared_ptr<threepp::Mesh> createHoverMesh(); 

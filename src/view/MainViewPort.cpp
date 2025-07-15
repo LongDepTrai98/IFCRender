@@ -6,6 +6,7 @@
 #include "core/io/IFCGeometryCache.hpp"
 #include "core/io/IFileContext.hpp"
 #include "raycast/CustomRayCaster.hpp"
+#include "input/input.hpp"
 namespace dragon
 {
 	MainViewPort::MainViewPort(RenderCanvas* canvas) : IRenderer(canvas)
@@ -31,6 +32,18 @@ namespace dragon
 		if (!m_Scene)
 			m_Scene = std::make_unique<threepp::Scene>();
 		m_Scene->background = 0x2A2A2A;
+	}
+	void MainViewPort::OnLButtonDown()
+	{
+	}
+	void MainViewPort::OnLButtonUp()
+	{
+	}
+	void MainViewPort::OnRButtonUp()
+	{
+	}
+	void MainViewPort::OnRButtonDown()
+	{
 	}
 	void MainViewPort::initRayCaster()
 	{
@@ -87,13 +100,13 @@ namespace dragon
 			m_Camera->updateProjectionMatrix();
 		}
 	}
-	void MainViewPort::handleRaycast(threepp::Vector2& nor_mouse_pos)
+	void MainViewPort::handleRaycast(MouseState& mouse_state)
 	{
-		m_RayCaster->setFromCamera(nor_mouse_pos,
+		m_RayCaster->setFromCamera(mouse_state.nor_mouse_pos,
 			*m_Camera.get());
 		if (m_FileContext)
 		{
-			m_FileContext->handleRaycast(*m_RayCaster.get(), nor_mouse_pos);
+			m_FileContext->handleRaycast(*m_RayCaster.get(), mouse_state);
 			m_FileContext->handleHoverResult();
 		}
 	}

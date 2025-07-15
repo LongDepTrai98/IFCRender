@@ -77,7 +77,7 @@ namespace dragon
 		UpdateGizmoFromCamera();
 		for (auto& viewport : m_lstViewPort)
 		{
-			viewport->handleRaycast(nor_mouse_pos);
+			viewport->handleRaycast(m_MouseState);
 			viewport->render(m_Renderer.get());
 		}
 	}
@@ -111,8 +111,8 @@ namespace dragon
 		threepp::Vector2 mousePos(static_cast<float>(pos.x), static_cast<float>(pos.y));
 		onMouseMoveEvent(mousePos);
 		const wxSize size = m_Canvas->getSize();
-		nor_mouse_pos.x = (pos.x / static_cast<float>(size.GetWidth())) * 2 - 1;
-		nor_mouse_pos.y = -(pos.y / static_cast<float>(size.GetHeight())) * 2 + 1;
+		m_MouseState.nor_mouse_pos.x = (pos.x / static_cast<float>(size.GetWidth())) * 2 - 1;
+		m_MouseState.nor_mouse_pos.y = -(pos.y / static_cast<float>(size.GetHeight())) * 2 + 1;
 	}
 	void THREEPPRenderer::OnMousePress(wxMouseEvent& event)
 	{
@@ -120,9 +120,11 @@ namespace dragon
 		wxPoint pos = event.GetPosition();
 		int button = 0;
 		if (wxMOUSE_BTN_LEFT == buttonFlag) {
+			m_MouseState.isLButtonDown = true; 
 			button = 0;
 		}
 		else if (wxMOUSE_BTN_RIGHT == buttonFlag) {
+			m_MouseState.isRButtonDown = true;
 			button = 1;
 		}
 		threepp::Vector2 p{ pos.x, pos.y };
@@ -134,9 +136,11 @@ namespace dragon
 		wxPoint pos = event.GetPosition();
 		int button = 0;
 		if (wxMOUSE_BTN_LEFT == buttonFlag) {
+			m_MouseState.isLButtonDown = false; 
 			button = 0;
 		}
 		else if (wxMOUSE_BTN_RIGHT == buttonFlag) {
+			m_MouseState.isRButtonDown = false; 
 			button = 1;
 		}
 		threepp::Vector2 p{ pos.x, pos.y };

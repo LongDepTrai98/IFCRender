@@ -14,11 +14,15 @@ namespace dragon
 	public:
 		void initCamera(threepp::WindowSize& w_size) override;
 		void initScene(threepp::WindowSize& w_size) override;
+		void OnLButtonDown() override;
+		void OnLButtonUp() override;
+		void OnRButtonDown() override;
+		void OnRButtonUp() override;
 	public:
 		void resize(const int& width, const int& height) override;
 		void update(const float& dtTime) override;
 		void render(threepp::GLRenderer* renderer) override;
-		void handleRaycast(threepp::Vector2& nor_mouse_pos) override;
+		void handleRaycast(MouseState& mouse_state) override;
 		void clearScene() override;
 	private:
 		std::shared_ptr<threepp::BufferGeometry> loadCubeGeometry();

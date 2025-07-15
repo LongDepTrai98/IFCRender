@@ -88,6 +88,9 @@ source_group("raycast" FILES ${RAYCAST_SRC})
 #tsl
 file(GLOB_RECURSE TSL_SRC "src/tsl/*.h")
 source_group("tsl" FILES ${TSL_SRC})
+#input 
+file(GLOB_RECURSE INPUT_SRC "src/input/*.hpp")
+source_group("input" FILES ${INPUT_SRC})
  
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
@@ -105,6 +108,7 @@ add_executable(${EDITOR_NAME_PROJECT}
     ${APP_VIEWPORT_SRC}
     ${RAYCAST_SRC}
     ${TSL_SRC}
+    ${INPUT_SRC}
 )
 
  #add include 

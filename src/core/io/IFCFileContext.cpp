@@ -10,6 +10,7 @@
 #include <iostream>
 #include <set>
 #include "core/utils/ThreeHelper.hpp"
+#include "input/input.hpp"
 
 namespace dragon
 {
@@ -40,9 +41,14 @@ namespace dragon
 	{
 		return m_Model.get();
 	}
-	void IFCFileContext::handleRaycast(CustomRayCaster& RayCaster, threepp::Vector2& nor_mouse_pos)
+	void IFCFileContext::handleRaycast(CustomRayCaster& RayCaster, MouseState& mouse_state)
 	{
 		if (!m_bIsEnableHover) return;
+		if (mouse_state.isLButtonDown)
+		{
+			m_Current_ExpressID = -1;
+			return; 
+		}
 		if (!m_Model->m_Object_Model)
 		{
 			m_Current_ExpressID = -1;
