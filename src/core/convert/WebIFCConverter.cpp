@@ -70,6 +70,8 @@ namespace dragon
 				{
 					IFCModelCache::element element;
 					element.state = 1;
+					element.totalIndices = 0; 
+					element.totalVertices = 0; 
 					geometry_offset_with_expressID.insert({ expressID,element });
 				}
 				geometry_offset_with_expressID[expressID].offsets.push_back({ begin_offset_vertex,
@@ -79,6 +81,8 @@ namespace dragon
 					material_index,
 					1
 					});
+				geometry_offset_with_expressID[expressID].totalIndices += end_offset_index - begin_offset_index + 1; 
+				geometry_offset_with_expressID[expressID].totalVertices += end_offset_vertex - begin_offset_vertex + 1; 
 			}
 			std::shared_ptr<threepp::BufferGeometry> merged = threepp::mergeBufferGeometries(geometries_in_mat);
 			geometries.emplace_back(merged);

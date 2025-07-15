@@ -20,11 +20,11 @@ namespace dragon
 		if (!m_Material_Hover)
 		{
 			m_Material_Hover = threepp::MeshBasicMaterial::create();
-			m_Material_Hover->as<threepp::MeshBasicMaterial>()->color = threepp::Color::lightblue;
+			m_Material_Hover->as<threepp::MeshBasicMaterial>()->color = threepp::Color::lawngreen;
 			m_Material_Hover->transparent = true;
 			m_Material_Hover->depthWrite = false;
 			m_Material_Hover->depthTest = false;
-			m_Material_Hover->opacity = 0.8f;
+			m_Material_Hover->opacity = 0.7f;
 		}
 	}
 	IFCFileContext::~IFCFileContext()
@@ -91,36 +91,18 @@ namespace dragon
 					const IFCModelCache::element& e = it->second; 
 					std::shared_ptr<threepp::BufferGeometry> geo_hover = ThreeHelper::BuildSubGeometryWithOffset(e,
 						m_Model->m_Object_Vertices,
-						m_Model->m_Object_Normals
+						m_Model->m_Object_Normals, 
+						m_Model->m_Object_Indices
 						); 
-					int a = 3; 
+					m_Object_OverLay_Hover->setGeometry(geo_hover); 
 				}
-
 				m_Old_ExpressID = m_Current_ExpressID;
-
-				/*if (!object_hover->visible)
-				{
-					object_hover->visible = true;
-				}*/
-				/*auto& data_offset = geo_cache->getDataOffset();
-				auto it = data_offset.find(m_Current_ExpressID);
-				if (it == data_offset.end()) return;
-				auto& offsets = it->second;
-				std::vector<std::shared_ptr<threepp::BufferGeometry>> geometries{};
-				for (auto& offset : offsets)
-				{
-					geometries.emplace_back(offset.geometry);
-				}
-				std::shared_ptr<threepp::BufferGeometry> mergeo = threepp::mergeBufferGeometries(geometries, false);
-				object_hover->setGeometry(mergeo);
-				object_hover->setMaterial(m_Material_Hover);
-				m_Old_ExpressID = m_Current_ExpressID;*/
 			}
 			/*HIDE GEO*/
 		}
 		else
 		{
-			//object_hover->visible = false;
+			m_Object_OverLay_Hover->visible = false;
 			m_Old_ExpressID = -1;
 		}
 	}

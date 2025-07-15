@@ -34,6 +34,8 @@ namespace dragon
 			/*AUTO SHOW*/
 			int state{ 1 };
 			std::vector<IFCModelCache::offset> offsets{};
+			uint64_t totalIndices{ 0 };
+			uint64_t totalVertices{ 0 }; 
 		};
 	public:
 		~IFCModelCache();

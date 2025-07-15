@@ -29,7 +29,8 @@ namespace dragon
 			const std::vector<float>& normals);
 		static std::shared_ptr<threepp::BufferGeometry> BuildSubGeometryWithOffset(const IFCModelCache::element& element,
 			const std::vector<float>& vertices,
-			const std::vector<float>& normals); 
+			const std::vector<float>& normals, 
+			const std::vector<unsigned int>& indices);
 	private:
 		ThreeHelper() = default;
 	};
