@@ -20,8 +20,8 @@ namespace dragon
 		/*INIT MATERIAL HOVER*/
 		if (!m_Material_Hover)
 		{
-			m_Material_Hover = threepp::MeshBasicMaterial::create();
-			m_Material_Hover->as<threepp::MeshBasicMaterial>()->color = threepp::Color::darkgreen;
+			m_Material_Hover = threepp::MeshPhongMaterial::create();
+			m_Material_Hover->as<threepp::MeshPhongMaterial>()->color = threepp::Color::darkgreen;
 			m_Material_Hover->transparent = true;
 			m_Material_Hover->depthTest = false;
 			m_Material_Hover->opacity = 0.5f;

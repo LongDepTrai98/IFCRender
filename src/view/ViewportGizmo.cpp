@@ -64,7 +64,7 @@ namespace dragon
 	{
 		std::shared_ptr<threepp::BufferGeometry> cube_geometry = loadCubeGeometry();
 		cube_geometry->center();
-		std::shared_ptr<threepp::MeshPhongMaterial> cube_material = threepp::MeshPhongMaterial::create({ {"flatShading", true}, {"color", threepp::Color::lightgray} });
+		std::shared_ptr<threepp::MeshStandardMaterial> cube_material = threepp::MeshStandardMaterial::create({ {"flatShading", true}, {"color", threepp::Color::lightgray} });
 		std::shared_ptr<threepp::LineBasicMaterial> outline_edge_material = threepp::LineBasicMaterial::create(); 
 		std::shared_ptr<threepp::EdgesGeometry> outline_edge_geometry = threepp::EdgesGeometry::create(*cube_geometry, outline_edge::THRESHOLD_ANGLE);
 		//std::shared_ptr<threepp::BufferGeometry> cube_geometry_merge = threepp::mergeBufferGeometries({cube_geometry,outline_edge_geometry},true);

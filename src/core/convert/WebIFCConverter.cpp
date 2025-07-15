@@ -218,9 +218,10 @@ namespace dragon
 		if (geo_with_material.count(str_hash_color) == 0)
 		{
 			/*CREATE MATERIAL*/
-			std::shared_ptr<threepp::MeshStandardMaterial> material = threepp::MeshStandardMaterial::create();
+			std::shared_ptr<threepp::MeshPhongMaterial> material = threepp::MeshPhongMaterial::create();
 			threepp::Color color;
 			color.setRGB(placedColor.x, placedColor.y, placedColor.z);
+			material->shininess = 100.0f; 
 			material->color = color;
 			material->side = threepp::Side::Double;
 			material->transparent = placedColor.w != 1.0;
