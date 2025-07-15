@@ -133,7 +133,7 @@ namespace dragon
 		/*MERGE VERTICES*/
 		for (const auto& vecVertex : vecLstVertices)
 		{
-			mergeVetices.insert(mergeVetices.begin(),
+			mergeVetices.insert(mergeVetices.end(),
 				vecVertex.begin(),
 				vecVertex.end());
 		}
@@ -141,7 +141,7 @@ namespace dragon
 		/*MERGE NORMALS*/
 		for (const auto& vecNormal : vecLstNormals)
 		{
-			mergeNormals.insert(mergeNormals.begin(),
+			mergeNormals.insert(mergeNormals.end(),
 				vecNormal.begin(),
 				vecNormal.end()); 
 		}
@@ -156,7 +156,7 @@ namespace dragon
 				[offset_indices](float v) { return v + offset_indices; });
 			const int count = vecLstVertices[i].size() / 3; 
 			offset_indices += count; 
-			mergeIndices.insert(mergeIndices.begin(),
+			mergeIndices.insert(mergeIndices.end(),
 				result.begin(),
 				result.end()); 
 			++i; 

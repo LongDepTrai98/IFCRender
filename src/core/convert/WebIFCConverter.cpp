@@ -137,8 +137,7 @@ namespace dragon
 		for (auto& type : ifcElementList)
 		{
 			if (type == webifc::schema::IFCOPENINGELEMENT
-				|| type == webifc::schema::IFCSPACE
-				|| type == webifc::schema::IFCANNOTATION)
+				|| type == webifc::schema::IFCSPACE)
 			{
 				continue;
 			}

@@ -20,11 +20,10 @@ namespace dragon
 		if (!m_Material_Hover)
 		{
 			m_Material_Hover = threepp::MeshBasicMaterial::create();
-			m_Material_Hover->as<threepp::MeshBasicMaterial>()->color = threepp::Color::lawngreen;
+			m_Material_Hover->as<threepp::MeshBasicMaterial>()->color = threepp::Color::darkgreen;
 			m_Material_Hover->transparent = true;
-			m_Material_Hover->depthWrite = false;
 			m_Material_Hover->depthTest = false;
-			m_Material_Hover->opacity = 0.7f;
+			m_Material_Hover->opacity = 0.5f;
 		}
 	}
 	IFCFileContext::~IFCFileContext()
