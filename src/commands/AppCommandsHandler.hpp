@@ -5,13 +5,13 @@ namespace dragon
 {
 	class AppCommandHandler
 	{
-	public: 
+	public:
 		AppCommandHandler(wxWindow* parent);
-		~AppCommandHandler() = default; 
-	public: 
+		~AppCommandHandler() = default;
+	public:
 		void OnOpenFile(wxCommandEvent& event);
-	private: 
-		wxWindow* m_ParentWindow{ nullptr }; 
+	private:
+		wxWindow* m_ParentWindow{ nullptr };
 	};
 }
 #endif // !_APP_COMMAND_HANDLER_HPP_

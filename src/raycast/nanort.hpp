@@ -1006,9 +1006,9 @@ namespace nanort {
 		// Required member variables.
 		T t;
 		/*INTERSECTION POINT*/
-		T x; 
-		T y; 
-		T z; 
+		T x;
+		T y;
+		T z;
 		unsigned int prim_id;
 	};
 

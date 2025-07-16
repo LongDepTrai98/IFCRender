@@ -11,7 +11,7 @@ namespace threepp
 namespace dragon
 {
 	/*INTERFACE VIEWPORT*/
-	class MouseState; 
+	class MouseState;
 	class ViewPort
 	{
 	public:
@@ -38,8 +38,8 @@ namespace dragon
 		virtual void OnLButtonDown() = 0;
 		virtual void OnLButtonUp() = 0;
 		virtual void OnRButtonDown() = 0;
-		virtual void OnRButtonUp() = 0; 
-		virtual void clearScene() = 0; 
+		virtual void OnRButtonUp() = 0;
+		virtual void clearScene() = 0;
 		//virtual void
 	protected:
 		/*SCENE CONTEXT*/

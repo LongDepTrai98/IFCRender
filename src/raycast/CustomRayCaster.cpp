@@ -63,7 +63,7 @@ namespace dragon
 					intersect.v = isect.v; // Set the barycentric coordinate v
 					intersect.prim_id = isect.prim_id; // Set the primitive ID
 					/*CAL HIT POINT*/
-					intersect.P = m_RayOrigin + m_RayDirection * isect.t; 
+					intersect.P = m_RayOrigin + m_RayDirection * isect.t;
 					return true;
 				}
 			}

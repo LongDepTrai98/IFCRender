@@ -70,8 +70,8 @@ namespace dragon
 				{
 					IFCModelCache::element element;
 					element.state = 1;
-					element.totalIndices = 0; 
-					element.totalVertices = 0; 
+					element.totalIndices = 0;
+					element.totalVertices = 0;
 					geometry_offset_with_expressID.insert({ expressID,element });
 				}
 				geometry_offset_with_expressID[expressID].offsets.push_back({ begin_offset_vertex,
@@ -81,8 +81,8 @@ namespace dragon
 					material_index,
 					1
 					});
-				geometry_offset_with_expressID[expressID].totalIndices += end_offset_index - begin_offset_index + 1; 
-				geometry_offset_with_expressID[expressID].totalVertices += end_offset_vertex - begin_offset_vertex + 1; 
+				geometry_offset_with_expressID[expressID].totalIndices += end_offset_index - begin_offset_index + 1;
+				geometry_offset_with_expressID[expressID].totalVertices += end_offset_vertex - begin_offset_vertex + 1;
 			}
 			std::shared_ptr<threepp::BufferGeometry> merged = threepp::mergeBufferGeometries(geometries_in_mat);
 			geometries.emplace_back(merged);
@@ -197,7 +197,7 @@ namespace dragon
 		std::vector<float> normals(normals_size);
 		normals.reserve(normals_size);
 		std::vector<uint32_t> idAttribute(attribute_size);
-		idAttribute.reserve(attribute_size); 
+		idAttribute.reserve(attribute_size);
 		for (int i = 0; i < vertexData.size(); i += 6)
 		{
 			/*POINT X*/
@@ -221,7 +221,7 @@ namespace dragon
 			std::shared_ptr<threepp::MeshPhongMaterial> material = threepp::MeshPhongMaterial::create();
 			threepp::Color color;
 			color.setRGB(placedColor.x, placedColor.y, placedColor.z);
-			material->shininess = 100.0f; 
+			material->shininess = 100.0f;
 			material->color = color;
 			material->side = threepp::Side::Double;
 			material->transparent = placedColor.w != 1.0;

@@ -120,7 +120,7 @@ namespace dragon
 		wxPoint pos = event.GetPosition();
 		int button = 0;
 		if (wxMOUSE_BTN_LEFT == buttonFlag) {
-			m_MouseState.isLButtonDown = true; 
+			m_MouseState.isLButtonDown = true;
 			button = 0;
 		}
 		else if (wxMOUSE_BTN_RIGHT == buttonFlag) {
@@ -136,11 +136,11 @@ namespace dragon
 		wxPoint pos = event.GetPosition();
 		int button = 0;
 		if (wxMOUSE_BTN_LEFT == buttonFlag) {
-			m_MouseState.isLButtonDown = false; 
+			m_MouseState.isLButtonDown = false;
 			button = 0;
 		}
 		else if (wxMOUSE_BTN_RIGHT == buttonFlag) {
-			m_MouseState.isRButtonDown = false; 
+			m_MouseState.isRButtonDown = false;
 			button = 1;
 		}
 		threepp::Vector2 p{ pos.x, pos.y };

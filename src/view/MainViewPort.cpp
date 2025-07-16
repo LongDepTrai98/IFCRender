@@ -50,7 +50,7 @@ namespace dragon
 		if (!m_RayCaster)
 			m_RayCaster = std::make_unique<CustomRayCaster>();
 	}
-	
+
 	void MainViewPort::setFileContext(std::unique_ptr<IFileContext> file_context)
 	{
 		if (m_FileContext)
@@ -69,7 +69,7 @@ namespace dragon
 		std::vector<unsigned int>& indices)
 	{
 		if (m_RayCaster) {
-			m_RayCaster->buildBVH(vertices,indices);
+			m_RayCaster->buildBVH(vertices, indices);
 		}
 	}
 	void MainViewPort::clearBVH()
@@ -89,7 +89,7 @@ namespace dragon
 	}
 	CustomRayCaster* MainViewPort::getRayCaster()
 	{
-		return m_RayCaster.get(); 
+		return m_RayCaster.get();
 	}
 	void MainViewPort::resize(const int& width, const int& height)
 	{

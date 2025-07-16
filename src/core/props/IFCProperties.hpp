@@ -11,23 +11,23 @@ namespace dragon
 	class ElementTree;
 	class IFCProperties
 	{
-	public: 
+	public:
 		struct PropsNames
 		{
 			uint32_t expressID{ 0 };
 			std::string relating{ "" };
-			std::string related{ "" }; 
+			std::string related{ "" };
 			std::string key{ "" };
 		};
 	public:
 		IFCProperties(const int& modelID, webifc::manager::ModelManager* model);
-		~IFCProperties(); 
-	public: 
+		~IFCProperties();
+	public:
 		void getChunks(const int& modelID,
-			PropsNames prop, 
-			std::unordered_map<int,std::vector<int>>& chunk);
+			PropsNames prop,
+			std::unordered_map<int, std::vector<int>>& chunk);
 		std::shared_ptr<ElementTree> createTreeNode(const uint32_t& modelID);
-	private: 
+	private:
 		webifc::manager::ModelManager* m_modelManager{ nullptr };
 		std::map<std::string, PropsNames> m_propsNamesMap;
 	};

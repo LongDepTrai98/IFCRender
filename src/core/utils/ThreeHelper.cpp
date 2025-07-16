@@ -32,11 +32,11 @@ namespace dragon
 	}
 	std::shared_ptr<threepp::BufferGeometry> ThreeHelper::BuildSubGeometry(const int& total_indices,
 		const std::vector<std::shared_ptr<threepp::Material>>& materials,
-		const std::map<int, std::vector<std::pair<int, int>>>& viewGeometries, 
-		const std::vector<unsigned int>& root_indices, 
-		const std::vector<float>& vertices, 
+		const std::map<int, std::vector<std::pair<int, int>>>& viewGeometries,
+		const std::vector<unsigned int>& root_indices,
+		const std::vector<float>& vertices,
 		const std::vector<float>& normals
-		)
+	)
 	{
 		int index_offset{ 0 };
 		std::vector<unsigned int> rebuild_indices{};
@@ -48,12 +48,12 @@ namespace dragon
 
 		for (const auto& [material_index, offsets] : viewGeometries)
 		{
-			int count{ 0 }; 
+			int count{ 0 };
 			threepp::GeometryGroup group;
 			group.start = start;
 			group.materialIndex = material_index;
 			if (offsets.size() == 0)
-				continue; 
+				continue;
 			for (auto& [begin, end] : offsets)
 			{
 				count += (end - begin) + 1;
@@ -79,53 +79,53 @@ namespace dragon
 		sub_geometry_buffer->computeBoundingSphere();
 		return sub_geometry_buffer;
 	}
-	std::shared_ptr<threepp::BufferGeometry> ThreeHelper::BuildSubGeometryWithOffset(const IFCModelCache::element& element, 
+	std::shared_ptr<threepp::BufferGeometry> ThreeHelper::BuildSubGeometryWithOffset(const IFCModelCache::element& element,
 		const std::vector<float>& vertices,
-		const std::vector<float>& normals, 
+		const std::vector<float>& normals,
 		const std::vector<unsigned int>& indices)
 	{
-		std::shared_ptr<threepp::BufferGeometry> sub_geometry_buffer = threepp::BufferGeometry::create(); 
-		std::vector<std::vector<float>> vecLstVertices{}; 
-		std::vector<std::vector<unsigned int>> vecLstIndices{}; 
-		std::vector<std::vector<float>> vecLstNormals{}; 
-		int countVertices{ 0 }; 
-		int countIndices{ 0 }; 
-		int countNormals{ 0 }; 
+		std::shared_ptr<threepp::BufferGeometry> sub_geometry_buffer = threepp::BufferGeometry::create();
+		std::vector<std::vector<float>> vecLstVertices{};
+		std::vector<std::vector<unsigned int>> vecLstIndices{};
+		std::vector<std::vector<float>> vecLstNormals{};
+		int countVertices{ 0 };
+		int countIndices{ 0 };
+		int countNormals{ 0 };
 		for (const auto& offset : element.offsets)
 		{
 			std::vector<unsigned int> sub_indices{};
-			const int range_index = offset.end_indices_offset - offset.begin_indices_offset + 1; 
+			const int range_index = offset.end_indices_offset - offset.begin_indices_offset + 1;
 			sub_indices.reserve(range_index);
 			sub_indices.insert(sub_indices.end(),
 				indices.begin() + offset.begin_indices_offset,
-				indices.begin() + offset.end_indices_offset + 1); 
+				indices.begin() + offset.end_indices_offset + 1);
 			unsigned int min_index = *std::min_element(sub_indices.begin(), sub_indices.end());
 			std::vector<unsigned int> result(range_index);
 			std::transform(sub_indices.begin(), sub_indices.end(), result.begin(),
 				[min_index](float v) { return v - min_index; });
 			vecLstIndices.emplace_back(result);
-			countIndices += range_index; 
-			sub_indices.clear(); 
-			const int range_vertex = offset.end_vertex_offset - offset.begin_vertex_offset + 1; 
+			countIndices += range_index;
+			sub_indices.clear();
+			const int range_vertex = offset.end_vertex_offset - offset.begin_vertex_offset + 1;
 			std::vector<float> sub_vertex{};
 			sub_vertex.reserve(range_vertex);
 			sub_vertex.insert(sub_vertex.end(),
 				vertices.begin() + offset.begin_vertex_offset,
 				vertices.begin() + offset.end_vertex_offset + 1);
 			vecLstVertices.emplace_back(sub_vertex);
-			countVertices += range_vertex; 
-			std::vector<float> sub_normals{}; 
+			countVertices += range_vertex;
+			std::vector<float> sub_normals{};
 			sub_normals.reserve(range_vertex);
 			sub_normals.insert(sub_normals.end(),
 				normals.begin() + offset.begin_vertex_offset,
-				normals.begin() + offset.end_vertex_offset + 1); 
+				normals.begin() + offset.end_vertex_offset + 1);
 			vecLstNormals.emplace_back(sub_normals);
-			countNormals += range_vertex; 
+			countNormals += range_vertex;
 		}
 
-		std::vector<float> mergeVetices{}; 
-		std::vector<unsigned int> mergeIndices{}; 
-		std::vector<float> mergeNormals{}; 
+		std::vector<float> mergeVetices{};
+		std::vector<unsigned int> mergeIndices{};
+		std::vector<float> mergeNormals{};
 		mergeVetices.reserve(countVertices);
 		mergeIndices.reserve(countIndices);
 		mergeNormals.reserve(countNormals);
@@ -137,36 +137,36 @@ namespace dragon
 				vecVertex.begin(),
 				vecVertex.end());
 		}
-		
+
 		/*MERGE NORMALS*/
 		for (const auto& vecNormal : vecLstNormals)
 		{
 			mergeNormals.insert(mergeNormals.end(),
 				vecNormal.begin(),
-				vecNormal.end()); 
+				vecNormal.end());
 		}
 
 		/*MERGE INDICES*/
-		int offset_indices{ 0 }; 
-		size_t i = 0; 
+		int offset_indices{ 0 };
+		size_t i = 0;
 		for (const auto& vecIndices : vecLstIndices)
 		{
 			std::vector<unsigned int> result(vecIndices.size());
 			std::transform(vecIndices.begin(), vecIndices.end(), result.begin(),
 				[offset_indices](float v) { return v + offset_indices; });
-			const int count = vecLstVertices[i].size() / 3; 
-			offset_indices += count; 
+			const int count = vecLstVertices[i].size() / 3;
+			offset_indices += count;
 			mergeIndices.insert(mergeIndices.end(),
 				result.begin(),
-				result.end()); 
-			++i; 
+				result.end());
+			++i;
 		}
 		sub_geometry_buffer->setIndex(mergeIndices);
 		sub_geometry_buffer->setAttribute("position", threepp::FloatBufferAttribute::create(mergeVetices, 3));
 		sub_geometry_buffer->setAttribute("normal", threepp::FloatBufferAttribute::create(mergeNormals, 3));
-		sub_geometry_buffer->computeBoundingBox(); 
-		sub_geometry_buffer->computeBoundingSphere(); 
+		sub_geometry_buffer->computeBoundingBox();
+		sub_geometry_buffer->computeBoundingSphere();
 		sub_geometry_buffer->computeVertexNormals();
-		return sub_geometry_buffer; 
+		return sub_geometry_buffer;
 	}
 }

@@ -18,7 +18,7 @@ namespace dragon
 	{
 		m_Model = std::make_unique<IFCModelCache>();
 		/*INIT MATERIAL HOVER*/
-		initLayerOverLay(); 
+		initLayerOverLay();
 	}
 	IFCFileContext::~IFCFileContext()
 	{
@@ -40,7 +40,7 @@ namespace dragon
 		if (mouse_state.isLButtonDown)
 		{
 			m_Current_ExpressID = -1;
-			return; 
+			return;
 		}
 		if (!m_Model->m_Object_Model)
 		{
@@ -66,13 +66,12 @@ namespace dragon
 
 			if (result.P != m_Coord_HitPoint)
 			{
-				m_Coord_HitPoint = result.P; 
+				m_Coord_HitPoint = result.P;
 			}
-
 		}
 		else
 		{
-			m_Current_ExpressID = -1; 
+			m_Current_ExpressID = -1;
 		}
 	}
 	void IFCFileContext::initLayerOverLay()
@@ -90,15 +89,15 @@ namespace dragon
 		if (!m_Material_Hit_Point)
 		{
 			m_Material_Hit_Point = threepp::MeshBasicMaterial::create();
-			m_Material_Hit_Point->color = threepp::Color::red; 
+			m_Material_Hit_Point->color = threepp::Color::red;
 		}
 	}
 	void IFCFileContext::handleHoverResult()
 	{
 		if (!m_bIsEnableHover) return;
-		drawHoverLayer(); 
-		//Draw hit point 
-		drawHitPointLayer(); 
+		drawHoverLayer();
+		//Draw hit point
+		drawHitPointLayer();
 	}
 
 	void IFCFileContext::rebuildVisibleIndices()
@@ -179,10 +178,10 @@ namespace dragon
 	std::shared_ptr<threepp::Mesh> IFCFileContext::createHoverMesh()
 	{
 		/*CREATE HOVER MESH FOR MODEL*/
-		m_Object_OverLay_Hover = threepp::Mesh::create(); 
-		m_Object_OverLay_Hover->setMaterial(m_Material_Hover); 
-		m_Object_OverLay_Hover->visible = false; 
-		return m_Object_OverLay_Hover; 
+		m_Object_OverLay_Hover = threepp::Mesh::create();
+		m_Object_OverLay_Hover->setMaterial(m_Material_Hover);
+		m_Object_OverLay_Hover->visible = false;
+		return m_Object_OverLay_Hover;
 	}
 
 	std::shared_ptr<threepp::Mesh> IFCFileContext::createHitPoint()
@@ -190,11 +189,11 @@ namespace dragon
 		/*HIT POINT LAYER OVERLAY*/
 		if (!m_Hit_Point)
 		{
-			const float sphereRadius = 0.1f; 
+			const float sphereRadius = 0.1f;
 			const auto sphereGeometry = threepp::SphereGeometry::create(sphereRadius);
 			m_Hit_Point = threepp::Mesh::create(sphereGeometry, m_Material_Hit_Point);
 		}
-		return m_Hit_Point; 
+		return m_Hit_Point;
 	}
 
 	void IFCFileContext::initCallback()

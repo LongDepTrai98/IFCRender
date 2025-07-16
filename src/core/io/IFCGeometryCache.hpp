@@ -35,7 +35,7 @@ namespace dragon
 			int state{ 1 };
 			std::vector<IFCModelCache::offset> offsets{};
 			uint64_t totalIndices{ 0 };
-			uint64_t totalVertices{ 0 }; 
+			uint64_t totalVertices{ 0 };
 		};
 	public:
 		~IFCModelCache();
@@ -47,7 +47,7 @@ namespace dragon
 		threepp::Object3D* m_Object_Model{ nullptr };
 		std::unordered_map<unsigned int, element> m_Geometry_Offset{};
 		std::vector<unsigned int> m_Object_Indices{};
-		std::vector<unsigned int> m_Object_ExpressID{}; 
+		std::vector<unsigned int> m_Object_ExpressID{};
 		std::vector<float> m_Object_Vertices{};
 		std::vector<float> m_Object_Normals{};
 		std::shared_ptr<webifc::manager::ModelManager> m_ModelManager{ nullptr };

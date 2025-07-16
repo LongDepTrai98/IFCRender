@@ -3,18 +3,18 @@
 #include <memory>
 namespace dragon
 {
-	class IFileContext; 
+	class IFileContext;
 	class FileContextFactory
 	{
-	public: 
+	public:
 		enum type
 		{
 			IFC,
 		};
-	public: 
-		static std::unique_ptr<IFileContext> create(type type); 
-	private: 
-		FileContextFactory() = default; 
+	public:
+		static std::unique_ptr<IFileContext> create(type type);
+	private:
+		FileContextFactory() = default;
 	};
 }
 #endif // !_FILE_CONTEXT_FACTORY_HPP_

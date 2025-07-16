@@ -29,7 +29,7 @@ namespace dragon
 			float t{ 0.0f }; // hit distance
 			float u{ 0.0f }; // barycentric coordinate u
 			float v{ 0.0f }; // barycentric coordinate v
-			threepp::Vector3 P{}; 
+			threepp::Vector3 P{};
 			unsigned int prim_id{ 0 }; // primitive ID
 		};
 	public:

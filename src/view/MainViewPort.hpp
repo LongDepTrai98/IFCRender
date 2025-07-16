@@ -23,7 +23,7 @@ namespace dragon
 		void OnLButtonUp() override;
 		void OnRButtonDown() override;
 		void OnRButtonUp() override;
-	public: 
+	public:
 		void initRayCaster();
 		void initObjectHover();
 		void setFileContext(std::unique_ptr<IFileContext> file_context);
@@ -32,7 +32,7 @@ namespace dragon
 			std::vector<unsigned int>& indices);
 		void clearBVH();
 		void clearScene() override;
-		CustomRayCaster* getRayCaster(); 
+		CustomRayCaster* getRayCaster();
 	public:
 		void update(const float& dtTime) override;
 		void render(threepp::GLRenderer* renderer) override;

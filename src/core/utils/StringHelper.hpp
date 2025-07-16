@@ -8,11 +8,11 @@ namespace dragon
 {
 	class StringHelper
 	{
-	public: 
+	public:
 		static std::string tolower(std::string s)
 		{
 			std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
-			return s; 
+			return s;
 		}
 		static std::string ReadFile(std::string filename)
 		{
@@ -21,8 +21,8 @@ namespace dragon
 			buffer << t.rdbuf();
 			return buffer.str();
 		}
-	private: 
-		StringHelper(); 
+	private:
+		StringHelper();
 	};
 }
 #endif // !_STRING_HELPER_HPP_
