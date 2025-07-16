@@ -51,6 +51,16 @@ namespace dragon
 		if (m_FileContext)
 			m_FileContext->RButtonUp(data);
 	}
+	void MainViewPort::OnKeyDown(KeyData& data)
+	{
+		if (m_FileContext)
+			m_FileContext->KeyDown(data); 
+	}
+	void MainViewPort::OnKeyUp(KeyData& data)
+	{
+		if (m_FileContext)
+			m_FileContext->KeyUp(data); 
+	}
 	void MainViewPort::OnRButtonDown(EventData& data)
 	{
 		data.camera = m_Camera.get();

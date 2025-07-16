@@ -106,4 +106,10 @@ namespace dragon
 	void ViewPortGizmo::OnRButtonUp(EventData& data)
 	{
 	}
+	void ViewPortGizmo::OnKeyDown(KeyData& event)
+	{
+	}
+	void ViewPortGizmo::OnKeyUp(KeyData& event)
+	{
+	}
 }

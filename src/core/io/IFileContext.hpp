@@ -14,6 +14,7 @@ namespace dragon
 	class CustomRayCaster;
 	class MouseState;
 	class EventData; 
+	class KeyData; 
 	class IFileContext
 	{
 	public:
@@ -28,6 +29,8 @@ namespace dragon
 		virtual void LButtonDown(EventData& data) = 0;
 		virtual void RButtonUp(EventData& data) = 0;
 		virtual void RButtonDown(EventData& data) = 0;
+		virtual void KeyDown(KeyData& data) = 0; 
+		virtual void KeyUp(KeyData& data) = 0; 
 	public:
 		bool m_bIsEnableHover{ true };
 	};

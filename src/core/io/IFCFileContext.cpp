@@ -233,6 +233,14 @@ namespace dragon
 		int a = 3;
 	}
 
+	void IFCFileContext::KeyDown(KeyData& data)
+	{
+	}
+
+	void IFCFileContext::KeyUp(KeyData& data)
+	{
+	}
+
 	void IFCFileContext::initCallback()
 	{
 		auto lambda_toggle_component_callback = [&](const std::pair<int, ItemData*>& entity) {

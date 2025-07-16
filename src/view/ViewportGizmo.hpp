@@ -18,6 +18,8 @@ namespace dragon
 		void OnLButtonUp(EventData& data) override;
 		void OnRButtonDown(EventData& data) override;
 		void OnRButtonUp(EventData& data) override;
+		void OnKeyDown(KeyData& event) override;
+		void OnKeyUp(KeyData& event) override;
 	public:
 		void resize(const int& width, const int& height) override;
 		void update(const float& dtTime) override;

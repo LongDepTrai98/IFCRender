@@ -4,6 +4,7 @@
 #include "threepp/math/Vector2.hpp"
 #include "core/io/IGeometryCache.hpp"
 #include <memory>
+class wxKeyEvent; 
 namespace threepp
 {
 	class Raycaster;
@@ -12,7 +13,8 @@ namespace dragon
 {
 	/*INTERFACE VIEWPORT*/
 	class MouseState;
-	class EventData;
+	class KeyData;
+	class EventData; 
 	class ViewPort
 	{
 	public:
@@ -41,6 +43,8 @@ namespace dragon
 		virtual void OnRButtonDown(EventData& data) = 0;
 		virtual void OnRButtonUp(EventData& data) = 0;
 		virtual void clearScene() = 0;
+		virtual void OnKeyDown(KeyData& event) = 0;
+		virtual void OnKeyUp(KeyData& event) = 0;
 		//virtual void
 	protected:
 		/*SCENE CONTEXT*/

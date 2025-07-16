@@ -46,6 +46,8 @@ namespace dragon
 		void LButtonDown(EventData& data) override;
 		void RButtonUp(EventData& data) override;
 		void RButtonDown(EventData& data) override;
+		void KeyDown(KeyData& data) override;
+		void KeyUp(KeyData& data) override; 
 	public:
 		void initCallback();
 	public:

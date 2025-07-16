@@ -3,6 +3,7 @@
 #define _INPUT_HPP_
 #include "threepp/math/Vector2.hpp"
 #include "threepp/math/infinity.hpp"
+#include "wx/event.h"
 namespace threepp
 {
 	class OrbitControls; 
@@ -20,6 +21,11 @@ namespace dragon
 		threepp::OrbitControls* control{ nullptr };
 		threepp::Vector2 p{};
 		threepp::Camera* camera{ nullptr }; 
+	};
+
+	struct KeyData
+	{
+		wxKeyEvent key; 
 	};
 
 }

@@ -178,9 +178,21 @@ namespace dragon
 	}
 	void THREEPPRenderer::OnKeyDown(wxKeyEvent& event)
 	{
+		KeyData data;
+		data.key = event; 
+		for (auto& view : m_lstViewPort)
+		{
+			view->OnKeyDown(data); 
+		}
 	}
 	void THREEPPRenderer::OnKeyUp(wxKeyEvent& event)
 	{
+		KeyData data;
+		data.key = event;
+		for (auto& view : m_lstViewPort)
+		{
+			view->OnKeyUp(data); 
+		}
 	}
 	void THREEPPRenderer::UpdateGizmoFromCamera()
 	{
