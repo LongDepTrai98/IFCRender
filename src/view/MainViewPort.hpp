@@ -19,13 +19,12 @@ namespace dragon
 	public:
 		void initCamera(threepp::WindowSize& w_size) override;
 		void initScene(threepp::WindowSize& w_size) override;
-		void OnLButtonDown() override;
-		void OnLButtonUp() override;
-		void OnRButtonDown() override;
-		void OnRButtonUp() override;
+		void OnLButtonDown(EventData& data) override;
+		void OnLButtonUp(EventData& data) override;
+		void OnRButtonDown(EventData& data) override;
+		void OnRButtonUp(EventData& data) override;
 	public:
 		void initRayCaster();
-		void initObjectHover();
 		void setFileContext(std::unique_ptr<IFileContext> file_context);
 		void resetFileContext();
 		void buildBVH(std::vector<float>& vertices,

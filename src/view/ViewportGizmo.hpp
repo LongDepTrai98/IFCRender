@@ -14,10 +14,10 @@ namespace dragon
 	public:
 		void initCamera(threepp::WindowSize& w_size) override;
 		void initScene(threepp::WindowSize& w_size) override;
-		void OnLButtonDown() override;
-		void OnLButtonUp() override;
-		void OnRButtonDown() override;
-		void OnRButtonUp() override;
+		void OnLButtonDown(EventData& data) override;
+		void OnLButtonUp(EventData& data) override;
+		void OnRButtonDown(EventData& data) override;
+		void OnRButtonUp(EventData& data) override;
 	public:
 		void resize(const int& width, const int& height) override;
 		void update(const float& dtTime) override;

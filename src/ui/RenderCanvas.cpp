@@ -52,6 +52,8 @@ namespace dragon
 		Bind(wxEVT_LEFT_UP, &RenderCanvas::OnMouseRelease, this);
 		Bind(wxEVT_RIGHT_UP, &RenderCanvas::OnMouseRelease, this);
 		Bind(wxEVT_MOUSEWHEEL, &RenderCanvas::OnMouseWheel, this);
+		Bind(wxEVT_KEY_UP, &RenderCanvas::OnKeyUp, this);
+		Bind(wxEVT_KEY_DOWN, &RenderCanvas::OnKeyDown, this);
 		/*BUTTON*/
 		Bind(wxEVT_BUTTON, &RenderCanvas::OnClickEnableMSAA, this);
 	}
@@ -131,6 +133,21 @@ namespace dragon
 	}
 	void RenderCanvas::OnClickEnableMSAA(wxCommandEvent& command)
 	{
+
+	}
+	void RenderCanvas::OnKeyDown(wxKeyEvent& event)
+	{
+		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
+		if (event_handler)
+			event_handler->OnKeyDown(event);
+		event.Skip();
+	}
+	void RenderCanvas::OnKeyUp(wxKeyEvent& event)
+	{
+		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
+		if (event_handler)
+			event_handler->OnKeyUp(event);
+		event.Skip(); 
 	}
 	void RenderCanvas::OnInternalIdle()
 	{

@@ -5,6 +5,7 @@
 #include "config/app_config.hpp"
 #include "threepp/geometries/EdgesGeometry.hpp"
 #include "threepp/utils/BufferGeometryUtils.hpp"
+#include "input/input.hpp"
 #include <spdlog/spdlog.h>
 
 namespace dragon
@@ -93,16 +94,16 @@ namespace dragon
 		if (!m_Scene)
 			m_Scene = std::make_unique<threepp::Scene>();
 	}
-	void ViewPortGizmo::OnLButtonDown()
+	void ViewPortGizmo::OnLButtonDown(EventData& data)
 	{
 	}
-	void ViewPortGizmo::OnLButtonUp()
+	void ViewPortGizmo::OnLButtonUp(EventData& data)
 	{
 	}
-	void ViewPortGizmo::OnRButtonDown()
+	void ViewPortGizmo::OnRButtonDown(EventData& data)
 	{
 	}
-	void ViewPortGizmo::OnRButtonUp()
+	void ViewPortGizmo::OnRButtonUp(EventData& data)
 	{
 	}
 }

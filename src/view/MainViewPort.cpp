@@ -33,17 +33,29 @@ namespace dragon
 			m_Scene = std::make_unique<threepp::Scene>();
 		m_Scene->background = 0x2A2A2A;
 	}
-	void MainViewPort::OnLButtonDown()
+	void MainViewPort::OnLButtonDown(EventData& data)
 	{
+		data.camera = m_Camera.get();
+		if (m_FileContext)
+			m_FileContext->LButtonDown(data);
 	}
-	void MainViewPort::OnLButtonUp()
+	void MainViewPort::OnLButtonUp(EventData& data)
 	{
+		data.camera = m_Camera.get(); 
+		if (m_FileContext)
+			m_FileContext->LButtonUp(data);
 	}
-	void MainViewPort::OnRButtonUp()
+	void MainViewPort::OnRButtonUp(EventData& data)
 	{
+		data.camera = m_Camera.get();
+		if (m_FileContext)
+			m_FileContext->RButtonUp(data);
 	}
-	void MainViewPort::OnRButtonDown()
+	void MainViewPort::OnRButtonDown(EventData& data)
 	{
+		data.camera = m_Camera.get();
+		if (m_FileContext)
+			m_FileContext->RButtonDown(data);
 	}
 	void MainViewPort::initRayCaster()
 	{

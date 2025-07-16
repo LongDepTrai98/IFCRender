@@ -25,6 +25,8 @@ namespace dragon
 		void OnMouseRelease(wxMouseEvent& event);
 		void OnMouseWheel(wxMouseEvent& event);
 		void OnClickEnableMSAA(wxCommandEvent& command);
+		void OnKeyDown(wxKeyEvent& command);
+		void OnKeyUp(wxKeyEvent& command);
 		void OnInternalIdle() override;
 		/*RENDER*/
 	private:

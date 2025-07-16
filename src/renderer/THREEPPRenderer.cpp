@@ -103,6 +103,7 @@ namespace dragon
 			/*context render here */
 			validateContext();
 			ctxRender();
+			m_OrbitControls->update(); 
 		}
 	}
 	void THREEPPRenderer::OnMouseMove(wxMouseEvent& event)
@@ -118,32 +119,54 @@ namespace dragon
 	{
 		int buttonFlag = event.GetButton();
 		wxPoint pos = event.GetPosition();
+		threepp::Vector2 p{ pos.x, pos.y };
 		int button = 0;
+		EventData data;
+		data.control = m_OrbitControls.get();
+		data.p = p;
 		if (wxMOUSE_BTN_LEFT == buttonFlag) {
+			for (auto& viewport : m_lstViewPort)
+			{
+				viewport->OnLButtonDown(data);
+			}
 			m_MouseState.isLButtonDown = true;
 			button = 0;
 		}
 		else if (wxMOUSE_BTN_RIGHT == buttonFlag) {
+			for (auto& viewport : m_lstViewPort)
+			{
+				viewport->OnRButtonDown(data);
+			}
 			m_MouseState.isRButtonDown = true;
 			button = 1;
 		}
-		threepp::Vector2 p{ pos.x, pos.y };
 		onMousePressedEvent(button, p, PeripheralsEventSource::MouseAction::PRESS);
 	}
 	void THREEPPRenderer::OnMouseRelease(wxMouseEvent& event)
 	{
 		int buttonFlag = event.GetButton();
 		wxPoint pos = event.GetPosition();
+		threepp::Vector2 p{ pos.x, pos.y };
+		EventData data;
+		data.control = m_OrbitControls.get();
+		data.p = p;
 		int button = 0;
 		if (wxMOUSE_BTN_LEFT == buttonFlag) {
+			for (auto& viewport : m_lstViewPort)
+			{
+				viewport->OnLButtonUp(data);
+			}
 			m_MouseState.isLButtonDown = false;
 			button = 0;
 		}
 		else if (wxMOUSE_BTN_RIGHT == buttonFlag) {
+			for (auto& viewport : m_lstViewPort)
+			{
+				viewport->OnRButtonUp(data);
+			}
 			m_MouseState.isRButtonDown = false;
 			button = 1;
 		}
-		threepp::Vector2 p{ pos.x, pos.y };
 		onMousePressedEvent(button, p, PeripheralsEventSource::MouseAction::RELEASE);
 	}
 	void THREEPPRenderer::OnMouseWheel(wxMouseEvent& event)
@@ -152,6 +175,12 @@ namespace dragon
 		int xoffset = 0;
 		int yoffset = direction;
 		onMouseWheelEvent({ static_cast<float>(xoffset), static_cast<float>(yoffset) });
+	}
+	void THREEPPRenderer::OnKeyDown(wxKeyEvent& event)
+	{
+	}
+	void THREEPPRenderer::OnKeyUp(wxKeyEvent& event)
+	{
 	}
 	void THREEPPRenderer::UpdateGizmoFromCamera()
 	{

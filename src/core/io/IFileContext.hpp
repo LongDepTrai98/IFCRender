@@ -13,6 +13,7 @@ namespace dragon
 	class IGeometryCache;
 	class CustomRayCaster;
 	class MouseState;
+	class EventData; 
 	class IFileContext
 	{
 	public:
@@ -23,6 +24,10 @@ namespace dragon
 		virtual std::string getFileType() = 0;
 		virtual void handleRaycast(CustomRayCaster& RayCaster, MouseState& mouse_state) = 0;
 		virtual void handleHoverResult() = 0;
+		virtual void LButtonUp(EventData& data) = 0;
+		virtual void LButtonDown(EventData& data) = 0;
+		virtual void RButtonUp(EventData& data) = 0;
+		virtual void RButtonDown(EventData& data) = 0;
 	public:
 		bool m_bIsEnableHover{ true };
 	};

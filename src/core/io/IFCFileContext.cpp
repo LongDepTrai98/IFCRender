@@ -39,12 +39,12 @@ namespace dragon
 		if (!m_bIsEnableHover) return;
 		if (mouse_state.isLButtonDown)
 		{
-			m_Current_ExpressID = -1;
+			m_Current_ExpressID = std::nullopt;
 			return;
 		}
 		if (!m_Model->m_Object_Model)
 		{
-			m_Current_ExpressID = -1;
+			m_Current_ExpressID = std::nullopt;
 			return;
 		}
 		CustomRayCaster::Result result;
@@ -63,6 +63,10 @@ namespace dragon
 				/*UPDATE EXPRESSID*/
 				m_Current_ExpressID = expressID;
 			}
+			else if (!m_Current_ExpressID)
+			{
+				m_Current_ExpressID = expressID;
+			}
 
 			if (result.P != m_Coord_HitPoint)
 			{
@@ -71,7 +75,8 @@ namespace dragon
 		}
 		else
 		{
-			m_Current_ExpressID = -1;
+			m_Current_ExpressID = std::nullopt;
+			m_Coord_HitPoint = std::nullopt;
 		}
 	}
 	void IFCFileContext::initLayerOverLay()
@@ -96,8 +101,6 @@ namespace dragon
 	{
 		if (!m_bIsEnableHover) return;
 		drawHoverLayer();
-		//Draw hit point
-		drawHitPointLayer();
 	}
 
 	void IFCFileContext::rebuildVisibleIndices()
@@ -131,48 +134,50 @@ namespace dragon
 			m_Model->m_Object_Vertices,
 			m_Model->m_Object_Normals);
 		m_Model->m_Object_Model->as<threepp::Mesh>()->setGeometry(sub_geometry);
-		m_Current_ExpressID = -1;
+		m_Current_ExpressID = std::nullopt;
 	}
 
 	void IFCFileContext::drawHoverLayer()
 	{
-		if (m_Current_ExpressID != -1)
-		{
-			if (m_Current_ExpressID != m_Old_ExpressID)
-			{
-				spdlog::info("Draw overlay layer : {}", m_Current_ExpressID);
-				/*CREATE HOVER OBJECT OVERLAY*/
-				if (!m_Object_OverLay_Hover->visible)
-				{
-					m_Object_OverLay_Hover->visible = true;
-				}
-				/*GET OFFSET HOVER GEOMETRY*/
-				auto it = m_Model->m_Geometry_Offset.find(m_Current_ExpressID);
-				if (it != m_Model->m_Geometry_Offset.end())
-				{
-					const IFCModelCache::element& e = it->second;
-					std::shared_ptr<threepp::BufferGeometry> geo_hover = ThreeHelper::BuildSubGeometryWithOffset(e,
-						m_Model->m_Object_Vertices,
-						m_Model->m_Object_Normals,
-						m_Model->m_Object_Indices
-					);
-					m_Object_OverLay_Hover->setGeometry(geo_hover);
-				}
-				m_Old_ExpressID = m_Current_ExpressID;
-			}
-			/*HIDE GEO*/
-		}
-		else
+		if (!m_Current_ExpressID)
 		{
 			m_Object_OverLay_Hover->visible = false;
-			m_Old_ExpressID = -1;
+			m_Old_ExpressID = std::nullopt;
+		}
+		if (m_Current_ExpressID && m_Current_ExpressID != m_Old_ExpressID) {
+			spdlog::info("Draw overlay layer : {}", m_Current_ExpressID.value());
+			/*CREATE HOVER OBJECT OVERLAY*/
+			if (!m_Object_OverLay_Hover->visible)
+			{
+				m_Object_OverLay_Hover->visible = true;
+			}
+			/*GET OFFSET HOVER GEOMETRY*/
+			auto it = m_Model->m_Geometry_Offset.find(m_Current_ExpressID.value());
+			if (it != m_Model->m_Geometry_Offset.end())
+			{
+				const IFCModelCache::element& e = it->second;
+				std::shared_ptr<threepp::BufferGeometry> geo_hover = ThreeHelper::BuildSubGeometryWithOffset(e,
+					m_Model->m_Object_Vertices,
+					m_Model->m_Object_Normals,
+					m_Model->m_Object_Indices
+				);
+				m_Object_OverLay_Hover->setGeometry(geo_hover);
+			}
+			m_Old_ExpressID = m_Current_ExpressID;
 		}
 	}
 
-	void IFCFileContext::drawHitPointLayer()
+	void IFCFileContext::updateCoordHitPoint()
 	{
 		//m_Hit_Point->geometry()->setFromPoints({ m_Coord_HitPoint });
-		m_Hit_Point->position.set(m_Coord_HitPoint.x, m_Coord_HitPoint.y, m_Coord_HitPoint.z);
+		if (!m_Coord_HitPoint) return;
+		m_Hit_Point->position.set(m_Coord_HitPoint.value().x, m_Coord_HitPoint.value().y, m_Coord_HitPoint.value().z);
+	}
+
+	void IFCFileContext::updateCoordAxesHelper()
+	{
+		if (!m_Coord_HitPoint) return;
+		m_Axes_Helper->position.set(m_Coord_HitPoint.value().x, m_Coord_HitPoint.value().y, m_Coord_HitPoint.value().z);
 	}
 
 	std::shared_ptr<threepp::Mesh> IFCFileContext::createHoverMesh()
@@ -189,11 +194,43 @@ namespace dragon
 		/*HIT POINT LAYER OVERLAY*/
 		if (!m_Hit_Point)
 		{
-			const float sphereRadius = 0.1f;
+			const float sphereRadius = 0.04f;
 			const auto sphereGeometry = threepp::SphereGeometry::create(sphereRadius);
 			m_Hit_Point = threepp::Mesh::create(sphereGeometry, m_Material_Hit_Point);
 		}
 		return m_Hit_Point;
+	}
+
+	std::shared_ptr<threepp::AxesHelper> IFCFileContext::createAxesHelper()
+	{
+		m_Axes_Helper = threepp::AxesHelper::create(1.0f);
+		m_Axes_Helper->material()->depthTest = false;
+		return m_Axes_Helper;
+	}
+
+	void IFCFileContext::LButtonUp(EventData& data)
+	{
+		/*UPDATE COORD HIT POINT CLICKED*/
+		updateCoordHitPoint();
+		updateCoordAxesHelper();
+		if (m_Coord_HitPoint)
+		{
+			data.control->target.set(m_Coord_HitPoint.value().x, m_Coord_HitPoint.value().y, m_Coord_HitPoint.value().z); 
+		}
+	}
+
+	void IFCFileContext::LButtonDown(EventData& data)
+	{
+	}
+
+	void IFCFileContext::RButtonUp(EventData& data)
+	{
+		int a = 3;
+	}
+
+	void IFCFileContext::RButtonDown(EventData& data)
+	{
+		int a = 3;
 	}
 
 	void IFCFileContext::initCallback()

@@ -12,6 +12,7 @@ namespace dragon
 {
 	/*INTERFACE VIEWPORT*/
 	class MouseState;
+	class EventData;
 	class ViewPort
 	{
 	public:
@@ -35,10 +36,10 @@ namespace dragon
 		virtual void render(threepp::GLRenderer* main_render) = 0;
 		virtual void resize(const int& width, const int& height) = 0;
 		virtual void handleRaycast(MouseState& mouse_state) = 0;
-		virtual void OnLButtonDown() = 0;
-		virtual void OnLButtonUp() = 0;
-		virtual void OnRButtonDown() = 0;
-		virtual void OnRButtonUp() = 0;
+		virtual void OnLButtonDown(EventData& data) = 0;
+		virtual void OnLButtonUp(EventData& data) = 0;
+		virtual void OnRButtonDown(EventData& data) = 0;
+		virtual void OnRButtonUp(EventData& data) = 0;
 		virtual void clearScene() = 0;
 		//virtual void
 	protected:

@@ -5,6 +5,7 @@
 #include <vector>
 #include <functional>
 #include <unordered_set>
+#include <optional>
 namespace threepp
 {
 	class Object3D;
@@ -13,6 +14,7 @@ namespace threepp
 	class Points;
 	class PointsMaterial;
 	class MeshBasicMaterial;
+	class AxesHelper;
 }
 namespace dragon
 {
@@ -33,9 +35,17 @@ namespace dragon
 		void handleHoverResult() override;
 		void rebuildVisibleIndices();
 		void drawHoverLayer();
-		void drawHitPointLayer();
+		void updateCoordHitPoint();
+		void updateCoordAxesHelper();
 		std::shared_ptr<threepp::Mesh> createHoverMesh();
 		std::shared_ptr<threepp::Mesh> createHitPoint();
+		std::shared_ptr<threepp::AxesHelper> createAxesHelper();
+	public:
+		/*CLICK EVENT*/
+		void LButtonUp(EventData& data) override;
+		void LButtonDown(EventData& data) override;
+		void RButtonUp(EventData& data) override;
+		void RButtonDown(EventData& data) override;
 	public:
 		void initCallback();
 	public:
@@ -52,9 +62,11 @@ namespace dragon
 		std::shared_ptr<threepp::MeshBasicMaterial> m_Material_Hit_Point{ nullptr };
 		std::shared_ptr<threepp::Mesh> m_Object_OverLay_Hover{ nullptr };
 		std::shared_ptr<threepp::Mesh> m_Hit_Point{ nullptr };
-		int m_Current_ExpressID{ -1 };
-		int m_Old_ExpressID{ -1 };
-		threepp::Vector3 m_Coord_HitPoint{ 0.f,0.f,0.f };
+		std::shared_ptr<threepp::AxesHelper> m_Axes_Helper{ nullptr };
+		std::optional<int> m_Current_ExpressID;
+		std::optional<int> m_Old_ExpressID{ -1 };
+		std::optional<threepp::Vector3> m_Coord_HitPoint;
+		std::optional<threepp::Vector3> m_Coord_HitPoint_Clicked;
 	};
 }
 #endif // !_IFC_FILE_CONTEXT_HPP_

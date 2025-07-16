@@ -89,6 +89,7 @@ namespace dragon
 				overlay_group->name = "Overlay";
 				overlay_group->add(ptr_ifc_file_context->createHoverMesh());
 				overlay_group->add(ptr_ifc_file_context->createHitPoint());
+				overlay_group->add(ptr_ifc_file_context->createAxesHelper());
 				viewport_scene->add(overlay_group);
 				//main_viewport->initObjectHover();
 				/*CREATE */
