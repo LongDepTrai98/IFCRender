@@ -88,6 +88,7 @@ namespace dragon
 				std::shared_ptr<threepp::Group> overlay_group = threepp::Group::create(); 
 				overlay_group->name = "Overlay"; 
 				overlay_group->add(ptr_ifc_file_context->createHoverMesh()); 
+				overlay_group->add(ptr_ifc_file_context->createHitPoint()); 
 				viewport_scene->add(overlay_group); 
 				//main_viewport->initObjectHover();
 				/*CREATE */

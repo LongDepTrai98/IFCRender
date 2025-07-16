@@ -29,6 +29,7 @@ namespace dragon
 			float t{ 0.0f }; // hit distance
 			float u{ 0.0f }; // barycentric coordinate u
 			float v{ 0.0f }; // barycentric coordinate v
+			threepp::Vector3 P{}; 
 			unsigned int prim_id{ 0 }; // primitive ID
 		};
 	public:
@@ -44,9 +45,9 @@ namespace dragon
 	private:
 		std::unique_ptr<nanort::BVHAccel<float>> m_BVHAccel{ nullptr };
 		std::unique_ptr<nanort::CustomIntersector<>> triangle_intersecter{ nullptr };
-		nanort::Ray<float> ray;
-		threepp::Vector3 rayOrigin;
-		threepp::Vector3 rayDirection;
+		nanort::Ray<float> m_Ray;
+		threepp::Vector3 m_RayOrigin;
+		threepp::Vector3 m_RayDirection;
 	};
 }
 #endif // !_CUSTOM_RAY_CASTER_HPP_

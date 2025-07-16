@@ -18,14 +18,7 @@ namespace dragon
 	{
 		m_Model = std::make_unique<IFCModelCache>();
 		/*INIT MATERIAL HOVER*/
-		if (!m_Material_Hover)
-		{
-			m_Material_Hover = threepp::MeshPhongMaterial::create();
-			m_Material_Hover->as<threepp::MeshPhongMaterial>()->color = threepp::Color::darkgreen;
-			m_Material_Hover->transparent = true;
-			m_Material_Hover->depthTest = false;
-			m_Material_Hover->opacity = 0.5f;
-		}
+		initLayerOverLay(); 
 	}
 	IFCFileContext::~IFCFileContext()
 	{
@@ -70,46 +63,42 @@ namespace dragon
 				/*UPDATE EXPRESSID*/
 				m_Current_ExpressID = expressID;
 			}
+
+			if (result.P != m_Coord_HitPoint)
+			{
+				m_Coord_HitPoint = result.P; 
+			}
+
 		}
 		else
 		{
 			m_Current_ExpressID = -1; 
 		}
 	}
+	void IFCFileContext::initLayerOverLay()
+	{
+		/*HOVER LAYER OVERLAY*/
+		if (!m_Material_Hover)
+		{
+			m_Material_Hover = threepp::MeshPhongMaterial::create();
+			m_Material_Hover->as<threepp::MeshPhongMaterial>()->color = threepp::Color::darkgreen;
+			m_Material_Hover->transparent = true;
+			m_Material_Hover->depthTest = false;
+			m_Material_Hover->opacity = 0.5f;
+		}
+
+		if (!m_Material_Hit_Point)
+		{
+			m_Material_Hit_Point = threepp::MeshBasicMaterial::create();
+			m_Material_Hit_Point->color = threepp::Color::red; 
+		}
+	}
 	void IFCFileContext::handleHoverResult()
 	{
 		if (!m_bIsEnableHover) return;
-		if (m_Current_ExpressID != -1)
-		{
-			if (m_Current_ExpressID != m_Old_ExpressID)
-			{
-				spdlog::info("Draw overlay layer : {}", m_Current_ExpressID); 
-				/*CREATE HOVER OBJECT OVERLAY*/
-				if (!m_Object_OverLay_Hover->visible)
-				{
-					m_Object_OverLay_Hover->visible = true; 
-				}
-				/*GET OFFSET HOVER GEOMETRY*/
-				auto it = m_Model->m_Geometry_Offset.find(m_Current_ExpressID); 
-				if (it != m_Model->m_Geometry_Offset.end())
-				{
-					const IFCModelCache::element& e = it->second; 
-					std::shared_ptr<threepp::BufferGeometry> geo_hover = ThreeHelper::BuildSubGeometryWithOffset(e,
-						m_Model->m_Object_Vertices,
-						m_Model->m_Object_Normals, 
-						m_Model->m_Object_Indices
-						); 
-					m_Object_OverLay_Hover->setGeometry(geo_hover); 
-				}
-				m_Old_ExpressID = m_Current_ExpressID;
-			}
-			/*HIDE GEO*/
-		}
-		else
-		{
-			m_Object_OverLay_Hover->visible = false;
-			m_Old_ExpressID = -1;
-		}
+		drawHoverLayer(); 
+		//Draw hit point 
+		drawHitPointLayer(); 
 	}
 
 	void IFCFileContext::rebuildVisibleIndices()
@@ -146,6 +135,47 @@ namespace dragon
 		m_Current_ExpressID = -1;
 	}
 
+	void IFCFileContext::drawHoverLayer()
+	{
+		if (m_Current_ExpressID != -1)
+		{
+			if (m_Current_ExpressID != m_Old_ExpressID)
+			{
+				spdlog::info("Draw overlay layer : {}", m_Current_ExpressID);
+				/*CREATE HOVER OBJECT OVERLAY*/
+				if (!m_Object_OverLay_Hover->visible)
+				{
+					m_Object_OverLay_Hover->visible = true;
+				}
+				/*GET OFFSET HOVER GEOMETRY*/
+				auto it = m_Model->m_Geometry_Offset.find(m_Current_ExpressID);
+				if (it != m_Model->m_Geometry_Offset.end())
+				{
+					const IFCModelCache::element& e = it->second;
+					std::shared_ptr<threepp::BufferGeometry> geo_hover = ThreeHelper::BuildSubGeometryWithOffset(e,
+						m_Model->m_Object_Vertices,
+						m_Model->m_Object_Normals,
+						m_Model->m_Object_Indices
+					);
+					m_Object_OverLay_Hover->setGeometry(geo_hover);
+				}
+				m_Old_ExpressID = m_Current_ExpressID;
+			}
+			/*HIDE GEO*/
+		}
+		else
+		{
+			m_Object_OverLay_Hover->visible = false;
+			m_Old_ExpressID = -1;
+		}
+	}
+
+	void IFCFileContext::drawHitPointLayer()
+	{
+		//m_Hit_Point->geometry()->setFromPoints({ m_Coord_HitPoint });
+		m_Hit_Point->position.set(m_Coord_HitPoint.x, m_Coord_HitPoint.y, m_Coord_HitPoint.z);
+	}
+
 	std::shared_ptr<threepp::Mesh> IFCFileContext::createHoverMesh()
 	{
 		/*CREATE HOVER MESH FOR MODEL*/
@@ -153,6 +183,18 @@ namespace dragon
 		m_Object_OverLay_Hover->setMaterial(m_Material_Hover); 
 		m_Object_OverLay_Hover->visible = false; 
 		return m_Object_OverLay_Hover; 
+	}
+
+	std::shared_ptr<threepp::Mesh> IFCFileContext::createHitPoint()
+	{
+		/*HIT POINT LAYER OVERLAY*/
+		if (!m_Hit_Point)
+		{
+			const float sphereRadius = 0.1f; 
+			const auto sphereGeometry = threepp::SphereGeometry::create(sphereRadius);
+			m_Hit_Point = threepp::Mesh::create(sphereGeometry, m_Material_Hit_Point);
+		}
+		return m_Hit_Point; 
 	}
 
 	void IFCFileContext::initCallback()

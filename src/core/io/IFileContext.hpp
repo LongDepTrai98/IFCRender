@@ -17,6 +17,8 @@ namespace dragon
 	{
 	public:
 		virtual ~IFileContext() {};
+	public: 
+		virtual void initLayerOverLay() = 0; 
 	public:
 		virtual std::string getFileType() = 0;
 		virtual void handleRaycast(CustomRayCaster& RayCaster, MouseState& mouse_state) = 0;

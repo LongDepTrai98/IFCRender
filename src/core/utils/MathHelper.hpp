@@ -30,6 +30,11 @@ namespace dragon
 				<< std::setw(3) << std::setfill('0') << static_cast<int>(w * 255);
 			return ss.str();
 		}
+		template<typename T> 
+		static void calD()
+		{
+			
+		}
 	private: 
 		MathHelper() = default; 
 	};

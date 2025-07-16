@@ -91,7 +91,11 @@ source_group("tsl" FILES ${TSL_SRC})
 #input 
 file(GLOB_RECURSE INPUT_SRC "src/input/*.hpp")
 source_group("input" FILES ${INPUT_SRC})
- 
+#threadpool 
+ file(GLOB_RECURSE THREADPOOL_SRC "src/threadpool/*.hpp")
+source_group("threadpool" FILES ${THREADPOOL_SRC})
+
+
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/wxInclude.hpp
@@ -109,6 +113,7 @@ add_executable(${EDITOR_NAME_PROJECT}
     ${RAYCAST_SRC}
     ${TSL_SRC}
     ${INPUT_SRC}
+    ${THREADPOOL_SRC}
 )
 
  #add include 
