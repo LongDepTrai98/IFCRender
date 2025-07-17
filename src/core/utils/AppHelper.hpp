@@ -49,6 +49,7 @@ namespace dragon
 	public:
 		/*APP HELPER GET MAIN VIEW PORT SCENE*/
 		static MainViewPort* getMainViewPortScene(WindowFrame* main_frame);
+		static RenderCanvas* getRenderCanvas(WindowFrame* main_frame);
 		static ElementTreeCtrl* getMainTreeCtrl(WindowFrame* main_frame);
 	private:
 		AppHelper() = default;

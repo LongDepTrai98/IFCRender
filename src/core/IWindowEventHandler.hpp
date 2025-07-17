@@ -12,6 +12,8 @@ namespace dragon
 		virtual void OnMouseWheel(wxMouseEvent& event) = 0;
 		virtual void OnKeyDown(wxKeyEvent& event) = 0;
 		virtual void OnKeyUp(wxKeyEvent& event) = 0;
+	public: 
+		bool isMouseDown{ false }; 
 	};
 }
 #endif // !_IWINDOW_EVENT_HANDLER_

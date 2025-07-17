@@ -77,6 +77,10 @@ namespace dragon
 	{
 		return m_Renderer.get();
 	}
+	void RenderCanvas::Invalidate()
+	{
+		m_bIsDirty = true;
+	}
 	void RenderCanvas::OnSize(wxSizeEvent& event)
 	{
 		activeContext();
@@ -93,35 +97,51 @@ namespace dragon
 	{
 		wxPaintDC dc(this);
 		activeContext();
-		enableMultisampling();
-		if (m_Renderer)
+		if (m_bIsDirty)
 		{
-			m_Renderer->update(m_dtTime);
-			static_cast<THREEPPRenderer*>(m_Renderer.get())->render();
+			enableMultisampling();
+			if (m_Renderer)
+			{
+				m_Renderer->update(m_dtTime);
+				static_cast<THREEPPRenderer*>(m_Renderer.get())->render();
+			}
+			swapBuff();
+			disableMultisampling();
+			m_bIsDirty = false; 
 		}
-		swapBuff();
-		disableMultisampling();
 		deactiveContext();
 	}
 	void RenderCanvas::OnMouseMove(wxMouseEvent& event)
 	{
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
+		{
 			event_handler->OnMouseMove(event);
+			if (event_handler->isMouseDown)
+				Invalidate(); 
+		}
 		event.Skip();
 	}
 	void RenderCanvas::OnMousePress(wxMouseEvent& event)
 	{
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
+		{
 			event_handler->OnMousePress(event);
+			event_handler->isMouseDown = true; 
+		}
+		Invalidate(); 
 		event.Skip();
 	}
 	void RenderCanvas::OnMouseRelease(wxMouseEvent& event)
 	{
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
+		{
 			event_handler->OnMouseRelease(event);
+			event_handler->isMouseDown = false;
+		}
+		Invalidate();
 		event.Skip();
 	}
 	void RenderCanvas::OnMouseWheel(wxMouseEvent& event)
@@ -129,6 +149,7 @@ namespace dragon
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
 			event_handler->OnMouseWheel(event);
+		Invalidate();
 		event.Skip();
 	}
 	void RenderCanvas::OnClickEnableMSAA(wxCommandEvent& command)

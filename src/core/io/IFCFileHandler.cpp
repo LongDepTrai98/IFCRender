@@ -70,7 +70,7 @@ namespace dragon
 		if (m_Window)
 		{
 			/*GET MAIN VIEWPORT AND BUILD MAIN SCENE*/
-			WindowFrame* window_frame = dynamic_cast<WindowFrame*>(m_Window);
+			WindowFrame* window_frame = static_cast<WindowFrame*>(m_Window);
 			auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
 			if (main_viewport)
 			{
@@ -117,5 +117,7 @@ namespace dragon
 			ptr_ifc_file_context->RayCast = RayCast;
 			RayCast->getIntersector()->custom_callback_checkface = ptr_ifc_file_context->m_Callback_Intersect;
 		}
+		RenderCanvas* canvas = AppHelper::getRenderCanvas(window_frame);
+		canvas->Invalidate(); 
 	}
 }

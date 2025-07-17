@@ -38,6 +38,7 @@ namespace dragon
 		void swapBuff();
 		wxSize getSize();
 		IRenderer* getRenderer();
+		void Invalidate();
 	private:
 		//main context
 		std::unique_ptr<wxGLContext> m_Context{ nullptr };
@@ -47,6 +48,7 @@ namespace dragon
 		wxSize m_MinSize{ 640, 480 };
 		float  m_dtTime{ 0.0 };
 		wxGLAttributes m_DispAttrs{};
+		bool m_bIsDirty{ true };
 	};
 }
 #endif // !_SCENE_VIEW_HPP_
