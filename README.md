@@ -52,7 +52,7 @@ This viewer is designed for architects, engineers, and developers who need an in
 ## Build & Run
 
 ### Prerequisites
-- C++17 compiler
+- C++20 compiler
 - CMake 3.16+
 - Installed libraries:
   - wxWidgets
