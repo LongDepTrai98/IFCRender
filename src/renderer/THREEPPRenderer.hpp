@@ -54,7 +54,6 @@ namespace dragon
 		std::vector<std::unique_ptr<ViewPort>> m_lstViewPort{};
 		/*MOUSE STATE*/
 		MouseState m_MouseState{};
-		//threepp::Vector2 nor_mouse_pos{ -threepp::Infinity<float>, -threepp::Infinity<float> };
 	};
 }
 #endif // !_CONTEXT_RENDERER_HPP_
