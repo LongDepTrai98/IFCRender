@@ -8,5 +8,7 @@ namespace dragon::assets
 	inline const std::string Icons = Root + "icons/";
 	inline const std::string Models = Root + "models/";
 	inline const std::string Cube = Models + "cube.stl";
+	inline const std::string Toolbar = Icons + "toolbar/";
+	inline const std::string ButtonToolBar_OpenFolder = Toolbar + "open-folder.png";
 }
 #endif // !_PATHS_HPP_

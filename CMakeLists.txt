@@ -44,6 +44,7 @@ set(WX_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.0/lib/vc_x64_
 set(WEB_IFC_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build/3rdparty/lib)
 set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
 set(DEST_ASSETS_DIR "$<TARGET_FILE_DIR:${EDITOR_NAME_PROJECT}>/assets")
+set(DEBUG_ASSETS_DIR "${CMAKE_BINARY_DIR}/assets")
 project(${PROJECT_NAME})
 #find_package(wxWidgets CONFIG REQUIRED)
 find_package(glew CONFIG REQUIRED)
@@ -144,5 +145,13 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${ASSETS_DIR}"
             "${DEST_ASSETS_DIR}"
+    COMMENT "Copying assets folder to output directory..."
+)
+
+add_custom_command(
+    TARGET ${EDITOR_NAME_PROJECT} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${ASSETS_DIR}"
+            "${DEBUG_ASSETS_DIR}"
     COMMENT "Copying assets folder to output directory..."
 )

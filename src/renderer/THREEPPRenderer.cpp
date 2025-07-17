@@ -103,7 +103,7 @@ namespace dragon
 			/*context render here */
 			validateContext();
 			ctxRender();
-			m_OrbitControls->update(); 
+			//m_OrbitControls->update(); 
 		}
 	}
 	void THREEPPRenderer::OnMouseMove(wxMouseEvent& event)

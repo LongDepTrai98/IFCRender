@@ -215,7 +215,11 @@ namespace dragon
 		updateCoordAxesHelper();
 		if (m_Coord_HitPoint)
 		{
-			data.control->target.set(m_Coord_HitPoint.value().x, m_Coord_HitPoint.value().y, m_Coord_HitPoint.value().z); 
+			auto old_q = data.camera->quaternion;
+			data.control->target.set(m_Coord_HitPoint.value().x, m_Coord_HitPoint.value().y, m_Coord_HitPoint.value().z);
+			data.control->update();
+			data.camera->quaternion = old_q;
+			data.camera->updateMatrix();
 		}
 	}
 

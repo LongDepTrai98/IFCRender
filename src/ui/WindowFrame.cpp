@@ -7,6 +7,7 @@
 #include "ElementTreeCtrl.hpp"
 #include "core/Paths.hpp"
 #include "core/utils/AppHelper.hpp"
+#include "AppToolBar.hpp"
 namespace dragon
 {
 	wxBEGIN_EVENT_TABLE(WindowFrame, wxFrame)
@@ -24,10 +25,12 @@ namespace dragon
 		initUI();
 		initCommand();
 		initMenuBar();
-		initScene();
+		initAppToolBar();
+		initRenderCanvas();
 		initTreeCtrl();
 		CreateStatusBar(2);
 		SetStatusText("Welcome to wxWidgets!");
+		Centre(wxBOTH);
 	}
 	RenderCanvas* WindowFrame::getRenderCanvas()
 	{
@@ -69,7 +72,15 @@ namespace dragon
 		m_UIManager->AddPane(treePanel, panel_config::tree_ctrl_panel_info.Icon(wxBitmapBundle::FromImpl(new FixedSizeImpl(iconSize, icon))));
 		m_UIManager->Update();
 	}
-	void WindowFrame::initScene()
+	void WindowFrame::initAppToolBar()
+	{
+		wxToolBarBase* toolBar = GetToolBar();
+		const long TOOLBAR_STYLE = wxTB_FLAT | wxTB_DOCKABLE | wxTB_TEXT | wxTB_TOP | wxTB_NO_TOOLTIPS;
+		long style = toolBar ? toolBar->GetWindowStyle() : TOOLBAR_STYLE;
+		wxToolBar* app_tool_bar = this->CreateToolBar(style, wxID_ANY);
+		m_AppToolBar = std::make_unique<AppToolBar>(app_tool_bar);
+	}
+	void WindowFrame::initRenderCanvas()
 	{
 		wxGLAttributes dispAttrs;
 		if (app_config::enable_msaa)

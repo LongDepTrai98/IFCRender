@@ -2,7 +2,7 @@
 #include "config/app_config.hpp"
 namespace dragon
 {
-	AppMenubar::AppMenubar(wxFrame* main_window) : wxMenuBar(),
+	AppMenubar::AppMenubar(wxFrame* main_window) : wxMenuBar(0),
 		m_Window(main_window)
 	{
 		wxMenu* menuFile = new wxMenu;
