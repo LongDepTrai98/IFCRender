@@ -3,6 +3,7 @@
 #include "core/Paths.hpp"
 #include "core/utils/AppHelper.hpp"
 #include "spdlog/spdlog.h"
+#include "core/utils/AppHelper.hpp"
 namespace dragon
 {
 	ElementTreeCtrl::ElementTreeCtrl(wxWindow* parent, const wxPoint& postion, const wxSize& size, long style)
@@ -73,16 +74,16 @@ namespace dragon
 		std::vector<wxIcon> icons;
 		//create icons
 		const std::string& checkedPath = assets::Icons + "checked.png";
-		spdlog::info("Load Resource : {}", checkedPath);
 		const std::string& uncheckedPath = assets::Icons + "unchecked.png";
-		spdlog::info("Load Resource : {}", uncheckedPath);
-		icons.push_back(wxIcon(uncheckedPath, wxBITMAP_TYPE_PNG));
-		icons.push_back(wxIcon(checkedPath, wxBITMAP_TYPE_PNG));
-		const wxSize iconSize(icons[0].GetWidth(), icons[0].GetHeight());
+		/*icons.push_back(wxIcon(uncheckedPath, wxBITMAP_TYPE_PNG));
+		icons.push_back(wxIcon(checkedPath, wxBITMAP_TYPE_PNG));*/
+		/*const wxSize iconSize(icons[0].GetWidth(), icons[0].GetHeight());
 		for (const wxIcon& icon : icons)
 		{
 			images.push_back(wxBitmapBundle::FromImpl(new FixedSizeImpl(iconSize, icon)));
-		}
+		}*/
+		images.push_back(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_PNG));
+		images.push_back(AppHelper::loadBitmapBundle(uncheckedPath, wxBITMAP_TYPE_PNG));
 		SetStateImages(images);
 		Update();
 	}

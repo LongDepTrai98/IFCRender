@@ -7,6 +7,8 @@ namespace dragon
 	{
 	public:
 		AppToolBar(wxToolBar* toolbar);
+	private: 
+		void AddTool(); 
 	private:
 		wxBitmapButton* m_bpOpenFileButton{ nullptr };
 		wxToolBar* m_ToolBar{ nullptr };

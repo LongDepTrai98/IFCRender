@@ -100,6 +100,7 @@ source_group("threadpool" FILES ${THREADPOOL_SRC})
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/wxInclude.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/resource.hpp
 	${UI_SRC}
     ${UI_COMMANDS_SRC}
 	${APP_CONFIG_SRC}

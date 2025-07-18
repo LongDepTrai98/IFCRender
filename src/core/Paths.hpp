@@ -10,5 +10,6 @@ namespace dragon::assets
 	inline const std::string Cube = Models + "cube.stl";
 	inline const std::string Toolbar = Icons + "toolbar/";
 	inline const std::string ButtonToolBar_OpenFolder = Toolbar + "open-folder.png";
+	inline const std::string ButtonToolBar_SetPivot = Toolbar + "pivot.png"; 
 }
 #endif // !_PATHS_HPP_

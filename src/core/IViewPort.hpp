@@ -15,6 +15,7 @@ namespace dragon
 	class MouseState;
 	class KeyData;
 	class EventData; 
+	class ToolBarData; 
 	class ViewPort
 	{
 	public:
@@ -45,6 +46,10 @@ namespace dragon
 		virtual void clearScene() = 0;
 		virtual void OnKeyDown(KeyData& event) = 0;
 		virtual void OnKeyUp(KeyData& event) = 0;
+		virtual void OnToolBarAction(ToolBarData& data) = 0;
+	public: 
+		/*TOOL ACTIONS*/
+		virtual void OnToolActions(int toolID) = 0; 
 		//virtual void
 	protected:
 		/*SCENE CONTEXT*/

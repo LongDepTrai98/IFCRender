@@ -8,14 +8,16 @@
 #include "core/Paths.hpp"
 #include "core/utils/AppHelper.hpp"
 #include "AppToolBar.hpp"
+#include "input/input.hpp"
+#include "core/utils/AppHelper.hpp"
 namespace dragon
 {
-	wxBEGIN_EVENT_TABLE(WindowFrame, wxFrame)
+	/*wxBEGIN_EVENT_TABLE(WindowFrame, wxFrame)
 		EVT_SIZE(WindowFrame::OnSize)
-		wxEND_EVENT_TABLE()
-		WindowFrame::WindowFrame() : wxFrame(nullptr,
-			wxID_ANY,
-			app_config::app_name)
+		wxEND_EVENT_TABLE()*/
+	WindowFrame::WindowFrame() : wxFrame(nullptr,
+		wxID_ANY,
+		app_config::app_name)
 	{
 		if (m_bIsMaximize)
 		{
@@ -31,6 +33,7 @@ namespace dragon
 		CreateStatusBar(2);
 		SetStatusText("Welcome to wxWidgets!");
 		Centre(wxBOTH);
+		Bind(wxEVT_SIZE, &WindowFrame::OnResize, this);
 	}
 	RenderCanvas* WindowFrame::getRenderCanvas()
 	{
@@ -67,9 +70,7 @@ namespace dragon
 		sizer->Add(m_ElementTreeCtrl, 1, wxEXPAND | wxALL, 1);
 		treePanel->SetSizer(sizer);
 		const std::string& checkedPath = assets::Icons + "ElementTree.png";
-		wxIcon icon(checkedPath, wxBITMAP_TYPE_PNG);
-		wxSize iconSize(icon.GetWidth(), icon.GetHeight());
-		m_UIManager->AddPane(treePanel, panel_config::tree_ctrl_panel_info.Icon(wxBitmapBundle::FromImpl(new FixedSizeImpl(iconSize, icon))));
+		m_UIManager->AddPane(treePanel, panel_config::tree_ctrl_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_PNG)));
 		m_UIManager->Update();
 	}
 	void WindowFrame::initAppToolBar()
@@ -117,9 +118,7 @@ namespace dragon
 			m_RenderCanvas = std::make_unique<RenderCanvas>(this,
 				dispAttrs);
 			const std::string& checkedPath = assets::Icons + "scene.png";
-			wxIcon icon(checkedPath, wxBITMAP_TYPE_PNG);
-			wxSize iconSize(icon.GetWidth(), icon.GetHeight());
-			m_UIManager->AddPane(m_RenderCanvas.get(), panel_config::scene_view_panel_info.Icon(wxBitmapBundle::FromImpl(new FixedSizeImpl(iconSize, icon))));
+			m_UIManager->AddPane(m_RenderCanvas.get(), panel_config::scene_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_PNG)));
 			m_UIManager->Update();
 		}
 	}
@@ -129,6 +128,8 @@ namespace dragon
 			m_CommandHandler = std::make_unique<AppCommandHandler>(this);
 		/*BIND COMMAND*/
 		Bind(wxEVT_MENU, &AppCommandHandler::OnOpenFile, m_CommandHandler.get(), wxID_OPEN);
+		Bind(wxEVT_ICONIZE, &AppCommandHandler::OnIconize, m_CommandHandler.get());
+		Bind(wxEVT_TOOL, &AppCommandHandler::OnToolbarClick, m_CommandHandler.get());
 	}
 	void WindowFrame::OnHello(wxCommandEvent& event)
 	{
@@ -143,7 +144,12 @@ namespace dragon
 		wxMessageBox("This is a wxWidgets Hello World example",
 			"About Hello World", wxOK | wxICON_INFORMATION);
 	}
-	void WindowFrame::OnSize(wxSizeEvent& event)
+	void WindowFrame::OnCallbackToolbarCommand(ToolBarData& data)
+	{
+		if (m_RenderCanvas)
+			m_RenderCanvas->OnCallbackToolbarCommand(data);
+	}
+	void WindowFrame::OnResize(wxSizeEvent& event)
 	{
 		event.Skip();
 	}

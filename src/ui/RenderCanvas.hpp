@@ -7,11 +7,14 @@ namespace dragon
 {
 	class IRenderer;
 	class ViewPortGizmo;
+	class ToolBarData; 
 	class RenderCanvas : public wxGLCanvas
 	{
 	public:
 		RenderCanvas(wxWindow* parent, const wxGLAttributes& canvasAttrs);
 		~RenderCanvas();
+	public: 
+		void OnCallbackToolbarCommand(ToolBarData& data); 
 	private:
 		void initGLContext();
 		void initContextRenderer();

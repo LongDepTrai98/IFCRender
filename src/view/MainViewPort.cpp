@@ -41,7 +41,7 @@ namespace dragon
 	}
 	void MainViewPort::OnLButtonUp(EventData& data)
 	{
-		data.camera = m_Camera.get(); 
+		data.camera = m_Camera.get();
 		if (m_FileContext)
 			m_FileContext->LButtonUp(data);
 	}
@@ -54,12 +54,20 @@ namespace dragon
 	void MainViewPort::OnKeyDown(KeyData& data)
 	{
 		if (m_FileContext)
-			m_FileContext->KeyDown(data); 
+			m_FileContext->KeyDown(data);
 	}
 	void MainViewPort::OnKeyUp(KeyData& data)
 	{
 		if (m_FileContext)
-			m_FileContext->KeyUp(data); 
+			m_FileContext->KeyUp(data);
+	}
+	void MainViewPort::OnToolActions(int toolID)
+	{
+	}
+	void MainViewPort::OnToolBarAction(ToolBarData& data)
+	{
+		if (m_FileContext)
+			m_FileContext->ToolBarAction(data);
 	}
 	void MainViewPort::OnRButtonDown(EventData& data)
 	{

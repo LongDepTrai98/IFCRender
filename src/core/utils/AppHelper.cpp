@@ -3,7 +3,7 @@
 #include "ui/RenderCanvas.hpp"
 #include "renderer/THREEPPRenderer.hpp"
 #include "threepp/threepp.hpp"
-
+#include "spdlog/spdlog.h"
 namespace dragon
 {
 	MainViewPort* AppHelper::getMainViewPortScene(WindowFrame* main_frame)
@@ -19,12 +19,19 @@ namespace dragon
 	RenderCanvas* AppHelper::getRenderCanvas(WindowFrame* main_frame)
 	{
 		if (!main_frame) return nullptr;
-		return main_frame->getRenderCanvas(); 
+		return main_frame->getRenderCanvas();
 	}
 
 	ElementTreeCtrl* AppHelper::getMainTreeCtrl(WindowFrame* main_frame)
 	{
 		if (!main_frame) return nullptr;
 		return main_frame->getElementTreeCtrl();
+	}
+	wxBitmapBundle AppHelper::loadBitmapBundle(const std::string& path, wxBitmapType type)
+	{
+		wxIcon icon(path, type);
+		wxSize iconSize(icon.GetWidth(), icon.GetHeight());
+		spdlog::info("Load Resource : {}", path);
+		return wxBitmapBundle::FromImpl(new FixedSizeImpl(iconSize, icon));
 	}
 }

@@ -6,12 +6,12 @@
 #include "raycast/CustomRayCaster.hpp"
 #include "spdlog/spdlog.h"
 #include "ui/ElementTreeCtrl.hpp"
+#include "core/utils/ThreeHelper.hpp"
+#include "input/input.hpp"
+#include "resource.hpp"
 #include <format>
 #include <iostream>
 #include <set>
-#include "core/utils/ThreeHelper.hpp"
-#include "input/input.hpp"
-
 namespace dragon
 {
 	IFCFileContext::IFCFileContext()
@@ -25,6 +25,7 @@ namespace dragon
 		m_Model->clear();
 		m_Toggle_Component_Callback = nullptr;
 		m_Toggle_Components_Callback = nullptr;
+		OnRedrawCallback = nullptr;
 	}
 	std::string IFCFileContext::getFileType()
 	{
@@ -72,6 +73,8 @@ namespace dragon
 			{
 				m_Coord_HitPoint = result.P;
 			}
+			if (OnRedrawCallback)
+				OnRedrawCallback();
 		}
 		else
 		{
@@ -165,6 +168,12 @@ namespace dragon
 			}
 			m_Old_ExpressID = m_Current_ExpressID;
 		}
+		if (m_bIsSelectPivotMode)
+		{
+			updateCoordHitPoint();
+			if (OnRedrawCallback)
+				OnRedrawCallback();
+		}
 	}
 
 	void IFCFileContext::updateCoordHitPoint()
@@ -211,15 +220,17 @@ namespace dragon
 	void IFCFileContext::LButtonUp(EventData& data)
 	{
 		/*UPDATE COORD HIT POINT CLICKED*/
-		updateCoordHitPoint();
-		updateCoordAxesHelper();
-		if (m_Coord_HitPoint)
+		if (m_bIsSelectPivotMode)
 		{
-			auto old_q = data.camera->quaternion;
-			data.control->target.set(m_Coord_HitPoint.value().x, m_Coord_HitPoint.value().y, m_Coord_HitPoint.value().z);
-			data.control->update();
-			data.camera->quaternion = old_q;
-			data.camera->updateMatrix();
+			updateCoordAxesHelper();
+			if (m_Coord_HitPoint)
+			{
+				auto old_q = data.camera->quaternion;
+				data.control->target.set(m_Coord_HitPoint.value().x, m_Coord_HitPoint.value().y, m_Coord_HitPoint.value().z);
+				data.control->update();
+				data.camera->quaternion = old_q;
+				data.camera->updateMatrix();
+			}
 		}
 	}
 
@@ -243,6 +254,22 @@ namespace dragon
 
 	void IFCFileContext::KeyUp(KeyData& data)
 	{
+	}
+
+	void IFCFileContext::ToolBarAction(ToolBarData& data)
+	{
+		ID_EVENT id = static_cast<ID_EVENT>(data.event.GetId());
+		bool isCheck = data.bIsCheck;
+		switch (id)
+		{
+		case dragon::ID_EVENT::TOOL_PIVOT:
+		{
+			m_bIsSelectPivotMode = isCheck;
+			break;
+		}
+		default:
+			break;
+		}
 	}
 
 	void IFCFileContext::initCallback()

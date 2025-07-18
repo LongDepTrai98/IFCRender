@@ -47,7 +47,8 @@ namespace dragon
 		void RButtonUp(EventData& data) override;
 		void RButtonDown(EventData& data) override;
 		void KeyDown(KeyData& data) override;
-		void KeyUp(KeyData& data) override; 
+		void KeyUp(KeyData& data) override;
+		void ToolBarAction(ToolBarData& data) override;
 	public:
 		void initCallback();
 	public:
@@ -69,6 +70,7 @@ namespace dragon
 		std::optional<int> m_Old_ExpressID{ -1 };
 		std::optional<threepp::Vector3> m_Coord_HitPoint;
 		std::optional<threepp::Vector3> m_Coord_HitPoint_Clicked;
+		bool m_bIsSelectPivotMode{ false };
 	};
 }
 #endif // !_IFC_FILE_CONTEXT_HPP_

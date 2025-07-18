@@ -9,7 +9,9 @@ namespace dragon
 		AppCommandHandler(wxWindow* parent);
 		~AppCommandHandler() = default;
 	public:
+		void OnIconize(wxIconizeEvent& event);
 		void OnOpenFile(wxCommandEvent& event);
+		void OnToolbarClick(wxCommandEvent& event);
 	private:
 		wxWindow* m_ParentWindow{ nullptr };
 	};

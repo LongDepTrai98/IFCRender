@@ -7,6 +7,7 @@
 namespace threepp
 {
 	class OrbitControls; 
+	class Camera; 
 }
 namespace dragon
 {
@@ -26,6 +27,12 @@ namespace dragon
 	struct KeyData
 	{
 		wxKeyEvent key; 
+	};
+
+	struct ToolBarData
+	{
+		wxCommandEvent event; 
+		bool bIsCheck; 
 	};
 
 }

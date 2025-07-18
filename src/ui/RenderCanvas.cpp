@@ -4,6 +4,7 @@
 #include "renderer/THREEPPRenderer.hpp"
 #include "view/ViewportGizmo.hpp"
 #include "core/IWindowEventHandler.hpp"
+#include "input/input.hpp"
 namespace dragon
 {
 	RenderCanvas::RenderCanvas(wxWindow* parent, const wxGLAttributes& canvasAttrs) : wxGLCanvas(parent,
@@ -18,6 +19,12 @@ namespace dragon
 	}
 	RenderCanvas::~RenderCanvas()
 	{
+	}
+	void RenderCanvas::OnCallbackToolbarCommand(ToolBarData& data)
+	{
+		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
+		if (event_handler)
+			event_handler->OnToolBarClick(data); 
 	}
 	void RenderCanvas::initGLContext()
 	{
@@ -91,6 +98,7 @@ namespace dragon
 				viewPortSize.y);
 		}
 		deactiveContext();
+		Invalidate(); 
 		event.Skip();
 	}
 	void RenderCanvas::OnPaint(wxPaintEvent& event)

@@ -7,7 +7,8 @@ namespace dragon
 	class RenderCanvas;
 	class AppCommandHandler;
 	class ElementTreeCtrl;
-	class AppToolBar; 
+	class AppToolBar;
+	class ToolBarData; 
 	class WindowFrame : public wxFrame
 	{
 	public:
@@ -15,6 +16,8 @@ namespace dragon
 	public:
 		RenderCanvas* getRenderCanvas();
 		ElementTreeCtrl* getElementTreeCtrl();
+		void OnCallbackToolbarCommand(ToolBarData& data);
+		void OnResize(wxSizeEvent& event);
 	private:
 		void initUI();
 		void initUIManager();
@@ -26,9 +29,6 @@ namespace dragon
 		void OnHello(wxCommandEvent& event);
 		void OnExit(wxCommandEvent& event);
 		void OnAbout(wxCommandEvent& event);
-	private:
-		void OnSize(wxSizeEvent& event);
-		wxDECLARE_EVENT_TABLE();
 	private:
 		AppMenubar* m_AppMenuBar{ nullptr };
 		ElementTreeCtrl* m_ElementTreeCtrl{ nullptr };

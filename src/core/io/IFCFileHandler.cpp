@@ -81,6 +81,7 @@ namespace dragon
 				/*CREATE OUTLINE EDGE INDEX IS 1*/
 				std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*model_geometry, outline_edge::THRESHOLD_ANGLE);
 				std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
+				outline_material->linewidth = 100.0f;
 				outline_material->color = threepp::Color::darkgray;
 				std::shared_ptr<threepp::LineSegments>  outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
 				viewport_scene->add(outlineEdge);
@@ -118,6 +119,11 @@ namespace dragon
 			RayCast->getIntersector()->custom_callback_checkface = ptr_ifc_file_context->m_Callback_Intersect;
 		}
 		RenderCanvas* canvas = AppHelper::getRenderCanvas(window_frame);
-		canvas->Invalidate(); 
+		/*set callback redraw */
+		auto redraw_callback = [canvas]() {
+			canvas->Invalidate();
+			};
+		ptr_ifc_file_context->OnRedrawCallback = redraw_callback;
+		canvas->Invalidate();
 	}
 }

@@ -6,6 +6,7 @@
 #include "view/ViewportGizmo.hpp"
 #include "config/app_config.hpp"
 #include <format>
+#include "input/input.hpp"
 /*
 * THREEPP CONTEXT RENDERER
 * BACKEND RENDERER IS OPENGL + THREEPP
@@ -77,7 +78,6 @@ namespace dragon
 		UpdateGizmoFromCamera();
 		for (auto& viewport : m_lstViewPort)
 		{
-			viewport->handleRaycast(m_MouseState);
 			viewport->render(m_Renderer.get());
 		}
 	}
@@ -103,7 +103,7 @@ namespace dragon
 			/*context render here */
 			validateContext();
 			ctxRender();
-			//m_OrbitControls->update(); 
+			m_OrbitControls->update();
 		}
 	}
 	void THREEPPRenderer::OnMouseMove(wxMouseEvent& event)
@@ -114,6 +114,10 @@ namespace dragon
 		const wxSize size = m_Canvas->getSize();
 		m_MouseState.nor_mouse_pos.x = (pos.x / static_cast<float>(size.GetWidth())) * 2 - 1;
 		m_MouseState.nor_mouse_pos.y = -(pos.y / static_cast<float>(size.GetHeight())) * 2 + 1;
+		for (auto& viewport : m_lstViewPort)
+		{
+			viewport->handleRaycast(m_MouseState);
+		}
 	}
 	void THREEPPRenderer::OnMousePress(wxMouseEvent& event)
 	{
@@ -179,10 +183,10 @@ namespace dragon
 	void THREEPPRenderer::OnKeyDown(wxKeyEvent& event)
 	{
 		KeyData data;
-		data.key = event; 
+		data.key = event;
 		for (auto& view : m_lstViewPort)
 		{
-			view->OnKeyDown(data); 
+			view->OnKeyDown(data);
 		}
 	}
 	void THREEPPRenderer::OnKeyUp(wxKeyEvent& event)
@@ -191,8 +195,14 @@ namespace dragon
 		data.key = event;
 		for (auto& view : m_lstViewPort)
 		{
-			view->OnKeyUp(data); 
+			view->OnKeyUp(data);
 		}
+	}
+	void THREEPPRenderer::OnToolBarClick(ToolBarData& data)
+	{
+		/*UPDATE TOOLBAR ACTION FOR VIEW PORT*/
+		for (auto& viewport : m_lstViewPort)
+			viewport->OnToolBarAction(data);
 	}
 	void THREEPPRenderer::UpdateGizmoFromCamera()
 	{

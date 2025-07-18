@@ -23,8 +23,10 @@ namespace dragon
 		void OnLButtonUp(EventData& data) override;
 		void OnRButtonDown(EventData& data) override;
 		void OnRButtonUp(EventData& data) override;
-		void OnKeyDown(KeyData& event);
-		void OnKeyUp(KeyData& event);
+		void OnKeyDown(KeyData& event) override;
+		void OnKeyUp(KeyData& event) override;
+		void OnToolActions(int toolID) override; 
+		void OnToolBarAction(ToolBarData& data) override; 
 	public:
 		void initRayCaster();
 		void setFileContext(std::unique_ptr<IFileContext> file_context);
