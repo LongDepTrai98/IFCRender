@@ -97,6 +97,7 @@ namespace dragon
 		{
 			m_Material_Hit_Point = threepp::MeshBasicMaterial::create();
 			m_Material_Hit_Point->color = threepp::Color::red;
+			m_Material_Hit_Point->depthTest = false;
 		}
 
 		if (!m_Custom_material)
@@ -137,6 +138,10 @@ namespace dragon
 			m_Basic_Material = threepp::MeshBasicMaterial::create(); 
 			m_Basic_Material->color = threepp::Color::lightgreen; 
 			m_Basic_Material->side = threepp::Side::Back; 
+			//m_Basic_Material->depthWrite = false;
+			m_Basic_Material->polygonOffset = true;
+			m_Basic_Material->polygonOffsetFactor = 1;
+			m_Basic_Material->polygonOffsetUnits = 1;
 		}
 	}
 	void IFCFileContext::handleHoverResult()
@@ -148,7 +153,7 @@ namespace dragon
 			if (OnRedrawCallback)
 				OnRedrawCallback();
 		}
-		if (m_bIsSelectPivotMode)
+		if (m_bIsHoverMode)
 		{
 			updateCoordHitPoint();
 			if (OnRedrawCallback)
@@ -217,36 +222,19 @@ namespace dragon
 				threepp::Box3 box;
 				box.setFromArray(geo_hover->getAttribute<float>("position")->array());
 				auto center = box.getCenter();
-				m_Object_OverLay_Hover->position.set(center.x, center.y, center.z);
-
-
-				//threepp::Matrix4 T1, T2, S;
-				//T1.makeTranslation(threepp::Vector3(-center.x,-center.y,-center.z));
-				//S.makeScale(2.0f, 2.0f, 2.0f);
-				//T2.makeTranslation(threepp::Vector3(center.x, center.y, center.z));
-
-				//// finalMatrix = T1 * S * T2 * world
-				//threepp::Matrix4 finalMatrix = T1.multiply(S).multiply(T2);
-				m_Object_OverLay_Hover->setGeometry(geo_hover);
-				m_Object_OverLay_Hover->scale.set(2.0f,2.0f,2.0f); 
-		/*		m_Object_OverLay_Hover->updateMatrix();
-				m_Object_OverLay_Hover->updateMatrixWorld();
-				m_Object_OverLay_Hover->updateWorldMatrix(); */
-				//geo_hover->applyMatrix4(threepp::Matrix4().makeScale(1.05, 1.05, 1.05));
-				/*geo_hover->center();
-				geo_hover->scale(2.0f, 2.0f, 2.0f); 
-				geo_hover->computeBoundingBox(); 
-				geo_hover->computeBoundingSphere(); 
-				geo_hover->computeVertexNormals();*/ 
-				//m_Object_OverLay_Hover->setGeometry(geo_hover);
-				//m_Object_OverLay_Hover->matrix->copy(finalMatrix); 
-		/*		m_Object_OverLay_Hover->position.set(center.x,center.y,center.z); 
-				m_Object_OverLay_Hover->updateMatrix();
-				m_Object_OverLay_Hover->updateMatrixWorld();
-				m_Object_OverLay_Hover->updateWorldMatrix();*/
-				////m_Object_OverLay_Hover->position.set(center.x,center.y,center.z); 
-				//m_Object_OverLay_Hover->updateMatrix(); 
-				//m_Object_OverLay_Hover->updateMatrixWorld(); 
+				/*hard code*/
+				m_Center_Point = center; 
+				threepp::Matrix4 translateToOrigin{ }; 
+				translateToOrigin.makeTranslation(-center.x, -center.y, -center.z);
+				threepp::Matrix4 scaleMatrix; 
+				scaleMatrix.makeScale(1.3f, 1.3f, 1.3f);
+				threepp::Matrix4 translateBack; 
+				translateBack.makeTranslation(center.x, center.y, center.z);
+				threepp::Matrix4 matrix; 
+				matrix.multiplyMatrices(translateBack, scaleMatrix); 
+				matrix.multiplyMatrices(matrix, translateToOrigin); 
+				geo_hover->applyMatrix4(matrix); 
+				m_Object_OverLay_Hover->setGeometry(geo_hover); 
 			}
 			m_Old_ExpressID = m_Current_ExpressID;
 		}
@@ -255,8 +243,10 @@ namespace dragon
 	void IFCFileContext::updateCoordHitPoint()
 	{
 		//m_Hit_Point->geometry()->setFromPoints({ m_Coord_HitPoint });
-		if (!m_Coord_HitPoint) return;
-		m_Hit_Point->position.set(m_Coord_HitPoint.value().x, m_Coord_HitPoint.value().y, m_Coord_HitPoint.value().z);
+		//if (!m_Coord_HitPoint) return;
+		//m_Hit_Point->position.set(m_Coord_HitPoint.value().x, m_Coord_HitPoint.value().y, m_Coord_HitPoint.value().z);
+		if (!m_Center_Point) return;
+		m_Hit_Point->position.set(m_Center_Point.value().x, m_Center_Point.value().y, m_Center_Point.value().z);
 	}
 
 	void IFCFileContext::updateCoordAxesHelper()
@@ -273,6 +263,7 @@ namespace dragon
 		//m_Object_OverLay_Hover->setMaterial(m_Custom_material);
 		m_Object_OverLay_Hover->setMaterial(m_Basic_Material);
 		m_Object_OverLay_Hover->visible = false;
+		m_Object_OverLay_Hover->matrixAutoUpdate = true; 
 		return m_Object_OverLay_Hover;
 	}
 

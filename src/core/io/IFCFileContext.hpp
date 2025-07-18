@@ -73,6 +73,7 @@ namespace dragon
 		std::optional<int> m_Old_ExpressID{ -1 };
 		std::optional<threepp::Vector3> m_Coord_HitPoint;
 		std::optional<threepp::Vector3> m_Coord_HitPoint_Clicked;
+		std::optional<threepp::Vector3> m_Center_Point;
 		bool m_bIsSelectPivotMode{ false };
 		bool m_bIsHoverMode{ false }; 
 	};

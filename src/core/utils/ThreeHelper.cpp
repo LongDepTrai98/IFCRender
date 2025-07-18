@@ -164,10 +164,9 @@ namespace dragon
 		sub_geometry_buffer->setIndex(mergeIndices);
 		sub_geometry_buffer->setAttribute("position", threepp::FloatBufferAttribute::create(mergeVetices, 3));
 		sub_geometry_buffer->setAttribute("normal", threepp::FloatBufferAttribute::create(mergeNormals, 3));
-		//sub_geometry_buffer->computeBoundingBox();
-		//sub_geometry_buffer->computeBoundingSphere();
+		sub_geometry_buffer->computeBoundingBox();
+		sub_geometry_buffer->computeBoundingSphere();
 		sub_geometry_buffer->computeVertexNormals();
-		sub_geometry_buffer->center(); 
 		return sub_geometry_buffer;
 	}
 }
