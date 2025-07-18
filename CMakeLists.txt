@@ -149,10 +149,10 @@ add_custom_command(
     COMMENT "Copying assets folder to output directory..."
 )
 
-add_custom_command(
-    TARGET ${EDITOR_NAME_PROJECT} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${ASSETS_DIR}"
-            "${DEBUG_ASSETS_DIR}"
-    COMMENT "Copying assets folder to output directory..."
-)
+#add_custom_command(
+    #TARGET ${EDITOR_NAME_PROJECT} POST_BUILD
+    #COMMAND ${CMAKE_COMMAND} -E copy_directory
+           # "${ASSETS_DIR}"
+           # "${DEBUG_ASSETS_DIR}"
+   # COMMENT "Copying assets folder to output directory..."
+#)

@@ -9,6 +9,7 @@
 #include "core/utils/ThreeHelper.hpp"
 #include "input/input.hpp"
 #include "resource.hpp"
+#include "threepp/materials/RawShaderMaterial.hpp"
 #include <format>
 #include <iostream>
 #include <set>
@@ -73,8 +74,6 @@ namespace dragon
 			{
 				m_Coord_HitPoint = result.P;
 			}
-			if (OnRedrawCallback)
-				OnRedrawCallback();
 		}
 		else
 		{
@@ -99,11 +98,62 @@ namespace dragon
 			m_Material_Hit_Point = threepp::MeshBasicMaterial::create();
 			m_Material_Hit_Point->color = threepp::Color::red;
 		}
+
+		if (!m_Custom_material)
+		{
+			m_Custom_material = threepp::RawShaderMaterial::create();
+			const std::string vertexSource = R"(
+			#version 330 core
+				#define attribute in
+				#define varying out
+				uniform mat4 modelViewMatrix; // optional
+				uniform mat4 projectionMatrix; // optional
+				attribute vec3 position;
+				attribute vec3 normal;
+				uniform float outlineThickness;
+				void main()
+				{
+					vec3 newPostion = position + normal * outlineThickness;
+					gl_Position = projectionMatrix * modelViewMatrix * vec4( newPostion, 1.0 );
+				}
+			)";
+			const std::string fragmentSource = R"(
+				void main() {
+					gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+				}
+			)";
+
+			m_Custom_material->vertexShader = vertexSource;
+			m_Custom_material->fragmentShader = fragmentSource;
+			m_Custom_material->side = threepp::Side::Back; 
+			m_Custom_material->uniforms["outlineThickness"].setValue(0.02f);
+			m_Custom_material->depthWrite = false; 
+			m_Custom_material->polygonOffset = true; 
+			m_Custom_material->polygonOffsetFactor = -4;
+			m_Custom_material->polygonOffsetUnits = -4;
+		}
+		if (!m_Basic_Material)
+		{
+			m_Basic_Material = threepp::MeshBasicMaterial::create(); 
+			m_Basic_Material->color = threepp::Color::lightgreen; 
+			m_Basic_Material->side = threepp::Side::Back; 
+		}
 	}
 	void IFCFileContext::handleHoverResult()
 	{
 		if (!m_bIsEnableHover) return;
-		drawHoverLayer();
+		if (m_bIsHoverMode)
+		{
+			drawHoverLayer();
+			if (OnRedrawCallback)
+				OnRedrawCallback();
+		}
+		if (m_bIsSelectPivotMode)
+		{
+			updateCoordHitPoint();
+			if (OnRedrawCallback)
+				OnRedrawCallback();
+		}
 	}
 
 	void IFCFileContext::rebuildVisibleIndices()
@@ -164,15 +214,41 @@ namespace dragon
 					m_Model->m_Object_Normals,
 					m_Model->m_Object_Indices
 				);
+				threepp::Box3 box;
+				box.setFromArray(geo_hover->getAttribute<float>("position")->array());
+				auto center = box.getCenter();
+				m_Object_OverLay_Hover->position.set(center.x, center.y, center.z);
+
+
+				//threepp::Matrix4 T1, T2, S;
+				//T1.makeTranslation(threepp::Vector3(-center.x,-center.y,-center.z));
+				//S.makeScale(2.0f, 2.0f, 2.0f);
+				//T2.makeTranslation(threepp::Vector3(center.x, center.y, center.z));
+
+				//// finalMatrix = T1 * S * T2 * world
+				//threepp::Matrix4 finalMatrix = T1.multiply(S).multiply(T2);
 				m_Object_OverLay_Hover->setGeometry(geo_hover);
+				m_Object_OverLay_Hover->scale.set(2.0f,2.0f,2.0f); 
+		/*		m_Object_OverLay_Hover->updateMatrix();
+				m_Object_OverLay_Hover->updateMatrixWorld();
+				m_Object_OverLay_Hover->updateWorldMatrix(); */
+				//geo_hover->applyMatrix4(threepp::Matrix4().makeScale(1.05, 1.05, 1.05));
+				/*geo_hover->center();
+				geo_hover->scale(2.0f, 2.0f, 2.0f); 
+				geo_hover->computeBoundingBox(); 
+				geo_hover->computeBoundingSphere(); 
+				geo_hover->computeVertexNormals();*/ 
+				//m_Object_OverLay_Hover->setGeometry(geo_hover);
+				//m_Object_OverLay_Hover->matrix->copy(finalMatrix); 
+		/*		m_Object_OverLay_Hover->position.set(center.x,center.y,center.z); 
+				m_Object_OverLay_Hover->updateMatrix();
+				m_Object_OverLay_Hover->updateMatrixWorld();
+				m_Object_OverLay_Hover->updateWorldMatrix();*/
+				////m_Object_OverLay_Hover->position.set(center.x,center.y,center.z); 
+				//m_Object_OverLay_Hover->updateMatrix(); 
+				//m_Object_OverLay_Hover->updateMatrixWorld(); 
 			}
 			m_Old_ExpressID = m_Current_ExpressID;
-		}
-		if (m_bIsSelectPivotMode)
-		{
-			updateCoordHitPoint();
-			if (OnRedrawCallback)
-				OnRedrawCallback();
 		}
 	}
 
@@ -193,7 +269,9 @@ namespace dragon
 	{
 		/*CREATE HOVER MESH FOR MODEL*/
 		m_Object_OverLay_Hover = threepp::Mesh::create();
-		m_Object_OverLay_Hover->setMaterial(m_Material_Hover);
+		//m_Object_OverLay_Hover->setMaterial(m_Material_Hover);
+		//m_Object_OverLay_Hover->setMaterial(m_Custom_material);
+		m_Object_OverLay_Hover->setMaterial(m_Basic_Material);
 		m_Object_OverLay_Hover->visible = false;
 		return m_Object_OverLay_Hover;
 	}
@@ -266,6 +344,11 @@ namespace dragon
 		{
 			m_bIsSelectPivotMode = isCheck;
 			break;
+		}
+		case dragon::ID_EVENT::TOOL_HOVER: 
+		{
+			m_bIsHoverMode = isCheck; 
+			break; 
 		}
 		default:
 			break;

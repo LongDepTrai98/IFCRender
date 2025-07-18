@@ -15,6 +15,7 @@ namespace threepp
 	class PointsMaterial;
 	class MeshBasicMaterial;
 	class AxesHelper;
+	class RawShaderMaterial; 
 }
 namespace dragon
 {
@@ -66,11 +67,14 @@ namespace dragon
 		std::shared_ptr<threepp::Mesh> m_Object_OverLay_Hover{ nullptr };
 		std::shared_ptr<threepp::Mesh> m_Hit_Point{ nullptr };
 		std::shared_ptr<threepp::AxesHelper> m_Axes_Helper{ nullptr };
+		std::shared_ptr<threepp::RawShaderMaterial> m_Custom_material{ nullptr }; 
+		std::shared_ptr<threepp::MeshBasicMaterial> m_Basic_Material{ nullptr }; 
 		std::optional<int> m_Current_ExpressID;
 		std::optional<int> m_Old_ExpressID{ -1 };
 		std::optional<threepp::Vector3> m_Coord_HitPoint;
 		std::optional<threepp::Vector3> m_Coord_HitPoint_Clicked;
 		bool m_bIsSelectPivotMode{ false };
+		bool m_bIsHoverMode{ false }; 
 	};
 }
 #endif // !_IFC_FILE_CONTEXT_HPP_
