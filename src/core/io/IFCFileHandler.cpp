@@ -124,6 +124,9 @@ namespace dragon
 			canvas->Invalidate();
 			};
 		ptr_ifc_file_context->OnRedrawCallback = redraw_callback;
+		/*Set add object callback*/
+		ptr_ifc_file_context->m_Add_Object_CallBack = main_viewport->m_Add_Object_CallBack;
+		ptr_ifc_file_context->m_Add_Object_DrawDepth_CallBack = main_viewport->m_Add_Object_DrawDepth_CallBack;
 		canvas->Invalidate();
 	}
 }

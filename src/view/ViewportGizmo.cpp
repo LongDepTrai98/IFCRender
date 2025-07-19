@@ -5,6 +5,7 @@
 #include "config/app_config.hpp"
 #include "threepp/geometries/EdgesGeometry.hpp"
 #include "threepp/utils/BufferGeometryUtils.hpp"
+#include "threepp/renderers/GLRenderTarget.hpp"
 #include "input/input.hpp"
 #include <spdlog/spdlog.h>
 

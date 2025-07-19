@@ -15,7 +15,8 @@ namespace threepp
 	class PointsMaterial;
 	class MeshBasicMaterial;
 	class AxesHelper;
-	class RawShaderMaterial; 
+	class RawShaderMaterial;
+	class Scene;
 }
 namespace dragon
 {
@@ -36,6 +37,7 @@ namespace dragon
 		void handleHoverResult() override;
 		void rebuildVisibleIndices();
 		void drawHoverLayer();
+		void drawSelectedLayer();
 		void updateCoordHitPoint();
 		void updateCoordAxesHelper();
 		std::shared_ptr<threepp::Mesh> createHoverMesh();
@@ -57,25 +59,31 @@ namespace dragon
 		std::shared_ptr<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>> m_Toggle_Components_Callback{ nullptr };
 		std::shared_ptr<std::function<void* (const int&)>> m_GetData_Item_Callback{ nullptr };
 		std::shared_ptr<std::function<bool(const unsigned int)>> m_Callback_Intersect{ nullptr };
+		std::function<void(const std::vector<std::shared_ptr<threepp::Mesh>>& meshes)> m_Add_Object_CallBack{ nullptr };
+		std::function<void(const std::vector<std::shared_ptr<threepp::Mesh>>& meshes)> m_Add_Object_DrawDepth_CallBack{ nullptr };
 	public:
 		CustomRayCaster* RayCast{ nullptr };
 	private:
 		std::unique_ptr<IFCModelCache> m_Model{ nullptr };
 		std::unordered_set<unsigned int> m_Hidden_Express_IDs;
-		std::shared_ptr<threepp::Material> m_Material_Hover{ nullptr };
-		std::shared_ptr<threepp::MeshBasicMaterial> m_Material_Hit_Point{ nullptr };
+		std::unordered_map<unsigned int, std::shared_ptr<threepp::Mesh>> m_Selected_Entites;
+		/*MESH*/
 		std::shared_ptr<threepp::Mesh> m_Object_OverLay_Hover{ nullptr };
 		std::shared_ptr<threepp::Mesh> m_Hit_Point{ nullptr };
 		std::shared_ptr<threepp::AxesHelper> m_Axes_Helper{ nullptr };
-		std::shared_ptr<threepp::RawShaderMaterial> m_Custom_material{ nullptr }; 
-		std::shared_ptr<threepp::MeshBasicMaterial> m_Basic_Material{ nullptr }; 
+		/*MATERIAL*/
+		std::shared_ptr<threepp::MeshBasicMaterial> m_Material_Hit_Point{ nullptr };
+		std::shared_ptr<threepp::Material> m_Material_Hover{ nullptr };
+		std::shared_ptr<threepp::RawShaderMaterial> m_Custom_material{ nullptr };
+		std::shared_ptr<threepp::MeshBasicMaterial> m_Basic_Material{ nullptr };
+		std::shared_ptr<threepp::MeshBasicMaterial> m_Selected_Material{ nullptr };
 		std::optional<int> m_Current_ExpressID;
 		std::optional<int> m_Old_ExpressID{ -1 };
 		std::optional<threepp::Vector3> m_Coord_HitPoint;
 		std::optional<threepp::Vector3> m_Coord_HitPoint_Clicked;
 		std::optional<threepp::Vector3> m_Center_Point;
 		bool m_bIsSelectPivotMode{ false };
-		bool m_bIsHoverMode{ false }; 
+		bool m_bIsHoverMode{ false };
 	};
 }
 #endif // !_IFC_FILE_CONTEXT_HPP_

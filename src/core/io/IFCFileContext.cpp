@@ -100,6 +100,13 @@ namespace dragon
 			m_Material_Hit_Point->depthTest = false;
 		}
 
+		if (!m_Selected_Material)
+		{
+			m_Selected_Material = threepp::MeshBasicMaterial::create();
+			m_Selected_Material->color = threepp::Color::greenyellow;
+			m_Material_Hit_Point->depthTest = false;
+		}
+
 		if (!m_Custom_material)
 		{
 			m_Custom_material = threepp::RawShaderMaterial::create();
@@ -126,19 +133,19 @@ namespace dragon
 
 			m_Custom_material->vertexShader = vertexSource;
 			m_Custom_material->fragmentShader = fragmentSource;
-			m_Custom_material->side = threepp::Side::Back; 
+			m_Custom_material->side = threepp::Side::Back;
 			m_Custom_material->uniforms["outlineThickness"].setValue(0.02f);
-			m_Custom_material->depthWrite = false; 
-			m_Custom_material->polygonOffset = true; 
+			m_Custom_material->depthWrite = false;
+			m_Custom_material->polygonOffset = true;
 			m_Custom_material->polygonOffsetFactor = -4;
 			m_Custom_material->polygonOffsetUnits = -4;
 		}
 		if (!m_Basic_Material)
 		{
-			m_Basic_Material = threepp::MeshBasicMaterial::create(); 
-			m_Basic_Material->color = threepp::Color::lightgreen; 
-			m_Basic_Material->side = threepp::Side::Back; 
-			//m_Basic_Material->depthWrite = false;
+			m_Basic_Material = threepp::MeshBasicMaterial::create();
+			m_Basic_Material->color = threepp::Color::lightgreen;
+			m_Basic_Material->side = threepp::Side::Back;
+			m_Basic_Material->depthWrite = false;
 			m_Basic_Material->polygonOffset = true;
 			m_Basic_Material->polygonOffsetFactor = 1;
 			m_Basic_Material->polygonOffsetUnits = 1;
@@ -223,30 +230,34 @@ namespace dragon
 				box.setFromArray(geo_hover->getAttribute<float>("position")->array());
 				auto center = box.getCenter();
 				/*hard code*/
-				m_Center_Point = center; 
-				threepp::Matrix4 translateToOrigin{ }; 
+				m_Center_Point = center;
+				threepp::Matrix4 translateToOrigin{ };
 				translateToOrigin.makeTranslation(-center.x, -center.y, -center.z);
-				threepp::Matrix4 scaleMatrix; 
+				threepp::Matrix4 scaleMatrix;
 				scaleMatrix.makeScale(1.3f, 1.3f, 1.3f);
-				threepp::Matrix4 translateBack; 
+				threepp::Matrix4 translateBack;
 				translateBack.makeTranslation(center.x, center.y, center.z);
-				threepp::Matrix4 matrix; 
-				matrix.multiplyMatrices(translateBack, scaleMatrix); 
-				matrix.multiplyMatrices(matrix, translateToOrigin); 
-				geo_hover->applyMatrix4(matrix); 
-				m_Object_OverLay_Hover->setGeometry(geo_hover); 
+				threepp::Matrix4 matrix;
+				matrix.multiplyMatrices(translateBack, scaleMatrix);
+				matrix.multiplyMatrices(matrix, translateToOrigin);
+				geo_hover->applyMatrix4(matrix);
+				m_Object_OverLay_Hover->setGeometry(geo_hover);
 			}
 			m_Old_ExpressID = m_Current_ExpressID;
 		}
 	}
 
+	void IFCFileContext::drawSelectedLayer()
+	{
+		if (m_Selected_Entites.size() == 0) return;
+	}
+
 	void IFCFileContext::updateCoordHitPoint()
 	{
-		//m_Hit_Point->geometry()->setFromPoints({ m_Coord_HitPoint });
-		//if (!m_Coord_HitPoint) return;
-		//m_Hit_Point->position.set(m_Coord_HitPoint.value().x, m_Coord_HitPoint.value().y, m_Coord_HitPoint.value().z);
-		if (!m_Center_Point) return;
-		m_Hit_Point->position.set(m_Center_Point.value().x, m_Center_Point.value().y, m_Center_Point.value().z);
+		if (!m_Coord_HitPoint) return;
+		m_Hit_Point->position.set(m_Coord_HitPoint.value().x, m_Coord_HitPoint.value().y, m_Coord_HitPoint.value().z);
+		/*if (!m_Center_Point) return;
+		m_Hit_Point->position.set(m_Center_Point.value().x, m_Center_Point.value().y, m_Center_Point.value().z);*/
 	}
 
 	void IFCFileContext::updateCoordAxesHelper()
@@ -263,7 +274,7 @@ namespace dragon
 		//m_Object_OverLay_Hover->setMaterial(m_Custom_material);
 		m_Object_OverLay_Hover->setMaterial(m_Basic_Material);
 		m_Object_OverLay_Hover->visible = false;
-		m_Object_OverLay_Hover->matrixAutoUpdate = true; 
+		m_Object_OverLay_Hover->matrixAutoUpdate = true;
 		return m_Object_OverLay_Hover;
 	}
 
@@ -305,6 +316,31 @@ namespace dragon
 
 	void IFCFileContext::LButtonDown(EventData& data)
 	{
+		if (m_bIsSelectPivotMode) return;
+		if (!m_Current_ExpressID) return;
+		m_Selected_Entites.clear();
+		/*CREATE GEO*/
+		const IFCModelCache::element& e = m_Model->m_Geometry_Offset[m_Current_ExpressID.value()];
+		std::shared_ptr<threepp::BufferGeometry> geo_hover = ThreeHelper::BuildSubGeometryWithOffset(e,
+			m_Model->m_Object_Vertices,
+			m_Model->m_Object_Normals,
+			m_Model->m_Object_Indices
+		);
+		/*CREATE MESH*/
+		std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(geo_hover, m_Selected_Material);
+		if (m_Add_Object_CallBack)
+			m_Add_Object_CallBack({ mesh });
+		if (m_Add_Object_DrawDepth_CallBack)
+			m_Add_Object_DrawDepth_CallBack({ mesh });
+		if (OnRedrawCallback)
+			OnRedrawCallback();
+		//m_Selected_Entites.insert({})
+		//auto it = m_Selected_ExpressIDs.find(m_Current_ExpressID.value());
+		//if (it == m_Selected_ExpressIDs.end())
+		//{
+		//	/*PUSH*/
+		//	m_Selected_ExpressIDs.insert(m_Current_ExpressID.value());
+		//}
 	}
 
 	void IFCFileContext::RButtonUp(EventData& data)
@@ -336,10 +372,10 @@ namespace dragon
 			m_bIsSelectPivotMode = isCheck;
 			break;
 		}
-		case dragon::ID_EVENT::TOOL_HOVER: 
+		case dragon::ID_EVENT::TOOL_HOVER:
 		{
-			m_bIsHoverMode = isCheck; 
-			break; 
+			m_bIsHoverMode = isCheck;
+			break;
 		}
 		default:
 			break;

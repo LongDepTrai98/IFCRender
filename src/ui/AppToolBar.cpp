@@ -37,5 +37,13 @@ namespace dragon
 			wxITEM_CHECK,
 			"Select Pivot",
 			"This is help for select pivot");
+		m_ToolBar->AddSeparator(); 
+		m_ToolBar->AddTool((int)ID_EVENT::TOOL_SWITCH_MODE_RENDER,
+			"Draw Depth",
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Hover, wxBITMAP_TYPE_PNG),
+			wxNullBitmap,
+			wxITEM_CHECK,
+			"Select Pivot",
+			"This is help for select pivot"); 
 	}
 }

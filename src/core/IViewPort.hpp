@@ -4,18 +4,20 @@
 #include "threepp/math/Vector2.hpp"
 #include "core/io/IGeometryCache.hpp"
 #include <memory>
-class wxKeyEvent; 
+class wxKeyEvent;
 namespace threepp
 {
 	class Raycaster;
+	class GLRenderTarget;
+	class Material;
 }
 namespace dragon
 {
 	/*INTERFACE VIEWPORT*/
 	class MouseState;
 	class KeyData;
-	class EventData; 
-	class ToolBarData; 
+	class EventData;
+	class ToolBarData;
 	class ViewPort
 	{
 	public:
@@ -47,13 +49,17 @@ namespace dragon
 		virtual void OnKeyDown(KeyData& event) = 0;
 		virtual void OnKeyUp(KeyData& event) = 0;
 		virtual void OnToolBarAction(ToolBarData& data) = 0;
-	public: 
+	public:
 		/*TOOL ACTIONS*/
-		virtual void OnToolActions(int toolID) = 0; 
+		virtual void OnToolActions(int toolID) = 0;
 		//virtual void
+	public:
+		std::function<void(const std::vector<std::shared_ptr<threepp::Mesh>>& meshes)> m_Add_Object_CallBack{ nullptr };
+		std::function<void(const std::vector<std::shared_ptr<threepp::Mesh>>& meshes)> m_Add_Object_DrawDepth_CallBack{ nullptr };
 	protected:
 		/*SCENE CONTEXT*/
 		std::unique_ptr<threepp::Scene> m_Scene{ nullptr };
+		std::unique_ptr<threepp::Scene> m_Scene_Depth{ nullptr };
 		std::unique_ptr<threepp::PerspectiveCamera> m_Camera{ nullptr };
 		threepp::GLRenderer* m_Renderer{ nullptr };
 		threepp::WindowSize m_Viewport_Size{};

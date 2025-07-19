@@ -3,10 +3,15 @@
 #include "ui/RenderCanvas.hpp"
 #include "threepp/helpers/SpotLightHelper.hpp"
 #include "threepp/helpers/DirectionalLightHelper.hpp"
+#include "threepp/renderers/GLRenderTarget.hpp"
+#include "threepp/materials/RawShaderMaterial.hpp"
 #include "core/io/IFCGeometryCache.hpp"
 #include "core/io/IFileContext.hpp"
+#include "core/Paths.hpp"
+#include "core/utils/StringHelper.hpp"
 #include "raycast/CustomRayCaster.hpp"
 #include "input/input.hpp"
+#include "resource.hpp"
 namespace dragon
 {
 	MainViewPort::MainViewPort(RenderCanvas* canvas) : IRenderer(canvas)
@@ -16,6 +21,35 @@ namespace dragon
 		initScene(m_Viewport_Size);
 		initCamera(m_Viewport_Size);
 		initRayCaster();
+		m_Add_Object_CallBack = [&](const std::vector<std::shared_ptr<threepp::Mesh>>& meshes) {
+			for (auto& mesh : meshes)
+			{
+				m_Scene->add(mesh);
+			}
+			};
+		m_Add_Object_DrawDepth_CallBack = [&](const std::vector<std::shared_ptr<threepp::Mesh>>& meshes) {
+			if (!this->depth_material)
+			{
+				this->depth_material = threepp::RawShaderMaterial::create();
+				const std::string vertex_path = assets::Shader + "outline.vert";
+				const std::string frag_path = assets::Shader + "outline.frag";
+				std::string vertexSource{};
+				std::string fragSource{};
+				vertexSource = StringHelper::ReadFile(vertex_path);
+				fragSource = StringHelper::ReadFile(frag_path);
+				depth_material->vertexShader = vertexSource;
+				depth_material->fragmentShader = fragSource;
+				depth_material->uniforms["near"].setValue(m_Camera->nearPlane);
+				depth_material->uniforms["far"].setValue(m_Camera->farPlane);
+			}
+			for (auto& mesh : meshes)
+			{
+				std::shared_ptr<threepp::Mesh> meshCopy = threepp::Mesh::create();
+				meshCopy->copy(*mesh->as<threepp::Object3D>());
+				meshCopy->setMaterial(depth_material);
+				m_Scene_Depth->add(meshCopy);
+			}
+			};
 	}
 	MainViewPort::~MainViewPort()
 	{
@@ -32,6 +66,9 @@ namespace dragon
 		if (!m_Scene)
 			m_Scene = std::make_unique<threepp::Scene>();
 		m_Scene->background = 0x2A2A2A;
+
+		if (!m_Scene_Depth)
+			m_Scene_Depth = std::make_unique<threepp::Scene>();
 	}
 	void MainViewPort::OnLButtonDown(EventData& data)
 	{
@@ -68,6 +105,12 @@ namespace dragon
 	{
 		if (m_FileContext)
 			m_FileContext->ToolBarAction(data);
+		if (data.event.GetId() == (int)ID_EVENT::TOOL_SWITCH_MODE_RENDER)
+		{
+			/*SWITCH CURRENT MODE*/
+			data.bIsCheck ? m_Current_Draw_Mode = DrawMode::DEPTH : m_Current_Draw_Mode = DrawMode::DEFAULT;
+		}
+		m_Canvas->Invalidate();
 	}
 	void MainViewPort::OnRButtonDown(EventData& data)
 	{
@@ -150,7 +193,21 @@ namespace dragon
 			&& m_Camera)
 		{
 			renderer->setViewport({ 0,0,m_Viewport_Size.width(),m_Viewport_Size.height() });
-			renderer->render(*m_Scene.get(), *m_Camera.get());
+			switch (m_Current_Draw_Mode)
+			{
+			case DrawMode::DEFAULT:
+			{
+				renderer->render(*m_Scene.get(), *m_Camera.get());
+				break;
+			}
+			case DrawMode::DEPTH:
+			{
+				/*DRAW DEPTH*/
+				renderer->render(*m_Scene_Depth.get(), *m_Camera.get());
+			}
+			default:
+				break;
+			}
 		}
 	}
 }

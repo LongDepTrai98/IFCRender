@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cctype>
 #include <fstream>
+#include "spdlog/spdlog.h"
 namespace dragon
 {
 	class StringHelper
@@ -16,6 +17,7 @@ namespace dragon
 		}
 		static std::string ReadFile(std::string filename)
 		{
+			spdlog::info("read file : {}", filename);
 			std::ifstream t(filename);
 			std::stringstream buffer;
 			buffer << t.rdbuf();

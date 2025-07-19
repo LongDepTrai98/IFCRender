@@ -35,6 +35,8 @@ namespace dragon
 		virtual void KeyUp(KeyData& data) = 0;
 		virtual void ToolBarAction(ToolBarData& data) = 0;
 	public:
+		/*DEBUG*/
+	public:
 		bool m_bIsEnableHover{ true };
 		std::function<void()> OnRedrawCallback{ nullptr };
 	};

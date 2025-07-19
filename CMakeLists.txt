@@ -43,6 +43,8 @@ set(WX_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.0/include
 set(WX_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.0/lib/vc_x64_lib/)
 set(WEB_IFC_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build/3rdparty/lib)
 set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
+set(SHADER_DIR "${CMAKE_SOURCE_DIR}/src/shader")
+set(DEST_SHADER_DIR "${CMAKE_BINARY_DIR}/shader")
 set(DEST_ASSETS_DIR "$<TARGET_FILE_DIR:${EDITOR_NAME_PROJECT}>/assets")
 set(DEBUG_ASSETS_DIR "${CMAKE_BINARY_DIR}/assets")
 project(${PROJECT_NAME})
@@ -95,7 +97,9 @@ source_group("input" FILES ${INPUT_SRC})
 #threadpool 
  file(GLOB_RECURSE THREADPOOL_SRC "src/threadpool/*.hpp")
 source_group("threadpool" FILES ${THREADPOOL_SRC})
-
+#shader 
+ file(GLOB_RECURSE SHADER_SRC "src/shader/*.vert" "src/shader/*.frag")
+source_group("shader" FILES ${SHADER_SRC})
 
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
@@ -116,6 +120,7 @@ add_executable(${EDITOR_NAME_PROJECT}
     ${TSL_SRC}
     ${INPUT_SRC}
     ${THREADPOOL_SRC}
+    ${SHADER_SRC}
 )
 
  #add include 
@@ -148,6 +153,15 @@ add_custom_command(
             "${DEST_ASSETS_DIR}"
     COMMENT "Copying assets folder to output directory..."
 )
+
+add_custom_command(
+    TARGET ${EDITOR_NAME_PROJECT} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${SHADER_DIR}"
+            "${DEST_SHADER_DIR}"
+    COMMENT "Copying shader folder to output directory..."
+)
+
 
 #add_custom_command(
     #TARGET ${EDITOR_NAME_PROJECT} POST_BUILD
