@@ -12,6 +12,8 @@
 #include "raycast/CustomRayCaster.hpp"
 #include "input/input.hpp"
 #include "resource.hpp"
+#include "core/drawpass/OutLinePass.hpp"
+#include "core/drawpass/DepthPass.hpp"
 namespace dragon
 {
 	MainViewPort::MainViewPort(RenderCanvas* canvas) : IRenderer(canvas)
@@ -31,8 +33,8 @@ namespace dragon
 			if (!this->depth_material)
 			{
 				this->depth_material = threepp::RawShaderMaterial::create();
-				const std::string vertex_path = assets::Shader + "outline.vert";
-				const std::string frag_path = assets::Shader + "outline.frag";
+				const std::string vertex_path = assets::Shader + "depth.vert";
+				const std::string frag_path = assets::Shader + "depth.frag";
 				std::string vertexSource{};
 				std::string fragSource{};
 				vertexSource = StringHelper::ReadFile(vertex_path);
@@ -47,9 +49,16 @@ namespace dragon
 				std::shared_ptr<threepp::Mesh> meshCopy = threepp::Mesh::create();
 				meshCopy->copy(*mesh->as<threepp::Object3D>());
 				meshCopy->setMaterial(depth_material);
-				m_Scene_Depth->add(meshCopy);
+				test_depth_pass->getScene()->add(meshCopy);
 			}
 			};
+
+		/*HARD CODE TEST RENDER PASS*/
+		if (!test_depth_pass)
+		{
+			test_depth_pass = std::make_unique<DepthPass>(m_Viewport_Size.width(), m_Viewport_Size.height());
+		}
+
 	}
 	MainViewPort::~MainViewPort()
 	{
@@ -66,9 +75,6 @@ namespace dragon
 		if (!m_Scene)
 			m_Scene = std::make_unique<threepp::Scene>();
 		m_Scene->background = 0x2A2A2A;
-
-		if (!m_Scene_Depth)
-			m_Scene_Depth = std::make_unique<threepp::Scene>();
 	}
 	void MainViewPort::OnLButtonDown(EventData& data)
 	{
@@ -172,6 +178,8 @@ namespace dragon
 			m_Camera->aspect = m_Viewport_Size.aspect();
 			m_Camera->updateProjectionMatrix();
 		}
+		if (test_depth_pass)
+			test_depth_pass->setSize(width, height); 
 	}
 	void MainViewPort::handleRaycast(MouseState& mouse_state)
 	{
@@ -182,6 +190,7 @@ namespace dragon
 			m_FileContext->handleRaycast(*m_RayCaster.get(), mouse_state);
 			m_FileContext->handleHoverResult();
 		}
+	
 	}
 	void MainViewPort::update(const float& dtTime)
 	{
@@ -197,13 +206,17 @@ namespace dragon
 			{
 			case DrawMode::DEFAULT:
 			{
+				renderer->clear();
 				renderer->render(*m_Scene.get(), *m_Camera.get());
 				break;
 			}
 			case DrawMode::DEPTH:
 			{
 				/*DRAW DEPTH*/
-				renderer->render(*m_Scene_Depth.get(), *m_Camera.get());
+				renderer->clear();  
+				renderer->setRenderTarget(test_depth_pass->getRenderTarget()); 
+				renderer->render(*test_depth_pass->getScene(), *m_Camera.get()); 
+				renderer->setRenderTarget(nullptr);
 			}
 			default:
 				break;

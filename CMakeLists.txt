@@ -43,8 +43,8 @@ set(WX_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.0/include
 set(WX_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.0/lib/vc_x64_lib/)
 set(WEB_IFC_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build/3rdparty/lib)
 set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
-set(SHADER_DIR "${CMAKE_SOURCE_DIR}/src/shader")
-set(DEST_SHADER_DIR "${CMAKE_BINARY_DIR}/shader")
+set(SHADER_DIR "${CMAKE_SOURCE_DIR}/src/shaders")
+set(DEST_SHADER_DIR "${CMAKE_BINARY_DIR}/shaders")
 set(DEST_ASSETS_DIR "$<TARGET_FILE_DIR:${EDITOR_NAME_PROJECT}>/assets")
 set(DEBUG_ASSETS_DIR "${CMAKE_BINARY_DIR}/assets")
 project(${PROJECT_NAME})
@@ -79,6 +79,9 @@ source_group("core//props" FILES ${APP_PROPS_CORE_SRC})
 #utils
 file(GLOB APP_UTILS_CORE_SRC "src/core/utils/*.cpp" "src/core/utils/*.hpp")
 source_group("core//utils" FILES ${APP_UTILS_CORE_SRC})
+#draw pass 
+file(GLOB APP_DRAWPASS_CORE_SRC "src/core/drawpass/*.cpp" "src/core/drawpass/*.hpp")
+source_group("core//drawpass" FILES ${APP_DRAWPASS_CORE_SRC})
 #renderer 
 file(GLOB_RECURSE APP_RENDERER_SRC "src/renderer/*.cpp" "src/renderer/*.hpp")
 source_group("renderer" FILES ${APP_RENDERER_SRC})
@@ -98,9 +101,8 @@ source_group("input" FILES ${INPUT_SRC})
  file(GLOB_RECURSE THREADPOOL_SRC "src/threadpool/*.hpp")
 source_group("threadpool" FILES ${THREADPOOL_SRC})
 #shader 
- file(GLOB_RECURSE SHADER_SRC "src/shader/*.vert" "src/shader/*.frag")
-source_group("shader" FILES ${SHADER_SRC})
-
+file(GLOB_RECURSE SHADERS_SRC "src/shaders/*.vert" "src/shaders/*.frag")
+source_group("shaders" FILES ${SHADERS_SRC})
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/wxInclude.hpp
@@ -114,13 +116,14 @@ add_executable(${EDITOR_NAME_PROJECT}
     ${APP_NODE_CORE_SRC}
     ${APP_PROPS_CORE_SRC}
     ${APP_UTILS_CORE_SRC}
+    ${APP_DRAWPASS_CORE_SRC}
 	${APP_RENDERER_SRC}
     ${APP_VIEWPORT_SRC}
     ${RAYCAST_SRC}
     ${TSL_SRC}
     ${INPUT_SRC}
     ${THREADPOOL_SRC}
-    ${SHADER_SRC}
+    ${SHADERS_SRC}
 )
 
  #add include 

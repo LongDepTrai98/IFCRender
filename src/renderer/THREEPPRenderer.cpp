@@ -69,6 +69,7 @@ namespace dragon
 			{
 				m_OrbitControls = std::make_unique<threepp::OrbitControls>(*main_viewport->getCamera(), *this);
 				m_OrbitControls->target.set(0.0f, 0.0f, 0.0f);
+				m_OrbitControls->update(); 
 			}
 		}
 	}

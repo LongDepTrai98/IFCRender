@@ -12,6 +12,6 @@ namespace dragon::assets
 	inline const std::string ButtonToolBar_OpenFolder = Toolbar + "open-folder.png";
 	inline const std::string ButtonToolBar_SetPivot = Toolbar + "pivot.png";
 	inline const std::string ButtonToolBar_Hover = Toolbar + "hover.png";
-	inline const std::string Shader = "shader/";
+	inline const std::string Shader = "shaders/";
 }
 #endif // !_PATHS_HPP_
