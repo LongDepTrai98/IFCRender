@@ -7,5 +7,5 @@ uniform sampler2D depthTex;
 void main()
 {
   //float d = texture(depthTex, vUv).r;
-  FragColor = texture(colorTex, vUv);
+  FragColor = texture(depthTex, vUv);
 }

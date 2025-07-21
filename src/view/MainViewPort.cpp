@@ -5,6 +5,7 @@
 #include "threepp/helpers/DirectionalLightHelper.hpp"
 #include "threepp/renderers/GLRenderTarget.hpp"
 #include "threepp/materials/RawShaderMaterial.hpp"
+#include "threepp/core/InterleavedBuffer.hpp"
 #include "core/io/IFCGeometryCache.hpp"
 #include "core/io/IFileContext.hpp"
 #include "core/Paths.hpp"
@@ -14,6 +15,7 @@
 #include "resource.hpp"
 #include "core/drawpass/OutLinePass.hpp"
 #include "core/drawpass/DepthPass.hpp"
+#include "threepp/core/InterleavedBufferAttribute.hpp"
 namespace dragon
 {
 	MainViewPort::MainViewPort(RenderCanvas* canvas) : IRenderer(canvas)
@@ -51,12 +53,52 @@ namespace dragon
 				meshCopy->setMaterial(depth_material);
 				test_depth_pass->getScene()->add(meshCopy);
 			}
+
+			if (!sobel_mesh)
+			{
+
+				std::vector<float> float32Array{
+				-1.f,  1.f, 0.f,  0.f, 1.f, // top-left
+				-1.f, -1.f, 0.f,  0.f, 0.f, // bottom-left
+				 1.f, -1.f, 0.f,  1.f, 0.f, // bottom-right
+				 1.f,  1.f, 0.f,  1.f, 1.f  // top-right
+				};
+				auto _geometry = threepp::BufferGeometry::create();
+				auto interleavedBuffer = threepp::InterleavedBuffer::create(float32Array, 5);
+				_geometry->setIndex(std::vector<int>{0, 1, 2, 0, 2, 3});
+				_geometry->setAttribute("position", std::make_unique<threepp::InterleavedBufferAttribute>(interleavedBuffer, 3, 0, false));
+				_geometry->setAttribute("uv", std::make_unique<threepp::InterleavedBufferAttribute>(interleavedBuffer, 3, 0, false));
+
+				if (!sobel_material)
+				{
+					this->sobel_material = threepp::RawShaderMaterial::create();
+					const std::string vertex_path = assets::Shader + "outline.vert";
+					const std::string frag_path = assets::Shader + "outline.frag";
+					std::string vertexSource{};
+					std::string fragSource{};
+					vertexSource = StringHelper::ReadFile(vertex_path);
+					fragSource = StringHelper::ReadFile(frag_path);
+					sobel_material->vertexShader = vertexSource;
+					sobel_material->fragmentShader = fragSource;
+				}
+
+				sobel_mesh = threepp::Mesh::create(_geometry,sobel_material); 
+
+				if (test_outline_pass)
+					test_outline_pass->getScene()->add(sobel_mesh); 
+			}
+
 			};
 
 		/*HARD CODE TEST RENDER PASS*/
 		if (!test_depth_pass)
 		{
 			test_depth_pass = std::make_unique<DepthPass>(m_Viewport_Size.width(), m_Viewport_Size.height());
+		}
+
+		if (!test_outline_pass)
+		{
+			test_outline_pass = std::make_unique<OutLinePass>(m_Viewport_Size.width(), m_Viewport_Size.height());
 		}
 
 	}
@@ -215,8 +257,17 @@ namespace dragon
 				/*DRAW DEPTH*/
 				renderer->clear();  
 				renderer->setRenderTarget(test_depth_pass->getRenderTarget()); 
-				renderer->render(*test_depth_pass->getScene(), *m_Camera.get()); 
+				//renderer->render(*test_depth_pass->getScene(), *m_Camera.get()); 
+				renderer->render(*m_Scene.get(), *m_Camera.get());
 				renderer->setRenderTarget(nullptr);
+				
+				renderer->clear();
+				if (sobel_material)
+				{
+					sobel_material->uniforms["depthTex"].setValue(test_depth_pass->getRenderTarget()->texture.get()); 
+				}
+				renderer->render(*test_outline_pass->getScene(), *m_Camera.get());
+				int a = 3; 
 			}
 			default:
 				break;

@@ -12,6 +12,7 @@ namespace dragon
 	class IFileContext;
 	class CustomRayCaster;
 	class DepthPass;
+	class OutLinePass; 
 	class MainViewPort : public ViewPort,
 		public IRenderer
 	{
@@ -57,8 +58,11 @@ namespace dragon
 		DrawMode m_Current_Draw_Mode{ DrawMode::DEFAULT };
 		/*DEBUG*/
 		std::shared_ptr<threepp::RawShaderMaterial> depth_material{ nullptr };
+		std::shared_ptr<threepp::RawShaderMaterial> sobel_material{ nullptr };
+		std::shared_ptr<threepp::Mesh> sobel_mesh{ nullptr }; 
 		/*HARD CODE TEST*/
 		std::unique_ptr<DepthPass> test_depth_pass{ nullptr };
+		std::unique_ptr<OutLinePass> test_outline_pass{ nullptr }; 
 	};
 }
 #endif // !_MAIN_VIEW_PORT_HPP_
