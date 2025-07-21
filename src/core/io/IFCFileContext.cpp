@@ -328,8 +328,6 @@ namespace dragon
 		);
 		/*CREATE MESH*/
 		std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(geo_hover, m_Selected_Material);
-		if (m_Add_Object_CallBack)
-			m_Add_Object_CallBack({ mesh });
 		if (m_Add_Object_DrawDepth_CallBack)
 			m_Add_Object_DrawDepth_CallBack({ mesh });
 		if (OnRedrawCallback)

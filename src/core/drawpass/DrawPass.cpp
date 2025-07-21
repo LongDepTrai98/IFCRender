@@ -8,7 +8,7 @@ namespace dragon
         if (!m_Scene)
             m_Scene = std::make_unique<threepp::Scene>(); 
         threepp::GLRenderTarget::Options opts;
-        opts.format = threepp::Format::RGB;
+        opts.format = threepp::Format::RGBA;
         opts.anisotropy = 16;
         if (!m_RenderTarget)
         {

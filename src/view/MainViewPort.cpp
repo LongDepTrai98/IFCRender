@@ -67,7 +67,7 @@ namespace dragon
 				auto interleavedBuffer = threepp::InterleavedBuffer::create(float32Array, 5);
 				_geometry->setIndex(std::vector<int>{0, 1, 2, 0, 2, 3});
 				_geometry->setAttribute("position", std::make_unique<threepp::InterleavedBufferAttribute>(interleavedBuffer, 3, 0, false));
-				_geometry->setAttribute("uv", std::make_unique<threepp::InterleavedBufferAttribute>(interleavedBuffer, 3, 0, false));
+				_geometry->setAttribute("uv", std::make_unique<threepp::InterleavedBufferAttribute>(interleavedBuffer, 2, 3, false));
 
 				if (!sobel_material)
 				{
@@ -76,8 +76,56 @@ namespace dragon
 					const std::string frag_path = assets::Shader + "outline.frag";
 					std::string vertexSource{};
 					std::string fragSource{};
-					vertexSource = StringHelper::ReadFile(vertex_path);
-					fragSource = StringHelper::ReadFile(frag_path);
+					/*vertexSource = StringHelper::ReadFile(vertex_path);
+					fragSource = StringHelper::ReadFile(frag_path);*/
+					StringHelper::loadBinaryFile(vertex_path, &vertexSource); 
+					//StringHelper::loadBinaryFile("D:\\Code\\IFCRender\\src\\shaders\\outline.frag", &fragSource);
+
+					fragSource = R"(
+						#version 330 core 
+uniform sampler2D depthTex;
+uniform vec2 resolution;
+uniform float threshold = 0.2; 
+
+in vec2 vUv;
+out vec4 FragColor;
+
+void main() {
+    vec2 texelSize = 1.0 / resolution;
+    
+    // Sobel kernels
+    float tl = texture(depthTex, vUv + vec2(-texelSize.x, -texelSize.y)).r; // top-left
+    float tm = texture(depthTex, vUv + vec2(0.0, -texelSize.y)).r;          // top-middle  
+    float tr = texture(depthTex, vUv + vec2(texelSize.x, -texelSize.y)).r;  // top-right
+    float ml = texture(depthTex, vUv + vec2(-texelSize.x, 0.0)).r;          // middle-left
+    float mm = texture(depthTex, vUv).r;                                    // center
+    float mr = texture(depthTex, vUv + vec2(texelSize.x, 0.0)).r;           // middle-right
+    float bl = texture(depthTex, vUv + vec2(-texelSize.x, texelSize.y)).r;  // bottom-left
+    float bm = texture(depthTex, vUv + vec2(0.0, texelSize.y)).r;           // bottom-middle
+    float br = texture(depthTex, vUv + vec2(texelSize.x, texelSize.y)).r;   // bottom-right
+    
+    // Sobel X kernel: [-1 0 1; -2 0 2; -1 0 1]
+    float sobelX = (-1.0 * tl) + (0.0 * tm) + (1.0 * tr) +
+                   (-2.0 * ml) + (0.0 * mm) + (2.0 * mr) +
+                   (-1.0 * bl) + (0.0 * bm) + (1.0 * br);
+    
+    // Sobel Y kernel: [-1 -2 -1; 0 0 0; 1 2 1]  
+    float sobelY = (-1.0 * tl) + (-2.0 * tm) + (-1.0 * tr) +
+                   ( 0.0 * ml) + ( 0.0 * mm) + ( 0.0 * mr) +
+                   ( 1.0 * bl) + ( 2.0 * bm) + ( 1.0 * br);
+    
+    // Calculate edge magnitude
+    float edgeMagnitude = sqrt(sobelX * sobelX + sobelY * sobelY);
+    
+    if (edgeMagnitude > threshold) {
+        // have edge
+        FragColor = vec4(1.0, 0.552, 0.0, 1.0); 
+    } else {
+        FragColor = vec4(0.0, 0.0, 0.0, 0.0); // Transparent
+    }
+}
+					)"; 
+
 					sobel_material->vertexShader = vertexSource;
 					sobel_material->fragmentShader = fragSource;
 				}
@@ -254,20 +302,31 @@ namespace dragon
 			}
 			case DrawMode::DEPTH:
 			{
-				/*DRAW DEPTH*/
-				renderer->clear();  
-				renderer->setRenderTarget(test_depth_pass->getRenderTarget()); 
-				//renderer->render(*test_depth_pass->getScene(), *m_Camera.get()); 
-				renderer->render(*m_Scene.get(), *m_Camera.get());
-				renderer->setRenderTarget(nullptr);
-				
+				/*MAIN SCENE*/
+				renderer->setClearColor(threepp::Color(0x000000), 1);
 				renderer->clear();
+				renderer->render(*m_Scene.get(), *m_Camera.get());
+				/*DRAW DEPTH*/
+				//renderer->clear();  
+				renderer->setRenderTarget(test_depth_pass->getRenderTarget()); 
+				renderer->render(*test_depth_pass->getScene(), *m_Camera.get()); 
+				//renderer->render(*m_Scene.get(), *m_Camera.get());
+				renderer->setRenderTarget(nullptr);
+				/*DRAW OUTLINE*/
+
+
 				if (sobel_material)
 				{
 					sobel_material->uniforms["depthTex"].setValue(test_depth_pass->getRenderTarget()->texture.get()); 
+					auto size = renderer->size();
+					sobel_material->uniforms["resolution"].setValue(threepp::Vector2(size.width(), size.height()));
+					sobel_material->transparent = true; 
 				}
+				sobel_material->depthTest = false; 
+				renderer->state().setBlending(threepp::Blending::Normal);
 				renderer->render(*test_outline_pass->getScene(), *m_Camera.get());
-				int a = 3; 
+				renderer->state().setBlending(threepp::Blending::None);
+				sobel_material->depthTest = true;
 			}
 			default:
 				break;

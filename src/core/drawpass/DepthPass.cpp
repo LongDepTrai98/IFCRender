@@ -5,6 +5,7 @@ namespace dragon
 {
 	DepthPass::DepthPass(const int& width, const int& height) : DrawPass(width, height)
 	{
+		m_Scene->background = threepp::Color::black;
 		/*auto spriteMaterial = threepp::MeshBasicMaterial::create({ {"map", m_RenderTarget->texture}});
 		auto sprite = threepp::Mesh::create(threepp::PlaneGeometry::create(), spriteMaterial);
 		m_RenderTarget->depthBuffer = true; 
