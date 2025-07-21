@@ -1,4 +1,5 @@
 #include "MainViewPort.hpp"
+#include <GL/glew.h>
 #include "wxInclude.hpp"
 #include "ui/RenderCanvas.hpp"
 #include "threepp/helpers/SpotLightHelper.hpp"
@@ -85,7 +86,7 @@ namespace dragon
 						#version 330 core 
 uniform sampler2D depthTex;
 uniform vec2 resolution;
-uniform float threshold = 0.2; 
+uniform float threshold = 0.1; 
 
 in vec2 vUv;
 out vec4 FragColor;
@@ -119,7 +120,8 @@ void main() {
     
     if (edgeMagnitude > threshold) {
         // have edge
-        FragColor = vec4(1.0, 0.552, 0.0, 1.0); 
+        float edge = smoothstep(threshold - 0.01, threshold + 0.01, edgeMagnitude);
+		FragColor = vec4(1.0, 1.0, 0.0, edge); 
     } else {
         FragColor = vec4(0.0, 0.0, 0.0, 0.0); // Transparent
     }
@@ -313,6 +315,7 @@ void main() {
 				//renderer->render(*m_Scene.get(), *m_Camera.get());
 				renderer->setRenderTarget(nullptr);
 				/*DRAW OUTLINE*/
+				glEnable(GL_MULTISAMPLE);
 
 
 				if (sobel_material)
@@ -327,6 +330,7 @@ void main() {
 				renderer->render(*test_outline_pass->getScene(), *m_Camera.get());
 				renderer->state().setBlending(threepp::Blending::None);
 				sobel_material->depthTest = true;
+				glDisable(GL_MULTISAMPLE); 
 			}
 			default:
 				break;
