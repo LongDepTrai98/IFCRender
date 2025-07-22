@@ -1,3 +1,4 @@
+#include "threepp/math/Color.hpp"
 #include <iostream>
 #include <string>
 namespace dragon::app_config
@@ -21,4 +22,12 @@ namespace dragon::index
 namespace dragon::outline_edge
 {
 	constexpr float THRESHOLD_ANGLE = 30.0f;
+}
+namespace dragon::default_color
+{
+	const threepp::Color clear_color = 0x000000;
+	const threepp::Color scene_depth_color = 0x000000;
+	const threepp::Color scene_outline_color = 0x000000;
+	const threepp::Color scene_color = 0x2A2A2A;
+	const threepp::Color outline_pass_color = { 1.0f, 0.647f, 0.0f };
 }

@@ -1,6 +1,7 @@
 #ifndef _STRING_HELPER_HPP_
 #define _STRING_HELPER_HPP_
 #include <string>
+#include <iostream>
 #include <algorithm>
 #include <cctype>
 #include <fstream>
@@ -15,14 +16,36 @@ namespace dragon
 			std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
 			return s;
 		}
-		static std::string ReadFile(std::string filename)
-		{
-			spdlog::info("read file : {}", filename);
-			std::ifstream t(filename);
-			std::stringstream buffer;
-			buffer << t.rdbuf();
-			return buffer.str();
-		}
+		//static std::string ReadFile(std::string filename)
+		//{
+		//	spdlog::info("read file : {}", filename);
+		//	std::ifstream t(filename);
+		//	std::stringstream buffer;
+		//	buffer << t.rdbuf();
+		//	return buffer.str();
+		//}
+
+		//static std::string ReadFile(std::string filename) {
+		//	if (filename.empty() || (filename.size() == 1 && filename[0] == '-')) {
+		//		return std::string{ std::istreambuf_iterator<char>(std::cin.rdbuf()),
+		//						   std::istreambuf_iterator<char>() };
+		//	}
+
+		//	std::ifstream stream{ filename, std::ios_base::in | std::ios_base::binary };
+		//	if (!stream) {
+		//		//LOG_ERROR(std::string("Can not open file ") + filename);
+		//		return {};
+		//	}
+
+		//	stream.exceptions(std::ifstream::failbit);
+
+		//	std::string buffer{ std::istreambuf_iterator<char>(stream.rdbuf()),
+		//					   std::istreambuf_iterator<char>() };
+		//	stream.close();
+
+		//	return buffer;
+		//}
+
 		static bool readFile(const std::string& path, std::string& content)
 		{
 			std::ifstream file;

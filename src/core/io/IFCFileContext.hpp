@@ -60,7 +60,7 @@ namespace dragon
 		std::shared_ptr<std::function<void* (const int&)>> m_GetData_Item_Callback{ nullptr };
 		std::shared_ptr<std::function<bool(const unsigned int)>> m_Callback_Intersect{ nullptr };
 		std::function<void(const std::vector<std::shared_ptr<threepp::Mesh>>& meshes)> m_Add_Object_CallBack{ nullptr };
-		std::function<void(const std::vector<std::shared_ptr<threepp::Mesh>>& meshes)> m_Add_Object_DrawDepth_CallBack{ nullptr };
+		std::function<void(const std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries)> m_Add_Object_DrawDepth_CallBack{ nullptr };
 	public:
 		CustomRayCaster* RayCast{ nullptr };
 	private:

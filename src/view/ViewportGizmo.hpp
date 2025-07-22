@@ -12,6 +12,7 @@ namespace dragon
 		ViewPortGizmo(RenderCanvas* canvas);
 		~ViewPortGizmo();
 	public:
+		threepp::Scene* getScene() override; 
 		void initCamera(threepp::WindowSize& w_size) override;
 		void initScene(threepp::WindowSize& w_size) override;
 		void OnLButtonDown(EventData& data) override;
@@ -33,6 +34,7 @@ namespace dragon
 		void createCubeMesh(threepp::Scene& scene);
 		std::shared_ptr<threepp::Light> createLight();
 	protected:
+		std::unique_ptr<threepp::Scene> m_Scene{ nullptr };
 		int m_Padding{ 0 };
 		float m_AxisLength{ 2.5f };
 		float m_HeadLength{ 0.3f };

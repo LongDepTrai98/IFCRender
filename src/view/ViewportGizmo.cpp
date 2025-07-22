@@ -84,6 +84,10 @@ namespace dragon
 	{
 		return threepp::HemisphereLight::create(threepp::Color::white, threepp::Color::grey);
 	}
+	threepp::Scene* ViewPortGizmo::getScene()
+	{
+		return m_Scene.get(); 
+	}
 	void ViewPortGizmo::initCamera(threepp::WindowSize& w_size)
 	{
 		if (!m_Camera)

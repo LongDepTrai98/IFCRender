@@ -1,10 +1,13 @@
-﻿#version 330 core 
+#version 330 core 
+#define attribute in 
+#define varying out
 uniform sampler2D depthTex;
 uniform vec2 resolution;
 uniform float threshold = 0.1; 
 
-in vec2 vUv;
-out vec4 FragColor;
+attribute vec2 vUv;
+attribute vec4 colorOutline; 
+varying vec4 FragColor;
 
 void main() {
     vec2 texelSize = 1.0 / resolution;
@@ -32,11 +35,11 @@ void main() {
     
     // Calculate edge magnitude
     float edgeMagnitude = sqrt(sobelX * sobelX + sobelY * sobelY);
-    
-    if (edgeMagnitude > threshold) {
+    FragColor = texture(depthTex, vUv);
+    //if (edgeMagnitude > threshold) {
         // have edge
-        FragColor = vec4(1.0, 1.0, 0.0, 1.0); 
-    } else {
-        FragColor = vec4(0.0, 0.0, 0.0, 0.0); // Transparent
-    }
+        //FragColor = vec4(colorOutline); 
+    //} else {
+        //FragColor = vec4(0.0, 0.0, 0.0, 0.0); // Transparent
+    //}
 }

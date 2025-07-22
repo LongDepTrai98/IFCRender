@@ -28,7 +28,9 @@ namespace dragon
 
 	std::shared_ptr<threepp::Group> WebIFCConverter::convert(const std::filesystem::path& path)
 	{
-		const std::string& buffer = StringHelper::ReadFile(path.string());
+		std::string buffer; 
+		//const std::string& buffer = StringHelper::ReadFile(path.string());
+		/*const std::string& buffer = */StringHelper::readFile(path.string(),buffer);
 		parseIfcFile(buffer);
 		if (!m_ModelManager->IsModelOpen(m_modelID))
 		{

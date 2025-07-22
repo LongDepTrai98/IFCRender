@@ -4,22 +4,32 @@
 #include <memory>
 namespace threepp
 {
-	class GLRenderTarget; 
-	class Scene; 
+	class GLRenderTarget;
+	class Scene;
+	class GLRenderer;
+	class Camera;
+	class RawShaderMaterial;
+	class BufferGeometry;
+	class Mesh;
+	class Texture;
+	class Vector2;
+	class WindowSize;
 }
 namespace dragon
 {
 	class DrawPass
 	{
-	public: 
+	public:
 		DrawPass(const int& width, const int& height);
-	public: 
+		virtual ~DrawPass();
+	public:
 		void setSize(const int& width, const int& height);
-		threepp::GLRenderTarget* getRenderTarget();
-		threepp::Scene* getScene(); 
-	protected: 
-		std::shared_ptr<threepp::GLRenderTarget> m_RenderTarget{ nullptr }; 
-		std::unique_ptr<threepp::Scene> m_Scene{ nullptr }; 
+		threepp::Scene* getScene();
+		virtual void clear() = 0;
+	public:
+		virtual void render(threepp::GLRenderer* renderer, threepp::Camera* camera) = 0;
+	protected:
+		std::unique_ptr<threepp::Scene> m_Scene{ nullptr };
 	};
 }
 #endif // !_DRAWPASS_HPP_

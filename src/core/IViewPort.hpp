@@ -23,10 +23,10 @@ namespace dragon
 	public:
 		virtual ~ViewPort() = default;
 	public:
-		threepp::Scene* getScene()
-		{
-			return m_Scene.get();
-		};
+		/*	threepp::Scene* getScene()
+			{
+				return m_Scene.get();
+			};*/
 		threepp::Camera* getCamera()
 		{
 			return m_Camera.get();
@@ -36,6 +36,7 @@ namespace dragon
 			m_Renderer = renderer;
 		};
 	public:
+		virtual threepp::Scene* getScene() = 0;
 		virtual void initCamera(threepp::WindowSize& w_size) = 0;
 		virtual void initScene(threepp::WindowSize& w_size) = 0;
 		virtual void render(threepp::GLRenderer* main_render) = 0;
@@ -55,10 +56,11 @@ namespace dragon
 		//virtual void
 	public:
 		std::function<void(const std::vector<std::shared_ptr<threepp::Mesh>>& meshes)> m_Add_Object_CallBack{ nullptr };
-		std::function<void(const std::vector<std::shared_ptr<threepp::Mesh>>& meshes)> m_Add_Object_DrawDepth_CallBack{ nullptr };
+		std::function<void(const std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries)> m_Add_Object_DrawDepth_CallBack{ nullptr };
 	protected:
 		/*SCENE CONTEXT*/
-		std::unique_ptr<threepp::Scene> m_Scene{ nullptr };
+		//std::unique_ptr<threepp::Scene> m_Scene{ nullptr };
+		threepp::Scene* m_Scene{ nullptr };
 		std::unique_ptr<threepp::PerspectiveCamera> m_Camera{ nullptr };
 		threepp::GLRenderer* m_Renderer{ nullptr };
 		threepp::WindowSize m_Viewport_Size{};

@@ -4,7 +4,7 @@
 uniform float near;
 uniform float far;
 attribute float vDepth;
-out vec4 FragColor;
+varying vec4 FragColor;
 float LinearizeDepth(float depth) 
 {
     float z = depth * 2.0 - 1.0; // back to NDC 
