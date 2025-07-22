@@ -16,6 +16,7 @@
 #include "core/drawpass/DepthPass.hpp"
 #include "config/app_config.hpp"
 #include "spdlog/spdlog.h"
+
 namespace dragon
 {
 	MainViewPort::MainViewPort(RenderCanvas* canvas) : IRenderer(canvas)
@@ -170,6 +171,7 @@ namespace dragon
 			m_Camera->aspect = m_Viewport_Size.aspect();
 			m_Camera->updateProjectionMatrix();
 		}
+		glViewport(0, 0, width, height); 
 		if (depth_renderer_pass) depth_renderer_pass->getRenderTarget()->setSize(width, height);
 	}
 	void MainViewPort::handleRaycast(MouseState& mouse_state)
@@ -196,14 +198,19 @@ namespace dragon
 			{
 				renderer->setClearColor(default_color::clear_color, 1);
 				renderer->clear();
-				if (main_renderer_pass)
+				/*if (main_renderer_pass)
 				{
 					main_renderer_pass->render(renderer, m_Camera.get());
-				}
+				}*/
 				if (depth_renderer_pass)
 				{
 					depth_renderer_pass->applyUniform(m_Camera->nearPlane, m_Camera->farPlane);
-					depth_renderer_pass->render(renderer, m_Camera.get());
+					glViewport(0, 0, depth_renderer_pass->getRenderTarget()->width, depth_renderer_pass->getRenderTarget()->height);
+
+					renderer->setRenderTarget(depth_renderer_pass->getRenderTarget()); 
+					renderer->render(*main_renderer_pass->getScene(), *m_Camera.get()); 
+					renderer->setRenderTarget(nullptr); 
+					//depth_renderer_pass->render(renderer, m_Camera.get());
 				}
 				if (outline_renderer_pass)
 				{
@@ -222,7 +229,7 @@ namespace dragon
 				{
 					depth_renderer_pass->applyUniform(m_Camera->nearPlane, m_Camera->farPlane);
 					depth_renderer_pass->debugRender(renderer, m_Camera.get());
-					//renderer->writeFramebuffer("D:\\GITHUB\\test3.png"); 
+					renderer->writeFramebuffer("D:\\GITHUB\\test3.png"); 
 				}
 			}
 			default:
