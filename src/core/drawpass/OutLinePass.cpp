@@ -28,6 +28,8 @@ namespace dragon
 					default_color::outline_pass_color.b,
 					0.8f);
 				sobel_material->uniforms["colorOutline"].setValue(outlineColor);
+				sobel_material->uniforms["threshold"].setValue(0.3f);
+				sobel_material->uniforms["edgeSoftness"].setValue(0.3f);
 			}
 			sobel_material->transparent = true;
 		}
@@ -62,11 +64,12 @@ namespace dragon
 			default_geometry = threepp::BufferGeometry::create();
 		outline_mesh->setGeometry(default_geometry);
 	}
-	void OutLinePass::applyUniform(threepp::Vector2& resolution, threepp::Texture* texture)
+	void OutLinePass::applyUniform(threepp::Texture* texture)
 	{
-		threepp::Vector2 texture_size((float)texture->image().width,(float)texture->image().height); 
-		sobel_material->uniforms["resolution"].setValue(resolution);
-		//sobel_material->uniforms["textureSize"].setValue(texture_size);
+		threepp::Vector2 texture_size((float)texture->image().width, (float)texture->image().height);
+		spdlog::info("texture size {}, {}", texture_size.x, texture_size.y);
+		//sobel_material->uniforms["resolution"].setValue(resolution);
+		sobel_material->uniforms["textureSize"].setValue(texture_size);
 		sobel_material->uniforms["depthTex"].setValue(texture);
 	}
 }

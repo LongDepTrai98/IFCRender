@@ -12,7 +12,7 @@ namespace dragon
 		void render(threepp::GLRenderer* renderer, threepp::Camera* camera) override;
 		void clear() override;
 	public:
-		void applyUniform(threepp::Vector2& viewport, threepp::Texture* texture);
+		void applyUniform(threepp::Texture* texture);
 	private:
 		std::shared_ptr<threepp::RawShaderMaterial> sobel_material{ nullptr };
 		std::shared_ptr<threepp::Mesh> outline_mesh{ nullptr };

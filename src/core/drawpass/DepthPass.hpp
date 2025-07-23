@@ -2,6 +2,7 @@
 #ifndef _DEPTH_PASS_HPP_
 #define _DEPTH_PASS_HPP_
 #include "DrawPass.hpp"
+#include "threepp/renderers/GLRenderTarget.hpp"
 namespace dragon
 {
 	class DepthPass : public DrawPass
@@ -14,8 +15,10 @@ namespace dragon
 		void clear() override;
 		void applyUniform(float near, float far);
 		void updateDepthMeshSelect(std::shared_ptr<threepp::BufferGeometry> bufferGeometry);
+		void reCreateRenderTarget(const int& width, const int& height);
 		threepp::GLRenderTarget* getRenderTarget();
 	private:
+		threepp::GLRenderTarget::Options opts;
 		std::shared_ptr<threepp::GLRenderTarget> m_RenderTarget{ nullptr };
 		std::shared_ptr<threepp::RawShaderMaterial> depth_material{ nullptr };
 		std::shared_ptr<threepp::BufferGeometry> default_geometry{ nullptr };

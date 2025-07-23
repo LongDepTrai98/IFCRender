@@ -98,6 +98,10 @@ namespace dragon
 			/*SWITCH CURRENT MODE*/
 			data.bIsCheck ? m_Current_Draw_Mode = DrawMode::DEBUG : m_Current_Draw_Mode = DrawMode::DEFAULT;
 		}
+		if (data.event.GetId() == (int)ID_EVENT::CREATE_NEW_RENDER_TARGET)
+		{
+			depth_renderer_pass->reCreateRenderTarget(m_Viewport_Size.width(), m_Viewport_Size.height());
+		}
 		m_Canvas->Invalidate();
 	}
 	void MainViewPort::OnRButtonDown(EventData& data)
@@ -171,8 +175,8 @@ namespace dragon
 			m_Camera->aspect = m_Viewport_Size.aspect();
 			m_Camera->updateProjectionMatrix();
 		}
-		glViewport(0, 0, width, height); 
-		if (depth_renderer_pass) depth_renderer_pass->getRenderTarget()->setSize(width, height);
+		glViewport(0, 0, width, height);
+		if (depth_renderer_pass) depth_renderer_pass->reCreateRenderTarget(width, height);
 	}
 	void MainViewPort::handleRaycast(MouseState& mouse_state)
 	{
@@ -198,27 +202,18 @@ namespace dragon
 			{
 				renderer->setClearColor(default_color::clear_color, 1);
 				renderer->clear();
-				/*if (main_renderer_pass)
+				if (main_renderer_pass)
 				{
 					main_renderer_pass->render(renderer, m_Camera.get());
-				}*/
+				}
 				if (depth_renderer_pass)
 				{
 					depth_renderer_pass->applyUniform(m_Camera->nearPlane, m_Camera->farPlane);
-					glViewport(0, 0, depth_renderer_pass->getRenderTarget()->width, depth_renderer_pass->getRenderTarget()->height);
-
-					renderer->setRenderTarget(depth_renderer_pass->getRenderTarget()); 
-					renderer->render(*main_renderer_pass->getScene(), *m_Camera.get()); 
-					renderer->setRenderTarget(nullptr); 
-					//depth_renderer_pass->render(renderer, m_Camera.get());
+					depth_renderer_pass->render(renderer, m_Camera.get());
 				}
 				if (outline_renderer_pass)
 				{
-					auto window_size = renderer->size(); 
-					spdlog::info("texture size {}, {}", window_size.width(), window_size.height());
-					threepp::Vector2 size{ window_size.width(),window_size.height()};
-					//::Vector2 size{ window_size.width(),window_size.height() };
-					outline_renderer_pass->applyUniform(size, depth_renderer_pass->getRenderTarget()->texture.get());
+					outline_renderer_pass->applyUniform(depth_renderer_pass->getRenderTarget()->texture.get());
 					outline_renderer_pass->render(renderer, m_Camera.get());
 				}
 				break;
@@ -229,7 +224,6 @@ namespace dragon
 				{
 					depth_renderer_pass->applyUniform(m_Camera->nearPlane, m_Camera->farPlane);
 					depth_renderer_pass->debugRender(renderer, m_Camera.get());
-					renderer->writeFramebuffer("D:\\GITHUB\\test3.png"); 
 				}
 			}
 			default:

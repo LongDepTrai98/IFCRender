@@ -31,13 +31,11 @@ namespace dragon
 			depth_mesh->setMaterial(depth_material);
 			m_Scene->add(depth_mesh);
 		}
-		threepp::GLRenderTarget::Options opts;
 		opts.format = threepp::Format::RGBA;
-		//opts.format = threepp::DepthFormat;
 		opts.type = threepp::Type::UnsignedShort;
 		opts.minFilter = threepp::Filter::Nearest;
 		opts.magFilter = threepp::Filter::Nearest;
-		opts.anisotropy = 16; 
+		opts.anisotropy = 16;
 		if (!m_RenderTarget)
 		{
 			m_RenderTarget = std::make_unique<threepp::GLRenderTarget>(width, height, opts);
@@ -68,6 +66,11 @@ namespace dragon
 	void DepthPass::updateDepthMeshSelect(std::shared_ptr<threepp::BufferGeometry> bufferGeometry)
 	{
 		depth_mesh->setGeometry(bufferGeometry);
+	}
+	void DepthPass::reCreateRenderTarget(const int& width, const int& height)
+	{
+		m_RenderTarget->dispose();
+		m_RenderTarget = std::make_unique<threepp::GLRenderTarget>(width, height, opts);
 	}
 	threepp::GLRenderTarget* DepthPass::getRenderTarget()
 	{

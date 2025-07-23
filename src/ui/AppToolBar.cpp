@@ -39,7 +39,7 @@ namespace dragon
 			"This is help for select pivot");
 		m_ToolBar->AddSeparator(); 
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_SWITCH_MODE_RENDER,
-			"Draw Depth",
+			"Depth",
 			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Hover, wxBITMAP_TYPE_PNG),
 			wxNullBitmap,
 			wxITEM_CHECK,

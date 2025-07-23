@@ -86,7 +86,7 @@ namespace dragon
 	}
 	threepp::Scene* ViewPortGizmo::getScene()
 	{
-		return m_Scene.get(); 
+		return m_Scene.get();
 	}
 	void ViewPortGizmo::initCamera(threepp::WindowSize& w_size)
 	{

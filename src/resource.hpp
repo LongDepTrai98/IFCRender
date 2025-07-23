@@ -7,7 +7,8 @@ namespace dragon
 	{
 		TOOL_PIVOT, 
 		TOOL_HOVER, 
-		TOOL_SWITCH_MODE_RENDER
+		TOOL_SWITCH_MODE_RENDER, 
+		CREATE_NEW_RENDER_TARGET
 	};
 }
 #endif // !_RESOURCE_HPP_
