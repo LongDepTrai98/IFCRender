@@ -23,9 +23,9 @@ namespace dragon
 			{
 				sobel_material->vertexShader = vertexSource;
 				sobel_material->fragmentShader = fragSource;
-				threepp::Vector4 outlineColor(default_color::outline_pass_color.r,
-					default_color::outline_pass_color.g,
-					default_color::outline_pass_color.b,
+				threepp::Vector4 outlineColor(default_color::outline_selected_color.r,
+					default_color::outline_selected_color.g,
+					default_color::outline_selected_color.b,
 					0.8f);
 				sobel_material->uniforms["colorOutline"].setValue(outlineColor);
 				sobel_material->uniforms["threshold"].setValue(0.3f);

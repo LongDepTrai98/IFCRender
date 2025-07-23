@@ -105,8 +105,10 @@ namespace dragon
 		if (!m_Selected_Material)
 		{
 			m_Selected_Material = threepp::MeshBasicMaterial::create();
-			m_Selected_Material->color = threepp::Color::greenyellow;
-			m_Material_Hit_Point->depthTest = false;
+			m_Selected_Material->color = default_color::selected_object_color;
+			m_Selected_Material->transparent = true; 
+			m_Selected_Material->opacity = 0.7f; 
+			m_Selected_Material->depthTest = false;
 		}
 
 		if (!m_Basic_Material)
@@ -267,6 +269,14 @@ namespace dragon
 		return m_Axes_Helper;
 	}
 
+	std::shared_ptr<threepp::Mesh> IFCFileContext::createSelectedMesh()
+	{
+		m_Object_Selected = threepp::Mesh::create(); 
+		m_Object_Selected->name = "Object_Selected"; 
+		m_Object_Selected->setMaterial(m_Selected_Material);
+		return m_Object_Selected;
+	}
+
 	void IFCFileContext::LButtonUp(EventData& data)
 	{
 		/*UPDATE COORD HIT POINT CLICKED*/
@@ -297,17 +307,14 @@ namespace dragon
 			m_Model->m_Object_Indices
 		);
 		/*CREATE GEOMEMTRY*/
+		if (m_Object_Selected)
+		{
+			m_Object_Selected->setGeometry(geo_hover); 
+		}
 		if (m_Add_Object_DrawDepth_CallBack)
 			m_Add_Object_DrawDepth_CallBack({ geo_hover });
 		if (OnRedrawCallback)
 			OnRedrawCallback();
-		//m_Selected_Entites.insert({})
-		//auto it = m_Selected_ExpressIDs.find(m_Current_ExpressID.value());
-		//if (it == m_Selected_ExpressIDs.end())
-		//{
-		//	/*PUSH*/
-		//	m_Selected_ExpressIDs.insert(m_Current_ExpressID.value());
-		//}
 	}
 
 	void IFCFileContext::RButtonUp(EventData& data)

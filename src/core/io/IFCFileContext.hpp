@@ -44,6 +44,7 @@ namespace dragon
 		std::shared_ptr<threepp::Mesh> createHoverMesh();
 		std::shared_ptr<threepp::Mesh> createHitPoint();
 		std::shared_ptr<threepp::AxesHelper> createAxesHelper();
+		std::shared_ptr<threepp::Mesh> createSelectedMesh(); 
 	public:
 		/*CLICK EVENT*/
 		void LButtonUp(EventData& data) override;
@@ -73,6 +74,7 @@ namespace dragon
 		std::shared_ptr<threepp::Mesh> m_Object_OverLay_Hover{ nullptr };
 		std::shared_ptr<threepp::Mesh> m_Hit_Point{ nullptr };
 		std::shared_ptr<threepp::AxesHelper> m_Axes_Helper{ nullptr };
+		std::shared_ptr<threepp::Mesh> m_Object_Selected{ nullptr }; 
 		/*MATERIAL*/
 		std::shared_ptr<threepp::MeshBasicMaterial> m_Material_Hit_Point{ nullptr };
 		std::shared_ptr<threepp::Material> m_Material_Hover{ nullptr };

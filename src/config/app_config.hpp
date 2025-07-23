@@ -29,5 +29,6 @@ namespace dragon::default_color
 	const threepp::Color scene_depth_color = 0x000000;
 	const threepp::Color scene_outline_color = 0x000000;
 	const threepp::Color scene_color = 0x2A2A2A;
-	const threepp::Color outline_pass_color = { 1.0f, 0.647f, 0.0f };
+	const threepp::Color outline_selected_color = 0xE65100;
+	const threepp::Color selected_object_color = { 1.0f, 0.6f, 0.2f }; 
 }
