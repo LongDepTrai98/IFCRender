@@ -12,7 +12,7 @@ namespace dragon
 	}
 	void AppCommandHandler::OnIconize(wxIconizeEvent& event)
 	{
-		WindowFrame* main_frame = static_cast<WindowFrame*>(m_ParentWindow); 
+		WindowFrame* main_frame = static_cast<WindowFrame*>(m_ParentWindow);
 		main_frame->getRenderCanvas()->Invalidate();
 		if (event.IsIconized())
 		{
@@ -43,14 +43,14 @@ namespace dragon
 	{
 		int toolId = event.GetId();
 		WindowFrame* main_frame = static_cast<WindowFrame*>(m_ParentWindow);
-		wxToolBar* toolbar =  main_frame->GetToolBar();
-		bool toolbarState{ false }; 
+		wxToolBar* toolbar = main_frame->GetToolBar();
+		bool toolbarState{ false };
 		if (toolbar)
 		{
-			toolbarState = toolbar->GetToolState(toolId); 
+			toolbarState = toolbar->GetToolState(toolId);
 		}
-		ToolBarData data(event, toolbarState); 
-		main_frame->OnCallbackToolbarCommand(data); 
-		event.Skip(); 
+		ToolBarData data(event, toolbarState);
+		main_frame->OnCallbackToolbarCommand(data);
+		event.Skip();
 	}
 }

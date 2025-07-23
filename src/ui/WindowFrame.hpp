@@ -8,7 +8,7 @@ namespace dragon
 	class AppCommandHandler;
 	class ElementTreeCtrl;
 	class AppToolBar;
-	class ToolBarData; 
+	class ToolBarData;
 	class WindowFrame : public wxFrame
 	{
 	public:
@@ -23,7 +23,7 @@ namespace dragon
 		void initUIManager();
 		void initMenuBar();
 		void initTreeCtrl();
-		void initAppToolBar(); 
+		void initAppToolBar();
 		void initRenderCanvas();
 		void initCommand();
 		void OnHello(wxCommandEvent& event);
@@ -32,7 +32,7 @@ namespace dragon
 	private:
 		AppMenubar* m_AppMenuBar{ nullptr };
 		ElementTreeCtrl* m_ElementTreeCtrl{ nullptr };
-		std::unique_ptr<AppToolBar> m_AppToolBar{ nullptr }; 
+		std::unique_ptr<AppToolBar> m_AppToolBar{ nullptr };
 		std::unique_ptr<RenderCanvas> m_RenderCanvas{ nullptr };
 		std::unique_ptr<wxAuiManager> m_UIManager{ nullptr };
 		std::unique_ptr<AppCommandHandler> m_CommandHandler{ nullptr };

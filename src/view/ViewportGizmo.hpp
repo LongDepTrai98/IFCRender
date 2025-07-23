@@ -12,7 +12,7 @@ namespace dragon
 		ViewPortGizmo(RenderCanvas* canvas);
 		~ViewPortGizmo();
 	public:
-		threepp::Scene* getScene() override; 
+		threepp::Scene* getScene() override;
 		void initCamera(threepp::WindowSize& w_size) override;
 		void initScene(threepp::WindowSize& w_size) override;
 		void OnLButtonDown(EventData& data) override;
@@ -21,8 +21,8 @@ namespace dragon
 		void OnRButtonUp(EventData& data) override;
 		void OnKeyDown(KeyData& event) override;
 		void OnKeyUp(KeyData& event) override;
-		void OnToolActions(int toolID) override; 
-		void OnToolBarAction(ToolBarData& data) override; 
+		void OnToolActions(int toolID) override;
+		void OnToolBarAction(ToolBarData& data) override;
 	public:
 		void resize(const int& width, const int& height) override;
 		void update(const float& dtTime) override;

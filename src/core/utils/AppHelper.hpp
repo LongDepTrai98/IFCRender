@@ -51,7 +51,7 @@ namespace dragon
 		static MainViewPort* getMainViewPortScene(WindowFrame* main_frame);
 		static RenderCanvas* getRenderCanvas(WindowFrame* main_frame);
 		static ElementTreeCtrl* getMainTreeCtrl(WindowFrame* main_frame);
-		static wxBitmapBundle loadBitmapBundle(const std::string& path, wxBitmapType type); 
+		static wxBitmapBundle loadBitmapBundle(const std::string& path, wxBitmapType type);
 	private:
 		AppHelper() = default;
 	};

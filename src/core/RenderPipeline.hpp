@@ -4,14 +4,13 @@
 #include <memory>
 namespace dragon
 {
-	class DrawPass; 
+	class DrawPass;
 	class RenderPipeLine
 	{
-	public: 
-		RenderPipeLine(); 
-		~RenderPipeLine(); 
-	private: 
-	
+	public:
+		RenderPipeLine();
+		~RenderPipeLine();
+	private:
 	};
 }
 #endif // !_RENDER_PIPLINE_HPP_

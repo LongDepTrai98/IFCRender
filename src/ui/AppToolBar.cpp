@@ -8,28 +8,28 @@ namespace dragon
 	{
 		wxUpdateUIEvent::SetMode(wxUPDATE_UI_PROCESS_SPECIFIED);
 		m_ToolBar->SetExtraStyle(m_ToolBar->GetExtraStyle() | wxWS_EX_PROCESS_UI_UPDATES);
-		AddTool(); 
+		AddTool();
 		m_ToolBar->Realize();
 	}
 	void AppToolBar::AddTool()
 	{
 		/*FILE TOOL*/
-		m_ToolBar->AddTool(wxID_OPEN, 
+		m_ToolBar->AddTool(wxID_OPEN,
 			"Open",
-			AppHelper::loadBitmapBundle(assets::ButtonToolBar_OpenFolder,wxBITMAP_TYPE_PNG),
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_OpenFolder, wxBITMAP_TYPE_PNG),
 			wxNullBitmap,
 			wxITEM_NORMAL,
-			"Open file", 
+			"Open file",
 			"This is help for Open file tool");
 		m_ToolBar->AddSeparator();
 		/*EDITOR TOOL*/
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_PIVOT,
 			"Pivot",
-			AppHelper::loadBitmapBundle(assets::ButtonToolBar_SetPivot,wxBITMAP_TYPE_PNG),
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_SetPivot, wxBITMAP_TYPE_PNG),
 			wxNullBitmap,
 			wxITEM_CHECK,
 			"Select Pivot",
-			"This is help for select pivot"); 
+			"This is help for select pivot");
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_HOVER,
 			"Hover",
 			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Hover, wxBITMAP_TYPE_PNG),
@@ -37,13 +37,21 @@ namespace dragon
 			wxITEM_CHECK,
 			"Select Pivot",
 			"This is help for select pivot");
-		m_ToolBar->AddSeparator(); 
+		m_ToolBar->AddSeparator();
+		m_ToolBar->AddTool((int)ID_EVENT::TOOL_DRAW_EDGE,
+			"Edge",
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_DrawEdge, wxBITMAP_TYPE_PNG),
+			wxNullBitmap,
+			wxITEM_NORMAL,
+			"Draw Edge",
+			"This is help for draw object edge");
+		m_ToolBar->AddSeparator();
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_SWITCH_MODE_RENDER,
 			"Depth",
-			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Hover, wxBITMAP_TYPE_PNG),
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Debug, wxBITMAP_TYPE_PNG),
 			wxNullBitmap,
 			wxITEM_CHECK,
-			"Select Pivot",
-			"This is help for select pivot"); 
+			"Debug mode",
+			"Debug mode");
 	}
 }

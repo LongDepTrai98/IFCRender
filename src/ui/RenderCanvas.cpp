@@ -24,7 +24,7 @@ namespace dragon
 	{
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
-			event_handler->OnToolBarClick(data); 
+			event_handler->OnToolBarClick(data);
 	}
 	void RenderCanvas::initGLContext()
 	{
@@ -98,7 +98,7 @@ namespace dragon
 				viewPortSize.y);
 		}
 		deactiveContext();
-		Invalidate(); 
+		Invalidate();
 		event.Skip();
 	}
 	void RenderCanvas::OnPaint(wxPaintEvent& event)
@@ -115,7 +115,7 @@ namespace dragon
 			}
 			swapBuff();
 			disableMultisampling();
-			m_bIsDirty = false; 
+			m_bIsDirty = false;
 		}
 		deactiveContext();
 	}
@@ -126,7 +126,7 @@ namespace dragon
 		{
 			event_handler->OnMouseMove(event);
 			if (event_handler->isMouseDown)
-				Invalidate(); 
+				Invalidate();
 		}
 		event.Skip();
 	}
@@ -136,9 +136,9 @@ namespace dragon
 		if (event_handler)
 		{
 			event_handler->OnMousePress(event);
-			event_handler->isMouseDown = true; 
+			event_handler->isMouseDown = true;
 		}
-		Invalidate(); 
+		Invalidate();
 		event.Skip();
 	}
 	void RenderCanvas::OnMouseRelease(wxMouseEvent& event)
@@ -162,7 +162,6 @@ namespace dragon
 	}
 	void RenderCanvas::OnClickEnableMSAA(wxCommandEvent& command)
 	{
-
 	}
 	void RenderCanvas::OnKeyDown(wxKeyEvent& event)
 	{
@@ -176,7 +175,7 @@ namespace dragon
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
 			event_handler->OnKeyUp(event);
-		event.Skip(); 
+		event.Skip();
 	}
 	void RenderCanvas::OnInternalIdle()
 	{

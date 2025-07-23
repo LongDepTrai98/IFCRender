@@ -6,8 +6,8 @@
 #include "wx/event.h"
 namespace threepp
 {
-	class OrbitControls; 
-	class Camera; 
+	class OrbitControls;
+	class Camera;
 }
 namespace dragon
 {
@@ -21,19 +21,18 @@ namespace dragon
 	{
 		threepp::OrbitControls* control{ nullptr };
 		threepp::Vector2 p{};
-		threepp::Camera* camera{ nullptr }; 
+		threepp::Camera* camera{ nullptr };
 	};
 
 	struct KeyData
 	{
-		wxKeyEvent key; 
+		wxKeyEvent key;
 	};
 
 	struct ToolBarData
 	{
-		wxCommandEvent event; 
-		bool bIsCheck; 
+		wxCommandEvent event;
+		bool bIsCheck;
 	};
-
 }
 #endif // !_INPUT_HPP_

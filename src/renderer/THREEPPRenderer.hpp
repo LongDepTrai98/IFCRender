@@ -43,7 +43,7 @@ namespace dragon
 		void OnMouseWheel(wxMouseEvent& event) override;
 		void OnKeyDown(wxKeyEvent& event) override;
 		void OnKeyUp(wxKeyEvent& event) override;
-		void OnToolBarClick(ToolBarData& data) override; 
+		void OnToolBarClick(ToolBarData& data) override;
 		void UpdateGizmoFromCamera();
 		//threepp
 		threepp::WindowSize size() const override;

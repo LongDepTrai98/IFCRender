@@ -17,6 +17,7 @@ namespace threepp
 	class AxesHelper;
 	class RawShaderMaterial;
 	class Scene;
+	class Group;
 }
 namespace dragon
 {
@@ -63,6 +64,7 @@ namespace dragon
 		std::function<void(const std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries)> m_Add_Object_DrawDepth_CallBack{ nullptr };
 	public:
 		CustomRayCaster* RayCast{ nullptr };
+		std::shared_ptr<threepp::Group> m_OverLay_Group{ nullptr };
 	private:
 		std::unique_ptr<IFCModelCache> m_Model{ nullptr };
 		std::unordered_set<unsigned int> m_Hidden_Express_IDs;
@@ -74,7 +76,6 @@ namespace dragon
 		/*MATERIAL*/
 		std::shared_ptr<threepp::MeshBasicMaterial> m_Material_Hit_Point{ nullptr };
 		std::shared_ptr<threepp::Material> m_Material_Hover{ nullptr };
-		std::shared_ptr<threepp::RawShaderMaterial> m_Custom_material{ nullptr };
 		std::shared_ptr<threepp::MeshBasicMaterial> m_Basic_Material{ nullptr };
 		std::shared_ptr<threepp::MeshBasicMaterial> m_Selected_Material{ nullptr };
 		std::optional<int> m_Current_ExpressID;

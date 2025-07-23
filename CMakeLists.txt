@@ -149,6 +149,7 @@ target_compile_definitions(${EDITOR_NAME_PROJECT}
 PRIVATE _UNICODE UNICODE _CRT_SECURE_NO_WARNINGS NANORT_ENABLE_PARALLEL_BUILD FMT_UNICODE=0  NANORT_USE_CPP11_FEATURE=1)
 
 # Custom command to copy assets
+
 add_custom_command(
     TARGET ${EDITOR_NAME_PROJECT} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -169,7 +170,9 @@ add_custom_command(
 #add_custom_command(
     #TARGET ${EDITOR_NAME_PROJECT} POST_BUILD
     #COMMAND ${CMAKE_COMMAND} -E copy_directory
-           # "${ASSETS_DIR}"
-           # "${DEBUG_ASSETS_DIR}"
-   # COMMENT "Copying assets folder to output directory..."
+           #"${ASSETS_DIR}"
+           #"${DEBUG_ASSETS_DIR}"
+    #COMMENT "Copying assets folder to debug directory..."
 #)
+
+

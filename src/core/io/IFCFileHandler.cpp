@@ -37,6 +37,7 @@ namespace dragon
 		std::shared_ptr<threepp::BufferGeometry> model_geometry{ nullptr };
 		WebIFCConverter IFCApi{};
 		container = IFCApi.convert(file_path);
+		container->name = "Model_Group";
 		WindowFrame* window_frame = static_cast<WindowFrame*>(m_Window);
 		auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
 		main_viewport->resetFileContext();
@@ -78,16 +79,9 @@ namespace dragon
 				auto viewport_scene = main_viewport->getScene();
 				auto camera = main_viewport->getCamera();
 				viewport_scene->add(container);
-				/*CREATE OUTLINE EDGE INDEX IS 1*/
-				std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*model_geometry, outline_edge::THRESHOLD_ANGLE);
-				std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
-				outline_material->linewidth = 100.0f;
-				outline_material->color = threepp::Color::darkgray;
-				std::shared_ptr<threepp::LineSegments>  outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
-				viewport_scene->add(outlineEdge);
 				/*CREATE OVERLAY LAYER INDEX IS 2*/
 				std::shared_ptr<threepp::Group> overlay_group = threepp::Group::create();
-				overlay_group->name = "Overlay";
+				overlay_group->name = "Overlay_Group";
 				overlay_group->add(ptr_ifc_file_context->createHoverMesh());
 				overlay_group->add(ptr_ifc_file_context->createHitPoint());
 				overlay_group->add(ptr_ifc_file_context->createAxesHelper());
@@ -95,6 +89,7 @@ namespace dragon
 				//main_viewport->initObjectHover();
 				/*CREATE */
 				SceneBuilder::IFCBuildScene(container.get(), viewport_scene, camera);
+				ptr_ifc_file_context->m_OverLay_Group = overlay_group;
 			}
 
 			/*CREATE ELEMENT TREE AND BIND FUNC*/

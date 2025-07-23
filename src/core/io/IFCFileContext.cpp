@@ -2,6 +2,7 @@
 #include "IFCGeometryCache.hpp"
 #include "threepp/threepp.hpp"
 #include "threepp/utils/BufferGeometryUtils.hpp"
+#include "threepp/geometries/EdgesGeometry.hpp"
 #include "core/io/factory/GeometryCacheOffsetFactory.hpp"
 #include "raycast/CustomRayCaster.hpp"
 #include "spdlog/spdlog.h"
@@ -9,6 +10,7 @@
 #include "core/utils/ThreeHelper.hpp"
 #include "input/input.hpp"
 #include "resource.hpp"
+#include "config/app_config.hpp"
 #include "threepp/materials/RawShaderMaterial.hpp"
 #include <format>
 #include <iostream>
@@ -107,39 +109,6 @@ namespace dragon
 			m_Material_Hit_Point->depthTest = false;
 		}
 
-		if (!m_Custom_material)
-		{
-			m_Custom_material = threepp::RawShaderMaterial::create();
-			const std::string vertexSource = R"(
-			#version 330 core
-				#define attribute in
-				#define varying out
-				uniform mat4 modelViewMatrix; // optional
-				uniform mat4 projectionMatrix; // optional
-				attribute vec3 position;
-				attribute vec3 normal;
-				uniform float outlineThickness;
-				void main()
-				{
-					vec3 newPostion = position + normal * outlineThickness;
-					gl_Position = projectionMatrix * modelViewMatrix * vec4( newPostion, 1.0 );
-				}
-			)";
-			const std::string fragmentSource = R"(
-				void main() {
-					gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-				}
-			)";
-
-			m_Custom_material->vertexShader = vertexSource;
-			m_Custom_material->fragmentShader = fragmentSource;
-			m_Custom_material->side = threepp::Side::Back;
-			m_Custom_material->uniforms["outlineThickness"].setValue(0.02f);
-			m_Custom_material->depthWrite = false;
-			m_Custom_material->polygonOffset = true;
-			m_Custom_material->polygonOffsetFactor = -4;
-			m_Custom_material->polygonOffsetUnits = -4;
-		}
 		if (!m_Basic_Material)
 		{
 			m_Basic_Material = threepp::MeshBasicMaterial::create();
@@ -270,11 +239,10 @@ namespace dragon
 	{
 		/*CREATE HOVER MESH FOR MODEL*/
 		m_Object_OverLay_Hover = threepp::Mesh::create();
-		//m_Object_OverLay_Hover->setMaterial(m_Material_Hover);
-		//m_Object_OverLay_Hover->setMaterial(m_Custom_material);
 		m_Object_OverLay_Hover->setMaterial(m_Basic_Material);
 		m_Object_OverLay_Hover->visible = false;
 		m_Object_OverLay_Hover->matrixAutoUpdate = true;
+		m_Object_OverLay_Hover->name = "Hover_Mesh";
 		return m_Object_OverLay_Hover;
 	}
 
@@ -286,6 +254,7 @@ namespace dragon
 			const float sphereRadius = 0.04f;
 			const auto sphereGeometry = threepp::SphereGeometry::create(sphereRadius);
 			m_Hit_Point = threepp::Mesh::create(sphereGeometry, m_Material_Hit_Point);
+			m_Hit_Point->name = "Hit_Point";
 		}
 		return m_Hit_Point;
 	}
@@ -294,6 +263,7 @@ namespace dragon
 	{
 		m_Axes_Helper = threepp::AxesHelper::create(1.0f);
 		m_Axes_Helper->material()->depthTest = false;
+		m_Axes_Helper->name = "Axes_Helper";
 		return m_Axes_Helper;
 	}
 
@@ -374,6 +344,22 @@ namespace dragon
 			m_bIsHoverMode = isCheck;
 			break;
 		}
+		case dragon::ID_EVENT::TOOL_DRAW_EDGE:
+		{
+			auto object = m_OverLay_Group->getObjectByName("Outline_Edge");
+			if (object)
+			{
+				object->visible = !object->visible;
+				return;
+			}
+			std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*m_Model->m_Object_Model->geometry(), outline_edge::THRESHOLD_ANGLE);
+			std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
+			outline_material->color = threepp::Color::darkgray;
+			std::shared_ptr<threepp::LineSegments>  outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
+			outlineEdge->name = "Outline_Edge";
+			m_OverLay_Group->add(outlineEdge);
+			break;
+		}
 		default:
 			break;
 		}
@@ -382,7 +368,6 @@ namespace dragon
 	void IFCFileContext::initCallback()
 	{
 		auto lambda_toggle_component_callback = [&](const std::pair<int, ItemData*>& entity) {
-			//spdlog::info("callback ifc file context run : {}", entity.first);
 			};
 		auto lambda_toggle_componenents_callback = [&](const std::vector<std::pair<int, ItemData*>>& entities) {
 			for (auto& [state, ItemData] : entities)
