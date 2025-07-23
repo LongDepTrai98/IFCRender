@@ -106,8 +106,8 @@ namespace dragon
 		{
 			m_Selected_Material = threepp::MeshBasicMaterial::create();
 			m_Selected_Material->color = default_color::selected_object_color;
-			m_Selected_Material->transparent = true; 
-			m_Selected_Material->opacity = 0.7f; 
+			m_Selected_Material->transparent = true;
+			m_Selected_Material->opacity = 0.7f;
 			m_Selected_Material->depthTest = false;
 		}
 
@@ -257,8 +257,8 @@ namespace dragon
 
 	std::shared_ptr<threepp::Mesh> IFCFileContext::createSelectedMesh()
 	{
-		m_Object_Selected = threepp::Mesh::create(); 
-		m_Object_Selected->name = "Object_Selected"; 
+		m_Object_Selected = threepp::Mesh::create();
+		m_Object_Selected->name = "Object_Selected";
 		m_Object_Selected->setMaterial(m_Selected_Material);
 		return m_Object_Selected;
 	}
@@ -295,7 +295,7 @@ namespace dragon
 		/*CREATE GEOMEMTRY*/
 		if (m_Object_Selected)
 		{
-			m_Object_Selected->setGeometry(geo_hover); 
+			m_Object_Selected->setGeometry(geo_hover);
 		}
 		if (m_Add_Object_DrawDepth_CallBack)
 			m_Add_Object_DrawDepth_CallBack({ geo_hover });
@@ -374,7 +374,7 @@ namespace dragon
 			////rebuild indices
 			rebuildVisibleIndices();
 			if (OnRedrawCallback)
-				OnRedrawCallback(); 
+				OnRedrawCallback();
 			};
 		auto lambda_get_item_value_callback = [&](const int& itemId) {
 			auto it = m_Model->m_Geometry_Offset.find(itemId);

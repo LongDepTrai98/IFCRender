@@ -174,7 +174,7 @@ namespace dragon
 		threepp::Matrix4 translateToOrigin{ };
 		translateToOrigin.makeTranslation(-pivot.x, -pivot.y, -pivot.z);
 		threepp::Matrix4 scaleMatrix;
-		scaleMatrix.makeScale(scaleX,scaleY,scaleZ);
+		scaleMatrix.makeScale(scaleX, scaleY, scaleZ);
 		threepp::Matrix4 translateBack;
 		translateBack.makeTranslation(pivot.x, pivot.y, pivot.z);
 		threepp::Matrix4 matrix;

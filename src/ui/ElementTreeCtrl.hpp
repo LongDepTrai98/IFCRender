@@ -23,7 +23,7 @@ namespace dragon
 
 	class ElementTreeCtrl : public wxTreeCtrl
 	{
-	public: 
+	public:
 		enum {
 			ITEM,
 			EXPAND,
@@ -35,7 +35,7 @@ namespace dragon
 	public:
 		void setData(std::shared_ptr<ElementTree> treeData);
 		void clearData();
-		void CreateItemImages(); 
+		void CreateItemImages();
 		void CreateStateImages();
 		void OnItemStateClick(wxTreeEvent& event);
 		void DoToggleState(const wxTreeItemId& item);

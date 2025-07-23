@@ -109,7 +109,7 @@ namespace dragon
 				auto grid_mesh = main_renderer_pass->getScene()->getObjectByName("Scene_Grid");
 				if (grid_mesh)
 				{
-					grid_mesh->visible = !grid_mesh->visible; 
+					grid_mesh->visible = !grid_mesh->visible;
 				}
 			}
 		}

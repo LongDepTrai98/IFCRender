@@ -13,7 +13,7 @@ namespace dragon
 			style)
 	{
 		CreateStateImages();
-		CreateItemImages(); 
+		CreateItemImages();
 		bindFunc();
 	}
 	void ElementTreeCtrl::bindFunc()
@@ -25,7 +25,7 @@ namespace dragon
 		clearData();
 		m_Tree = treeData;
 		auto parent = m_Tree->m_Parent;
-		wxString str("Scene"); 
+		wxString str("Scene");
 		wxTreeItemId root_id = this->AddRoot(str);
 		SetItemImage(root_id, ElementTreeCtrl::SCENE, wxTreeItemIcon_Normal);
 		str.Printf(parent->getLabelNode().c_str());
@@ -94,13 +94,13 @@ namespace dragon
 	void ElementTreeCtrl::CreateItemImages()
 	{
 		wxVector<wxBitmapBundle> images;
-		const std::string& item_img_path = assets::Icons + "item_tree.png"; 
-		const std::string& item_expand_img_path = assets::Icons + "item_expand_img.png"; 
-		const std::string& item_scene_img_path = assets::Icons + "scene_tree.png"; 
+		const std::string& item_img_path = assets::Icons + "item_tree.png";
+		const std::string& item_expand_img_path = assets::Icons + "item_expand_img.png";
+		const std::string& item_scene_img_path = assets::Icons + "scene_tree.png";
 		images.push_back(AppHelper::loadBitmapBundle(item_img_path, wxBITMAP_TYPE_PNG));
 		images.push_back(AppHelper::loadBitmapBundle(item_expand_img_path, wxBITMAP_TYPE_PNG));
 		images.push_back(AppHelper::loadBitmapBundle(item_scene_img_path, wxBITMAP_TYPE_PNG));
-		SetImages(images); 
+		SetImages(images);
 	}
 	void ElementTreeCtrl::CreateStateImages()
 	{

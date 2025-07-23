@@ -5,6 +5,7 @@
 #include "view/ViewportGizmo.hpp"
 #include "core/IWindowEventHandler.hpp"
 #include "input/input.hpp"
+#include "resource.hpp"
 namespace dragon
 {
 	RenderCanvas::RenderCanvas(wxWindow* parent, const wxGLAttributes& canvasAttrs) : wxGLCanvas(parent,
@@ -14,6 +15,7 @@ namespace dragon
 		//initUI();
 		initGLContext();
 		initContextRenderer();
+		initMenu();
 		/*BIND FUNCTION*/
 		bindFunction();
 	}
@@ -48,6 +50,10 @@ namespace dragon
 	void RenderCanvas::initUI()
 	{
 		auto button = new wxButton(this, wxID_ANY, "MSAA", wxPoint(10, 10), wxSize(150, 30));
+	}
+	void RenderCanvas::initMenu()
+	{
+		main_menu.Append((int)ID_EVENT::MAIN_MENU_HIDE, "Hide");
 	}
 	void RenderCanvas::bindFunction()
 	{
@@ -138,7 +144,7 @@ namespace dragon
 		{
 			if (!m_bIsHoldCtrl)
 			{
-				event.Skip(); 
+				event.Skip();
 				return;
 			}
 		}
@@ -160,15 +166,13 @@ namespace dragon
 			{
 				if (wxMOUSE_BTN_RIGHT == buttonFlag)
 				{
-					wxMenu menu;
-					menu.Append(1001, "Action 1");
-					PopupMenu(&menu, event.GetPosition());
-					event.Skip(); 
+					PopupMenu(&main_menu, event.GetPosition());
+					event.Skip();
 				}
 			}
 			else
 			{
-				event.Skip(); 
+				event.Skip();
 			}
 			return;
 		}
@@ -177,7 +181,6 @@ namespace dragon
 			event_handler->OnMouseRelease(event);
 			event_handler->isMouseDown = false;
 		}
-		
 
 		Invalidate();
 		event.Skip();

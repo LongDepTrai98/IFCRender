@@ -37,7 +37,7 @@ namespace dragon
 			const float& scaleX,
 			const float& scaleY,
 			const float& scaleZ
-			); 
+		);
 	private:
 		ThreeHelper() = default;
 	};

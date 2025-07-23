@@ -19,6 +19,7 @@ namespace dragon
 		void initGLContext();
 		void initContextRenderer();
 		void initUI();
+		void initMenu();
 		void bindFunction();
 	private:
 		void OnSize(wxSizeEvent& event);
@@ -52,7 +53,8 @@ namespace dragon
 		float  m_dtTime{ 0.0 };
 		wxGLAttributes m_DispAttrs{};
 		bool m_bIsDirty{ true };
-		bool m_bIsHoldCtrl{ false }; 
+		bool m_bIsHoldCtrl{ false };
+		wxMenu main_menu{};
 	};
 }
 #endif // !_SCENE_VIEW_HPP_

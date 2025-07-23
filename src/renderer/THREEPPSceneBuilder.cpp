@@ -27,14 +27,14 @@ namespace dragon
 		auto geometry = threepp::PlaneGeometry::create(1000, 1000);
 		auto material = threepp::MeshBasicMaterial::create();
 		material->opacity = 0.0f;
-		material->visible = false; 
+		material->visible = false;
 		material->transparent = true;
 		auto mesh_grid = threepp::Mesh::create(geometry, material);
 		mesh_grid->rotation.x = -threepp::math::PI / 2;
 		auto grid = threepp::GridHelper::create(1000, 100);
 		grid->rotation.x = threepp::math::PI / 2;
 		mesh_grid->add(grid);
-		mesh_grid->name = "Scene_Grid"; 
+		mesh_grid->name = "Scene_Grid";
 		scene->add(mesh_grid);
 	}
 }
