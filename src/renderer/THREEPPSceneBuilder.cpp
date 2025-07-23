@@ -19,21 +19,22 @@ namespace dragon
 		threepp::Box3 box{};
 		box.setFromObject(*container);
 		auto center = box.getCenter();
-		//camera->lookAt({0.0f,0.0f,0.0f});
+		camera->lookAt(center);
 		//camera->updateMatrix();
 		//auto min = box.min();
 		//auto max = box.max();
 		/*BUILD PLANE*/
-		//auto geometry = threepp::PlaneGeometry::create(150, 150);
-		//auto material = threepp::MeshBasicMaterial::create();
-		////material->opacity = 0.2f;
-		////material->transparent = true;
-		//auto mesh = threepp::Mesh::create(geometry, material);
-		//mesh->rotation.x = -threepp::math::PI / 2;
-		//auto grid = threepp::GridHelper::create(150, 150);
-		//grid->rotation.x = threepp::math::PI / 2;
-		//grid->position.z = min.z;
-		//mesh->add(grid);
-		//scene->add(mesh);
+		auto geometry = threepp::PlaneGeometry::create(1000, 1000);
+		auto material = threepp::MeshBasicMaterial::create();
+		material->opacity = 0.0f;
+		material->visible = false; 
+		material->transparent = true;
+		auto mesh_grid = threepp::Mesh::create(geometry, material);
+		mesh_grid->rotation.x = -threepp::math::PI / 2;
+		auto grid = threepp::GridHelper::create(1000, 100);
+		grid->rotation.x = threepp::math::PI / 2;
+		mesh_grid->add(grid);
+		mesh_grid->name = "Scene_Grid"; 
+		scene->add(mesh_grid);
 	}
 }

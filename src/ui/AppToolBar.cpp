@@ -45,6 +45,13 @@ namespace dragon
 			wxITEM_NORMAL,
 			"Draw Edge",
 			"This is help for draw object edge");
+		m_ToolBar->AddTool((int)ID_EVENT::TOOL_DRAW_GRID,
+			"Grid",
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_DrawGrid, wxBITMAP_TYPE_PNG),
+			wxNullBitmap,
+			wxITEM_NORMAL,
+			"Draw Grid",
+			"This is help for draw Grid");
 		m_ToolBar->AddSeparator();
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_SWITCH_MODE_RENDER,
 			"Depth",

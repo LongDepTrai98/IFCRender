@@ -169,4 +169,17 @@ namespace dragon
 		sub_geometry_buffer->computeVertexNormals();
 		return sub_geometry_buffer;
 	}
+	void ThreeHelper::scaleAroundPivot(std::shared_ptr<threepp::BufferGeometry> geometry, const threepp::Vector3& pivot, const float& scaleX, const float& scaleY, const float& scaleZ)
+	{
+		threepp::Matrix4 translateToOrigin{ };
+		translateToOrigin.makeTranslation(-pivot.x, -pivot.y, -pivot.z);
+		threepp::Matrix4 scaleMatrix;
+		scaleMatrix.makeScale(scaleX,scaleY,scaleZ);
+		threepp::Matrix4 translateBack;
+		translateBack.makeTranslation(pivot.x, pivot.y, pivot.z);
+		threepp::Matrix4 matrix;
+		matrix.multiplyMatrices(translateBack, scaleMatrix);
+		matrix.multiplyMatrices(matrix, translateToOrigin);
+		geometry->applyMatrix4(matrix);
+	}
 }

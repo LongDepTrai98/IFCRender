@@ -1,6 +1,7 @@
 #ifndef _THREE_HELPER_HPP_
 #define _THREE_HELPER_HPP_
 #include "core/io/IFCGeometryCache.hpp"
+#include "threepp/math/Vector3.hpp"
 #include <vector>
 #include <memory>
 #include <map>
@@ -31,6 +32,12 @@ namespace dragon
 			const std::vector<float>& vertices,
 			const std::vector<float>& normals,
 			const std::vector<unsigned int>& indices);
+		static void scaleAroundPivot(std::shared_ptr<threepp::BufferGeometry> geometry,
+			const threepp::Vector3& pivot,
+			const float& scaleX,
+			const float& scaleY,
+			const float& scaleZ
+			); 
 	private:
 		ThreeHelper() = default;
 	};

@@ -102,6 +102,17 @@ namespace dragon
 		{
 			depth_renderer_pass->reCreateRenderTarget(m_Viewport_Size.width(), m_Viewport_Size.height());
 		}
+		if (data.event.GetId() == (int)ID_EVENT::TOOL_DRAW_GRID)
+		{
+			if (main_renderer_pass)
+			{
+				auto grid_mesh = main_renderer_pass->getScene()->getObjectByName("Scene_Grid");
+				if (grid_mesh)
+				{
+					grid_mesh->visible = !grid_mesh->visible; 
+				}
+			}
+		}
 		m_Canvas->Invalidate();
 	}
 	void MainViewPort::OnRButtonDown(EventData& data)

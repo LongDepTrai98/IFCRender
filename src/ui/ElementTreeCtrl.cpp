@@ -62,7 +62,7 @@ namespace dragon
 			SetItemState(id_item, 1);
 			if (childNode->children.size() != 0)
 			{
-				SetItemImage(id_item, ElementTreeCtrl::EXPAND, wxTreeItemIcon_Expanded);
+				SetItemImage(id_item, ElementTreeCtrl::EXPAND, wxTreeItemIcon_Normal);
 			}
 			else
 			{

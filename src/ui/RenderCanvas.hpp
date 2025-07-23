@@ -52,6 +52,7 @@ namespace dragon
 		float  m_dtTime{ 0.0 };
 		wxGLAttributes m_DispAttrs{};
 		bool m_bIsDirty{ true };
+		bool m_bIsHoldCtrl{ false }; 
 	};
 }
 #endif // !_SCENE_VIEW_HPP_

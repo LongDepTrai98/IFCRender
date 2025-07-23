@@ -70,6 +70,8 @@ namespace dragon
 	void DepthPass::reCreateRenderTarget(const int& width, const int& height)
 	{
 		m_RenderTarget->dispose();
+		m_RenderTarget.reset(); 
+		m_RenderTarget = nullptr; 
 		m_RenderTarget = std::make_unique<threepp::GLRenderTarget>(width, height, opts);
 	}
 	threepp::GLRenderTarget* DepthPass::getRenderTarget()

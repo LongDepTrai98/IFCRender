@@ -133,6 +133,15 @@ namespace dragon
 	void RenderCanvas::OnMousePress(wxMouseEvent& event)
 	{
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
+		int buttonFlag = event.GetButton();
+		if (wxMOUSE_BTN_RIGHT == buttonFlag)
+		{
+			if (!m_bIsHoldCtrl)
+			{
+				event.Skip(); 
+				return;
+			}
+		}
 		if (event_handler)
 		{
 			event_handler->OnMousePress(event);
@@ -144,11 +153,32 @@ namespace dragon
 	void RenderCanvas::OnMouseRelease(wxMouseEvent& event)
 	{
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
+		int buttonFlag = event.GetButton();
+		if (wxMOUSE_BTN_RIGHT == buttonFlag)
+		{
+			if (!m_bIsHoldCtrl)
+			{
+				if (wxMOUSE_BTN_RIGHT == buttonFlag)
+				{
+					wxMenu menu;
+					menu.Append(1001, "Action 1");
+					PopupMenu(&menu, event.GetPosition());
+					event.Skip(); 
+				}
+			}
+			else
+			{
+				event.Skip(); 
+			}
+			return;
+		}
 		if (event_handler)
 		{
 			event_handler->OnMouseRelease(event);
 			event_handler->isMouseDown = false;
 		}
+		
+
 		Invalidate();
 		event.Skip();
 	}
@@ -165,6 +195,10 @@ namespace dragon
 	}
 	void RenderCanvas::OnKeyDown(wxKeyEvent& event)
 	{
+		if (event.GetKeyCode() == WXK_CONTROL)
+		{
+			m_bIsHoldCtrl = true;
+		}
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
 			event_handler->OnKeyDown(event);
@@ -172,6 +206,10 @@ namespace dragon
 	}
 	void RenderCanvas::OnKeyUp(wxKeyEvent& event)
 	{
+		if (event.GetKeyCode() == WXK_CONTROL)
+		{
+			m_bIsHoldCtrl = false;
+		}
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
 			event_handler->OnKeyUp(event);

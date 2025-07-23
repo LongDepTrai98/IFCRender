@@ -186,6 +186,7 @@ namespace dragon
 	{
 		KeyData data;
 		data.key = event;
+
 		for (auto& view : m_lstViewPort)
 		{
 			view->OnKeyDown(data);

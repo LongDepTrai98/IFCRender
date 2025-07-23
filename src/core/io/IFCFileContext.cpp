@@ -199,20 +199,6 @@ namespace dragon
 				);
 				threepp::Box3 box;
 				box.setFromArray(geo_hover->getAttribute<float>("position")->array());
-				auto center = box.getCenter();
-				/*hard code*/
-				m_Center_Point = center;
-				threepp::Matrix4 translateToOrigin{ };
-				translateToOrigin.makeTranslation(-center.x, -center.y, -center.z);
-				threepp::Matrix4 scaleMatrix;
-				scaleMatrix.makeScale(1.3f, 1.3f, 1.3f);
-				threepp::Matrix4 translateBack;
-				translateBack.makeTranslation(center.x, center.y, center.z);
-				threepp::Matrix4 matrix;
-				matrix.multiplyMatrices(translateBack, scaleMatrix);
-				matrix.multiplyMatrices(matrix, translateToOrigin);
-				geo_hover->applyMatrix4(matrix);
-				m_Object_OverLay_Hover->setGeometry(geo_hover);
 			}
 			m_Old_ExpressID = m_Current_ExpressID;
 		}
