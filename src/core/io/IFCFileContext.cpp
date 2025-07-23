@@ -387,6 +387,8 @@ namespace dragon
 			}
 			////rebuild indices
 			rebuildVisibleIndices();
+			if (OnRedrawCallback)
+				OnRedrawCallback(); 
 			};
 		auto lambda_get_item_value_callback = [&](const int& itemId) {
 			auto it = m_Model->m_Geometry_Offset.find(itemId);

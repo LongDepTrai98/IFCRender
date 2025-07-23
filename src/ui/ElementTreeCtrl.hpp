@@ -23,12 +23,19 @@ namespace dragon
 
 	class ElementTreeCtrl : public wxTreeCtrl
 	{
+	public: 
+		enum {
+			ITEM,
+			EXPAND,
+			SCENE
+		};
 	public:
 		ElementTreeCtrl(wxWindow* parent, const wxPoint& postion, const wxSize& size, long style);
 		void bindFunc();
 	public:
 		void setData(std::shared_ptr<ElementTree> treeData);
 		void clearData();
+		void CreateItemImages(); 
 		void CreateStateImages();
 		void OnItemStateClick(wxTreeEvent& event);
 		void DoToggleState(const wxTreeItemId& item);
