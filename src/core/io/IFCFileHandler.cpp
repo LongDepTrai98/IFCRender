@@ -49,7 +49,7 @@ namespace dragon
 		if (file_context)
 		{
 			main_viewport->setFileContext(std::move(file_context));
-			ptr_ifc_offset_cache->m_Object_Model = container->children[0];
+			//ptr_ifc_offset_cache->m_Object_Model = container->children[0];
 			std::shared_ptr<threepp::BufferGeometry> root_geometry = container->children[0]->geometry();
 			//ptr_ifc_file_context->setRootObject(group->children[0]);
 			ptr_ifc_offset_cache->m_Object_Indices = root_geometry->getIndex()->array();
@@ -58,7 +58,7 @@ namespace dragon
 			if (!model) return;
 			model_geometry = model->geometry();
 			if (!root_geometry) return;
-			ptr_ifc_offset_cache->m_Object_Materials = model->as<threepp::ObjectWithMaterials>()->materials();
+			//ptr_ifc_offset_cache->m_Object_Materials = model->as<threepp::ObjectWithMaterials>()->materials();
 			auto& array_vertices = model_geometry->getAttribute<float>("position")->array();
 			ptr_ifc_offset_cache->m_Object_Vertices.assign(array_vertices.begin(), array_vertices.end());
 			auto& array_normals = model_geometry->getAttribute<float>("normal")->array();
@@ -85,12 +85,13 @@ namespace dragon
 				overlay_group->add(ptr_ifc_file_context->createHoverMesh());
 				overlay_group->add(ptr_ifc_file_context->createHitPoint());
 				overlay_group->add(ptr_ifc_file_context->createAxesHelper());
-				overlay_group->add(ptr_ifc_file_context->createSelectedMesh());
+				overlay_group->add(ptr_ifc_file_context->createSelectedGroup());
 				viewport_scene->add(overlay_group);
 				//main_viewport->initObjectHover();
 				/*CREATE */
 				SceneBuilder::IFCBuildScene(container.get(), viewport_scene, camera);
 				ptr_ifc_file_context->m_OverLay_Group = overlay_group;
+				ptr_ifc_file_context->m_Container_Group_Draw = container; 
 			}
 
 			/*CREATE ELEMENT TREE AND BIND FUNC*/

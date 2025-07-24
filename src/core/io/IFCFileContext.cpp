@@ -26,6 +26,7 @@ namespace dragon
 	IFCFileContext::~IFCFileContext()
 	{
 		m_Model->clear();
+		m_Selected_Entites.clear(); 
 		m_Toggle_Component_Callback = nullptr;
 		m_Toggle_Components_Callback = nullptr;
 		OnRedrawCallback = nullptr;
@@ -46,11 +47,11 @@ namespace dragon
 			m_Current_ExpressID = std::nullopt;
 			return;
 		}
-		if (!m_Model->m_Object_Model)
+		/*if (!m_Model->m_Object_Model)
 		{
 			m_Current_ExpressID = std::nullopt;
 			return;
-		}
+		}*/
 		CustomRayCaster::Result result;
 		bool hit = RayCaster.intersectObjects(result);
 		if (hit)
@@ -59,7 +60,6 @@ namespace dragon
 			const int& index_face_a = 3 * prim_id;
 			const int& index_face_b = 3 * prim_id + 1;
 			const int& index_face_c = 3 * prim_id + 2;
-			auto obj_geometry = m_Model->m_Object_Model->geometry();
 			const int& a = m_Model->m_Object_Indices[index_face_a];
 			const int& expressID = m_Model->m_Object_ExpressID[a];
 			if (m_Current_ExpressID != expressID)
@@ -139,10 +139,36 @@ namespace dragon
 		}
 	}
 
+
+	static void disposeObjectRecursive(threepp::Object3D* object) {
+		using namespace threepp;
+
+
+		if (auto mesh = object->as<Mesh>())
+		{
+			if (mesh->geometry()) {
+				mesh->geometry()->dispose();
+			}
+		}
+
+		
+
+		// Lặp con trước khi clear để tránh iterator invalidation
+		auto children = object->children; // copy tránh thay đổi khi duyệt
+		for (auto& child : children) {
+			disposeObjectRecursive(child);
+		}
+
+		// Xóa các con ra khỏi object
+		object->children.clear();
+	}
+
 	void IFCFileContext::rebuildVisibleIndices()
 	{
 		m_Hidden_Express_IDs.clear();
+		//disposeObjectRecursive(m_Container_Group_Draw.get()); 
 		std::map <int, std::vector<std::pair<int, int>>> view_geometries_with_materials{};
+		std::vector<IFCModelCache::element> elements; 
 		size_t total_indices = 0;
 		for (auto& [expressID, element] : m_Model->m_Geometry_Offset)
 		{
@@ -158,18 +184,32 @@ namespace dragon
 					std::pair<int, int> pair = { begin_offset,end_offset };
 					view_geometries_with_materials[index_material].emplace_back(pair);
 				}
+				elements.emplace_back(element); 
 			}
 			else
 				m_Hidden_Express_IDs.insert({ expressID });
 		}
 		//update indices
-		std::shared_ptr<threepp::BufferGeometry> sub_geometry = ThreeHelper::BuildSubGeometry(total_indices,
-			m_Model->m_Object_Materials,
-			view_geometries_with_materials,
-			m_Model->m_Object_Indices,
+		//std::shared_ptr<threepp::BufferGeometry> sub_geometry = ThreeHelper::BuildSubGeometry(total_indices,
+		//	m_Model->m_Object_Materials,
+		//	view_geometries_with_materials,
+		//	m_Model->m_Object_Indices,
+		//	m_Model->m_Object_Vertices,
+		//	m_Model->m_Object_Normals);
+
+		auto root_geo = m_Container_Group_Draw->children[0]->geometry();
+		m_Container_Group_Draw->children[0]->geometry()->dispose(); 
+		for (auto& material : m_Container_Group_Draw->children[0]->as<threepp::Mesh>()->materials())
+		{
+			material->dispose(); 
+		}
+		m_Container_Group_Draw->clear();
+		std::shared_ptr<threepp::BufferGeometry> sub_geometry = ThreeHelper::BuildSubGeometryWithOffset2(elements,
 			m_Model->m_Object_Vertices,
-			m_Model->m_Object_Normals);
-		m_Model->m_Object_Model->as<threepp::Mesh>()->setGeometry(sub_geometry);
+			m_Model->m_Object_Normals,
+			m_Model->m_Object_Indices
+			);
+		m_Container_Group_Draw->add(threepp::Mesh::create(sub_geometry, m_Selected_Material)); 
 		m_Current_ExpressID = std::nullopt;
 	}
 
@@ -255,12 +295,11 @@ namespace dragon
 		return m_Axes_Helper;
 	}
 
-	std::shared_ptr<threepp::Mesh> IFCFileContext::createSelectedMesh()
+	std::shared_ptr<threepp::Group> IFCFileContext::createSelectedGroup()
 	{
-		m_Object_Selected = threepp::Mesh::create();
-		m_Object_Selected->name = "Object_Selected";
-		m_Object_Selected->setMaterial(m_Selected_Material);
-		return m_Object_Selected;
+		m_Group_Selected = threepp::Group::create();
+		m_Group_Selected->name = "Groupd_Object_Selected";
+		return m_Group_Selected;
 	}
 
 	void IFCFileContext::LButtonUp(EventData& data)
@@ -284,7 +323,13 @@ namespace dragon
 	{
 		if (m_bIsSelectPivotMode) return;
 		if (!m_Current_ExpressID) return;
-		m_Selected_Entites.clear();
+		if (!m_bIsMultiSelectMode)
+		{
+			m_Selected_Entites.clear();
+			m_Object_Selected.clear();
+			m_Group_Selected->clear(); 
+		}
+		m_Selected_Entites.insert(m_Current_ExpressID.value()); 
 		/*CREATE GEO*/
 		const IFCModelCache::element& e = m_Model->m_Geometry_Offset[m_Current_ExpressID.value()];
 		std::shared_ptr<threepp::BufferGeometry> geo_hover = ThreeHelper::BuildSubGeometryWithOffset(e,
@@ -293,12 +338,14 @@ namespace dragon
 			m_Model->m_Object_Indices
 		);
 		/*CREATE GEOMEMTRY*/
-		if (m_Object_Selected)
-		{
-			m_Object_Selected->setGeometry(geo_hover);
-		}
+		std::shared_ptr<threepp::Mesh> mesh_selected = threepp::Mesh::create(geo_hover,m_Selected_Material);
+		mesh_selected->name = std::to_string(m_Current_ExpressID.value());
+		m_Object_Selected.emplace_back(mesh_selected);
+		m_Group_Selected->add(mesh_selected); 
 		if (m_Add_Object_DrawDepth_CallBack)
-			m_Add_Object_DrawDepth_CallBack({ geo_hover });
+		{
+			m_Add_Object_DrawDepth_CallBack({ geo_hover }, m_bIsMultiSelectMode);
+		}
 		if (OnRedrawCallback)
 			OnRedrawCallback();
 	}
@@ -345,16 +392,47 @@ namespace dragon
 				object->visible = !object->visible;
 				return;
 			}
-			std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*m_Model->m_Object_Model->geometry(), outline_edge::THRESHOLD_ANGLE);
+			/*std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*m_Model->m_Object_Model->geometry(), outline_edge::THRESHOLD_ANGLE);
 			std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
 			outline_material->color = threepp::Color::darkgray;
 			std::shared_ptr<threepp::LineSegments>  outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
 			outlineEdge->name = "Outline_Edge";
-			m_OverLay_Group->add(outlineEdge);
+			m_OverLay_Group->add(outlineEdge);*/
 			break;
+		}
+		case dragon::ID_EVENT::TOOL_MULTI_SELECT: 
+		{
+			m_bIsMultiSelectMode = isCheck; 
+			break; 
 		}
 		default:
 			break;
+		}
+	}
+
+	void IFCFileContext::MenuClick(MenuData& data)
+	{
+		ID_EVENT id = static_cast<ID_EVENT>(data.event_id); 
+		switch (id)
+		{
+		case dragon::ID_EVENT::MAIN_MENU_HIDE:
+		{
+			for (auto& expressID : m_Selected_Entites)
+			{
+				auto it = m_Model->m_Geometry_Offset.find(expressID);
+				if (it != m_Model->m_Geometry_Offset.end())
+				{
+					it->second.state = 0; 
+				}
+			}
+			m_Current_ExpressID = std::nullopt;
+			rebuildVisibleIndices();
+			if (OnRedrawCallback)
+				OnRedrawCallback();
+			break;
+		}
+		default: 
+			break; 
 		}
 	}
 

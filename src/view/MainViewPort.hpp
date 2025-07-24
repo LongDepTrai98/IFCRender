@@ -40,6 +40,7 @@ namespace dragon
 		void OnKeyUp(KeyData& event) override;
 		void OnToolActions(int toolID) override;
 		void OnToolBarAction(ToolBarData& data) override;
+		void OnMenuClick(MenuData& data) override; 
 	public:
 		void initPassRenderer();
 		void initRayCaster();
@@ -63,8 +64,8 @@ namespace dragon
 		std::shared_ptr<threepp::RawShaderMaterial> sobel_material{ nullptr };
 		std::shared_ptr<threepp::Mesh> sobel_mesh{ nullptr };
 		std::shared_ptr<MainPass> main_renderer_pass{ nullptr };
-		std::shared_ptr<DepthPass> depth_renderer_pass{ nullptr };
-		std::shared_ptr<OutLinePass> outline_renderer_pass{ nullptr };
+		//std::shared_ptr<DepthPass> depth_renderer_pass{ nullptr };
+		//std::shared_ptr<OutLinePass> outline_renderer_pass{ nullptr };
 	};
 }
 #endif // !_MAIN_VIEW_PORT_HPP_

@@ -122,4 +122,7 @@ namespace dragon
 	void ViewPortGizmo::OnToolBarAction(ToolBarData& data)
 	{
 	}
+	void ViewPortGizmo::OnMenuClick(MenuData& data)
+	{
+	}
 }

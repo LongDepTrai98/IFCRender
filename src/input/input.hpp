@@ -34,5 +34,10 @@ namespace dragon
 		wxCommandEvent event;
 		bool bIsCheck;
 	};
+
+	struct MenuData
+	{
+		int event_id;
+	};
 }
 #endif // !_INPUT_HPP_

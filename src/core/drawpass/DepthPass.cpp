@@ -25,12 +25,6 @@ namespace dragon
 				depth_material->fragmentShader = fragSource;
 			}
 		}
-		if (!depth_mesh)
-		{
-			depth_mesh = threepp::Mesh::create();
-			depth_mesh->setMaterial(depth_material);
-			m_Scene->add(depth_mesh);
-		}
 		opts.format = threepp::Format::RGBA;
 		opts.type = threepp::Type::UnsignedShort;
 		opts.minFilter = threepp::Filter::Nearest;
@@ -56,16 +50,39 @@ namespace dragon
 	{
 		if (!default_geometry)
 			default_geometry = threepp::BufferGeometry::create();
-		depth_mesh->setGeometry(default_geometry);
+		m_Scene->clear(); 
+		depth_meshes.clear(); 
+		//depth_mesh->setGeometry(default_geometry);
 	}
 	void DepthPass::applyUniform(float nearPlane, float farPlane)
 	{
 		depth_material->uniforms["near"].setValue(nearPlane);
 		depth_material->uniforms["far"].setValue(farPlane);
 	}
-	void DepthPass::updateDepthMeshSelect(std::shared_ptr<threepp::BufferGeometry> bufferGeometry)
+	void DepthPass::updateOneDepthMeshSelect(std::shared_ptr<threepp::BufferGeometry> bufferGeometry)
 	{
-		depth_mesh->setGeometry(bufferGeometry);
+		//depth_mesh->setGeometry(bufferGeometry); 
+		if (depth_meshes.size() != 1)
+		{
+			m_Scene->clear(); 
+			depth_meshes.clear(); 
+		}
+		if (depth_meshes.empty())
+		{
+			std::shared_ptr<threepp::Mesh> new_mesh = threepp::Mesh::create(bufferGeometry,depth_material); 
+			depth_meshes.emplace_back(new_mesh);
+			m_Scene->add(new_mesh); 
+		}
+		/*UPDATE GEOMETRY FOR ELEMENT 0*/
+		depth_meshes[0]->geometry()->dispose(); 
+		depth_meshes[0]->setGeometry(nullptr); 
+		depth_meshes[0]->setGeometry(bufferGeometry); 
+	}
+	void DepthPass::updateMultiDepthMeshSelect(std::shared_ptr<threepp::BufferGeometry> bufferGeometry)
+	{
+		std::shared_ptr<threepp::Mesh> new_mesh = threepp::Mesh::create(bufferGeometry,depth_material);
+		depth_meshes.emplace_back(new_mesh);
+		m_Scene->add(new_mesh); 
 	}
 	void DepthPass::reCreateRenderTarget(const int& width, const int& height)
 	{

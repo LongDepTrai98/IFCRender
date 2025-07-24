@@ -33,11 +33,14 @@ namespace dragon
 				m_Scene->add(mesh);
 			}
 			};
-		m_Add_Object_DrawDepth_CallBack = [&](const std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries) {
-			if (depth_renderer_pass)
+		m_Add_Object_DrawDepth_CallBack = [&](const std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries, bool isSelectMultiMesh) {
+			/*if (depth_renderer_pass)
 			{
-				depth_renderer_pass->updateDepthMeshSelect(geometries[0]);
-			}
+				if (!isSelectMultiMesh)
+					depth_renderer_pass->updateOneDepthMeshSelect(geometries[0]);
+				else
+					depth_renderer_pass->updateMultiDepthMeshSelect(geometries[0]);
+			}*/
 			};
 	}
 	MainViewPort::~MainViewPort()
@@ -100,7 +103,7 @@ namespace dragon
 		}
 		if (data.event.GetId() == (int)ID_EVENT::CREATE_NEW_RENDER_TARGET)
 		{
-			depth_renderer_pass->reCreateRenderTarget(m_Viewport_Size.width(), m_Viewport_Size.height());
+			//depth_renderer_pass->reCreateRenderTarget(m_Viewport_Size.width(), m_Viewport_Size.height());
 		}
 		if (data.event.GetId() == (int)ID_EVENT::TOOL_DRAW_GRID)
 		{
@@ -113,7 +116,19 @@ namespace dragon
 				}
 			}
 		}
+		if (data.event.GetId() == (int)ID_EVENT::TOOL_CLEAR_SCENE)
+		{
+			if (main_renderer_pass)
+				main_renderer_pass->clear(); 
+			m_FileContext.reset(); 
+			m_FileContext = nullptr; 
+		}
 		m_Canvas->Invalidate();
+	}
+	void MainViewPort::OnMenuClick(MenuData& data)
+	{
+		if (m_FileContext)
+			m_FileContext->MenuClick(data); 
 	}
 	void MainViewPort::OnRButtonDown(EventData& data)
 	{
@@ -125,12 +140,12 @@ namespace dragon
 	{
 		if (!main_renderer_pass)
 			main_renderer_pass = std::make_shared<MainPass>(m_Viewport_Size.width(), m_Viewport_Size.height());
-		if (!depth_renderer_pass)
+		/*if (!depth_renderer_pass)
 		{
 			depth_renderer_pass = std::make_shared<DepthPass>(m_Viewport_Size.width(), m_Viewport_Size.height());
 		}
 		if (!outline_renderer_pass)
-			outline_renderer_pass = std::make_shared<OutLinePass>(m_Viewport_Size.width(), m_Viewport_Size.height());
+			outline_renderer_pass = std::make_shared<OutLinePass>(m_Viewport_Size.width(), m_Viewport_Size.height());*/
 	}
 	void MainViewPort::initRayCaster()
 	{
@@ -170,8 +185,8 @@ namespace dragon
 	{
 		if (main_renderer_pass)
 			main_renderer_pass->clear();
-		if (depth_renderer_pass)
-			depth_renderer_pass->clear();
+		/*if (depth_renderer_pass)
+			depth_renderer_pass->clear();*/
 		clearBVH();
 	}
 	CustomRayCaster* MainViewPort::getRayCaster()
@@ -187,7 +202,7 @@ namespace dragon
 			m_Camera->updateProjectionMatrix();
 		}
 		glViewport(0, 0, width, height);
-		if (depth_renderer_pass) depth_renderer_pass->reCreateRenderTarget(width, height);
+		//if (depth_renderer_pass) depth_renderer_pass->reCreateRenderTarget(width, height);
 	}
 	void MainViewPort::handleRaycast(MouseState& mouse_state)
 	{
@@ -217,7 +232,7 @@ namespace dragon
 				{
 					main_renderer_pass->render(renderer, m_Camera.get());
 				}
-				if (depth_renderer_pass)
+				/*if (depth_renderer_pass)
 				{
 					depth_renderer_pass->applyUniform(m_Camera->nearPlane, m_Camera->farPlane);
 					depth_renderer_pass->render(renderer, m_Camera.get());
@@ -226,16 +241,16 @@ namespace dragon
 				{
 					outline_renderer_pass->applyUniform(depth_renderer_pass->getRenderTarget()->texture.get());
 					outline_renderer_pass->render(renderer, m_Camera.get());
-				}
+				}*/
 				break;
 			}
 			case DrawMode::DEBUG:
 			{
-				if (depth_renderer_pass)
+				/*if (depth_renderer_pass)
 				{
 					depth_renderer_pass->applyUniform(m_Camera->nearPlane, m_Camera->farPlane);
 					depth_renderer_pass->debugRender(renderer, m_Camera.get());
-				}
+				}*/
 			}
 			default:
 				break;

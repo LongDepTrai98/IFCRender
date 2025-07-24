@@ -28,6 +28,14 @@ namespace dragon
 		if (event_handler)
 			event_handler->OnToolBarClick(data);
 	}
+	void RenderCanvas::OnMenu(wxCommandEvent& event)
+	{
+		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
+		MenuData data; 
+		data.event_id = event.GetId(); 
+		if (event_handler)
+			event_handler->OnMenuClick(data);
+	}
 	void RenderCanvas::initGLContext()
 	{
 		wxGLContextAttrs ctxAttrs;
@@ -57,6 +65,7 @@ namespace dragon
 	}
 	void RenderCanvas::bindFunction()
 	{
+		/*CANVAS EVENT*/
 		Bind(wxEVT_PAINT, &RenderCanvas::OnPaint, this);
 		Bind(wxEVT_SIZE, &RenderCanvas::OnSize, this);
 		Bind(wxEVT_MOTION, &RenderCanvas::OnMouseMove, this);
@@ -67,6 +76,8 @@ namespace dragon
 		Bind(wxEVT_MOUSEWHEEL, &RenderCanvas::OnMouseWheel, this);
 		Bind(wxEVT_KEY_UP, &RenderCanvas::OnKeyUp, this);
 		Bind(wxEVT_KEY_DOWN, &RenderCanvas::OnKeyDown, this);
+		/*MENU*/
+		Bind(wxEVT_MENU,&RenderCanvas::OnMenu,this,static_cast<int>(ID_EVENT::MAIN_MENU_HIDE));
 		/*BUTTON*/
 		Bind(wxEVT_BUTTON, &RenderCanvas::OnClickEnableMSAA, this);
 	}
@@ -131,9 +142,8 @@ namespace dragon
 		if (event_handler)
 		{
 			event_handler->OnMouseMove(event);
-			if (event_handler->isMouseDown)
-				Invalidate();
 		}
+		Invalidate();
 		event.Skip();
 	}
 	void RenderCanvas::OnMousePress(wxMouseEvent& event)

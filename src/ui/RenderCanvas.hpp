@@ -15,6 +15,7 @@ namespace dragon
 		~RenderCanvas();
 	public:
 		void OnCallbackToolbarCommand(ToolBarData& data);
+		void OnMenu(wxCommandEvent& event);
 	private:
 		void initGLContext();
 		void initContextRenderer();

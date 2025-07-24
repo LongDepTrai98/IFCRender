@@ -22,7 +22,6 @@ namespace dragon
 
 	WebIFCConverter::~WebIFCConverter()
 	{
-		m_ModelManager->CloseModel(m_modelID);
 		geo_with_material.clear();
 	}
 
@@ -102,7 +101,7 @@ namespace dragon
 
 		/*CREATE MESH*/
 		std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(merged_all, materials);
-		mesh->matrixAutoUpdate = false;
+		mesh->matrixAutoUpdate = true;
 		container->add(mesh);
 		/*CREATE OUTLINE EDGE*/
 		geometries.clear();

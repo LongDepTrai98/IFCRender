@@ -37,6 +37,13 @@ namespace dragon
 			wxITEM_CHECK,
 			"Select Pivot",
 			"This is help for select pivot");
+		m_ToolBar->AddTool((int)ID_EVENT::TOOL_MULTI_SELECT,
+			"Select",
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_MultiSelect, wxBITMAP_TYPE_PNG),
+			wxNullBitmap,
+			wxITEM_CHECK,
+			"Multi Select Mode",
+			"This is tool for multi select object");
 		m_ToolBar->AddSeparator();
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_DRAW_EDGE,
 			"Edge",
@@ -55,6 +62,13 @@ namespace dragon
 		m_ToolBar->AddSeparator();
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_SWITCH_MODE_RENDER,
 			"Depth",
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Debug, wxBITMAP_TYPE_PNG),
+			wxNullBitmap,
+			wxITEM_CHECK,
+			"Debug mode",
+			"Debug mode");
+		m_ToolBar->AddTool((int)ID_EVENT::TOOL_CLEAR_SCENE,
+			"Clear",
 			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Debug, wxBITMAP_TYPE_PNG),
 			wxNullBitmap,
 			wxITEM_CHECK,

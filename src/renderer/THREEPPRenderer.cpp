@@ -207,6 +207,11 @@ namespace dragon
 		for (auto& viewport : m_lstViewPort)
 			viewport->OnToolBarAction(data);
 	}
+	void THREEPPRenderer::OnMenuClick(MenuData& data)
+	{
+		for (auto& viewport : m_lstViewPort)
+			viewport->OnMenuClick(data); 
+	}
 	void THREEPPRenderer::UpdateGizmoFromCamera()
 	{
 		auto q_main_camera = m_lstViewPort[index::INDEX_MAIN_VIEWPORT]->getCamera()->quaternion;

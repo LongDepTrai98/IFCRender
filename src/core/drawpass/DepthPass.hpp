@@ -14,7 +14,8 @@ namespace dragon
 		void debugRender(threepp::GLRenderer* renderer, threepp::Camera* camera);
 		void clear() override;
 		void applyUniform(float near, float far);
-		void updateDepthMeshSelect(std::shared_ptr<threepp::BufferGeometry> bufferGeometry);
+		void updateOneDepthMeshSelect(std::shared_ptr<threepp::BufferGeometry> bufferGeometry);
+		void updateMultiDepthMeshSelect(std::shared_ptr<threepp::BufferGeometry> bufferGeometry);
 		void reCreateRenderTarget(const int& width, const int& height);
 		threepp::GLRenderTarget* getRenderTarget();
 	private:
@@ -22,7 +23,7 @@ namespace dragon
 		std::shared_ptr<threepp::GLRenderTarget> m_RenderTarget{ nullptr };
 		std::shared_ptr<threepp::RawShaderMaterial> depth_material{ nullptr };
 		std::shared_ptr<threepp::BufferGeometry> default_geometry{ nullptr };
-		std::shared_ptr<threepp::Mesh> depth_mesh{ nullptr };
+		std::vector<std::shared_ptr<threepp::Mesh>> depth_meshes{ nullptr };
 	};
 }
 #endif // !_DEPTH_PASS_HPP_
