@@ -49,7 +49,7 @@ set(DEST_ASSETS_DIR "$<TARGET_FILE_DIR:${EDITOR_NAME_PROJECT}>/assets")
 set(DEBUG_ASSETS_DIR "${CMAKE_BINARY_DIR}/assets")
 project(${PROJECT_NAME})
 #find_package(wxWidgets CONFIG REQUIRED)
-find_package(glew CONFIG REQUIRED)
+#find_package(glew CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 #add file 
 #ui
@@ -135,7 +135,7 @@ add_executable(${EDITOR_NAME_PROJECT}
  )
  #link lib 
 target_link_libraries(${EDITOR_NAME_PROJECT}  
-PRIVATE GLEW::glew
+#PRIVATE GLEW::glew
 PRIVATE threepp::threepp
 PRIVATE nlohmann_json
 $<$<CONFIG:Debug>:/Debug/web-ifc-library.lib;wxpngd.lib;wxwebpd.lib;wxjpegd.lib>

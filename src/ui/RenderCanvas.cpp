@@ -14,6 +14,7 @@ namespace dragon
 		/*INIT UI FOR RENDERER*/
 		//initUI();
 		initGLContext();
+		SetCurrent(*m_Context);
 		initContextRenderer();
 		initMenu();
 		/*BIND FUNCTION*/
@@ -81,14 +82,14 @@ namespace dragon
 		/*BUTTON*/
 		Bind(wxEVT_BUTTON, &RenderCanvas::OnClickEnableMSAA, this);
 	}
-	void RenderCanvas::activeContext()
+	/*void RenderCanvas::activeContext()
 	{
 		SetCurrent(*m_Context);
 	}
 	void RenderCanvas::deactiveContext()
 	{
 		wglMakeCurrent(nullptr, nullptr);
-	}
+	}*/
 	void RenderCanvas::swapBuff()
 	{
 		SwapBuffers();
@@ -107,21 +108,21 @@ namespace dragon
 	}
 	void RenderCanvas::OnSize(wxSizeEvent& event)
 	{
-		activeContext();
+		//activeContext();
 		auto viewPortSize = event.GetSize() * GetContentScaleFactor();
 		if (m_Renderer)
 		{
 			static_cast<THREEPPRenderer*>(m_Renderer.get())->resize(viewPortSize.x,
 				viewPortSize.y);
 		}
-		deactiveContext();
+		//deactiveContext();
 		Invalidate();
 		event.Skip();
 	}
 	void RenderCanvas::OnPaint(wxPaintEvent& event)
 	{
 		wxPaintDC dc(this);
-		activeContext();
+		//activeContext();
 		if (m_bIsDirty)
 		{
 			enableMultisampling();
@@ -134,7 +135,7 @@ namespace dragon
 			disableMultisampling();
 			m_bIsDirty = false;
 		}
-		deactiveContext();
+		//deactiveContext();
 	}
 	void RenderCanvas::OnMouseMove(wxMouseEvent& event)
 	{

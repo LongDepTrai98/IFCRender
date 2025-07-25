@@ -83,7 +83,9 @@ namespace dragon
 	std::shared_ptr<threepp::BufferGeometry> ThreeHelper::BuildSubGeometryWithOffset2(const std::vector<IFCModelCache::element>& elements,
 		const std::vector<float>& vertices,
 		const std::vector<float>& normals,
-		const std::vector<unsigned int>& indices)
+		const std::vector<unsigned int>& indices, 
+		const std::vector<std::shared_ptr<threepp::Material>>& materials, 
+		std::vector<std::shared_ptr<threepp::Material>>& new_materials)
 	{
 		std::shared_ptr<threepp::BufferGeometry> sub_geometry_buffer = threepp::BufferGeometry::create();
 		std::vector<std::vector<float>> vecLstVertices{};
@@ -92,7 +94,7 @@ namespace dragon
 		int countVertices{ 0 };
 		int countIndices{ 0 };
 		int countNormals{ 0 };
-
+		std::map<int, std::vector<std::pair<int, int>>> viewGeometriesWithMaterials{}; 
 		for (auto& element : elements)
 		{
 			for (const auto& offset : element.offsets)
@@ -125,8 +127,33 @@ namespace dragon
 					normals.begin() + offset.end_vertex_offset + 1);
 				vecLstNormals.emplace_back(sub_normals);
 				countNormals += range_vertex;
+				int index_material = offset.material_index;
+				std::pair<int, int> pair = { offset.begin_indices_offset,offset.end_indices_offset };
+				viewGeometriesWithMaterials[index_material].emplace_back(pair);
 			}
 		}
+
+		/*CREATE GROUP*/
+		int start = 0;
+		std::vector<threepp::GeometryGroup> groups;
+		for (const auto& [material_index, offsets] : viewGeometriesWithMaterials)
+		{
+			int count{ 0 };
+			threepp::GeometryGroup group;
+			group.start = start;
+			group.materialIndex = material_index;
+			if (offsets.size() == 0)
+				continue;
+			for (auto& [begin, end] : offsets)
+			{
+				count += (end - begin) + 1;
+			}
+			group.count = count;
+			start += count;
+			groups.emplace_back(group);
+			new_materials.emplace_back(materials[material_index]);
+		}
+
 		std::vector<float> mergeVetices{};
 		std::vector<unsigned int> mergeIndices{};
 		std::vector<float> mergeNormals{};
@@ -168,6 +195,7 @@ namespace dragon
 		sub_geometry_buffer->setIndex(mergeIndices);
 		sub_geometry_buffer->setAttribute("position", threepp::FloatBufferAttribute::create(mergeVetices, 3));
 		sub_geometry_buffer->setAttribute("normal", threepp::FloatBufferAttribute::create(mergeNormals, 3));
+		sub_geometry_buffer->groups = groups;
 		sub_geometry_buffer->computeBoundingBox();
 		sub_geometry_buffer->computeBoundingSphere();
 		sub_geometry_buffer->computeVertexNormals();
@@ -249,7 +277,7 @@ namespace dragon
 		{
 			std::vector<unsigned int> result(vecIndices.size());
 			std::transform(vecIndices.begin(), vecIndices.end(), result.begin(),
-				[offset_indices](float v) { return v + offset_indices; });
+				[offset_indices](unsigned int v) { return v + offset_indices; });
 			const int count = vecLstVertices[i].size() / 3;
 			offset_indices += count;
 			mergeIndices.insert(mergeIndices.end(),

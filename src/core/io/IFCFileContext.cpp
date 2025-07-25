@@ -166,9 +166,7 @@ namespace dragon
 	void IFCFileContext::rebuildVisibleIndices()
 	{
 		m_Hidden_Express_IDs.clear();
-		//disposeObjectRecursive(m_Container_Group_Draw.get()); 
 		std::map <int, std::vector<std::pair<int, int>>> view_geometries_with_materials{};
-		std::vector<IFCModelCache::element> elements; 
 		size_t total_indices = 0;
 		for (auto& [expressID, element] : m_Model->m_Geometry_Offset)
 		{
@@ -184,32 +182,20 @@ namespace dragon
 					std::pair<int, int> pair = { begin_offset,end_offset };
 					view_geometries_with_materials[index_material].emplace_back(pair);
 				}
-				elements.emplace_back(element); 
 			}
 			else
 				m_Hidden_Express_IDs.insert({ expressID });
 		}
 		//update indices
-		//std::shared_ptr<threepp::BufferGeometry> sub_geometry = ThreeHelper::BuildSubGeometry(total_indices,
-		//	m_Model->m_Object_Materials,
-		//	view_geometries_with_materials,
-		//	m_Model->m_Object_Indices,
-		//	m_Model->m_Object_Vertices,
-		//	m_Model->m_Object_Normals);
-
-		auto root_geo = m_Container_Group_Draw->children[0]->geometry();
-		m_Container_Group_Draw->children[0]->geometry()->dispose(); 
-		for (auto& material : m_Container_Group_Draw->children[0]->as<threepp::Mesh>()->materials())
-		{
-			material->dispose(); 
-		}
-		m_Container_Group_Draw->clear();
-		std::shared_ptr<threepp::BufferGeometry> sub_geometry = ThreeHelper::BuildSubGeometryWithOffset2(elements,
+		std::shared_ptr<threepp::BufferGeometry> sub_geometry = ThreeHelper::BuildSubGeometry(total_indices,
+			m_Model->m_Object_Materials,
+			view_geometries_with_materials,
+			m_Model->m_Object_Indices,
 			m_Model->m_Object_Vertices,
-			m_Model->m_Object_Normals,
-			m_Model->m_Object_Indices
-			);
-		m_Container_Group_Draw->add(threepp::Mesh::create(sub_geometry, m_Selected_Material)); 
+			m_Model->m_Object_Normals);
+		auto model = m_Container_Group_Draw->getObjectByName("model");
+		model->geometry()->dispose(); 
+		model->as<threepp::Mesh>()->setGeometry(sub_geometry);
 		m_Current_ExpressID = std::nullopt;
 	}
 
@@ -392,12 +378,14 @@ namespace dragon
 				object->visible = !object->visible;
 				return;
 			}
-			/*std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*m_Model->m_Object_Model->geometry(), outline_edge::THRESHOLD_ANGLE);
+			auto model = m_Container_Group_Draw->getObjectByName("model");
+			if (!model) return; 
+			std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*model->geometry(), outline_edge::THRESHOLD_ANGLE);
 			std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
 			outline_material->color = threepp::Color::darkgray;
 			std::shared_ptr<threepp::LineSegments>  outlineEdge = threepp::LineSegments::create(edge_geo, outline_material);
 			outlineEdge->name = "Outline_Edge";
-			m_OverLay_Group->add(outlineEdge);*/
+			m_OverLay_Group->add(outlineEdge);
 			break;
 		}
 		case dragon::ID_EVENT::TOOL_MULTI_SELECT: 

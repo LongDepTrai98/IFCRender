@@ -101,7 +101,8 @@ namespace dragon
 
 		/*CREATE MESH*/
 		std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(merged_all, materials);
-		mesh->matrixAutoUpdate = true;
+		mesh->name = "model"; 
+		mesh->matrixAutoUpdate = false;
 		container->add(mesh);
 		/*CREATE OUTLINE EDGE*/
 		geometries.clear();

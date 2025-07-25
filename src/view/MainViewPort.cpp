@@ -34,13 +34,13 @@ namespace dragon
 			}
 			};
 		m_Add_Object_DrawDepth_CallBack = [&](const std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries, bool isSelectMultiMesh) {
-			/*if (depth_renderer_pass)
+			if (depth_renderer_pass)
 			{
 				if (!isSelectMultiMesh)
 					depth_renderer_pass->updateOneDepthMeshSelect(geometries[0]);
 				else
 					depth_renderer_pass->updateMultiDepthMeshSelect(geometries[0]);
-			}*/
+			}
 			};
 	}
 	MainViewPort::~MainViewPort()
@@ -140,12 +140,12 @@ namespace dragon
 	{
 		if (!main_renderer_pass)
 			main_renderer_pass = std::make_shared<MainPass>(m_Viewport_Size.width(), m_Viewport_Size.height());
-		/*if (!depth_renderer_pass)
+		if (!depth_renderer_pass)
 		{
 			depth_renderer_pass = std::make_shared<DepthPass>(m_Viewport_Size.width(), m_Viewport_Size.height());
 		}
 		if (!outline_renderer_pass)
-			outline_renderer_pass = std::make_shared<OutLinePass>(m_Viewport_Size.width(), m_Viewport_Size.height());*/
+			outline_renderer_pass = std::make_shared<OutLinePass>(m_Viewport_Size.width(), m_Viewport_Size.height());
 	}
 	void MainViewPort::initRayCaster()
 	{
@@ -185,8 +185,8 @@ namespace dragon
 	{
 		if (main_renderer_pass)
 			main_renderer_pass->clear();
-		/*if (depth_renderer_pass)
-			depth_renderer_pass->clear();*/
+		if (depth_renderer_pass)
+			depth_renderer_pass->clear();
 		clearBVH();
 	}
 	CustomRayCaster* MainViewPort::getRayCaster()
@@ -202,7 +202,7 @@ namespace dragon
 			m_Camera->updateProjectionMatrix();
 		}
 		glViewport(0, 0, width, height);
-		//if (depth_renderer_pass) depth_renderer_pass->reCreateRenderTarget(width, height);
+		if (depth_renderer_pass) depth_renderer_pass->reCreateRenderTarget(width, height);
 	}
 	void MainViewPort::handleRaycast(MouseState& mouse_state)
 	{
@@ -232,7 +232,7 @@ namespace dragon
 				{
 					main_renderer_pass->render(renderer, m_Camera.get());
 				}
-				/*if (depth_renderer_pass)
+				if (depth_renderer_pass)
 				{
 					depth_renderer_pass->applyUniform(m_Camera->nearPlane, m_Camera->farPlane);
 					depth_renderer_pass->render(renderer, m_Camera.get());
@@ -241,16 +241,16 @@ namespace dragon
 				{
 					outline_renderer_pass->applyUniform(depth_renderer_pass->getRenderTarget()->texture.get());
 					outline_renderer_pass->render(renderer, m_Camera.get());
-				}*/
+				}
 				break;
 			}
 			case DrawMode::DEBUG:
 			{
-				/*if (depth_renderer_pass)
+				if (depth_renderer_pass)
 				{
 					depth_renderer_pass->applyUniform(m_Camera->nearPlane, m_Camera->farPlane);
 					depth_renderer_pass->debugRender(renderer, m_Camera.get());
-				}*/
+				}
 			}
 			default:
 				break;

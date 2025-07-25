@@ -13,7 +13,7 @@ namespace dragon
 {
 	ViewPortGizmo::ViewPortGizmo(RenderCanvas* canvas) : IRenderer(canvas)
 	{
-		m_Canvas->activeContext();
+		//m_Canvas->activeContext();
 		m_Viewport_Size = { 100,100 };
 		wxSize canvas_size = canvas->getSize();
 		initCamera(m_Viewport_Size);
@@ -21,7 +21,7 @@ namespace dragon
 		m_Camera->position.z = 8;
 		createCubeMesh(*m_Scene);
 		m_Scene->add(createLight());
-		m_Canvas->deactiveContext();
+		//m_Canvas->deactiveContext();
 	}
 	ViewPortGizmo::~ViewPortGizmo()
 	{

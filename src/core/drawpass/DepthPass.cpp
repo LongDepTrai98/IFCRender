@@ -75,7 +75,6 @@ namespace dragon
 		}
 		/*UPDATE GEOMETRY FOR ELEMENT 0*/
 		depth_meshes[0]->geometry()->dispose(); 
-		depth_meshes[0]->setGeometry(nullptr); 
 		depth_meshes[0]->setGeometry(bufferGeometry); 
 	}
 	void DepthPass::updateMultiDepthMeshSelect(std::shared_ptr<threepp::BufferGeometry> bufferGeometry)

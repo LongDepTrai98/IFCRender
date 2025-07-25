@@ -16,14 +16,14 @@ namespace dragon
 	THREEPPRenderer::THREEPPRenderer(RenderCanvas* canvas) : IRenderer(canvas)
 	{
 		wxSize canvas_size = m_Canvas->getSize();
-		m_Canvas->activeContext();
+		//m_Canvas->activeContext();
 		//create windows size
 		threepp::WindowSize window_size(canvas_size.x, canvas_size.y);
 		initRenderer(window_size);
 		initViewPort();
 		initController();
 		m_OrbitControls->update();
-		m_Canvas->deactiveContext();
+		//m_Canvas->deactiveContext();
 	}
 	THREEPPRenderer::~THREEPPRenderer()
 	{

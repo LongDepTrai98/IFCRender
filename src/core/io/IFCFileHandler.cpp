@@ -58,7 +58,7 @@ namespace dragon
 			if (!model) return;
 			model_geometry = model->geometry();
 			if (!root_geometry) return;
-			//ptr_ifc_offset_cache->m_Object_Materials = model->as<threepp::ObjectWithMaterials>()->materials();
+			ptr_ifc_offset_cache->m_Object_Materials = model->as<threepp::ObjectWithMaterials>()->materials();
 			auto& array_vertices = model_geometry->getAttribute<float>("position")->array();
 			ptr_ifc_offset_cache->m_Object_Vertices.assign(array_vertices.begin(), array_vertices.end());
 			auto& array_normals = model_geometry->getAttribute<float>("normal")->array();

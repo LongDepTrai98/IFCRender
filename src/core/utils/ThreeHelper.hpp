@@ -28,7 +28,12 @@ namespace dragon
 			const std::vector<unsigned int>& root_indices,
 			const std::vector<float>& vertices,
 			const std::vector<float>& normals);
-		static std::shared_ptr<threepp::BufferGeometry> BuildSubGeometryWithOffset2(const std::vector<IFCModelCache::element>& element, const std::vector<float>& vertices, const std::vector<float>& normals, const std::vector<unsigned int>& indices);
+		static std::shared_ptr<threepp::BufferGeometry> BuildSubGeometryWithOffset2(const std::vector<IFCModelCache::element>& element, 
+			const std::vector<float>& vertices,
+			const std::vector<float>& normals, 
+			const std::vector<unsigned int>& indices, 
+			const std::vector<std::shared_ptr<threepp::Material>>& materials, 
+			std::vector<std::shared_ptr<threepp::Material>>& new_materials);
 		static std::shared_ptr<threepp::BufferGeometry> BuildSubGeometryWithOffset(const IFCModelCache::element& element,
 			const std::vector<float>& vertices,
 			const std::vector<float>& normals,

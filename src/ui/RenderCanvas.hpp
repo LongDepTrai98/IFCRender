@@ -38,8 +38,8 @@ namespace dragon
 		void enableMultisampling();
 		void disableMultisampling();
 	public:
-		void activeContext();
-		void deactiveContext();
+		//void activeContext();
+		//void deactiveContext();
 		void swapBuff();
 		wxSize getSize();
 		IRenderer* getRenderer();
