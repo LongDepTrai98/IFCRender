@@ -108,7 +108,7 @@ namespace dragon
 				unsigned int min_index = *std::min_element(sub_indices.begin(), sub_indices.end());
 				std::vector<unsigned int> result(range_index);
 				std::transform(sub_indices.begin(), sub_indices.end(), result.begin(),
-					[min_index](float v) { return v - min_index; });
+					[min_index](unsigned int v) { return v - min_index; });
 				vecLstIndices.emplace_back(result);
 				countIndices += range_index;
 				sub_indices.clear();
@@ -184,7 +184,7 @@ namespace dragon
 		{
 			std::vector<unsigned int> result(vecIndices.size());
 			std::transform(vecIndices.begin(), vecIndices.end(), result.begin(),
-				[offset_indices](float v) { return v + offset_indices; });
+				[offset_indices](unsigned int v) { return v + offset_indices; });
 			const int count = vecLstVertices[i].size() / 3;
 			offset_indices += count;
 			mergeIndices.insert(mergeIndices.end(),

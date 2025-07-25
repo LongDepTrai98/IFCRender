@@ -168,6 +168,7 @@ namespace dragon
 		m_Hidden_Express_IDs.clear();
 		std::map <int, std::vector<std::pair<int, int>>> view_geometries_with_materials{};
 		size_t total_indices = 0;
+		std::vector<IFCModelCache::element> elements; 
 		for (auto& [expressID, element] : m_Model->m_Geometry_Offset)
 		{
 			/*SHOW ELEMENT*/
@@ -181,6 +182,7 @@ namespace dragon
 					const int& index_material = offset.material_index;
 					std::pair<int, int> pair = { begin_offset,end_offset };
 					view_geometries_with_materials[index_material].emplace_back(pair);
+					elements.emplace_back(element); 
 				}
 			}
 			else
@@ -193,6 +195,13 @@ namespace dragon
 			m_Model->m_Object_Indices,
 			m_Model->m_Object_Vertices,
 			m_Model->m_Object_Normals);
+		std::vector<std::shared_ptr<threepp::Material>> new_mats{}; 
+		std::shared_ptr<threepp::BufferGeometry> sub_geometry2 = ThreeHelper::BuildSubGeometryWithOffset2(elements,
+			m_Model->m_Object_Vertices,
+			m_Model->m_Object_Normals,
+			m_Model->m_Object_Indices,
+			m_Model->m_Object_Materials,
+			new_mats); 
 		auto model = m_Container_Group_Draw->getObjectByName("model");
 		model->geometry()->dispose(); 
 		model->as<threepp::Mesh>()->setGeometry(sub_geometry);
