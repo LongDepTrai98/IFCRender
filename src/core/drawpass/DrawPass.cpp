@@ -10,11 +10,6 @@ namespace dragon
 	}
 	DrawPass::~DrawPass()
 	{
-		/*  if (m_RenderTarget)
-		  {
-			  m_RenderTarget->texture->dispose();
-			  m_RenderTarget->dispose();
-		  }*/
 	}
 	threepp::Scene* DrawPass::getScene()
 	{

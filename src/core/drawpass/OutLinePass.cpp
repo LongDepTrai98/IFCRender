@@ -67,8 +67,6 @@ namespace dragon
 	void OutLinePass::applyUniform(threepp::Texture* texture)
 	{
 		threepp::Vector2 texture_size((float)texture->image().width, (float)texture->image().height);
-		spdlog::info("texture size {}, {}", texture_size.x, texture_size.y);
-		//sobel_material->uniforms["resolution"].setValue(resolution);
 		sobel_material->uniforms["textureSize"].setValue(texture_size);
 		sobel_material->uniforms["depthTex"].setValue(texture);
 	}

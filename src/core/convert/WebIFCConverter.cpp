@@ -13,6 +13,8 @@
 #include "core/utils/MathHelper.hpp"
 #include "config/app_config.hpp"
 #include <glm/gtc/type_ptr.hpp>
+#include <execution>
+#include <algorithm>
 namespace dragon
 {
 	WebIFCConverter::WebIFCConverter()
@@ -89,6 +91,7 @@ namespace dragon
 			materials.emplace_back(geo_with_mat.material);
 			material_index++;
 		}
+		/*SORT INDIECES*/
 		std::shared_ptr<threepp::BufferGeometry> merged_all = threepp::mergeBufferGeometries(geometries, true);
 		if (index_offset != merged_all->getIndex()->array().size() - 1)
 		{
