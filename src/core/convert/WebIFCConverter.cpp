@@ -110,6 +110,7 @@ namespace dragon
 		/*CREATE OUTLINE EDGE*/
 		geometries.clear();
 		materials.clear();
+		m_ModelManager->clearGeometryLoader(m_modelID);
 		return container;
 	}
 
