@@ -26,7 +26,7 @@ namespace dragon
 	IFCFileContext::~IFCFileContext()
 	{
 		m_Model->clear();
-		m_Selected_Entites.clear(); 
+		m_Selected_Entites.clear();
 		m_Toggle_Component_Callback = nullptr;
 		m_Toggle_Components_Callback = nullptr;
 		OnRedrawCallback = nullptr;
@@ -166,6 +166,7 @@ namespace dragon
 			m_Model->m_Object_Normals);
 		auto model = m_Container_Group_Draw->getObjectByName("model");
 		model->geometry()->dispose();
+		model->as<threepp::Mesh>()->setGeometry(nullptr); 
 		model->as<threepp::Mesh>()->setGeometry(sub_geometry);
 	}
 
@@ -283,9 +284,9 @@ namespace dragon
 		{
 			m_Selected_Entites.clear();
 			m_Object_Selected.clear();
-			m_Group_Selected->clear(); 
+			m_Group_Selected->clear();
 		}
-		m_Selected_Entites.insert(m_Current_ExpressID.value()); 
+		m_Selected_Entites.insert(m_Current_ExpressID.value());
 		/*CREATE GEO*/
 		IFCModelCache::element& e = m_Model->m_Geometry_Offset[m_Current_ExpressID.value()];
 		std::shared_ptr<threepp::BufferGeometry> geo_hover = ThreeHelper::BuildSubGeometryWithOffset(e,
@@ -294,10 +295,10 @@ namespace dragon
 			m_Model->m_Object_Indices
 		);
 		/*CREATE GEOMEMTRY*/
-		std::shared_ptr<threepp::Mesh> mesh_selected = threepp::Mesh::create(geo_hover,m_Selected_Material);
+		std::shared_ptr<threepp::Mesh> mesh_selected = threepp::Mesh::create(geo_hover, m_Selected_Material);
 		mesh_selected->name = std::to_string(m_Current_ExpressID.value());
 		m_Object_Selected.emplace_back(mesh_selected);
-		m_Group_Selected->add(mesh_selected); 
+		m_Group_Selected->add(mesh_selected);
 		if (m_Add_Object_DrawDepth_CallBack)
 		{
 			m_Add_Object_DrawDepth_CallBack({ geo_hover }, m_bIsMultiSelectMode);
@@ -349,7 +350,7 @@ namespace dragon
 				return;
 			}
 			auto model = m_Container_Group_Draw->getObjectByName("model");
-			if (!model) return; 
+			if (!model) return;
 			std::shared_ptr<threepp::EdgesGeometry> edge_geo = threepp::EdgesGeometry::create(*model->geometry(), outline_edge::THRESHOLD_ANGLE);
 			std::shared_ptr<threepp::LineBasicMaterial> outline_material = threepp::LineBasicMaterial::create();
 			outline_material->color = threepp::Color::darkgray;
@@ -358,10 +359,10 @@ namespace dragon
 			m_OverLay_Group->add(outlineEdge);
 			break;
 		}
-		case dragon::ID_EVENT::TOOL_MULTI_SELECT: 
+		case dragon::ID_EVENT::TOOL_MULTI_SELECT:
 		{
-			m_bIsMultiSelectMode = isCheck; 
-			break; 
+			m_bIsMultiSelectMode = isCheck;
+			break;
 		}
 		default:
 			break;
@@ -370,7 +371,7 @@ namespace dragon
 
 	void IFCFileContext::MenuClick(MenuData& data)
 	{
-		ID_EVENT id = static_cast<ID_EVENT>(data.event_id); 
+		ID_EVENT id = static_cast<ID_EVENT>(data.event_id);
 		switch (id)
 		{
 		case dragon::ID_EVENT::MAIN_MENU_HIDE:
@@ -380,7 +381,7 @@ namespace dragon
 				auto it = m_Model->m_Geometry_Offset.find(expressID);
 				if (it != m_Model->m_Geometry_Offset.end())
 				{
-					it->second.state = 0; 
+					it->second.state = 0;
 				}
 			}
 			m_Current_ExpressID = std::nullopt;
@@ -389,8 +390,8 @@ namespace dragon
 				OnRedrawCallback();
 			break;
 		}
-		default: 
-			break; 
+		default:
+			break;
 		}
 	}
 

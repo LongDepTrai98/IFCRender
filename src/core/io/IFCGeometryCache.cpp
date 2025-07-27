@@ -11,7 +11,6 @@ namespace dragon
 		m_Geometry_Offset.clear();
 		m_Object_Indices.clear();
 		m_Object_Materials.clear();
-		//m_Object_Model = nullptr;
 		m_ModelManager = nullptr;
 	}
 	void IFCModelCache::setModelManager(std::shared_ptr<webifc::manager::ModelManager> modelManager, const int& modelID)

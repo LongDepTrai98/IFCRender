@@ -44,7 +44,7 @@ namespace dragon
 		std::vector<threepp::GeometryGroup> groups;
 		groups.reserve(viewGeometries.size());
 		int start = 0;
-		int cursor = 0; 
+		int cursor = 0;
 		for (auto [material_index, offsets] : viewGeometries)
 		{
 			if (offsets.size() == 0)
@@ -83,7 +83,6 @@ namespace dragon
 		return sub_geometry_buffer;
 	}
 
-	
 	std::shared_ptr<threepp::BufferGeometry> ThreeHelper::BuildSubGeometryWithOffset(IFCModelCache::element& element,
 		const std::vector<float>& vertices,
 		const std::vector<float>& normals,
@@ -187,7 +186,6 @@ namespace dragon
 		matrix.multiplyMatrices(matrix, translateToOrigin);
 		geometry->applyMatrix4(matrix);
 	}
-
 
 	std::shared_ptr<threepp::BufferGeometry> ThreeHelper::BuildSubGeometryWithOffset2(const std::map<int, std::vector<IFCModelCache::offset>>& view_geometries_offset_with_material,
 		const std::vector<float>& vertices,

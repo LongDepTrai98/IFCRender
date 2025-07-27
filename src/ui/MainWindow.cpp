@@ -23,7 +23,7 @@ namespace dragon
 		}
 		catch (const std::exception& e) {
 			std::cerr << "Exception: " << e.what() << std::endl;
-			throw; 
+			throw;
 		}
 	}
 }

@@ -119,16 +119,16 @@ namespace dragon
 		if (data.event.GetId() == (int)ID_EVENT::TOOL_CLEAR_SCENE)
 		{
 			if (main_renderer_pass)
-				main_renderer_pass->clear(); 
-			m_FileContext.reset(); 
-			m_FileContext = nullptr; 
+				main_renderer_pass->clear();
+			m_FileContext.reset();
+			m_FileContext = nullptr;
 		}
 		m_Canvas->Invalidate();
 	}
 	void MainViewPort::OnMenuClick(MenuData& data)
 	{
 		if (m_FileContext)
-			m_FileContext->MenuClick(data); 
+			m_FileContext->MenuClick(data);
 	}
 	void MainViewPort::OnRButtonDown(EventData& data)
 	{
