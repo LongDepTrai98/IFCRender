@@ -2,6 +2,7 @@
 #define _THREE_HELPER_HPP_
 #include "core/io/IFCGeometryCache.hpp"
 #include "threepp/math/Vector3.hpp"
+#include "threepp/math/Matrix4.hpp"
 #include <vector>
 #include <memory>
 #include <map>
@@ -29,6 +30,7 @@ namespace dragon
 			const std::vector<unsigned int>& root_indices,
 			const std::vector<float>& vertices,
 			const std::vector<float>& normals,
+			const threepp::Matrix4& root_matrix,
 			const std::vector<unsigned int>& root_expressID = {});
 		static std::shared_ptr<threepp::BufferGeometry> BuildSubGeometryWithOffset2(const std::map<int, std::vector<IFCModelCache::offset>>& view_geometries_offset_with_material,
 			const std::vector<float>& vertices,

@@ -23,7 +23,6 @@ namespace dragon
 		std::shared_ptr<threepp::GLRenderTarget> m_RenderTarget{ nullptr };
 		std::shared_ptr<threepp::RawShaderMaterial> depth_material{ nullptr };
 		std::shared_ptr<threepp::BufferGeometry> default_geometry{ nullptr };
-		std::vector<std::shared_ptr<threepp::Mesh>> depth_meshes{ nullptr };
 	};
 }
 #endif // !_DEPTH_PASS_HPP_

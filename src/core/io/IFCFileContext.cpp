@@ -170,11 +170,14 @@ namespace dragon
 			m_Model->m_Object_Indices,
 			vertices_attribute->array(),
 			normal_attribute->array(), 
+			*model->matrix.get(),
 			expressID_attribute->array());
-		model->geometry()->dispose();
-		model->as<threepp::Mesh>()->setGeometry(sub_geometry);
-		m_Model->ptr_object_expressID = &model->geometry()->getAttribute<unsigned int>("expressID")->array();
-		m_Model->ptr_object_vertices = model->geometry()->getAttribute<float>("position")->array().data();
+		std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(sub_geometry,m_Model->m_Object_Materials); 
+		m_Model->ptr_object_expressID = &mesh->geometry()->getAttribute<unsigned int>("expressID")->array();
+		m_Model->ptr_object_vertices = mesh->geometry()->getAttribute<float>("position")->array().data();
+		m_Container_Group_Draw->clear(); 
+		m_Container_Group_Draw->add(mesh);
+		mesh->name = "model"; 
 		RayCast->createNewTriangleIntersect(m_Model->ptr_object_vertices, m_Model->m_Object_Indices.data());
 		RayCast->getIntersector()->custom_callback_checkface = m_Callback_Intersect; 
 	}
