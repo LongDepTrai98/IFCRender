@@ -40,7 +40,7 @@ namespace dragon
 		void OnKeyUp(KeyData& event) override;
 		void OnToolActions(int toolID) override;
 		void OnToolBarAction(ToolBarData& data) override;
-		void OnMenuClick(MenuData& data) override; 
+		void OnMenuClick(MenuData& data) override;
 	public:
 		void initPassRenderer();
 		void initRayCaster();

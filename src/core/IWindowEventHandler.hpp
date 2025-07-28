@@ -4,7 +4,7 @@
 namespace dragon
 {
 	class ToolBarData;
-	class MenuData; 
+	class MenuData;
 	class WindowEventHandler
 	{
 	public:
@@ -15,7 +15,7 @@ namespace dragon
 		virtual void OnKeyDown(wxKeyEvent& event) = 0;
 		virtual void OnKeyUp(wxKeyEvent& event) = 0;
 		virtual void OnToolBarClick(ToolBarData& data) = 0;
-		virtual void OnMenuClick(MenuData& data) = 0; 
+		virtual void OnMenuClick(MenuData& data) = 0;
 	public:
 		bool isMouseDown{ false };
 	};

@@ -29,7 +29,7 @@ namespace dragon
 					0.8f);
 				sobel_material->uniforms["colorOutline"].setValue(outlineColor);
 				sobel_material->uniforms["threshold"].setValue(0.3f);
-				sobel_material->uniforms["edgeSoftness"].setValue(0.3f);
+				sobel_material->uniforms["edgeSoftness"].setValue(0.05f);
 			}
 			sobel_material->transparent = true;
 		}

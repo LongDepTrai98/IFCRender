@@ -45,8 +45,8 @@ namespace dragon
 	public:
 		std::unordered_map<unsigned int, element> m_Geometry_Offset{};
 		std::vector<unsigned int> m_Object_Indices{};
-		std::vector<unsigned int>* ptr_object_expressID{nullptr};
-		float* ptr_object_vertices{nullptr};
+		std::vector<unsigned int>* ptr_object_expressID{ nullptr };
+		float* ptr_object_vertices{ nullptr };
 		std::shared_ptr<webifc::manager::ModelManager> m_ModelManager{ nullptr };
 		std::vector<std::shared_ptr<threepp::Material>> m_Object_Materials{ nullptr };
 		int m_modelID{ -1 };

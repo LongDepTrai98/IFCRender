@@ -49,8 +49,8 @@ namespace dragon
 	}
 
 	bool CustomRayCaster::buildBVHWithPtr(float* ptr_vertices,
-		unsigned int* ptr_indices, 
-		size_t & indices_size)
+		unsigned int* ptr_indices,
+		size_t& indices_size)
 	{
 		if (m_BVHAccel)
 		{
@@ -71,7 +71,6 @@ namespace dragon
 		triangle_intersecter = std::make_unique<nanort::CustomIntersector<>>(ptr_vertices, ptr_indices, /* stride */sizeof(float) * 3);
 		spdlog::info("End build BVH");
 		return ret;
-
 	}
 
 	void CustomRayCaster::createNewTriangleIntersect(float* ptr_vertices,
@@ -84,7 +83,6 @@ namespace dragon
 		}
 		triangle_intersecter = std::make_unique<nanort::CustomIntersector<>>(ptr_vertices, ptr_indices, /* stride */sizeof(float) * 3);
 	}
-
 
 	bool CustomRayCaster::intersectObjects(Result& intersect)
 	{

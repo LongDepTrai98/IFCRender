@@ -209,7 +209,7 @@ namespace dragon
 	void THREEPPRenderer::OnMenuClick(MenuData& data)
 	{
 		for (auto& viewport : m_lstViewPort)
-			viewport->OnMenuClick(data); 
+			viewport->OnMenuClick(data);
 	}
 	void THREEPPRenderer::UpdateGizmoFromCamera()
 	{

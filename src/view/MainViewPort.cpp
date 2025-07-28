@@ -130,7 +130,7 @@ namespace dragon
 		if (m_FileContext)
 			m_FileContext->MenuClick(data);
 		if (depth_renderer_pass)
-			depth_renderer_pass->clear(); 
+			depth_renderer_pass->clear();
 	}
 	void MainViewPort::OnRButtonDown(EventData& data)
 	{
@@ -179,7 +179,7 @@ namespace dragon
 	void MainViewPort::buildBVHWithPtr(float* vertices, unsigned int* indices, size_t& index_size)
 	{
 		if (m_RayCaster) {
-			m_RayCaster->buildBVHWithPtr(vertices, indices,index_size);
+			m_RayCaster->buildBVHWithPtr(vertices, indices, index_size);
 		}
 	}
 	void MainViewPort::clearBVH()

@@ -11,7 +11,7 @@ namespace threepp
 	class Mesh;
 	class Material;
 	class BufferGeometry;
-	class BufferAttribute; 
+	class BufferAttribute;
 }
 namespace dragon
 {
@@ -34,8 +34,8 @@ namespace dragon
 			const std::vector<unsigned int>& root_expressID = {});
 		static std::shared_ptr<threepp::BufferGeometry> BuildSubGeometryWithOffset2(const std::map<int, std::vector<IFCModelCache::offset>>& view_geometries_offset_with_material,
 			const std::vector<float>& vertices,
-			const std::vector<float>& normals, 
-			const std::vector<unsigned int>& indices, 
+			const std::vector<float>& normals,
+			const std::vector<unsigned int>& indices,
 			const std::vector<std::shared_ptr<threepp::Material>>& materials,
 			std::vector<std::shared_ptr<threepp::Material>>& new_materials);
 		static std::shared_ptr<threepp::BufferGeometry> BuildSubGeometryWithOffset(IFCModelCache::element& element,

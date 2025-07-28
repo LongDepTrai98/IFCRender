@@ -46,7 +46,7 @@ namespace dragon
 		auto ptr_ifc_file_context = static_cast<IFCFileContext*>(file_context.get());
 		auto ptr_ifc_offset_cache = ptr_ifc_file_context->getModelCache();
 		ptr_ifc_offset_cache->setModelManager(IFCApi.getModelManager(), IFCApi.getModelId());
-		threepp::FloatBufferAttribute* model_vertices{}; 
+		threepp::FloatBufferAttribute* model_vertices{};
 		if (file_context)
 		{
 			main_viewport->setFileContext(std::move(file_context));
@@ -59,8 +59,8 @@ namespace dragon
 			if (!root_geometry) return;
 			ptr_ifc_offset_cache->m_Object_Materials = model->as<threepp::ObjectWithMaterials>()->materials();
 			auto& array_expressID = model_geometry->getAttribute<unsigned int>("expressID")->array();
-			ptr_ifc_offset_cache->ptr_object_expressID = &array_expressID; 
-			ptr_ifc_offset_cache->ptr_object_vertices = model_geometry->getAttribute<float>("position")->array().data(); 
+			ptr_ifc_offset_cache->ptr_object_expressID = &array_expressID;
+			ptr_ifc_offset_cache->ptr_object_vertices = model_geometry->getAttribute<float>("position")->array().data();
 			/*INDEX MODEL IS 0*/
 		}
 		if (m_Window)
@@ -86,7 +86,7 @@ namespace dragon
 				/*CREATE */
 				SceneBuilder::IFCBuildScene(container.get(), viewport_scene, camera);
 				ptr_ifc_file_context->m_OverLay_Group = overlay_group;
-				ptr_ifc_file_context->m_Container_Group_Draw = container; 
+				ptr_ifc_file_context->m_Container_Group_Draw = container;
 			}
 
 			/*CREATE ELEMENT TREE AND BIND FUNC*/

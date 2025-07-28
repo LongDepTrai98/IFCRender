@@ -1401,7 +1401,7 @@ namespace BS {
 						{
 							(*sequence_ptr)(i);
 						},
-							priority);
+						priority);
 				}
 			}
 		}
@@ -1705,7 +1705,7 @@ namespace BS {
 						{
 							return (*sequence_ptr)(i);
 						},
-							priority));
+						priority));
 				}
 				return future;
 			}
@@ -1911,7 +1911,7 @@ namespace BS {
 				threads[i] = thread_t(
 					[this, i]
 #ifdef __cpp_lib_jthread
-				(const std::stop_token & stop_token)
+					(const std::stop_token & stop_token)
 					{
 						worker(stop_token, i);
 					}
@@ -1920,7 +1920,7 @@ namespace BS {
 					worker(i);
 				}
 #endif
-					);
+				);
 			}
 		}
 

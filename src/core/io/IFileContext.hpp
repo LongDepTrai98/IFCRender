@@ -17,7 +17,7 @@ namespace dragon
 	class EventData;
 	class KeyData;
 	class ToolBarData;
-	class MenuData; 
+	class MenuData;
 	class IFileContext
 	{
 	public:
@@ -35,7 +35,7 @@ namespace dragon
 		virtual void KeyDown(KeyData& data) = 0;
 		virtual void KeyUp(KeyData& data) = 0;
 		virtual void ToolBarAction(ToolBarData& data) = 0;
-		virtual void MenuClick(MenuData& data) = 0; 
+		virtual void MenuClick(MenuData& data) = 0;
 	public:
 		/*DEBUG*/
 	public:

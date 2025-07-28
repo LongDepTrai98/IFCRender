@@ -7,14 +7,14 @@ namespace dragon
 	class WindowFrame;
 	class App : public wxApp
 	{
-	public: 
+	public:
 		App()
 		{
 			wxSystemOptions::SetOption("catch-unhandled-exceptions", 0);
-		}; 
+		};
 	public:
 		bool OnInit() override;
-		int OnRun() override; 
+		int OnRun() override;
 	private:
 		WindowFrame* m_Frame{ nullptr };
 	};

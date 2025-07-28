@@ -54,7 +54,7 @@ namespace dragon
 		void KeyDown(KeyData& data) override;
 		void KeyUp(KeyData& data) override;
 		void ToolBarAction(ToolBarData& data) override;
-		void MenuClick(MenuData& data) override; 
+		void MenuClick(MenuData& data) override;
 	public:
 		void initCallback();
 	public:
@@ -62,13 +62,13 @@ namespace dragon
 		std::shared_ptr<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>> m_Toggle_Components_Callback{ nullptr };
 		std::shared_ptr<std::function<void* (const int&)>> m_GetData_Item_Callback{ nullptr };
 		std::shared_ptr<std::function<bool(const unsigned int)>> m_Callback_Intersect{ nullptr };
-	public: 
+	public:
 		std::function<void(const std::vector<std::shared_ptr<threepp::Mesh>>& meshes)> m_Add_Object_CallBack{ nullptr };
 		std::function<void(const std::vector<std::shared_ptr<threepp::BufferGeometry>>& geometries, bool)> m_Add_Object_DrawDepth_CallBack{ nullptr };
 	public:
 		CustomRayCaster* RayCast{ nullptr };
 		std::shared_ptr<threepp::Group> m_OverLay_Group{ nullptr };
-		std::shared_ptr<threepp::Group> m_Container_Group_Draw{ nullptr }; 
+		std::shared_ptr<threepp::Group> m_Container_Group_Draw{ nullptr };
 	private:
 		std::unique_ptr<IFCModelCache> m_Model{ nullptr };
 		std::unordered_set<unsigned int> m_Hidden_Express_IDs;
@@ -77,7 +77,7 @@ namespace dragon
 		std::shared_ptr<threepp::Mesh> m_Object_OverLay_Hover{ nullptr };
 		std::shared_ptr<threepp::Mesh> m_Hit_Point{ nullptr };
 		std::shared_ptr<threepp::AxesHelper> m_Axes_Helper{ nullptr };
-		std::shared_ptr<threepp::Group> m_Group_Selected{ nullptr }; 
+		std::shared_ptr<threepp::Group> m_Group_Selected{ nullptr };
 		/*MATERIAL*/
 		std::shared_ptr<threepp::MeshBasicMaterial> m_Material_Hit_Point{ nullptr };
 		std::shared_ptr<threepp::Material> m_Material_Hover{ nullptr };
@@ -90,7 +90,7 @@ namespace dragon
 		std::optional<threepp::Vector3> m_Center_Point;
 		bool m_bIsSelectPivotMode{ false };
 		bool m_bIsHoverMode{ false };
-		bool m_bIsMultiSelectMode{ false }; 
+		bool m_bIsMultiSelectMode{ false };
 	};
 }
 #endif // !_IFC_FILE_CONTEXT_HPP_

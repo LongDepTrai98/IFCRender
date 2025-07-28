@@ -32,8 +32,8 @@ namespace dragon
 	void RenderCanvas::OnMenu(wxCommandEvent& event)
 	{
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
-		MenuData data; 
-		data.event_id = event.GetId(); 
+		MenuData data;
+		data.event_id = event.GetId();
 		if (event_handler)
 			event_handler->OnMenuClick(data);
 	}
@@ -78,7 +78,7 @@ namespace dragon
 		Bind(wxEVT_KEY_UP, &RenderCanvas::OnKeyUp, this);
 		Bind(wxEVT_KEY_DOWN, &RenderCanvas::OnKeyDown, this);
 		/*MENU*/
-		Bind(wxEVT_MENU,&RenderCanvas::OnMenu,this,static_cast<int>(ID_EVENT::MAIN_MENU_HIDE));
+		Bind(wxEVT_MENU, &RenderCanvas::OnMenu, this, static_cast<int>(ID_EVENT::MAIN_MENU_HIDE));
 		/*BUTTON*/
 		Bind(wxEVT_BUTTON, &RenderCanvas::OnClickEnableMSAA, this);
 	}

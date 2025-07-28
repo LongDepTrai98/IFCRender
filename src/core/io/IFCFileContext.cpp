@@ -56,7 +56,7 @@ namespace dragon
 			const int& index_face_b = 3 * prim_id + 1;
 			const int& index_face_c = 3 * prim_id + 2;
 			const int& a = m_Model->m_Object_Indices[index_face_a];
-			const int& expressID = (*m_Model->ptr_object_expressID)[a]; 
+			const int& expressID = (*m_Model->ptr_object_expressID)[a];
 			if (m_Current_ExpressID != expressID)
 			{
 				/*UPDATE EXPRESSID*/
@@ -161,25 +161,25 @@ namespace dragon
 		auto model = m_Container_Group_Draw->getObjectByName("model");
 		/*GET VERTEX ATTRIBUTES*/
 		/*GET NORMAL ATTRIBUTES*/
-		auto vertices_attribute = model->geometry()->getAttribute<float>("position"); 
-		auto normal_attribute = model->geometry()->getAttribute<float>("normal"); 
-		auto expressID_attribute = model->geometry()->getAttribute<unsigned int>("expressID"); 
+		auto vertices_attribute = model->geometry()->getAttribute<float>("position");
+		auto normal_attribute = model->geometry()->getAttribute<float>("normal");
+		auto expressID_attribute = model->geometry()->getAttribute<unsigned int>("expressID");
 		std::shared_ptr<threepp::BufferGeometry> sub_geometry = ThreeHelper::BuildSubGeometry(total_indices,
 			m_Model->m_Object_Materials,
 			view_geometries_with_materials,
 			m_Model->m_Object_Indices,
 			vertices_attribute->array(),
-			normal_attribute->array(), 
+			normal_attribute->array(),
 			*model->matrix.get(),
 			expressID_attribute->array());
-		std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(sub_geometry,m_Model->m_Object_Materials); 
+		std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(sub_geometry, m_Model->m_Object_Materials);
 		m_Model->ptr_object_expressID = &mesh->geometry()->getAttribute<unsigned int>("expressID")->array();
 		m_Model->ptr_object_vertices = mesh->geometry()->getAttribute<float>("position")->array().data();
-		m_Container_Group_Draw->clear(); 
+		m_Container_Group_Draw->clear();
 		m_Container_Group_Draw->add(mesh);
-		mesh->name = "model"; 
+		mesh->name = "model";
 		RayCast->createNewTriangleIntersect(m_Model->ptr_object_vertices, m_Model->m_Object_Indices.data());
-		RayCast->getIntersector()->custom_callback_checkface = m_Callback_Intersect; 
+		RayCast->getIntersector()->custom_callback_checkface = m_Callback_Intersect;
 	}
 
 	void IFCFileContext::drawHoverLayer()
@@ -200,14 +200,14 @@ namespace dragon
 			auto it = m_Model->m_Geometry_Offset.find(m_Current_ExpressID.value());
 			if (it != m_Model->m_Geometry_Offset.end())
 			{
-			/*	IFCModelCache::element& e = it->second;
-				std::shared_ptr<threepp::BufferGeometry> geo_hover = ThreeHelper::BuildSubGeometryWithOffset(e,
-					m_Model->m_Object_Vertices,
-					m_Model->m_Object_Normals,
-					m_Model->m_Object_Indices
-				);
-				threepp::Box3 box;
-				box.setFromArray(geo_hover->getAttribute<float>("position")->array());*/
+				/*	IFCModelCache::element& e = it->second;
+					std::shared_ptr<threepp::BufferGeometry> geo_hover = ThreeHelper::BuildSubGeometryWithOffset(e,
+						m_Model->m_Object_Vertices,
+						m_Model->m_Object_Normals,
+						m_Model->m_Object_Indices
+					);
+					threepp::Box3 box;
+					box.setFromArray(geo_hover->getAttribute<float>("position")->array());*/
 			}
 			m_Old_ExpressID = m_Current_ExpressID;
 		}
@@ -293,7 +293,7 @@ namespace dragon
 		if (!m_bIsMultiSelectMode)
 		{
 			m_Selected_Entites.clear();
-			m_Group_Selected->clear(); 
+			m_Group_Selected->clear();
 		}
 		m_Selected_Entites.insert(m_Current_ExpressID.value());
 		/*CREATE GEO*/
@@ -387,7 +387,7 @@ namespace dragon
 		{
 		case dragon::ID_EVENT::MAIN_MENU_HIDE:
 		{
-			if(m_Selected_Entites.size() == 0) return; 
+			if (m_Selected_Entites.size() == 0) return;
 			for (auto& expressID : m_Selected_Entites)
 			{
 				auto it = m_Model->m_Geometry_Offset.find(expressID);
@@ -398,8 +398,8 @@ namespace dragon
 			}
 			m_Current_ExpressID = std::nullopt;
 			rebuildVisibleIndices();
-			m_Group_Selected->clear(); 
-			m_Selected_Entites.clear(); 
+			m_Group_Selected->clear();
+			m_Selected_Entites.clear();
 			if (OnRedrawCallback)
 				OnRedrawCallback();
 			break;

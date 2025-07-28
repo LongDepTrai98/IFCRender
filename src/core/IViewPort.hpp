@@ -18,7 +18,7 @@ namespace dragon
 	class KeyData;
 	class EventData;
 	class ToolBarData;
-	class MenuData; 
+	class MenuData;
 	class ViewPort
 	{
 	public:
@@ -51,7 +51,7 @@ namespace dragon
 		virtual void OnKeyDown(KeyData& event) = 0;
 		virtual void OnKeyUp(KeyData& event) = 0;
 		virtual void OnToolBarAction(ToolBarData& data) = 0;
-		virtual void OnMenuClick(MenuData& data) = 0; 
+		virtual void OnMenuClick(MenuData& data) = 0;
 	public:
 		/*TOOL ACTIONS*/
 		virtual void OnToolActions(int toolID) = 0;

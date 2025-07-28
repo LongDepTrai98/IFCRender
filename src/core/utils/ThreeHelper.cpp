@@ -35,7 +35,7 @@ namespace dragon
 		const std::map<int, std::vector<std::pair<int, int>>>& viewGeometries,
 		const std::vector<unsigned int>& root_indices,
 		const std::vector<float>& vertices,
-		const std::vector<float>& normals, 
+		const std::vector<float>& normals,
 		const threepp::Matrix4& root_matrix,
 		const std::vector<unsigned int>& root_expressID
 	)
@@ -82,7 +82,7 @@ namespace dragon
 		sub_geometry_buffer->computeVertexNormals();
 		sub_geometry_buffer->computeBoundingBox();
 		sub_geometry_buffer->computeBoundingSphere();*/
-		
+
 		int index_offset{ 0 };
 		std::vector<unsigned int> rebuild_indices{};
 		rebuild_indices.reserve(total_indices);
@@ -94,7 +94,7 @@ namespace dragon
 		for (const auto& [material_index, offsets] : viewGeometries)
 		{
 			int count{ 0 };
-			auto _offsets = offsets; 
+			auto _offsets = offsets;
 			threepp::GeometryGroup group;
 			group.start = start;
 			group.materialIndex = material_index;
@@ -122,9 +122,9 @@ namespace dragon
 		sub_geometry_buffer->setIndex(rebuild_indices);
 		sub_geometry_buffer->setAttribute("position", threepp::FloatBufferAttribute::create(vertices, 3));
 		sub_geometry_buffer->setAttribute("normal", threepp::FloatBufferAttribute::create(normals, 3));
-		sub_geometry_buffer->setAttribute("expressID", threepp::IntBufferAttribute::create(root_expressID, 1)); 
+		sub_geometry_buffer->setAttribute("expressID", threepp::IntBufferAttribute::create(root_expressID, 1));
 		sub_geometry_buffer->groups = groups;
-		sub_geometry_buffer->applyMatrix4(root_matrix); 
+		sub_geometry_buffer->applyMatrix4(root_matrix);
 		/*sub_geometry_buffer->computeVertexNormals();
 		sub_geometry_buffer->computeBoundingBox();
 		sub_geometry_buffer->computeBoundingSphere();*/
@@ -220,7 +220,7 @@ namespace dragon
 		sub_geometry_buffer->setIndex(mergeIndices);
 		sub_geometry_buffer->setAttribute("position", threepp::FloatBufferAttribute::create(mergeVetices, 3));
 		sub_geometry_buffer->setAttribute("normal", threepp::FloatBufferAttribute::create(mergeNormals, 3));
-		sub_geometry_buffer->applyMatrix4(threepp::Matrix4()); 
+		sub_geometry_buffer->applyMatrix4(threepp::Matrix4());
 		return sub_geometry_buffer;
 	}
 	void ThreeHelper::scaleAroundPivot(std::shared_ptr<threepp::BufferGeometry> geometry, const threepp::Vector3& pivot, const float& scaleX, const float& scaleY, const float& scaleZ)
