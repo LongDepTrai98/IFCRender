@@ -21,7 +21,7 @@ namespace dragon::index
 }
 namespace dragon::outline_edge
 {
-	constexpr float THRESHOLD_ANGLE = 30.0f;
+	constexpr float THRESHOLD_ANGLE = 15.0f;
 }
 namespace dragon::default_color
 {

@@ -56,7 +56,7 @@ namespace dragon
 			const int& index_face_b = 3 * prim_id + 1;
 			const int& index_face_c = 3 * prim_id + 2;
 			const int& a = m_Model->m_Object_Indices[index_face_a];
-			const int& expressID = m_Model->m_Object_ExpressID[a];
+			const int& expressID = (*m_Model->ptr_object_expressID)[a]; 
 			if (m_Current_ExpressID != expressID)
 			{
 				/*UPDATE EXPRESSID*/
@@ -158,16 +158,25 @@ namespace dragon
 				m_Hidden_Express_IDs.insert({ expressID });
 		}
 		//update indices
+		auto model = m_Container_Group_Draw->getObjectByName("model");
+		/*GET VERTEX ATTRIBUTES*/
+		/*GET NORMAL ATTRIBUTES*/
+		auto vertices_attribute = model->geometry()->getAttribute<float>("position"); 
+		auto normal_attribute = model->geometry()->getAttribute<float>("normal"); 
+		auto expressID_attribute = model->geometry()->getAttribute<unsigned int>("expressID"); 
 		std::shared_ptr<threepp::BufferGeometry> sub_geometry = ThreeHelper::BuildSubGeometry(total_indices,
 			m_Model->m_Object_Materials,
 			view_geometries_with_materials,
 			m_Model->m_Object_Indices,
-			m_Model->m_Object_Vertices,
-			m_Model->m_Object_Normals);
-		auto model = m_Container_Group_Draw->getObjectByName("model");
+			vertices_attribute->array(),
+			normal_attribute->array(), 
+			expressID_attribute->array());
 		model->geometry()->dispose();
-		model->as<threepp::Mesh>()->setGeometry(nullptr); 
 		model->as<threepp::Mesh>()->setGeometry(sub_geometry);
+		m_Model->ptr_object_expressID = &model->geometry()->getAttribute<unsigned int>("expressID")->array();
+		m_Model->ptr_object_vertices = model->geometry()->getAttribute<float>("position")->array().data();
+		RayCast->createNewTriangleIntersect(m_Model->ptr_object_vertices, m_Model->m_Object_Indices.data());
+		RayCast->getIntersector()->custom_callback_checkface = m_Callback_Intersect; 
 	}
 
 	void IFCFileContext::drawHoverLayer()
@@ -188,14 +197,14 @@ namespace dragon
 			auto it = m_Model->m_Geometry_Offset.find(m_Current_ExpressID.value());
 			if (it != m_Model->m_Geometry_Offset.end())
 			{
-				IFCModelCache::element& e = it->second;
+			/*	IFCModelCache::element& e = it->second;
 				std::shared_ptr<threepp::BufferGeometry> geo_hover = ThreeHelper::BuildSubGeometryWithOffset(e,
 					m_Model->m_Object_Vertices,
 					m_Model->m_Object_Normals,
 					m_Model->m_Object_Indices
 				);
 				threepp::Box3 box;
-				box.setFromArray(geo_hover->getAttribute<float>("position")->array());
+				box.setFromArray(geo_hover->getAttribute<float>("position")->array());*/
 			}
 			m_Old_ExpressID = m_Current_ExpressID;
 		}
@@ -210,8 +219,6 @@ namespace dragon
 	{
 		if (!m_Coord_HitPoint) return;
 		m_Hit_Point->position.set(m_Coord_HitPoint.value().x, m_Coord_HitPoint.value().y, m_Coord_HitPoint.value().z);
-		/*if (!m_Center_Point) return;
-		m_Hit_Point->position.set(m_Center_Point.value().x, m_Center_Point.value().y, m_Center_Point.value().z);*/
 	}
 
 	void IFCFileContext::updateCoordAxesHelper()
@@ -283,21 +290,22 @@ namespace dragon
 		if (!m_bIsMultiSelectMode)
 		{
 			m_Selected_Entites.clear();
-			m_Object_Selected.clear();
-			m_Group_Selected->clear();
+			m_Group_Selected->clear(); 
 		}
 		m_Selected_Entites.insert(m_Current_ExpressID.value());
 		/*CREATE GEO*/
+		auto model = m_Container_Group_Draw->getObjectByName("model");
+		auto vertices_attribute = model->geometry()->getAttribute<float>("position");
+		auto normal_attribute = model->geometry()->getAttribute<float>("normal");
 		IFCModelCache::element& e = m_Model->m_Geometry_Offset[m_Current_ExpressID.value()];
 		std::shared_ptr<threepp::BufferGeometry> geo_hover = ThreeHelper::BuildSubGeometryWithOffset(e,
-			m_Model->m_Object_Vertices,
-			m_Model->m_Object_Normals,
+			vertices_attribute->array(),
+			normal_attribute->array(),
 			m_Model->m_Object_Indices
 		);
 		/*CREATE GEOMEMTRY*/
 		std::shared_ptr<threepp::Mesh> mesh_selected = threepp::Mesh::create(geo_hover, m_Selected_Material);
 		mesh_selected->name = std::to_string(m_Current_ExpressID.value());
-		m_Object_Selected.emplace_back(mesh_selected);
 		m_Group_Selected->add(mesh_selected);
 		if (m_Add_Object_DrawDepth_CallBack)
 		{
@@ -376,6 +384,7 @@ namespace dragon
 		{
 		case dragon::ID_EVENT::MAIN_MENU_HIDE:
 		{
+			if(m_Selected_Entites.size() == 0) return; 
 			for (auto& expressID : m_Selected_Entites)
 			{
 				auto it = m_Model->m_Geometry_Offset.find(expressID);
@@ -386,6 +395,8 @@ namespace dragon
 			}
 			m_Current_ExpressID = std::nullopt;
 			rebuildVisibleIndices();
+			m_Group_Selected->clear(); 
+			m_Selected_Entites.clear(); 
 			if (OnRedrawCallback)
 				OnRedrawCallback();
 			break;
@@ -429,7 +440,7 @@ namespace dragon
 				const int& index_face_b = 3 * prim_id + 1;
 				const int& index_face_c = 3 * prim_id + 2;
 				const int& a = m_Model->m_Object_Indices[index_face_a];
-				const int& expressID = m_Model->m_Object_ExpressID[a];
+				const int& expressID = (*m_Model->ptr_object_expressID)[a];
 				auto it = m_Hidden_Express_IDs.find(expressID);
 				return it == m_Hidden_Express_IDs.end();
 			};

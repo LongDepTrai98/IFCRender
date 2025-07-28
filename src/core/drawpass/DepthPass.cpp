@@ -52,7 +52,6 @@ namespace dragon
 			default_geometry = threepp::BufferGeometry::create();
 		m_Scene->clear(); 
 		depth_meshes.clear(); 
-		//depth_mesh->setGeometry(default_geometry);
 	}
 	void DepthPass::applyUniform(float nearPlane, float farPlane)
 	{

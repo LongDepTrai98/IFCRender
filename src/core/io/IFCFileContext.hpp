@@ -77,7 +77,6 @@ namespace dragon
 		std::shared_ptr<threepp::Mesh> m_Object_OverLay_Hover{ nullptr };
 		std::shared_ptr<threepp::Mesh> m_Hit_Point{ nullptr };
 		std::shared_ptr<threepp::AxesHelper> m_Axes_Helper{ nullptr };
-		std::vector<std::shared_ptr<threepp::Mesh>> m_Object_Selected{ nullptr };
 		std::shared_ptr<threepp::Group> m_Group_Selected{ nullptr }; 
 		/*MATERIAL*/
 		std::shared_ptr<threepp::MeshBasicMaterial> m_Material_Hit_Point{ nullptr };

@@ -27,7 +27,6 @@ namespace dragon
 			/*DRAW RANGE BEGIN, START, MATERIAL*/
 			int material_index{ 0 };
 			int state{ 0 };
-			//std::shared_ptr<threepp::BufferGeometry> buffGeo{ nullptr };
 		};
 		struct element
 		{
@@ -44,12 +43,10 @@ namespace dragon
 		void clear() override;
 		void setModelManager(std::shared_ptr<webifc::manager::ModelManager> modelManager, const int& modelID);
 	public:
-		//threepp::Object3D* m_Object_Model{ nullptr };
 		std::unordered_map<unsigned int, element> m_Geometry_Offset{};
 		std::vector<unsigned int> m_Object_Indices{};
-		std::vector<unsigned int> m_Object_ExpressID{};
-		std::vector<float> m_Object_Vertices{};
-		std::vector<float> m_Object_Normals{};
+		std::vector<unsigned int>* ptr_object_expressID{nullptr};
+		float* ptr_object_vertices{nullptr};
 		std::shared_ptr<webifc::manager::ModelManager> m_ModelManager{ nullptr };
 		std::vector<std::shared_ptr<threepp::Material>> m_Object_Materials{ nullptr };
 		int m_modelID{ -1 };

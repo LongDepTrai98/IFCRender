@@ -38,6 +38,8 @@ namespace dragon
 	public:
 		bool buildBVH(std::vector<float>& vertices,
 			std::vector<unsigned int>& indices);
+		bool buildBVHWithPtr(float* ptr_vertices, unsigned int* indices, size_t& indices_size);
+		void createNewTriangleIntersect(float* ptr_vertices, unsigned int* ptr_indices);
 		bool intersectObjects(Result& result);
 		void setFromCamera(const threepp::Vector2& coords, threepp::Camera& camera);
 		void clearBVH();

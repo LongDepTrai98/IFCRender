@@ -46,12 +46,11 @@ namespace dragon
 		auto ptr_ifc_file_context = static_cast<IFCFileContext*>(file_context.get());
 		auto ptr_ifc_offset_cache = ptr_ifc_file_context->getModelCache();
 		ptr_ifc_offset_cache->setModelManager(IFCApi.getModelManager(), IFCApi.getModelId());
+		threepp::FloatBufferAttribute* model_vertices{}; 
 		if (file_context)
 		{
 			main_viewport->setFileContext(std::move(file_context));
-			//ptr_ifc_offset_cache->m_Object_Model = container->children[0];
 			std::shared_ptr<threepp::BufferGeometry> root_geometry = container->children[0]->geometry();
-			//ptr_ifc_file_context->setRootObject(group->children[0]);
 			ptr_ifc_offset_cache->m_Object_Indices = root_geometry->getIndex()->array();
 			ptr_ifc_offset_cache->m_Geometry_Offset = IFCApi.getGeometryOffset();
 			threepp::Object3D* model = container->children[0];
@@ -59,15 +58,11 @@ namespace dragon
 			model_geometry = model->geometry();
 			if (!root_geometry) return;
 			ptr_ifc_offset_cache->m_Object_Materials = model->as<threepp::ObjectWithMaterials>()->materials();
-			auto& array_vertices = model_geometry->getAttribute<float>("position")->array();
-			ptr_ifc_offset_cache->m_Object_Vertices.assign(array_vertices.begin(), array_vertices.end());
-			auto& array_normals = model_geometry->getAttribute<float>("normal")->array();
-			ptr_ifc_offset_cache->m_Object_Normals.assign(array_vertices.begin(), array_vertices.end());
 			auto& array_expressID = model_geometry->getAttribute<unsigned int>("expressID")->array();
-			ptr_ifc_offset_cache->m_Object_ExpressID = array_expressID;
+			ptr_ifc_offset_cache->ptr_object_expressID = &array_expressID; 
+			ptr_ifc_offset_cache->ptr_object_vertices = model_geometry->getAttribute<float>("position")->array().data(); 
 			/*INDEX MODEL IS 0*/
 		}
-
 		if (m_Window)
 		{
 			/*GET MAIN VIEWPORT AND BUILD MAIN SCENE*/
@@ -108,12 +103,15 @@ namespace dragon
 				element_tree->m_GetData_Item_Callback = ptr_ifc_file_context->m_GetData_Item_Callback;
 				element_tree->setData(std::move(tree));
 			}
-
 			/*SET CALLBACK RAYCAST*/
-			main_viewport->buildBVH(ptr_ifc_offset_cache->m_Object_Vertices, ptr_ifc_offset_cache->m_Object_Indices);
-			auto RayCast = main_viewport->getRayCaster();
-			ptr_ifc_file_context->RayCast = RayCast;
-			RayCast->getIntersector()->custom_callback_checkface = ptr_ifc_file_context->m_Callback_Intersect;
+			if (ptr_ifc_offset_cache->ptr_object_vertices)
+			{
+				size_t size = ptr_ifc_offset_cache->m_Object_Indices.size();
+				main_viewport->buildBVHWithPtr(ptr_ifc_offset_cache->ptr_object_vertices, ptr_ifc_offset_cache->m_Object_Indices.data(), size);
+				auto RayCast = main_viewport->getRayCaster();
+				ptr_ifc_file_context->RayCast = RayCast;
+				RayCast->getIntersector()->custom_callback_checkface = ptr_ifc_file_context->m_Callback_Intersect;
+			}
 		}
 		RenderCanvas* canvas = AppHelper::getRenderCanvas(window_frame);
 		/*set callback redraw */

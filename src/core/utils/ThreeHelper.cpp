@@ -1,4 +1,4 @@
-#include "ThreeHelper.hpp"
+﻿#include "ThreeHelper.hpp"
 #include "threepp/threepp.hpp"
 #include "spdlog/spdlog.h"
 #include <numeric>
@@ -35,10 +35,11 @@ namespace dragon
 		const std::map<int, std::vector<std::pair<int, int>>>& viewGeometries,
 		const std::vector<unsigned int>& root_indices,
 		const std::vector<float>& vertices,
-		const std::vector<float>& normals
+		const std::vector<float>& normals, 
+		const std::vector<unsigned int>& root_expressID
 	)
 	{
-		int index_offset{ 0 };
+		/*int index_offset{ 0 };
 		std::vector<unsigned int> rebuild_indices{};
 		rebuild_indices.resize(total_indices);
 		std::vector<threepp::GeometryGroup> groups;
@@ -53,7 +54,7 @@ namespace dragon
 			threepp::GeometryGroup group;
 			group.start = start;
 			group.materialIndex = material_index;
-			std::sort(std::execution::par, offsets.begin(), offsets.end(), [](const auto& a, const auto& b) {
+			std::sort(offsets.begin(), offsets.end(), [](const auto& a, const auto& b) {
 				return a.first < b.first;
 				});
 			for (auto& [begin, end] : offsets)
@@ -76,6 +77,51 @@ namespace dragon
 		sub_geometry_buffer->setIndex(std::move(rebuild_indices));
 		sub_geometry_buffer->setAttribute("position", threepp::FloatBufferAttribute::create(vertices, 3));
 		sub_geometry_buffer->setAttribute("normal", threepp::FloatBufferAttribute::create(normals, 3));
+		sub_geometry_buffer->groups = std::move(groups);
+		sub_geometry_buffer->computeVertexNormals();
+		sub_geometry_buffer->computeBoundingBox();
+		sub_geometry_buffer->computeBoundingSphere();*/
+		
+		int index_offset{ 0 };
+		std::vector<unsigned int> rebuild_indices{};
+		rebuild_indices.reserve(total_indices);
+		std::vector<threepp::GeometryGroup> groups;
+		groups.reserve(viewGeometries.size());
+		std::vector<std::shared_ptr<threepp::Material>> mats;
+		int start = 0;
+
+		for (const auto& [material_index, offsets] : viewGeometries)
+		{
+			int count{ 0 };
+			auto _offsets = offsets; 
+			threepp::GeometryGroup group;
+			group.start = start;
+			group.materialIndex = material_index;
+			if (offsets.size() == 0)
+				continue;
+			std::sort(_offsets.begin(), _offsets.end(), [](const auto& a, const auto& b) {
+				return a.first < b.first;
+				});
+			for (auto& [begin, end] : _offsets)
+			{
+				count += (end - begin) + 1;
+				rebuild_indices.insert(
+					rebuild_indices.end(),
+					root_indices.begin() + begin,
+					root_indices.begin() + end + 1
+				);
+			}
+			group.count = count;
+			start += count;
+			groups.emplace_back(group);
+			mats.emplace_back(materials[material_index]);
+		}
+		spdlog::info("indices {}", rebuild_indices.size());
+		std::shared_ptr<threepp::BufferGeometry> sub_geometry_buffer = threepp::BufferGeometry::create();
+		sub_geometry_buffer->setIndex(rebuild_indices);
+		sub_geometry_buffer->setAttribute("position", threepp::FloatBufferAttribute::create(vertices, 3));
+		sub_geometry_buffer->setAttribute("normal", threepp::FloatBufferAttribute::create(normals, 3));
+		sub_geometry_buffer->setAttribute("expressID", threepp::IntBufferAttribute::create(root_expressID, 1)); 
 		sub_geometry_buffer->groups = groups;
 		sub_geometry_buffer->computeVertexNormals();
 		sub_geometry_buffer->computeBoundingBox();
@@ -95,7 +141,11 @@ namespace dragon
 		int countVertices{ 0 };
 		int countIndices{ 0 };
 		int countNormals{ 0 };
-		for (const auto& offset : element.offsets)
+
+		std::sort(std::execution::par, element.offsets.begin(), element.offsets.end(), [](const IFCModelCache::offset& a, const IFCModelCache::offset& b) {
+			return a.begin_indices_offset < b.begin_indices_offset;
+			});
+		for (auto& offset : element.offsets)
 		{
 			std::vector<unsigned int> sub_indices{};
 			const int range_index = offset.end_indices_offset - offset.begin_indices_offset + 1;

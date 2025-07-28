@@ -48,6 +48,9 @@ namespace dragon
 		void resetFileContext();
 		void buildBVH(std::vector<float>& vertices,
 			std::vector<unsigned int>& indices);
+		void buildBVHWithPtr(float* vertices,
+			unsigned int* indices,
+			size_t& index_size);
 		void clearBVH();
 		void clearScene() override;
 		CustomRayCaster* getRayCaster();

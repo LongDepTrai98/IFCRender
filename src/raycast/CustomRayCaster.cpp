@@ -47,6 +47,45 @@ namespace dragon
 		spdlog::info("End build BVH");
 		return ret;
 	}
+
+	bool CustomRayCaster::buildBVHWithPtr(float* ptr_vertices,
+		unsigned int* ptr_indices, 
+		size_t & indices_size)
+	{
+		if (m_BVHAccel)
+		{
+			m_BVHAccel.reset();
+			m_BVHAccel = nullptr;
+		}
+		if (triangle_intersecter)
+		{
+			triangle_intersecter.reset();
+			triangle_intersecter = nullptr;
+		}
+
+		nanort::BVHBuildOptions<float> build_options;
+		nanort::TriangleMesh<float> triangle_mesh(ptr_vertices, ptr_indices, /* stride */sizeof(float) * 3);
+		nanort::TriangleSAHPred<float> triangle_pred(ptr_vertices, ptr_indices, /* stride */sizeof(float) * 3);
+		m_BVHAccel = std::make_unique<nanort::BVHAccel<float>>();
+		auto ret = m_BVHAccel->Build(indices_size / 3, triangle_mesh, triangle_pred, build_options);
+		triangle_intersecter = std::make_unique<nanort::CustomIntersector<>>(ptr_vertices, ptr_indices, /* stride */sizeof(float) * 3);
+		spdlog::info("End build BVH");
+		return ret;
+
+	}
+
+	void CustomRayCaster::createNewTriangleIntersect(float* ptr_vertices,
+		unsigned int* ptr_indices)
+	{
+		if (triangle_intersecter)
+		{
+			triangle_intersecter.reset();
+			triangle_intersecter = nullptr;
+		}
+		triangle_intersecter = std::make_unique<nanort::CustomIntersector<>>(ptr_vertices, ptr_indices, /* stride */sizeof(float) * 3);
+	}
+
+
 	bool CustomRayCaster::intersectObjects(Result& intersect)
 	{
 		if (m_BVHAccel)

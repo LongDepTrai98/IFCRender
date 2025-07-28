@@ -27,7 +27,6 @@ namespace dragon
 	}
 	THREEPPRenderer::~THREEPPRenderer()
 	{
-		m_Renderer->dispose();
 	}
 	threepp::GLRenderer* THREEPPRenderer::getRenderer()
 	{
