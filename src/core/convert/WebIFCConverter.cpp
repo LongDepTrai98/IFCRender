@@ -226,9 +226,10 @@ namespace dragon
 			std::shared_ptr<threepp::MeshPhongMaterial> material = threepp::MeshPhongMaterial::create();
 			threepp::Color color;
 			color.setRGB(placedColor.x, placedColor.y, placedColor.z);
-			material->shininess = 100.0f;
+			material->shininess = 150.0f;
 			material->color = color;
 			material->side = threepp::Side::Double;
+			material->flatShading = true; 
 			material->transparent = placedColor.w != 1.0;
 			if (material->transparent) material->opacity = placedColor.w;
 			std::vector<GeoWithExpressID> geometriesWithExpressID;
