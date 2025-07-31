@@ -7,6 +7,8 @@ namespace dragon::panel_config
 		.Right()
 		.MinSize(640, 480)
 		.MaximizeButton(true)
+		.MinimizeButton(true)
+		.PinButton(true)
 		.CloseButton(false)
 		.Dockable(true)
 		.Center()

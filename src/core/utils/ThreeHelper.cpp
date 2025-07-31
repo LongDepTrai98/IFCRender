@@ -125,9 +125,6 @@ namespace dragon
 		sub_geometry_buffer->setAttribute("expressID", threepp::IntBufferAttribute::create(root_expressID, 1));
 		sub_geometry_buffer->groups = groups;
 		sub_geometry_buffer->applyMatrix4(root_matrix);
-		/*sub_geometry_buffer->computeVertexNormals();
-		sub_geometry_buffer->computeBoundingBox();
-		sub_geometry_buffer->computeBoundingSphere();*/
 		return sub_geometry_buffer;
 	}
 

@@ -51,6 +51,8 @@ namespace dragon
 	void WindowFrame::initUIManager()
 	{
 		m_UIManager = std::make_unique<wxAuiManager>(this);
+		wxAuiDockArt* art = m_UIManager->GetArtProvider();
+		m_UIManager->Update(); 
 	}
 	void WindowFrame::initMenuBar()
 	{
