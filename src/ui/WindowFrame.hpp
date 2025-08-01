@@ -1,6 +1,16 @@
 #ifndef _WINDOW_FRAME_HPP_
 #define _WINDOW_FRAME_HPP_
 #include "wxInclude.hpp"
+
+class customDockArt : public wxAuiDefaultDockArt
+{
+public: 
+	void setStyle()
+	{
+		m_gradientType = wxAUI_GRADIENT_NONE;
+	}
+};
+
 namespace dragon
 {
 	class AppMenubar;
@@ -18,6 +28,7 @@ namespace dragon
 		ElementTreeCtrl* getElementTreeCtrl();
 		void OnCallbackToolbarCommand(ToolBarData& data);
 		void OnResize(wxSizeEvent& event);
+		wxAuiToolBar* getCustomToolBar(); 
 	private:
 		void initUI();
 		void initUIManager();

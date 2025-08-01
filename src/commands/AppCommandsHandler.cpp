@@ -43,11 +43,11 @@ namespace dragon
 	{
 		int toolId = event.GetId();
 		WindowFrame* main_frame = static_cast<WindowFrame*>(m_ParentWindow);
-		wxToolBar* toolbar = main_frame->GetToolBar();
+		wxAuiToolBar* toolbar = main_frame->getCustomToolBar();
 		bool toolbarState{ false };
 		if (toolbar)
 		{
-			toolbarState = toolbar->GetToolState(toolId);
+			toolbarState = toolbar->GetToolToggled(toolId);
 		}
 		ToolBarData data(event, toolbarState);
 		main_frame->OnCallbackToolbarCommand(data);

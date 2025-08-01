@@ -50,8 +50,12 @@ namespace dragon
 	}
 	void WindowFrame::initUIManager()
 	{
-		m_UIManager = std::make_unique<wxAuiManager>(this);
+		long style = wxAUI_DOCKART_GRADIENT_TYPE | wxAUI_GRADIENT_NONE; 
+		m_UIManager = std::make_unique<wxAuiManager>(this, wxAUI_GRADIENT_NONE);
 		wxAuiDockArt* art = m_UIManager->GetArtProvider();
+		customDockArt* default_doc_art = new customDockArt();
+		default_doc_art->setStyle(); 
+		m_UIManager->SetArtProvider(default_doc_art); 
 		m_UIManager->Update(); 
 	}
 	void WindowFrame::initMenuBar()
@@ -67,7 +71,7 @@ namespace dragon
 		wxPanel* treePanel = new wxPanel(this);
 		wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 		//wxTreeCtrl* tree = new wxTreeCtrl(treePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize);
-		long style = wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT | wxTR_TWIST_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT | wxBORDER_SUNKEN;
+		long style = wxTR_HAS_BUTTONS | wxTR_NO_LINES | wxTR_TWIST_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT | wxBORDER_SUNKEN;
 		m_ElementTreeCtrl = new ElementTreeCtrl(treePanel, wxDefaultPosition, wxDefaultSize, style);
 		sizer->Add(m_ElementTreeCtrl, 1, wxEXPAND | wxALL, 1);
 		treePanel->SetSizer(sizer);
@@ -77,11 +81,15 @@ namespace dragon
 	}
 	void WindowFrame::initAppToolBar()
 	{
-		wxToolBarBase* toolBar = GetToolBar();
-		const long TOOLBAR_STYLE = wxTB_FLAT | wxTB_DOCKABLE | wxTB_TEXT | wxTB_TOP | wxTB_NO_TOOLTIPS;
-		long style = toolBar ? toolBar->GetWindowStyle() : TOOLBAR_STYLE;
-		wxToolBar* app_tool_bar = this->CreateToolBar(style, wxID_ANY);
-		m_AppToolBar = std::make_unique<AppToolBar>(app_tool_bar);
+		m_AppToolBar = std::make_unique<AppToolBar>(this);
+		m_UIManager->AddPane(m_AppToolBar->m_ToolBar,
+			wxAuiPaneInfo()
+			.Name("toolbar")
+			.Caption("Toolbar")
+			.ToolbarPane()
+			.Top()             
+			.DockFixed()        
+			.Gripper(false)); 
 	}
 	void WindowFrame::initRenderCanvas()
 	{
@@ -154,5 +162,9 @@ namespace dragon
 	void WindowFrame::OnResize(wxSizeEvent& event)
 	{
 		event.Skip();
+	}
+	wxAuiToolBar* WindowFrame::getCustomToolBar()
+	{
+		return m_AppToolBar->m_ToolBar; 
 	}
 }
