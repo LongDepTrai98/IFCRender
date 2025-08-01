@@ -223,13 +223,13 @@ namespace dragon
 		if (geo_with_material.count(str_hash_color) == 0)
 		{
 			/*CREATE MATERIAL*/
-			std::shared_ptr<threepp::MeshPhongMaterial> material = threepp::MeshPhongMaterial::create();
+			std::shared_ptr<threepp::MeshStandardMaterial> material = threepp::MeshStandardMaterial::create();
 			threepp::Color color;
 			color.setRGB(placedColor.x, placedColor.y, placedColor.z);
-			material->shininess = 150.0f;
+			material->roughness = 0.5f;
+			material->metalness = 0.7f;
 			material->color = color;
 			material->side = threepp::Side::Double;
-			material->flatShading = true; 
 			material->transparent = placedColor.w != 1.0;
 			if (material->transparent) material->opacity = placedColor.w;
 			std::vector<GeoWithExpressID> geometriesWithExpressID;
