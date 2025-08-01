@@ -22,3 +22,4 @@
 #include "wx/renderer.h"
 #include "wx/wupdlock.h"
 #include "wx/imagpng.h"
+#include "wx/webview_chromium.h"
