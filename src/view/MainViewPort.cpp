@@ -114,6 +114,21 @@ namespace dragon
 				{
 					grid_mesh->visible = !grid_mesh->visible;
 				}
+				else
+				{
+					auto geometry = threepp::PlaneGeometry::create(1000, 1000);
+					auto material = threepp::MeshBasicMaterial::create();
+					material->opacity = 0.0f;
+					material->visible = false;
+					material->transparent = true;
+					auto mesh_grid = threepp::Mesh::create(geometry, material);
+					mesh_grid->rotation.x = -threepp::math::PI / 2;
+					auto grid = threepp::GridHelper::create(1000, 100);
+					grid->rotation.x = threepp::math::PI / 2;
+					mesh_grid->add(grid);
+					mesh_grid->name = "Scene_Grid";
+					m_Scene->add(mesh_grid);
+				}
 			}
 		}
 		if (data.event.GetId() == (int)ID_EVENT::TOOL_CLEAR_SCENE)

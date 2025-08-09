@@ -41,12 +41,6 @@ namespace dragon
 		if (!m_Renderer)
 			m_Renderer = std::make_unique<threepp::GLRenderer>(w_size);
 		m_Renderer->autoClear = false;
-		//m_Renderer->physicallyCorrectLights = true; 
-		m_Renderer->toneMapping = threepp::ToneMapping::ACESFilmic; 
-		m_Renderer->toneMappingExposure = 1.0f; 
-		m_Renderer->outputEncoding = threepp::Encoding::sRGB; 
-		/*m_Renderer->shadowMap().enabled = true;
-		m_Renderer->shadowMap().type = threepp::ShadowMap::PFC;*/
 	}
 	void THREEPPRenderer::initViewPort()
 	{

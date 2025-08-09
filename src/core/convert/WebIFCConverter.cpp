@@ -224,10 +224,10 @@ namespace dragon
 		{
 			/*CREATE MATERIAL*/
 			std::shared_ptr<threepp::MeshStandardMaterial> material = threepp::MeshStandardMaterial::create();
+			material->flatShading = true; 
+			material->roughness = 0.1; 
 			threepp::Color color;
 			color.setRGB(placedColor.x, placedColor.y, placedColor.z);
-			material->roughness = 0.5f;
-			material->metalness = 0.7f;
 			material->color = color;
 			material->side = threepp::Side::Double;
 			material->transparent = placedColor.w != 1.0;
