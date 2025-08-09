@@ -1,3 +1,4 @@
 build/
 3rdparty/wxWidgets-3.3.0
 vcpkg/
+maplibre/
