@@ -43,6 +43,10 @@ if(NOT EXISTS ${MAPLIBRE_SOURCE_DIR}/CMakeLists.txt)
                 ${MAPLIBRE_SOURCE_DIR}
     )
 endif()
+set(MAPLIBRE_INCLUDE_SOURCE_DIRS
+    ${MAPLIBRE_SOURCE_DIR}/src
+    ${MAPLIBRE_SOURCE_DIR}/include
+    ${MAPLIBRE_SOURCE_DIR}/platform/default/include)
 #add_subdirectory(${MAPLIBRE_SOURCE_DIR})
 #project
 set(PROJECT_NAME Dragon)
@@ -141,6 +145,7 @@ add_executable(${EDITOR_NAME_PROJECT}
 	PRIVATE ${WX_INCLUDE_PATH}
 	PRIVATE ${WX_INCLUDE_PATH}/msvc
     PRIVATE ${WEB_IFC_INCLUDE_DIRS}
+    PRIVATE ${MAPLIBRE_INCLUDE_SOURCE_DIRS}
  )
  #link lib 
 target_link_libraries(${EDITOR_NAME_PROJECT}  
@@ -148,7 +153,46 @@ target_link_libraries(${EDITOR_NAME_PROJECT}
 PRIVATE threepp::threepp
 PRIVATE nlohmann_json
 $<$<CONFIG:Debug>:/Debug/web-ifc-library.lib;wxpngd.lib;wxwebpd.lib;wxjpegd.lib>
-$<$<CONFIG:Release>:/Release/web-ifc-library.lib;wxpng.lib;wxwebp.lib;wxjpeg.lib>)
+$<$<CONFIG:Release>:/Release/web-ifc-library.lib;wxpng.lib;wxwebp.lib;wxjpeg.lib>
+$<$<CONFIG:Debug>:${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libuv.lib
+;${MAPLIBRE_SOURCE_DIR}/build/Debug/mbgl-core.lib;${MAPLIBRE_SOURCE_DIR}/build/Debug/mbgl-vendor-parsedate.lib
+;${MAPLIBRE_SOURCE_DIR}/build/Debug/mbgl-vendor-csscolorparser.lib;${MAPLIBRE_SOURCE_DIR}/build/vendor/harfbuzz/Debug/harfbuzz.lib
+;${MAPLIBRE_SOURCE_DIR}/build/vendor/freetype/Debug/freetyped.lib
+;ws2_32.lib;opengl32.lib
+;${MAPLIBRE_SOURCE_DIR}/build/Debug/mbgl-vendor-sqlite.lib;${MAPLIBRE_SOURCE_DIR}/build/Debug/mbgl-vendor-nunicode.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libpng16d.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libcurl-d.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/zlibd.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/dl.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/jpeg.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libwebpdecoder.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libwebp.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libwebpdemux.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libwebpmux.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libsharpyuv.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/icuind.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/icuucd.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/icudtd.lib>
+$<$<CONFIG:Release>:${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/libuv.lib
+;${MAPLIBRE_SOURCE_DIR}/build/Release/mbgl-core.lib
+;${MAPLIBRE_SOURCE_DIR}/build/Release/mbgl-vendor-parsedate.lib;${MAPLIBRE_SOURCE_DIR}/build/Release/mbgl-vendor-csscolorparser.lib
+;${MAPLIBRE_SOURCE_DIR}/build/Release/mbgl-vendor-nunicode.lib;${MAPLIBRE_SOURCE_DIR}/build/Release/mbgl-vendor-sqlite.lib
+;${MAPLIBRE_SOURCE_DIR}/build/vendor/harfbuzz/Release/harfbuzz.lib;${MAPLIBRE_SOURCE_DIR}/build/vendor/freetype/Release/freetype.lib
+;opengl32.lib;ws2_32.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/libpng16.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/libcurl.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/zlib.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/dl.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/jpeg.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/libwebpdecoder.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/libwebp.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/libwebpdemux.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/libwebpmux.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/libsharpyuv.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/icuin.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/icuuc.lib
+;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/icudt.lib
+;>)
 #directories lib
 target_link_directories(${EDITOR_NAME_PROJECT}
 PRIVATE ${WX_LIB_PATH}
