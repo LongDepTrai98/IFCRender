@@ -20,20 +20,8 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/markaren/threepp.git
 )
 FetchContent_MakeAvailable(threepp)
-#add maplibre 
-set(MAPLIBRE_SOURCE_DIR ${CMAKE_BINARY_DIR}/maplibre)
-if(NOT EXISTS ${MAPLIBRE_SOURCE_DIR}/CMakeLists.txt)
-    execute_process(
-        COMMAND git clone --config core.longpaths=true --depth 1 --recurse-submodules -j8
-                https://github.com/LongDepTrai98/maplibre-native.git
-                ${MAPLIBRE_SOURCE_DIR}
-    )
-endif()
-#add_subdirectory(${MAPLIBRE_SOURCE_DIR})
-#add wxWidgets
-#add submodule 
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/lib)
 #add include dirs web-ifc 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/lib)
 set(WEB_IFC_INCLUDE_DIRS 
     ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/tinynurbs-src/include
     ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/fastfloat-src/include
@@ -46,6 +34,16 @@ set(WEB_IFC_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/lib
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/lib/test
 )
+#add maplibre 
+set(MAPLIBRE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/maplibre)
+if(NOT EXISTS ${MAPLIBRE_SOURCE_DIR}/CMakeLists.txt)
+    execute_process(
+        COMMAND git clone --config core.longpaths=true --depth 1 --recurse-submodules -j8
+                https://github.com/LongDepTrai98/maplibre-native.git
+                ${MAPLIBRE_SOURCE_DIR}
+    )
+endif()
+#add_subdirectory(${MAPLIBRE_SOURCE_DIR})
 #project
 set(PROJECT_NAME Dragon)
 set(EDITOR_NAME_PROJECT App)
