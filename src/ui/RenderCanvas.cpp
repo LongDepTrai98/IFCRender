@@ -12,12 +12,10 @@ namespace dragon
 		canvasAttrs)
 	{
 		/*INIT UI FOR RENDERER*/
-		//initUI();
 		initGLContext();
 		SetCurrent(*m_Context);
 		initContextRenderer();
 		initMenu();
-		/*BIND FUNCTION*/
 		bindFunction();
 	}
 	RenderCanvas::~RenderCanvas()
@@ -42,7 +40,7 @@ namespace dragon
 		wxGLContextAttrs ctxAttrs;
 		ctxAttrs.PlatformDefaults()
 			.CoreProfile()
-			.OGLVersion(3, 3)
+			.OGLVersion(3, 0)
 			.EndList();
 		if (!m_Context)
 			m_Context = std::make_unique<wxGLContext>(this, nullptr, &ctxAttrs);
@@ -82,14 +80,6 @@ namespace dragon
 		/*BUTTON*/
 		Bind(wxEVT_BUTTON, &RenderCanvas::OnClickEnableMSAA, this);
 	}
-	/*void RenderCanvas::activeContext()
-	{
-		SetCurrent(*m_Context);
-	}
-	void RenderCanvas::deactiveContext()
-	{
-		wglMakeCurrent(nullptr, nullptr);
-	}*/
 	void RenderCanvas::swapBuff()
 	{
 		SwapBuffers();
@@ -106,24 +96,24 @@ namespace dragon
 	{
 		m_bIsDirty = true;
 	}
+	wxGLContext* RenderCanvas::getRenderContext()
+	{
+		return m_Context.get(); 
+	}
 	void RenderCanvas::OnSize(wxSizeEvent& event)
 	{
-		//activeContext();
-		SetCurrent(*m_Context); 
 		auto viewPortSize = event.GetSize() * GetContentScaleFactor();
 		if (m_Renderer)
 		{
 			static_cast<THREEPPRenderer*>(m_Renderer.get())->resize(viewPortSize.x,
 				viewPortSize.y);
 		}
-		wglMakeCurrent(NULL, NULL); 
 		Invalidate();
 		event.Skip();
 	}
 	void RenderCanvas::OnPaint(wxPaintEvent& event)
 	{
 		wxPaintDC dc(this);
-		SetCurrent(*m_Context); 
 		if (m_bIsDirty)
 		{
 			enableMultisampling();
@@ -136,7 +126,6 @@ namespace dragon
 			disableMultisampling();
 			m_bIsDirty = false;
 		}
-		wglMakeCurrent(NULL, NULL); 
 	}
 	void RenderCanvas::OnMouseMove(wxMouseEvent& event)
 	{

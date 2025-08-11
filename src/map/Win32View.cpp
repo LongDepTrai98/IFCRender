@@ -44,7 +44,7 @@ namespace editor
 			m_Height);
 		m_Backend = Win32Backend::Create(m_canvas, m_CapFrameRate);
 		m_PixelRatio = static_cast<float>(m_Backend->getSize().width) / m_Width;
-		wglMakeCurrent(nullptr, nullptr); 
+		//wglMakeCurrent(nullptr, nullptr); 
 
 	}
 	Win32View::~Win32View()

@@ -14,12 +14,12 @@
 #include <fstream>
 namespace dragon
 {
-	MapRenderCanvas::MapRenderCanvas(wxWindow* parent, const wxGLAttributes& canvasAttrs) : 
-		wxGLCanvas(parent,
-			canvasAttrs)
+	MapRenderCanvas::MapRenderCanvas(wxWindow* parent/*, const wxGLAttributes& canvasAttrs,*/, wxGLContext* context) :
+		wxGLCanvas(parent), 
+		m_Context(context)
 	{
-		initGLContext(); 
-		SetCurrent(*m_Context); 
+		//initGLContext(); 
+		//SetCurrent(*m_Context); 
 		initContextMap(); 
 		bindFunction(); 
 	}
@@ -28,17 +28,17 @@ namespace dragon
 	}
 	void MapRenderCanvas::initGLContext()
 	{
-		wxGLContextAttrs ctxAttrs;
+	/*	wxGLContextAttrs ctxAttrs;
 		ctxAttrs.PlatformDefaults()
 			.CoreProfile()
-			.OGLVersion(3, 3)
+			.OGLVersion(3, 0)
 			.EndList();
 		if (!m_Context)
 			m_Context = std::make_unique<wxGLContext>(this, nullptr, &ctxAttrs);
 		if (!m_Context->IsOK())
 		{
 			throw std::exception("Can't create context renderer");
-		}
+		}*/
 	}
 	void MapRenderCanvas::initContextMap()
 	{
@@ -78,6 +78,8 @@ namespace dragon
 	{
 		Bind(wxEVT_PAINT, &MapRenderCanvas::OnPaint, this);
 		Bind(wxEVT_SIZE, &MapRenderCanvas::OnSize, this);
+		Bind(wxEVT_MOTION, &MapRenderCanvas::OnMouseMove, this);
+		Bind(wxEVT_MOUSEWHEEL, &MapRenderCanvas::OnMouseWheel, this);
 	}
 	void MapRenderCanvas::OnSize(wxSizeEvent& event)
 	{
@@ -90,9 +92,32 @@ namespace dragon
 	void MapRenderCanvas::OnPaint(wxPaintEvent& event)
 	{
 		wxPaintDC dc(this);
-		SetCurrent(*m_Context);
+		//SetCurrent(*m_Context);
 		if (m_Backend)m_Backend->runOnce();
-		wglMakeCurrent(NULL, NULL); 
+		//wglMakeCurrent(NULL, NULL); 
+	}
+	void MapRenderCanvas::OnMouseMove(wxMouseEvent& event)
+	{
+		wxPoint pos = event.GetPosition();
+		if (m_Backend)m_Backend->m_lastX = static_cast<double>(pos.x);
+		if (m_Backend)m_Backend->m_lastY = static_cast<double>(pos.y);
+		event.Skip();
+	}
+	void MapRenderCanvas::OnMouseWheel(wxMouseEvent& event)
+	{
+		int delta = event.GetWheelRotation();// 1 or -1
+		double absDelta = delta < 0 ? -delta : delta;
+		double scale = 2.0 / (1.0 + std::exp(-absDelta / 100.0));
+		if (delta < 0 && scale != 0) {
+			scale = 1.0 / scale;
+		}
+		scale = (scale - 1.0) / 2.0 + 1.0;
+		if (m_Backend)
+		{
+			m_Backend->m_Map->scaleBy(scale, mbgl::ScreenCoordinate{ m_Backend->m_lastX, m_Backend->m_lastY },
+				mbgl::AnimationOptions{ {mbgl::Milliseconds(100)} });
+		}
+		event.Skip();
 	}
 	void MapRenderCanvas::OnInternalIdle()
 	{

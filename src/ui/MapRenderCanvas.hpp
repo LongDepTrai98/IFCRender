@@ -17,7 +17,7 @@ namespace dragon
 	class MapRenderCanvas : public wxGLCanvas
 	{
 	public:
-		MapRenderCanvas(wxWindow* parent, const wxGLAttributes& canvasAttrs);
+		MapRenderCanvas(wxWindow* parent, /*const wxGLAttributes& canvasAttrs,*/ wxGLContext* context);
 		~MapRenderCanvas();
 	public:
 		void OnCallbackToolbarCommand(ToolBarData& data);
@@ -49,9 +49,10 @@ namespace dragon
 		void swapBuff();
 		wxSize getSize();
 		void Invalidate();
+	public: 
+		wxGLContext* m_Context{ nullptr };
 	private:
 		//main context
-		std::unique_ptr<wxGLContext> m_Context{ nullptr };
 		std::unique_ptr<editor::Win32View> m_Backend{ nullptr };
 		std::unique_ptr<editor::Win32RenderFrontEnd> m_FrontEnd{ nullptr };
 		std::unique_ptr<mbgl::Map> m_Map{ nullptr };

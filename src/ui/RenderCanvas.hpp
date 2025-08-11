@@ -44,6 +44,7 @@ namespace dragon
 		wxSize getSize();
 		IRenderer* getRenderer();
 		void Invalidate();
+		wxGLContext* getRenderContext(); 
 	private:
 		//main context
 		std::unique_ptr<wxGLContext> m_Context{ nullptr };
