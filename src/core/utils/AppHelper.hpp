@@ -38,7 +38,6 @@ namespace dragon
 
 			return bmp;
 		}
-
 	private:
 		const wxSize m_sizeDef;
 		const wxIcon m_icon;
@@ -52,6 +51,8 @@ namespace dragon
 		static RenderCanvas* getRenderCanvas(WindowFrame* main_frame);
 		static ElementTreeCtrl* getMainTreeCtrl(WindowFrame* main_frame);
 		static wxBitmapBundle loadBitmapBundle(const std::string& path, wxBitmapType type);
+		static void GetWindowSize(wxWindow* window, int& width, int& height); 
+		static void GetFramebufferSize(wxWindow* window, int* width, int* height);
 	private:
 		AppHelper() = default;
 	};

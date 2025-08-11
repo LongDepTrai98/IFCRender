@@ -15,6 +15,7 @@ namespace dragon
 {
 	class AppMenubar;
 	class RenderCanvas;
+	class MapRenderCanvas; 
 	class AppCommandHandler;
 	class ElementTreeCtrl;
 	class AppToolBar;
@@ -36,6 +37,7 @@ namespace dragon
 		void initTreeCtrl();
 		void initAppToolBar();
 		void initRenderCanvas();
+		void initMapRenderCanvas(); 
 		void initCommand();
 		void OnHello(wxCommandEvent& event);
 		void OnExit(wxCommandEvent& event);
@@ -45,6 +47,7 @@ namespace dragon
 		ElementTreeCtrl* m_ElementTreeCtrl{ nullptr };
 		std::unique_ptr<AppToolBar> m_AppToolBar{ nullptr };
 		std::unique_ptr<RenderCanvas> m_RenderCanvas{ nullptr };
+		std::unique_ptr<MapRenderCanvas> m_MapRenderCanvas{ nullptr }; 
 		std::unique_ptr<wxAuiManager> m_UIManager{ nullptr };
 		std::unique_ptr<AppCommandHandler> m_CommandHandler{ nullptr };
 		bool m_bIsMaximize{ true };

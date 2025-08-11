@@ -94,12 +94,12 @@ namespace dragon
 	void ElementTreeCtrl::CreateItemImages()
 	{
 		wxVector<wxBitmapBundle> images;
-		const std::string& item_img_path = assets::Icons + "item_tree.png";
-		const std::string& item_expand_img_path = assets::Icons + "item_expand_img.png";
-		const std::string& item_scene_img_path = assets::Icons + "scene_tree.png";
-		images.push_back(AppHelper::loadBitmapBundle(item_img_path, wxBITMAP_TYPE_PNG));
-		images.push_back(AppHelper::loadBitmapBundle(item_expand_img_path, wxBITMAP_TYPE_PNG));
-		images.push_back(AppHelper::loadBitmapBundle(item_scene_img_path, wxBITMAP_TYPE_PNG));
+		const std::string& item_img_path = assets::Icons + "item_tree.ico";
+		const std::string& item_expand_img_path = assets::Icons + "item_expand_img.ico";
+		const std::string& item_scene_img_path = assets::Icons + "scene_tree.ico";
+		images.push_back(AppHelper::loadBitmapBundle(item_img_path, wxBITMAP_TYPE_ICO));
+		images.push_back(AppHelper::loadBitmapBundle(item_expand_img_path, wxBITMAP_TYPE_ICO));
+		images.push_back(AppHelper::loadBitmapBundle(item_scene_img_path, wxBITMAP_TYPE_ICO));
 		SetImages(images);
 	}
 	void ElementTreeCtrl::CreateStateImages()
@@ -107,10 +107,10 @@ namespace dragon
 		std::vector<wxBitmapBundle> images;
 		std::vector<wxIcon> icons;
 		//create icons
-		const std::string& checkedPath = assets::Icons + "checked.png";
-		const std::string& uncheckedPath = assets::Icons + "unchecked.png";
-		images.push_back(AppHelper::loadBitmapBundle(uncheckedPath, wxBITMAP_TYPE_PNG));
-		images.push_back(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_PNG));
+		const std::string& checkedPath = assets::Icons + "checked.ico";
+		const std::string& uncheckedPath = assets::Icons + "unchecked.ico";
+		images.push_back(AppHelper::loadBitmapBundle(uncheckedPath, wxBITMAP_TYPE_ICO));
+		images.push_back(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO));
 		SetStateImages(images);
 		Update();
 	}

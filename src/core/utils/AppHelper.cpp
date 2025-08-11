@@ -29,9 +29,27 @@ namespace dragon
 	}
 	wxBitmapBundle AppHelper::loadBitmapBundle(const std::string& path, wxBitmapType type)
 	{
-		wxIcon icon(path, type);
-		wxSize iconSize(icon.GetWidth(), icon.GetHeight());
+		//wxIcon icon(path, type, 16,16);
+
+		wxBitmap bmp(path, wxBITMAP_TYPE_ICO);
+		wxImage img = bmp.ConvertToImage();
+		img = img.Rescale(16, 16, wxIMAGE_QUALITY_HIGH);
+		wxIcon smallIcon;
+		smallIcon.CopyFromBitmap(wxBitmap(img));
+		wxSize iconSize(smallIcon.GetWidth(), smallIcon.GetHeight());
 		spdlog::info("Load Resource : {}", path);
-		return wxBitmapBundle::FromImpl(new FixedSizeImpl(iconSize, icon));
+		return wxBitmapBundle::FromImpl(new FixedSizeImpl(iconSize, smallIcon));
+	}
+	void AppHelper::GetWindowSize(wxWindow* window, int& width, int& height)
+	{
+		wxSize size = window->GetClientSize();
+		width = size.GetWidth(); 
+		height = size.GetHeight(); 
+	}
+	void AppHelper::GetFramebufferSize(wxWindow* window, int* width, int* height)
+	{
+		wxSize size = window->GetClientSize();
+		*width = size.GetWidth();
+		*height = size.GetHeight();
 	}
 }

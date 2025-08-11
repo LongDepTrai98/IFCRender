@@ -16,7 +16,7 @@ namespace dragon
 		/*FILE TOOL*/
 		m_ToolBar->AddTool(wxID_OPEN,
 			"",
-			AppHelper::loadBitmapBundle(assets::ButtonToolBar_OpenFolder, wxBITMAP_TYPE_PNG),
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_OpenFolder, wxBITMAP_TYPE_ICO),
 			wxNullBitmap,
 			wxITEM_NORMAL,
 			"Open file",
@@ -26,7 +26,7 @@ namespace dragon
 		/*EDITOR TOOL*/
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_PIVOT,
 			"",
-			AppHelper::loadBitmapBundle(assets::ButtonToolBar_SetPivot, wxBITMAP_TYPE_PNG),
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_SetPivot, wxBITMAP_TYPE_ICO),
 			wxNullBitmap,
 			wxITEM_CHECK,
 			"Select Pivot",
@@ -34,7 +34,7 @@ namespace dragon
 			NULL);
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_HOVER,
 			"",
-			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Hover, wxBITMAP_TYPE_PNG),
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Hover, wxBITMAP_TYPE_ICO),
 			wxNullBitmap,
 			wxITEM_CHECK,
 			"Select Pivot",
@@ -42,7 +42,7 @@ namespace dragon
 			NULL);
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_MULTI_SELECT,
 			"",
-			AppHelper::loadBitmapBundle(assets::ButtonToolBar_MultiSelect, wxBITMAP_TYPE_PNG),
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_MultiSelect, wxBITMAP_TYPE_ICO),
 			wxNullBitmap,
 			wxITEM_CHECK,
 			"Multi Select Mode",
@@ -51,7 +51,7 @@ namespace dragon
 		m_ToolBar->AddSeparator();
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_DRAW_EDGE,
 			"",
-			AppHelper::loadBitmapBundle(assets::ButtonToolBar_DrawEdge, wxBITMAP_TYPE_PNG),
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_DrawEdge, wxBITMAP_TYPE_ICO),
 			wxNullBitmap,
 			wxITEM_NORMAL,
 			"Draw Edge",
@@ -59,7 +59,7 @@ namespace dragon
 			NULL);
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_DRAW_GRID,
 			"",
-			AppHelper::loadBitmapBundle(assets::ButtonToolBar_DrawGrid, wxBITMAP_TYPE_PNG),
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_DrawGrid, wxBITMAP_TYPE_ICO),
 			wxNullBitmap,
 			wxITEM_NORMAL,
 			"Draw Grid",
@@ -68,7 +68,7 @@ namespace dragon
 		m_ToolBar->AddSeparator();
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_SWITCH_MODE_RENDER,
 			"",
-			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Debug, wxBITMAP_TYPE_PNG),
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Debug, wxBITMAP_TYPE_ICO),
 			wxNullBitmap,
 			wxITEM_CHECK,
 			"Debug mode",
@@ -76,7 +76,7 @@ namespace dragon
 			NULL);
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_CLEAR_SCENE,
 			"",
-			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Debug, wxBITMAP_TYPE_PNG),
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Debug, wxBITMAP_TYPE_ICO),
 			wxNullBitmap,
 			wxITEM_CHECK,
 			"Debug mode",

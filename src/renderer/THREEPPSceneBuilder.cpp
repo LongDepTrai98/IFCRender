@@ -8,14 +8,14 @@ namespace dragon
 		/*BUILD LIGHT*/
 		std::shared_ptr<threepp::Group> light_group = threepp::Group::create(); 
 		light_group->name = "light"; 
-		std::shared_ptr<threepp::AmbientLight> a_light = threepp::AmbientLight::create(0xffffee, 0.8);
+		std::shared_ptr<threepp::AmbientLight> a_light = threepp::AmbientLight::create(0xffffee, 0.4);
 		a_light->name = "a_light"; 
 		light_group->add(a_light);
-		std::shared_ptr<threepp::Light> directionalLight1 = threepp::DirectionalLight::create(0xffeeff, 0.8);
+		std::shared_ptr<threepp::Light> directionalLight1 = threepp::DirectionalLight::create(0xffeeff, 0.4);
 		directionalLight1->position.set(1, 1, 1);
 		directionalLight1->name = "d1_light"; 
 		light_group->add(directionalLight1);
-		std::shared_ptr<threepp::Light> directionalLight2 = threepp::DirectionalLight::create(0xffeeff, 0.8);
+		std::shared_ptr<threepp::Light> directionalLight2 = threepp::DirectionalLight::create(0xffeeff, 0.4);
 		directionalLight2->position.set(-1, 0.5, -1);
 		directionalLight2->name = "d2_light"; 
 		light_group->add(directionalLight2);

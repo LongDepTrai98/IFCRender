@@ -109,20 +109,21 @@ namespace dragon
 	void RenderCanvas::OnSize(wxSizeEvent& event)
 	{
 		//activeContext();
+		SetCurrent(*m_Context); 
 		auto viewPortSize = event.GetSize() * GetContentScaleFactor();
 		if (m_Renderer)
 		{
 			static_cast<THREEPPRenderer*>(m_Renderer.get())->resize(viewPortSize.x,
 				viewPortSize.y);
 		}
-		//deactiveContext();
+		wglMakeCurrent(NULL, NULL); 
 		Invalidate();
 		event.Skip();
 	}
 	void RenderCanvas::OnPaint(wxPaintEvent& event)
 	{
 		wxPaintDC dc(this);
-		//activeContext();
+		SetCurrent(*m_Context); 
 		if (m_bIsDirty)
 		{
 			enableMultisampling();
@@ -135,7 +136,7 @@ namespace dragon
 			disableMultisampling();
 			m_bIsDirty = false;
 		}
-		//deactiveContext();
+		wglMakeCurrent(NULL, NULL); 
 	}
 	void RenderCanvas::OnMouseMove(wxMouseEvent& event)
 	{

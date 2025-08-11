@@ -46,14 +46,26 @@ endif()
 set(MAPLIBRE_INCLUDE_SOURCE_DIRS
     ${MAPLIBRE_SOURCE_DIR}/src
     ${MAPLIBRE_SOURCE_DIR}/include
-    ${MAPLIBRE_SOURCE_DIR}/platform/default/include)
+    ${MAPLIBRE_SOURCE_DIR}/platform/default/include
+    ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/deps/geometry.hpp/include
+    ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/deps/cheap-ruler-cpp/include
+    ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/deps/variant/include
+    ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/deps/supercluster.hpp/include
+    ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/deps/shelf-pack-cpp/include
+    ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/deps/pixelmatch-cpp/include
+    ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/deps/jni.hpp/include
+    ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/deps/geojson-vt-cpp/include
+    ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/deps/geojson.hpp/include
+    ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/include
+    ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/extras/expected-lite/include
+    ${MAPLIBRE_SOURCE_DIR}/vendor/nontype_functional/include)
 #add_subdirectory(${MAPLIBRE_SOURCE_DIR})
 #project
 set(PROJECT_NAME Dragon)
 set(EDITOR_NAME_PROJECT App)
 #set path 
-set(WX_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.0/include)
-set(WX_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.0/lib/vc_x64_lib/)
+set(WX_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.1/include)
+set(WX_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.1/lib/vc_x64_lib/)
 set(WEB_IFC_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build/3rdparty/lib)
 set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
 set(SHADER_DIR "${CMAKE_SOURCE_DIR}/src/shaders")
@@ -116,6 +128,9 @@ source_group("threadpool" FILES ${THREADPOOL_SRC})
 #shader 
 file(GLOB_RECURSE SHADERS_SRC "src/shaders/*.vert" "src/shaders/*.frag")
 source_group("shaders" FILES ${SHADERS_SRC})
+#maplibre 
+file(GLOB_RECURSE MAPLIBRE_SRC "src/map/*.hpp" "src/map/*.cpp")
+source_group("map" FILES ${MAPLIBRE_SRC})
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/wxInclude.hpp
@@ -137,6 +152,7 @@ add_executable(${EDITOR_NAME_PROJECT}
     ${INPUT_SRC}
     ${THREADPOOL_SRC}
     ${SHADERS_SRC}
+    ${MAPLIBRE_SRC}
 )
 
  #add include 
@@ -152,13 +168,13 @@ target_link_libraries(${EDITOR_NAME_PROJECT}
 #PRIVATE GLEW::glew
 PRIVATE threepp::threepp
 PRIVATE nlohmann_json
-$<$<CONFIG:Debug>:/Debug/web-ifc-library.lib;wxpngd.lib;wxwebpd.lib;wxjpegd.lib>
-$<$<CONFIG:Release>:/Release/web-ifc-library.lib;wxpng.lib;wxwebp.lib;wxjpeg.lib>
+$<$<CONFIG:Debug>:/Debug/web-ifc-library.lib>
+$<$<CONFIG:Release>:/Release/web-ifc-library.lib>
 $<$<CONFIG:Debug>:${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libuv.lib
 ;${MAPLIBRE_SOURCE_DIR}/build/Debug/mbgl-core.lib;${MAPLIBRE_SOURCE_DIR}/build/Debug/mbgl-vendor-parsedate.lib
 ;${MAPLIBRE_SOURCE_DIR}/build/Debug/mbgl-vendor-csscolorparser.lib;${MAPLIBRE_SOURCE_DIR}/build/vendor/harfbuzz/Debug/harfbuzz.lib
 ;${MAPLIBRE_SOURCE_DIR}/build/vendor/freetype/Debug/freetyped.lib
-;ws2_32.lib;opengl32.lib
+;opengl32.lib;ws2_32.lib; bcrypt.lib;crypt32.lib;psapi.lib;user32.lib;iphlpapi.lib;userenv.lib;dbghelp.lib
 ;${MAPLIBRE_SOURCE_DIR}/build/Debug/mbgl-vendor-sqlite.lib;${MAPLIBRE_SOURCE_DIR}/build/Debug/mbgl-vendor-nunicode.lib
 ;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libpng16d.lib
 ;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libcurl-d.lib
@@ -178,7 +194,7 @@ $<$<CONFIG:Release>:${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/install
 ;${MAPLIBRE_SOURCE_DIR}/build/Release/mbgl-vendor-parsedate.lib;${MAPLIBRE_SOURCE_DIR}/build/Release/mbgl-vendor-csscolorparser.lib
 ;${MAPLIBRE_SOURCE_DIR}/build/Release/mbgl-vendor-nunicode.lib;${MAPLIBRE_SOURCE_DIR}/build/Release/mbgl-vendor-sqlite.lib
 ;${MAPLIBRE_SOURCE_DIR}/build/vendor/harfbuzz/Release/harfbuzz.lib;${MAPLIBRE_SOURCE_DIR}/build/vendor/freetype/Release/freetype.lib
-;opengl32.lib;ws2_32.lib
+;opengl32.lib;ws2_32.lib; bcrypt.lib;crypt32.lib;psapi.lib;user32.lib;iphlpapi.lib;userenv.lib;dbghelp.lib
 ;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/libpng16.lib
 ;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/libcurl.lib
 ;${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/lib/zlib.lib
@@ -199,7 +215,7 @@ PRIVATE ${WX_LIB_PATH}
 PRIVATE ${WEB_IFC_LIB_PATH})
 
 target_compile_definitions(${EDITOR_NAME_PROJECT}
-PRIVATE _UNICODE UNICODE _CRT_SECURE_NO_WARNINGS NANORT_ENABLE_PARALLEL_BUILD FMT_UNICODE=0  NANORT_USE_CPP11_FEATURE=1)
+PRIVATE _UNICODE UNICODE _USE_MATH_DEFINES _CRT_SECURE_NO_WARNINGS NANORT_ENABLE_PARALLEL_BUILD FMT_UNICODE=0  NANORT_USE_CPP11_FEATURE=1)
 
 # Custom command to copy assets
 
