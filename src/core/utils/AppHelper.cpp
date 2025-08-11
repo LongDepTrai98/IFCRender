@@ -30,7 +30,6 @@ namespace dragon
 	wxBitmapBundle AppHelper::loadBitmapBundle(const std::string& path, wxBitmapType type)
 	{
 		//wxIcon icon(path, type, 16,16);
-
 		wxBitmap bmp(path, wxBITMAP_TYPE_ICO);
 		wxImage img = bmp.ConvertToImage();
 		img = img.Rescale(16, 16, wxIMAGE_QUALITY_HIGH);

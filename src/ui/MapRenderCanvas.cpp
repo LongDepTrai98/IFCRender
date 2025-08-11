@@ -1,5 +1,17 @@
 #include "MapRenderCanvas.hpp"
-
+#include "map/Win32View.hpp"
+#include "map/Win32RenderFrontEnd.hpp"
+#include <mbgl/gfx/backend.hpp>
+#include <mbgl/renderer/renderer.hpp>
+#include <mbgl/storage/database_file_source.hpp>
+#include <mbgl/storage/file_source_manager.hpp>
+#include <mbgl/style/style.hpp>
+#include <mbgl/util/logging.hpp>
+#include <mbgl/util/platform.hpp>
+#include <mbgl/util/string.hpp>
+#include <mbgl/util/mapbox.hpp>
+#include <nlohmann/json.hpp>
+#include <fstream>
 namespace dragon
 {
 	MapRenderCanvas::MapRenderCanvas(wxWindow* parent, const wxGLAttributes& canvasAttrs) : 
@@ -30,6 +42,37 @@ namespace dragon
 	}
 	void MapRenderCanvas::initContextMap()
 	{
+		auto MapboxConfiguration = mbgl::TileServerOptions::MapboxConfiguration();
+		mbgl::ResourceOptions resourceOptions;
+		resourceOptions
+			.withApiKey("pk.eyJ1IjoiYW5odHVzeHl6IiwiYSI6ImNsdng4ZGp3ZTA2aDgyaWw3ZnM2NXJhcjcifQ.OV7YSJsVT8zY-L4tozXaVw")
+			.withTileServerOptions(MapboxConfiguration);
+		mbgl::ClientOptions clientOptions;
+		auto orderedStyles = MapboxConfiguration.defaultStyles();
+
+		m_Backend = std::make_unique<editor::Win32View>(this,
+			true,
+			true,
+			resourceOptions,
+			clientOptions);
+
+		m_FrontEnd = std::make_unique<editor::Win32RenderFrontEnd>(
+			std::make_unique<mbgl::Renderer>(m_Backend->getRendererBackend(), m_Backend->getPixelRatio()), *m_Backend.get());
+
+		m_Map = std::make_unique<mbgl::Map>(*m_FrontEnd,
+			*m_Backend,
+			mbgl::MapOptions().withSize(m_Backend->getSize()).withPixelRatio(m_Backend->getPixelRatio()),
+			resourceOptions,
+			clientOptions);
+
+		m_Backend->setMap(m_Map.get());
+		m_Map->getStyle().loadURL(orderedStyles[0].getUrl());
+
+		m_Map->jumpTo(mbgl::CameraOptions()
+			.withCenter(mbgl::LatLng{ 0.0, 0.0 })
+			.withZoom(0.0)
+			.withBearing(0.0)
+			.withPitch(0.0));
 	}
 	void MapRenderCanvas::bindFunction()
 	{
@@ -40,7 +83,7 @@ namespace dragon
 	{
 		SetCurrent(*m_Context);
 		auto viewPortSize = event.GetSize() * GetContentScaleFactor();
-		glViewport(0.0, 0.0, viewPortSize.GetWidth(), viewPortSize.GetHeight()); 
+		if (m_Backend) m_Backend->onWindowResize(viewPortSize.x, viewPortSize.y); 
 		wglMakeCurrent(NULL, NULL);
 		event.Skip();
 	}
@@ -48,9 +91,7 @@ namespace dragon
 	{
 		wxPaintDC dc(this);
 		SetCurrent(*m_Context);
-		glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		SwapBuffers();
+		if (m_Backend)m_Backend->runOnce();
 		wglMakeCurrent(NULL, NULL); 
 	}
 	void MapRenderCanvas::OnInternalIdle()

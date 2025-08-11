@@ -2,6 +2,15 @@
 #define _MAP_RENDER_CANVAS_HPP_
 #include "wxInclude.hpp"
 #include <memory>
+namespace editor
+{
+	class Win32View; 
+	class Win32RenderFrontEnd; 
+}
+namespace mbgl
+{
+	class Map; 
+}
 namespace dragon
 {
 	class ToolBarData;
@@ -43,6 +52,9 @@ namespace dragon
 	private:
 		//main context
 		std::unique_ptr<wxGLContext> m_Context{ nullptr };
+		std::unique_ptr<editor::Win32View> m_Backend{ nullptr };
+		std::unique_ptr<editor::Win32RenderFrontEnd> m_FrontEnd{ nullptr };
+		std::unique_ptr<mbgl::Map> m_Map{ nullptr };
 		/* MAIN SCENE*/
 		//min size
 		wxSize m_MinSize{ 640, 480 };

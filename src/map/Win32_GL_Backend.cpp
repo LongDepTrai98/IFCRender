@@ -52,8 +52,6 @@ namespace editor
 
 	void Win32_GL_Backend::swap()
 	{
-		/*auto& window_data = window->getWindowData(); 
-		SwapBuffers(window_data.m_Hdc);*/
 		m_canvas->SwapBuffers(); 
 	}
 	mbgl::Size Win32_GL_Backend::getSize() const
