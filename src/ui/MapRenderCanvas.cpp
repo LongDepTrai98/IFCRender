@@ -12,33 +12,26 @@
 #include <mbgl/util/mapbox.hpp>
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include "core/lock/ContextLock.hpp"
 namespace dragon
 {
-	MapRenderCanvas::MapRenderCanvas(wxWindow* parent/*, const wxGLAttributes& canvasAttrs,*/, wxGLContext* context) :
-		wxGLCanvas(parent), 
-		m_Context(context)
+	MapRenderCanvas::MapRenderCanvas(wxWindow* parent,
+		const wxGLAttributes& canvasAttrs) :
+		IGLCanvas(parent,
+			canvasAttrs)
 	{
-		//initGLContext(); 
-		//SetCurrent(*m_Context); 
-		initContextMap(); 
-		bindFunction(); 
-	}
-	MapRenderCanvas::~MapRenderCanvas()
-	{
-	}
-	void MapRenderCanvas::initGLContext()
-	{
-	/*	wxGLContextAttrs ctxAttrs;
 		ctxAttrs.PlatformDefaults()
 			.CoreProfile()
 			.OGLVersion(3, 0)
 			.EndList();
-		if (!m_Context)
-			m_Context = std::make_unique<wxGLContext>(this, nullptr, &ctxAttrs);
-		if (!m_Context->IsOK())
-		{
-			throw std::exception("Can't create context renderer");
-		}*/
+		initGLContext(); 
+		m_ContextLock->lock();
+		bindFunction(); 
+		initContextMap();
+		m_ContextLock->unlock(); 
+	}
+	MapRenderCanvas::~MapRenderCanvas()
+	{
 	}
 	void MapRenderCanvas::initContextMap()
 	{
@@ -83,18 +76,18 @@ namespace dragon
 	}
 	void MapRenderCanvas::OnSize(wxSizeEvent& event)
 	{
-		SetCurrent(*m_Context);
+		m_ContextLock->lock(); 
 		auto viewPortSize = event.GetSize() * GetContentScaleFactor();
 		if (m_Backend) m_Backend->onWindowResize(viewPortSize.x, viewPortSize.y); 
-		wglMakeCurrent(NULL, NULL);
+		m_ContextLock->unlock(); 
 		event.Skip();
 	}
 	void MapRenderCanvas::OnPaint(wxPaintEvent& event)
 	{
 		wxPaintDC dc(this);
-		//SetCurrent(*m_Context);
+		m_ContextLock->lock(); 
 		if (m_Backend)m_Backend->runOnce();
-		//wglMakeCurrent(NULL, NULL); 
+		m_ContextLock->unlock(); 
 	}
 	void MapRenderCanvas::OnMouseMove(wxMouseEvent& event)
 	{
@@ -127,5 +120,12 @@ namespace dragon
 	void MapRenderCanvas::activeContext()
 	{
 		SetCurrent(*m_Context); 
+	}
+	wxSize MapRenderCanvas::getSize()
+	{
+		return GetSize() * GetContentScaleFactor();
+	}
+	void MapRenderCanvas::Invalidate()
+	{
 	}
 }

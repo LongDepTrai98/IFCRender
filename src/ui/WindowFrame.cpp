@@ -26,7 +26,7 @@ namespace dragon
 		initMenuBar();
 		initAppToolBar();
 		initBimRenderCanvas();
-		//initMapRenderCanvas(); 
+		initMapRenderCanvas(); 
 		initTreeCtrl();
 		CreateStatusBar(2);
 		SetStatusText("Welcome to wxWidgets!");
@@ -98,7 +98,7 @@ namespace dragon
 			dispAttrs.PlatformDefaults()
 				.RGBA()
 				.DoubleBuffer()
-				//.Depth(24)
+				.Depth(24)
 				.SampleBuffers(1)
 				.Samplers(app_config::num_sampler)
 				.Stencil(8)
@@ -133,44 +133,42 @@ namespace dragon
 	}
 	void WindowFrame::initMapRenderCanvas()
 	{
-		//wxGLAttributes dispAttrs;
-		//if (app_config::enable_msaa)
-		//{
-		//	dispAttrs.PlatformDefaults()
-		//		.RGBA()
-		//		.DoubleBuffer()
-		//		//.Depth(24)
-		//		.SampleBuffers(1)
-		//		.Samplers(app_config::num_sampler)
-		//		.Stencil(8)
-		//		.FrameBuffersRGB()
-		//		.PlatformDefaults()
-		//		.EndList();
-		//}
-		//else
-		//{
-		//	dispAttrs.PlatformDefaults()
-		//		.RGBA()
-		//		.DoubleBuffer()
-		//		.Depth(24)
-		//		.Stencil(8)
-		//		.FrameBuffersRGB()
-		//		.PlatformDefaults()
-		//		.EndList();
-		//}
-		//if (!wxGLCanvas::IsDisplaySupported(dispAttrs))
-		//{
-		//	throw std::exception("glCanvans not support display attribute");
-		//}
+		wxGLAttributes dispAttrs;
+		if (app_config::enable_msaa)
+		{
+			dispAttrs.PlatformDefaults()
+				.RGBA()
+				.DoubleBuffer()
+				.Depth(24)
+				.SampleBuffers(1)
+				.Samplers(app_config::num_sampler)
+				.Stencil(8)
+				.FrameBuffersRGB()
+				.PlatformDefaults()
+				.EndList();
+		}
+		else
+		{
+			dispAttrs.PlatformDefaults()
+				.RGBA()
+				.DoubleBuffer()
+				.Depth(24)
+				.Stencil(8)
+				.FrameBuffersRGB()
+				.PlatformDefaults()
+				.EndList();
+		}
+		if (!wxGLCanvas::IsDisplaySupported(dispAttrs))
+		{
+			throw std::exception("glCanvans not support display attribute");
+		}
 		if (!m_MapRenderCanvas)
 		{
-			//m_MapRenderCanvas = std::make_unique<MapRenderCanvas>(this,
-			//	/*dispAttrs,*/
-			//	m_RenderCanvas->getRenderContext());
-			//m_MapRenderCanvas->m_Context = m_RenderCanvas->getRenderContext(); 
-			//const std::string& checkedPath = assets::Icons + "scene.ico";
-			//m_UIManager->AddPane(m_MapRenderCanvas.get(), panel_config::map_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
-			//m_UIManager->Update();
+			m_MapRenderCanvas = std::make_unique<MapRenderCanvas>(this,
+				dispAttrs);
+			const std::string& checkedPath = assets::Icons + "scene.ico";
+			m_UIManager->AddPane(m_MapRenderCanvas.get(), panel_config::map_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
+			m_UIManager->Update();
 		}
 	}
 	void WindowFrame::initCommand()

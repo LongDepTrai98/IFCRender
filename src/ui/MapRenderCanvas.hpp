@@ -1,6 +1,6 @@
 #ifndef _MAP_RENDER_CANVAS_HPP_
 #define _MAP_RENDER_CANVAS_HPP_
-#include "wxInclude.hpp"
+#include "ui/IGLCanvas.hpp"
 #include <memory>
 namespace editor
 {
@@ -14,16 +14,16 @@ namespace mbgl
 namespace dragon
 {
 	class ToolBarData;
-	class MapRenderCanvas : public wxGLCanvas
+	class MapRenderCanvas : public IGLCanvas
 	{
 	public:
-		MapRenderCanvas(wxWindow* parent, /*const wxGLAttributes& canvasAttrs,*/ wxGLContext* context);
+		MapRenderCanvas(wxWindow* parent, 
+			const wxGLAttributes& canvasAttrs);
 		~MapRenderCanvas();
 	public:
 		void OnCallbackToolbarCommand(ToolBarData& data);
 		void OnMenu(wxCommandEvent& event);
 	private:
-		void initGLContext();
 		void initContextMap();
 		void initUI();
 		void initMenu();
@@ -49,8 +49,6 @@ namespace dragon
 		void swapBuff();
 		wxSize getSize();
 		void Invalidate();
-	public: 
-		wxGLContext* m_Context{ nullptr };
 	private:
 		//main context
 		std::unique_ptr<editor::Win32View> m_Backend{ nullptr };
