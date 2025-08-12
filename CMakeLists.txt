@@ -58,6 +58,7 @@ set(MAPLIBRE_INCLUDE_SOURCE_DIRS
     ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/deps/geojson.hpp/include
     ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/include
     ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/extras/expected-lite/include
+    ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/extras/rapidjson/include
     ${MAPLIBRE_SOURCE_DIR}/vendor/nontype_functional/include)
 #add_subdirectory(${MAPLIBRE_SOURCE_DIR})
 #project

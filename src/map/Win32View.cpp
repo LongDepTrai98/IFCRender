@@ -98,6 +98,8 @@ namespace editor
 	void Win32View::onWindowResize(int width, int height)
 	{
 		MLN_TRACE_FUNC();
+		if (width == 0 || height == 0)
+			return; 
 		m_Width = width; 
 		m_Height = height;
 		m_Backend->setSize({ static_cast<uint32_t>(m_Width), static_cast<uint32_t>(m_Height) }); 
