@@ -15,6 +15,7 @@
 #include <format>
 #include <iostream>
 #include <set>
+#include "core/lock/ContextLock.hpp"
 namespace dragon
 {
 	IFCFileContext::IFCFileContext()
@@ -136,6 +137,7 @@ namespace dragon
 
 	void IFCFileContext::rebuildVisibleIndices()
 	{
+		Context_Lock->lock(); 
 		m_Hidden_Express_IDs.clear();
 		std::map <int, std::vector<std::pair<int, int>>> view_geometries_with_materials{};
 		size_t total_indices = 0;
@@ -180,6 +182,7 @@ namespace dragon
 		mesh->name = "model";
 		RayCast->createNewTriangleIntersect(m_Model->ptr_object_vertices, m_Model->m_Object_Indices.data());
 		RayCast->getIntersector()->custom_callback_checkface = m_Callback_Intersect;
+		Context_Lock->unlock(); 
 	}
 
 	void IFCFileContext::drawHoverLayer()
@@ -288,6 +291,7 @@ namespace dragon
 
 	void IFCFileContext::LButtonDown(EventData& data)
 	{
+		Context_Lock->lock(); 
 		if (m_bIsSelectPivotMode) return;
 		if (!m_Current_ExpressID) return;
 		if (!m_bIsMultiSelectMode)
@@ -316,6 +320,7 @@ namespace dragon
 		}
 		if (OnRedrawCallback)
 			OnRedrawCallback();
+		Context_Lock->unlock(); 
 	}
 
 	void IFCFileContext::RButtonUp(EventData& data)
@@ -338,6 +343,7 @@ namespace dragon
 
 	void IFCFileContext::ToolBarAction(ToolBarData& data)
 	{
+		Context_Lock->lock(); 
 		ID_EVENT id = static_cast<ID_EVENT>(data.event.GetId());
 		bool isCheck = data.bIsCheck;
 		switch (id)
@@ -378,10 +384,12 @@ namespace dragon
 		default:
 			break;
 		}
+		Context_Lock->unlock(); 
 	}
 
 	void IFCFileContext::MenuClick(MenuData& data)
 	{
+		Context_Lock->lock(); 
 		ID_EVENT id = static_cast<ID_EVENT>(data.event_id);
 		switch (id)
 		{
@@ -407,6 +415,7 @@ namespace dragon
 		default:
 			break;
 		}
+		Context_Lock->unlock(); 
 	}
 
 	void IFCFileContext::initCallback()

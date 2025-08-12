@@ -1,107 +1,98 @@
 #include <iostream>
 #include <GL/glew.h>
-#include "RenderCanvas.hpp"
+#include "BimRenderCanvas.hpp"
 #include "renderer/THREEPPRenderer.hpp"
 #include "view/ViewportGizmo.hpp"
 #include "core/IWindowEventHandler.hpp"
 #include "input/input.hpp"
 #include "resource.hpp"
+#include "core/lock/ContextLock.hpp"
 namespace dragon
 {
-	RenderCanvas::RenderCanvas(wxWindow* parent, const wxGLAttributes& canvasAttrs) : wxGLCanvas(parent,
+	BimRenderCanvas::BimRenderCanvas(wxWindow* parent, const wxGLAttributes& canvasAttrs) : IGLCanvas(parent,
 		canvasAttrs)
 	{
 		/*INIT UI FOR RENDERER*/
+		ctxAttrs.PlatformDefaults()
+			.CoreProfile()
+			.OGLVersion(3, 3)
+			.EndList();
 		initGLContext();
-		SetCurrent(*m_Context);
+		m_ContextLock->lock(); 
 		initContextRenderer();
 		initMenu();
 		bindFunction();
+		m_ContextLock->unlock(); 
 	}
-	RenderCanvas::~RenderCanvas()
+	BimRenderCanvas::~BimRenderCanvas()
 	{
 	}
-	void RenderCanvas::OnCallbackToolbarCommand(ToolBarData& data)
+	void BimRenderCanvas::OnCallbackToolbarCommand(ToolBarData& data)
 	{
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
 			event_handler->OnToolBarClick(data);
 	}
-	void RenderCanvas::OnMenu(wxCommandEvent& event)
+	void BimRenderCanvas::OnMenu(wxCommandEvent& event)
 	{
+		SetCurrent(*m_Context); 
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		MenuData data;
 		data.event_id = event.GetId();
 		if (event_handler)
 			event_handler->OnMenuClick(data);
+		wglMakeCurrent(NULL, NULL); 
 	}
-	void RenderCanvas::initGLContext()
-	{
-		wxGLContextAttrs ctxAttrs;
-		ctxAttrs.PlatformDefaults()
-			.CoreProfile()
-			.OGLVersion(3, 0)
-			.EndList();
-		if (!m_Context)
-			m_Context = std::make_unique<wxGLContext>(this, nullptr, &ctxAttrs);
-		if (!m_Context->IsOK())
-		{
-			throw std::exception("Can't create context renderer");
-		}
-	}
-	void RenderCanvas::initContextRenderer()
+	void BimRenderCanvas::initContextRenderer()
 	{
 		if (!m_Renderer)
 			m_Renderer = std::make_unique<THREEPPRenderer>(this);
 	}
-	void RenderCanvas::initUI()
+	void BimRenderCanvas::initUI()
 	{
 		auto button = new wxButton(this, wxID_ANY, "MSAA", wxPoint(10, 10), wxSize(150, 30));
 	}
-	void RenderCanvas::initMenu()
+	void BimRenderCanvas::initMenu()
 	{
 		main_menu.Append((int)ID_EVENT::MAIN_MENU_HIDE, "Hide");
 	}
-	void RenderCanvas::bindFunction()
+	void BimRenderCanvas::bindFunction()
 	{
 		/*CANVAS EVENT*/
-		Bind(wxEVT_PAINT, &RenderCanvas::OnPaint, this);
-		Bind(wxEVT_SIZE, &RenderCanvas::OnSize, this);
-		Bind(wxEVT_MOTION, &RenderCanvas::OnMouseMove, this);
-		Bind(wxEVT_LEFT_DOWN, &RenderCanvas::OnMousePress, this);
-		Bind(wxEVT_RIGHT_DOWN, &RenderCanvas::OnMousePress, this);
-		Bind(wxEVT_LEFT_UP, &RenderCanvas::OnMouseRelease, this);
-		Bind(wxEVT_RIGHT_UP, &RenderCanvas::OnMouseRelease, this);
-		Bind(wxEVT_MOUSEWHEEL, &RenderCanvas::OnMouseWheel, this);
-		Bind(wxEVT_KEY_UP, &RenderCanvas::OnKeyUp, this);
-		Bind(wxEVT_KEY_DOWN, &RenderCanvas::OnKeyDown, this);
+		Bind(wxEVT_PAINT, &BimRenderCanvas::OnPaint, this);
+		Bind(wxEVT_SIZE, &BimRenderCanvas::OnSize, this);
+		Bind(wxEVT_MOTION, &BimRenderCanvas::OnMouseMove, this);
+		Bind(wxEVT_LEFT_DOWN, &BimRenderCanvas::OnMousePress, this);
+		Bind(wxEVT_RIGHT_DOWN, &BimRenderCanvas::OnMousePress, this);
+		Bind(wxEVT_LEFT_UP, &BimRenderCanvas::OnMouseRelease, this);
+		Bind(wxEVT_RIGHT_UP, &BimRenderCanvas::OnMouseRelease, this);
+		Bind(wxEVT_MOUSEWHEEL, &BimRenderCanvas::OnMouseWheel, this);
+		Bind(wxEVT_KEY_UP, &BimRenderCanvas::OnKeyUp, this);
+		Bind(wxEVT_KEY_DOWN, &BimRenderCanvas::OnKeyDown, this);
 		/*MENU*/
-		Bind(wxEVT_MENU, &RenderCanvas::OnMenu, this, static_cast<int>(ID_EVENT::MAIN_MENU_HIDE));
+		Bind(wxEVT_MENU, &BimRenderCanvas::OnMenu, this, static_cast<int>(ID_EVENT::MAIN_MENU_HIDE));
 		/*BUTTON*/
-		Bind(wxEVT_BUTTON, &RenderCanvas::OnClickEnableMSAA, this);
+		Bind(wxEVT_BUTTON, &BimRenderCanvas::OnClickEnableMSAA, this);
 	}
-	void RenderCanvas::swapBuff()
+	void BimRenderCanvas::swapBuff()
 	{
 		SwapBuffers();
 	}
-	wxSize RenderCanvas::getSize()
+	wxSize BimRenderCanvas::getSize()
 	{
 		return GetSize() * GetContentScaleFactor();
 	}
-	IRenderer* RenderCanvas::getRenderer()
+	IRenderer* BimRenderCanvas::getRenderer()
 	{
 		return m_Renderer.get();
 	}
-	void RenderCanvas::Invalidate()
+	void BimRenderCanvas::Invalidate()
 	{
 		m_bIsDirty = true;
 	}
-	wxGLContext* RenderCanvas::getRenderContext()
+	void BimRenderCanvas::OnSize(wxSizeEvent& event)
 	{
-		return m_Context.get(); 
-	}
-	void RenderCanvas::OnSize(wxSizeEvent& event)
-	{
+		m_ContextLock->lock(); 
 		auto viewPortSize = event.GetSize() * GetContentScaleFactor();
 		if (m_Renderer)
 		{
@@ -109,11 +100,13 @@ namespace dragon
 				viewPortSize.y);
 		}
 		Invalidate();
+		m_ContextLock->unlock(); 
 		event.Skip();
 	}
-	void RenderCanvas::OnPaint(wxPaintEvent& event)
+	void BimRenderCanvas::OnPaint(wxPaintEvent& event)
 	{
 		wxPaintDC dc(this);
+		m_ContextLock->lock(); 
 		if (m_bIsDirty)
 		{
 			enableMultisampling();
@@ -126,8 +119,9 @@ namespace dragon
 			disableMultisampling();
 			m_bIsDirty = false;
 		}
+		m_ContextLock->unlock(); 
 	}
-	void RenderCanvas::OnMouseMove(wxMouseEvent& event)
+	void BimRenderCanvas::OnMouseMove(wxMouseEvent& event)
 	{
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
@@ -137,7 +131,7 @@ namespace dragon
 		Invalidate();
 		event.Skip();
 	}
-	void RenderCanvas::OnMousePress(wxMouseEvent& event)
+	void BimRenderCanvas::OnMousePress(wxMouseEvent& event)
 	{
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		int buttonFlag = event.GetButton();
@@ -157,7 +151,7 @@ namespace dragon
 		Invalidate();
 		event.Skip();
 	}
-	void RenderCanvas::OnMouseRelease(wxMouseEvent& event)
+	void BimRenderCanvas::OnMouseRelease(wxMouseEvent& event)
 	{
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		int buttonFlag = event.GetButton();
@@ -186,7 +180,7 @@ namespace dragon
 		Invalidate();
 		event.Skip();
 	}
-	void RenderCanvas::OnMouseWheel(wxMouseEvent& event)
+	void BimRenderCanvas::OnMouseWheel(wxMouseEvent& event)
 	{
 		WindowEventHandler* event_handler = static_cast<WindowEventHandler*>(static_cast<THREEPPRenderer*>(m_Renderer.get()));
 		if (event_handler)
@@ -194,10 +188,10 @@ namespace dragon
 		Invalidate();
 		event.Skip();
 	}
-	void RenderCanvas::OnClickEnableMSAA(wxCommandEvent& command)
+	void BimRenderCanvas::OnClickEnableMSAA(wxCommandEvent& command)
 	{
 	}
-	void RenderCanvas::OnKeyDown(wxKeyEvent& event)
+	void BimRenderCanvas::OnKeyDown(wxKeyEvent& event)
 	{
 		if (event.GetKeyCode() == WXK_CONTROL)
 		{
@@ -208,7 +202,7 @@ namespace dragon
 			event_handler->OnKeyDown(event);
 		event.Skip();
 	}
-	void RenderCanvas::OnKeyUp(wxKeyEvent& event)
+	void BimRenderCanvas::OnKeyUp(wxKeyEvent& event)
 	{
 		if (event.GetKeyCode() == WXK_CONTROL)
 		{
@@ -219,16 +213,16 @@ namespace dragon
 			event_handler->OnKeyUp(event);
 		event.Skip();
 	}
-	void RenderCanvas::OnInternalIdle()
+	void BimRenderCanvas::OnInternalIdle()
 	{
 		wxWindow::OnInternalIdle();
 		Refresh(false);
 	}
-	void RenderCanvas::enableMultisampling()
+	void BimRenderCanvas::enableMultisampling()
 	{
 		glEnable(GL_MULTISAMPLE);
 	}
-	void RenderCanvas::disableMultisampling()
+	void BimRenderCanvas::disableMultisampling()
 	{
 		glDisable(GL_MULTISAMPLE);
 	}

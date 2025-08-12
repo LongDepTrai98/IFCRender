@@ -10,7 +10,7 @@ namespace threepp
 namespace dragon
 {
 	class WindowFrame;
-
+	class BimRenderCanvas; 
 	static class FixedSizeImpl : public wxBitmapBundleImpl
 	{
 	public:
@@ -48,7 +48,7 @@ namespace dragon
 	public:
 		/*APP HELPER GET MAIN VIEW PORT SCENE*/
 		static MainViewPort* getMainViewPortScene(WindowFrame* main_frame);
-		static RenderCanvas* getRenderCanvas(WindowFrame* main_frame);
+		static BimRenderCanvas* getRenderCanvas(WindowFrame* main_frame);
 		static ElementTreeCtrl* getMainTreeCtrl(WindowFrame* main_frame);
 		static wxBitmapBundle loadBitmapBundle(const std::string& path, wxBitmapType type);
 		static void GetWindowSize(wxWindow* window, int& width, int& height); 

@@ -1,6 +1,6 @@
 ﻿#include "WindowFrame.hpp"
 #include "AppMenubar.hpp"
-#include "RenderCanvas.hpp"
+#include "BimRenderCanvas.hpp"
 #include "MapRenderCanvas.hpp"
 #include "config/app_config.hpp"
 #include "config/pannel_config.hpp"
@@ -12,9 +12,6 @@
 #include "input/input.hpp"
 namespace dragon
 {
-	/*wxBEGIN_EVENT_TABLE(WindowFrame, wxFrame)
-		EVT_SIZE(WindowFrame::OnSize)
-		wxEND_EVENT_TABLE()*/
 	WindowFrame::WindowFrame() : wxFrame(nullptr,
 		wxID_ANY,
 		app_config::app_name)
@@ -28,17 +25,17 @@ namespace dragon
 		initCommand();
 		initMenuBar();
 		initAppToolBar();
-		initRenderCanvas();
-		initMapRenderCanvas(); 
+		initBimRenderCanvas();
+		//initMapRenderCanvas(); 
 		initTreeCtrl();
 		CreateStatusBar(2);
 		SetStatusText("Welcome to wxWidgets!");
 		Centre(wxBOTH);
 		Bind(wxEVT_SIZE, &WindowFrame::OnResize, this);
 	}
-	RenderCanvas* WindowFrame::getRenderCanvas()
+	BimRenderCanvas* WindowFrame::getBimRenderCanvas()
 	{
-		return m_RenderCanvas.get();
+		return m_BimRenderCanvas.get();
 	}
 	ElementTreeCtrl* WindowFrame::getElementTreeCtrl()
 	{
@@ -93,7 +90,7 @@ namespace dragon
 			.DockFixed()        
 			.Gripper(false)); 
 	}
-	void WindowFrame::initRenderCanvas()
+	void WindowFrame::initBimRenderCanvas()
 	{
 		wxGLAttributes dispAttrs;
 		if (app_config::enable_msaa)
@@ -125,12 +122,12 @@ namespace dragon
 			throw std::exception("glCanvans not support display attribute");
 		}
 
-		if (!m_RenderCanvas)
+		if (!m_BimRenderCanvas)
 		{
-			m_RenderCanvas = std::make_unique<RenderCanvas>(this,
+			m_BimRenderCanvas = std::make_unique<BimRenderCanvas>(this,
 				dispAttrs);
 			const std::string& checkedPath = assets::Icons + "scene.ico";
-			m_UIManager->AddPane(m_RenderCanvas.get(), panel_config::scene_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
+			m_UIManager->AddPane(m_BimRenderCanvas.get(), panel_config::scene_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
 			m_UIManager->Update();
 		}
 	}
@@ -167,14 +164,13 @@ namespace dragon
 		//}
 		if (!m_MapRenderCanvas)
 		{
-			m_MapRenderCanvas = std::make_unique<MapRenderCanvas>(this,
-				/*dispAttrs,*/
-				m_RenderCanvas->getRenderContext());
-			m_MapRenderCanvas->m_Context = m_RenderCanvas->getRenderContext(); 
-			const std::string& checkedPath = assets::Icons + "scene.ico";
-			m_UIManager->AddPane(m_MapRenderCanvas.get(), panel_config::map_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
-			m_UIManager->Update();
-			m_RenderCanvas->SetCurrent(*m_RenderCanvas->getRenderContext()); 
+			//m_MapRenderCanvas = std::make_unique<MapRenderCanvas>(this,
+			//	/*dispAttrs,*/
+			//	m_RenderCanvas->getRenderContext());
+			//m_MapRenderCanvas->m_Context = m_RenderCanvas->getRenderContext(); 
+			//const std::string& checkedPath = assets::Icons + "scene.ico";
+			//m_UIManager->AddPane(m_MapRenderCanvas.get(), panel_config::map_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
+			//m_UIManager->Update();
 		}
 	}
 	void WindowFrame::initCommand()
@@ -186,23 +182,10 @@ namespace dragon
 		Bind(wxEVT_ICONIZE, &AppCommandHandler::OnIconize, m_CommandHandler.get());
 		Bind(wxEVT_TOOL, &AppCommandHandler::OnToolbarClick, m_CommandHandler.get());
 	}
-	void WindowFrame::OnHello(wxCommandEvent& event)
-	{
-		wxLogMessage("Hello world from wxWidgets!");
-	}
-	void WindowFrame::OnExit(wxCommandEvent& event)
-	{
-		Close(true);
-	}
-	void WindowFrame::OnAbout(wxCommandEvent& event)
-	{
-		wxMessageBox("This is a wxWidgets Hello World example",
-			"About Hello World", wxOK | wxICON_INFORMATION);
-	}
 	void WindowFrame::OnCallbackToolbarCommand(ToolBarData& data)
 	{
-		if (m_RenderCanvas)
-			m_RenderCanvas->OnCallbackToolbarCommand(data);
+		if (m_BimRenderCanvas)
+			m_BimRenderCanvas->OnCallbackToolbarCommand(data);
 	}
 	void WindowFrame::OnResize(wxSizeEvent& event)
 	{

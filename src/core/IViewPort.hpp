@@ -24,10 +24,6 @@ namespace dragon
 	public:
 		virtual ~ViewPort() = default;
 	public:
-		/*	threepp::Scene* getScene()
-			{
-				return m_Scene.get();
-			};*/
 		threepp::Camera* getCamera()
 		{
 			return m_Camera.get();

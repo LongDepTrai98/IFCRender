@@ -9,7 +9,7 @@ namespace dragon
 		public IRenderer
 	{
 	public:
-		ViewPortGizmo(RenderCanvas* canvas);
+		ViewPortGizmo(IGLCanvas* canvas);
 		~ViewPortGizmo();
 	public:
 		threepp::Scene* getScene() override;

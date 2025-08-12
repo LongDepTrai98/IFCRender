@@ -1,6 +1,6 @@
 #include "ViewportGizmo.hpp"
 #include "wxInclude.hpp"
-#include "ui/RenderCanvas.hpp"
+#include "ui/BimRenderCanvas.hpp"
 #include "core/Paths.hpp"
 #include "config/app_config.hpp"
 #include "threepp/geometries/EdgesGeometry.hpp"
@@ -11,7 +11,7 @@
 
 namespace dragon
 {
-	ViewPortGizmo::ViewPortGizmo(RenderCanvas* canvas) : IRenderer(canvas)
+	ViewPortGizmo::ViewPortGizmo(IGLCanvas* canvas) : IRenderer(canvas)
 	{
 		//m_Canvas->activeContext();
 		m_Viewport_Size = { 100,100 };

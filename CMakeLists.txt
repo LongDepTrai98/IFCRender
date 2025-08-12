@@ -107,6 +107,9 @@ source_group("core//utils" FILES ${APP_UTILS_CORE_SRC})
 #draw pass 
 file(GLOB APP_DRAWPASS_CORE_SRC "src/core/drawpass/*.cpp" "src/core/drawpass/*.hpp")
 source_group("core//drawpass" FILES ${APP_DRAWPASS_CORE_SRC})
+#lock 
+file(GLOB APP_CONTEXT_LOCK "src/core/lock/*.cpp" "src/core/lock/*.hpp")
+source_group("core//lock" FILES ${APP_CONTEXT_LOCK})
 #renderer 
 file(GLOB_RECURSE APP_RENDERER_SRC "src/renderer/*.cpp" "src/renderer/*.hpp")
 source_group("renderer" FILES ${APP_RENDERER_SRC})
@@ -153,6 +156,7 @@ add_executable(${EDITOR_NAME_PROJECT}
     ${THREADPOOL_SRC}
     ${SHADERS_SRC}
     ${MAPLIBRE_SRC}
+    ${APP_CONTEXT_LOCK}
 )
 
  #add include 

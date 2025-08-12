@@ -14,12 +14,13 @@ namespace dragon
 	* THREEPP BACKEND RENDERER
 	*/
 	class ViewPort;
+	class BimRenderCanvas; 
 	class THREEPPRenderer : public IRenderer,
 		public WindowEventHandler,
 		public threepp::PeripheralsEventSource
 	{
 	public:
-		THREEPPRenderer(RenderCanvas* canvas);
+		THREEPPRenderer(BimRenderCanvas* canvas);
 		virtual ~THREEPPRenderer();
 	public:
 		threepp::GLRenderer* getRenderer();

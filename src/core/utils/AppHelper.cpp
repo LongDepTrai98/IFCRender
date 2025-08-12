@@ -1,6 +1,6 @@
 #include "AppHelper.hpp"
 #include "ui/WindowFrame.hpp"
-#include "ui/RenderCanvas.hpp"
+#include "ui/BimRenderCanvas.hpp"
 #include "renderer/THREEPPRenderer.hpp"
 #include "threepp/threepp.hpp"
 #include "spdlog/spdlog.h"
@@ -9,17 +9,17 @@ namespace dragon
 	MainViewPort* AppHelper::getMainViewPortScene(WindowFrame* main_frame)
 	{
 		if (!main_frame) return nullptr;
-		IRenderer* renderer = main_frame->getRenderCanvas()->getRenderer();
+		IRenderer* renderer = main_frame->getBimRenderCanvas()->getRenderer();
 		THREEPPRenderer* three_renderer = static_cast<THREEPPRenderer*>(renderer);
 		if (!renderer) return nullptr;
 		MainViewPort* viewport = static_cast<MainViewPort*>(three_renderer->getMainViewPort());
 		return viewport;
 	}
 
-	RenderCanvas* AppHelper::getRenderCanvas(WindowFrame* main_frame)
+	BimRenderCanvas* AppHelper::getRenderCanvas(WindowFrame* main_frame)
 	{
 		if (!main_frame) return nullptr;
-		return main_frame->getRenderCanvas();
+		return main_frame->getBimRenderCanvas();
 	}
 
 	ElementTreeCtrl* AppHelper::getMainTreeCtrl(WindowFrame* main_frame)
@@ -32,7 +32,7 @@ namespace dragon
 		//wxIcon icon(path, type, 16,16);
 		wxBitmap bmp(path, wxBITMAP_TYPE_ICO);
 		wxImage img = bmp.ConvertToImage();
-		img = img.Rescale(16, 16, wxIMAGE_QUALITY_HIGH);
+		img = img.Rescale(12, 12, wxIMAGE_QUALITY_HIGH);
 		wxIcon smallIcon;
 		smallIcon.CopyFromBitmap(wxBitmap(img));
 		wxSize iconSize(smallIcon.GetWidth(), smallIcon.GetHeight());

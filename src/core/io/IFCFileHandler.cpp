@@ -1,6 +1,6 @@
 #include "IFCFileHandler.hpp"
 #include "ui/WindowFrame.hpp"
-#include "ui/RenderCanvas.hpp"
+#include "ui/BimRenderCanvas.hpp"
 #include "renderer/THREEPPRenderer.hpp"
 #include "renderer/THREEPPSceneBuilder.hpp"
 #include "core/utils/AppHelper.hpp"
@@ -23,6 +23,7 @@
 #include <spdlog/spdlog.h>
 #include "core/props/IFCProperties.hpp"
 #include "raycast/CustomRayCaster.hpp"
+#include "core/lock/ContextLock.hpp"
 namespace dragon
 {
 	IFCFileHandler::IFCFileHandler()
@@ -33,14 +34,15 @@ namespace dragon
 	}
 	void IFCFileHandler::open(const std::filesystem::path& file_path)
 	{
+		WindowFrame* window_frame = static_cast<WindowFrame*>(m_Window);
+		auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
+		main_viewport->resetFileContext();
+		main_viewport->m_Canvas->getContextLock()->lock(); 
 		std::shared_ptr<threepp::Group> container{ nullptr };
 		std::shared_ptr<threepp::BufferGeometry> model_geometry{ nullptr };
 		WebIFCConverter IFCApi{};
 		container = IFCApi.convert(file_path);
 		container->name = "Model_Group";
-		WindowFrame* window_frame = static_cast<WindowFrame*>(m_Window);
-		auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
-		main_viewport->resetFileContext();
 		/*COPY DATA*/
 		std::unique_ptr<IFileContext> file_context = FileContextFactory::create(FileContextFactory::type::IFC);
 		auto ptr_ifc_file_context = static_cast<IFCFileContext*>(file_context.get());
@@ -113,7 +115,7 @@ namespace dragon
 				RayCast->getIntersector()->custom_callback_checkface = ptr_ifc_file_context->m_Callback_Intersect;
 			}
 		}
-		RenderCanvas* canvas = AppHelper::getRenderCanvas(window_frame);
+		BimRenderCanvas* canvas = AppHelper::getRenderCanvas(window_frame);
 		/*set callback redraw */
 		auto redraw_callback = [canvas]() {
 			canvas->Invalidate();
@@ -122,6 +124,9 @@ namespace dragon
 		/*Set add object callback*/
 		ptr_ifc_file_context->m_Add_Object_CallBack = main_viewport->m_Add_Object_CallBack;
 		ptr_ifc_file_context->m_Add_Object_DrawDepth_CallBack = main_viewport->m_Add_Object_DrawDepth_CallBack;
+		/*CONTEXT LOCK*/
+		ptr_ifc_file_context->Context_Lock = main_viewport->m_Canvas->getContextLock();
+		main_viewport->m_Canvas->getContextLock()->unlock(); 
 		canvas->Invalidate();
 	}
 }

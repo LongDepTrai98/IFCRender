@@ -25,6 +25,7 @@ namespace dragon
 	class IFCGeometryCache;
 	class ItemData;
 	class CustomRayCaster;
+	class ContextLock; 
 	class IFCFileContext : public IFileContext
 	{
 	public:
@@ -69,6 +70,7 @@ namespace dragon
 		CustomRayCaster* RayCast{ nullptr };
 		std::shared_ptr<threepp::Group> m_OverLay_Group{ nullptr };
 		std::shared_ptr<threepp::Group> m_Container_Group_Draw{ nullptr };
+		ContextLock* Context_Lock{ nullptr }; 
 	private:
 		std::unique_ptr<IFCModelCache> m_Model{ nullptr };
 		std::unordered_set<unsigned int> m_Hidden_Express_IDs;

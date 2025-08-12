@@ -1,6 +1,6 @@
 #include "MainViewPort.hpp"
 #include "wxInclude.hpp"
-#include "ui/RenderCanvas.hpp"
+#include "ui/BimRenderCanvas.hpp"
 #include "threepp/helpers/SpotLightHelper.hpp"
 #include "threepp/helpers/DirectionalLightHelper.hpp"
 #include "threepp/renderers/GLRenderTarget.hpp"
@@ -19,7 +19,7 @@
 
 namespace dragon
 {
-	MainViewPort::MainViewPort(RenderCanvas* canvas) : IRenderer(canvas)
+	MainViewPort::MainViewPort(IGLCanvas* canvas) : IRenderer(canvas)
 	{
 		wxSize canvas_size = m_Canvas->getSize();
 		m_Viewport_Size = { canvas_size.x, canvas_size.y };

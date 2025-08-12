@@ -1,5 +1,5 @@
 #include "THREEPPRenderer.hpp"
-#include "ui/RenderCanvas.hpp"
+#include "ui/BimRenderCanvas.hpp"
 #include "threepp/threepp.hpp"
 #include "threepp/core/Raycaster.hpp"
 #include "view/MainViewPort.hpp"
@@ -13,7 +13,7 @@
 */
 namespace dragon
 {
-	THREEPPRenderer::THREEPPRenderer(RenderCanvas* canvas) : IRenderer(canvas)
+	THREEPPRenderer::THREEPPRenderer(BimRenderCanvas* canvas) : IRenderer(canvas)
 	{
 		wxSize canvas_size = m_Canvas->getSize();
 		//m_Canvas->activeContext();

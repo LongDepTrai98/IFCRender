@@ -26,7 +26,7 @@ namespace dragon
 		};
 
 	public:
-		MainViewPort(RenderCanvas* canvas);
+		MainViewPort(IGLCanvas* canvas);
 		~MainViewPort();
 	public:
 		threepp::Scene* getScene() override;

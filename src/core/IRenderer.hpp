@@ -1,5 +1,6 @@
 #ifndef _I_CONTEXT_RENDERER_HPP_
 #define _I_CONTEXT_RENDERER_HPP_
+#include "ui/IGLCanvas.hpp"
 class wxMouseEvent;
 namespace dragon
 {
@@ -7,13 +8,13 @@ namespace dragon
 	class IRenderer
 	{
 	public:
-		IRenderer(RenderCanvas* canvas) : m_Canvas(canvas) {};
+		IRenderer(IGLCanvas* canvas) : m_Canvas(canvas) {};
 		virtual ~IRenderer() {};
 		//public:
 		//	/*EVENT RENDER*/
 		virtual void update(const float& dtTime) = 0;
-	protected:
-		RenderCanvas* m_Canvas{ nullptr };
+	public:
+		IGLCanvas* m_Canvas{ nullptr };
 	};
 }
 #endif // !_I_CONTEXT_RENDERER_HPP_

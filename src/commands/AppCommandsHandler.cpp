@@ -3,7 +3,7 @@
 #include "core/io/IFileHandler.hpp"
 #include "spdlog/spdlog.h"
 #include "ui/WindowFrame.hpp"
-#include "ui/RenderCanvas.hpp"
+#include "ui/BimRenderCanvas.hpp"
 #include "input/input.hpp"
 namespace dragon
 {
@@ -13,7 +13,7 @@ namespace dragon
 	void AppCommandHandler::OnIconize(wxIconizeEvent& event)
 	{
 		WindowFrame* main_frame = static_cast<WindowFrame*>(m_ParentWindow);
-		main_frame->getRenderCanvas()->Invalidate();
+		main_frame->getBimRenderCanvas()->Invalidate();
 		if (event.IsIconized())
 		{
 			/*MINIMIZE*/
