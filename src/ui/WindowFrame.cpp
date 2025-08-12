@@ -25,8 +25,8 @@ namespace dragon
 		initCommand();
 		initMenuBar();
 		initAppToolBar();
+		initMapRenderCanvas();
 		initBimRenderCanvas();
-		initMapRenderCanvas(); 
 		initTreeCtrl();
 		CreateStatusBar(2);
 		SetStatusText("Welcome to wxWidgets!");

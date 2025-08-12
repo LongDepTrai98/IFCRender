@@ -35,6 +35,7 @@ namespace dragon
 		void OnMousePress(wxMouseEvent& event);
 		void OnMouseRelease(wxMouseEvent& event);
 		void OnMouseWheel(wxMouseEvent& event);
+		void OnDoubleClick(wxMouseEvent& event); 
 		void OnClickEnableMSAA(wxCommandEvent& command);
 		void OnKeyDown(wxKeyEvent& command);
 		void OnKeyUp(wxKeyEvent& command);
@@ -60,6 +61,8 @@ namespace dragon
 		float  m_dtTime{ 0.0 };
 		wxGLAttributes m_DispAttrs{};
 		bool m_bIsDirty{ true };
+		int m_BeginX{ 0 }; 
+		int m_BeginY{ 0 }; 
 	};
 }
 #endif // !_MAP_RENDER_CANVAS_HPP_
