@@ -16,9 +16,9 @@
 #include <mbgl/style/expression/dsl.hpp>
 #include <mbgl/style/types.hpp>
 #include <mbgl/style/layers/fill_extrusion_layer.hpp>
-#include "map/example_custom_drawable_style_layer.hpp"
 #include <fstream>
 #include "core/lock/ContextLock.hpp"
+#include "map/example_custom_drawable_style_layer.hpp"
 namespace dragon
 {
 	MapRenderCanvas::MapRenderCanvas(wxWindow* parent,
@@ -80,13 +80,16 @@ namespace dragon
 		wxButton* btnZoomOut = new wxButton(this, wxID_ANY, "-", wxPoint(10, posYButton), wxSize(30, 30));
 		posYButton = btnZoomOut->GetPosition().y + padding + buttonSize;
 
+		wxButton* btn2D = new wxButton(this, wxID_ANY, "2D", wxPoint(10, posYButton), wxSize(30, 30));
+		posYButton = btn2D->GetPosition().y + padding + buttonSize;
+		
 		wxButton* btn3D = new wxButton(this, wxID_ANY, "3D", wxPoint(10, posYButton), wxSize(30, 30));
 		posYButton = btn3D->GetPosition().y + padding + buttonSize;
 		
-		wxButton* customTile = new wxButton(this, wxID_ANY, "Bim", wxPoint(10, posYButton), wxSize(30, 30));
-		posYButton = customTile->GetPosition().y + padding + buttonSize;
+		wxButton* bimBtn = new wxButton(this, wxID_ANY, "Bim", wxPoint(10, posYButton), wxSize(30, 30));
+		posYButton = bimBtn->GetPosition().y + padding + buttonSize;
 
-		customTile->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event)
+		bimBtn->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event)
 			{
 				MLN_TRACE_FUNC();
 				using namespace mbgl::style;
