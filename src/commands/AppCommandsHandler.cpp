@@ -13,7 +13,11 @@ namespace dragon
 	void AppCommandHandler::OnIconize(wxIconizeEvent& event)
 	{
 		WindowFrame* main_frame = static_cast<WindowFrame*>(m_ParentWindow);
-		main_frame->getBimRenderCanvas()->Invalidate();
+		auto& lstCanvas = main_frame->getCanvas(); 
+		for (auto& canvas : lstCanvas)
+		{
+			canvas->Invalidate(); 
+		}
 		if (event.IsIconized())
 		{
 			/*MINIMIZE*/

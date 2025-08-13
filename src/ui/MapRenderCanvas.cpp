@@ -26,6 +26,7 @@ namespace dragon
 		IGLCanvas(parent,
 			canvasAttrs)
 	{
+		m_Name = "map-canvas"; 
 		ctxAttrs.PlatformDefaults()
 			.CoreProfile()
 			.OGLVersion(3, 0)
@@ -38,6 +39,9 @@ namespace dragon
 		m_ContextLock->unlock(); 
 	}
 	MapRenderCanvas::~MapRenderCanvas()
+	{
+	}
+	void MapRenderCanvas::OnCallbackToolbarCommand(ToolBarData& data)
 	{
 	}
 	void MapRenderCanvas::initContextMap()
@@ -71,6 +75,9 @@ namespace dragon
 	}
 	void MapRenderCanvas::initUI()
 	{
+		using namespace mbgl::style;
+		using namespace mbgl::style::expression::dsl;
+
 		int padding = 3;
 		int buttonSize = 30; 
 		int posYButton = 0; 
@@ -89,11 +96,31 @@ namespace dragon
 		wxButton* bimBtn = new wxButton(this, wxID_ANY, "Bim", wxPoint(10, posYButton), wxSize(30, 30));
 		posYButton = bimBtn->GetPosition().y + padding + buttonSize;
 
+		wxButton* gridBtn = new wxButton(this, wxID_ANY, "Grid", wxPoint(10, posYButton), wxSize(30, 30));
+		posYButton = gridBtn->GetPosition().y + padding + buttonSize;
+
+
+		gridBtn->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event) {
+			MLN_TRACE_FUNC();
+			if (m_Map)
+			{
+				if (m_Map->getDebug() != mbgl::MapDebugOptions::NoDebug)
+				{
+					m_Map->setDebug(mbgl::MapDebugOptions::NoDebug);
+				}
+				else
+				{
+					m_Map->setDebug(mbgl::MapDebugOptions::Collision
+						| mbgl::MapDebugOptions::Timestamps
+						| mbgl::MapDebugOptions::TileBorders
+						| mbgl::MapDebugOptions::ParseStatus);
+				}
+			}
+			}); 
+		
 		bimBtn->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event)
 			{
 				MLN_TRACE_FUNC();
-				using namespace mbgl::style;
-				using namespace mbgl::style::expression::dsl;
 				mbgl::style::Style& style = m_Map->getStyle();
 				const std::string identifier = "ExampleCustomDrawableStyleLayer";
 				const auto& existingLayer = style.getLayer(identifier);

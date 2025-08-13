@@ -30,5 +30,9 @@ namespace dragon
 	{
 		return m_ContextLock.get(); 
 	}
+	const std::string IGLCanvas::getCanvasName()
+	{
+		return m_Name; 
+	}
 }
 

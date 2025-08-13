@@ -66,6 +66,15 @@ namespace dragon
 			"This is help for draw Grid", 
 			NULL);
 		m_ToolBar->AddSeparator();
+		m_ToolBar->AddTool((int)ID_EVENT::TOOL_PROJECTION,
+			"",
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Projection, wxBITMAP_TYPE_ICO),
+			wxNullBitmap,
+			wxITEM_NORMAL,
+			"Projection",
+			"This is help for draw Grid",
+			NULL);
+		m_ToolBar->AddSeparator(); 
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_SWITCH_MODE_RENDER,
 			"",
 			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Debug, wxBITMAP_TYPE_ICO),

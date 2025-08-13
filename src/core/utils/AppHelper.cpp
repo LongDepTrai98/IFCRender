@@ -6,20 +6,21 @@
 #include "spdlog/spdlog.h"
 namespace dragon
 {
-	MainViewPort* AppHelper::getMainViewPortScene(WindowFrame* main_frame)
+	MainViewPort* AppHelper::getMainBimViewPortScene(WindowFrame* main_frame)
 	{
 		if (!main_frame) return nullptr;
-		IRenderer* renderer = main_frame->getBimRenderCanvas()->getRenderer();
+		IGLCanvas* bim_canvas = main_frame->getCanvasWithName("bim-canvas");
+		IRenderer* renderer = static_cast<BimRenderCanvas*>(bim_canvas)->getRenderer();
 		THREEPPRenderer* three_renderer = static_cast<THREEPPRenderer*>(renderer);
 		if (!renderer) return nullptr;
 		MainViewPort* viewport = static_cast<MainViewPort*>(three_renderer->getMainViewPort());
 		return viewport;
 	}
 
-	BimRenderCanvas* AppHelper::getRenderCanvas(WindowFrame* main_frame)
+	BimRenderCanvas* AppHelper::getBimRenderCanvas(WindowFrame* main_frame)
 	{
 		if (!main_frame) return nullptr;
-		return main_frame->getBimRenderCanvas();
+		return static_cast<BimRenderCanvas*>(main_frame->getCanvasWithName("bim-canvas"));
 	}
 
 	ElementTreeCtrl* AppHelper::getMainTreeCtrl(WindowFrame* main_frame)
@@ -29,10 +30,9 @@ namespace dragon
 	}
 	wxBitmapBundle AppHelper::loadBitmapBundle(const std::string& path, wxBitmapType type)
 	{
-		//wxIcon icon(path, type, 16,16);
 		wxBitmap bmp(path, wxBITMAP_TYPE_ICO);
 		wxImage img = bmp.ConvertToImage();
-		img = img.Rescale(12, 12, wxIMAGE_QUALITY_HIGH);
+		img = img.Rescale(13, 13, wxIMAGE_QUALITY_HIGH);
 		wxIcon smallIcon;
 		smallIcon.CopyFromBitmap(wxBitmap(img));
 		wxSize iconSize(smallIcon.GetWidth(), smallIcon.GetHeight());

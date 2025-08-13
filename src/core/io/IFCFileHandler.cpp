@@ -35,7 +35,7 @@ namespace dragon
 	void IFCFileHandler::open(const std::filesystem::path& file_path)
 	{
 		WindowFrame* window_frame = static_cast<WindowFrame*>(m_Window);
-		auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
+		auto main_viewport = AppHelper::getMainBimViewPortScene(window_frame);
 		main_viewport->resetFileContext();
 		main_viewport->m_Canvas->getContextLock()->lock(); 
 		std::shared_ptr<threepp::Group> container{ nullptr };
@@ -69,7 +69,7 @@ namespace dragon
 		{
 			/*GET MAIN VIEWPORT AND BUILD MAIN SCENE*/
 			WindowFrame* window_frame = static_cast<WindowFrame*>(m_Window);
-			auto main_viewport = AppHelper::getMainViewPortScene(window_frame);
+			auto main_viewport = AppHelper::getMainBimViewPortScene(window_frame);
 			if (main_viewport)
 			{
 				main_viewport->clearScene();
@@ -115,7 +115,7 @@ namespace dragon
 				RayCast->getIntersector()->custom_callback_checkface = ptr_ifc_file_context->m_Callback_Intersect;
 			}
 		}
-		BimRenderCanvas* canvas = AppHelper::getRenderCanvas(window_frame);
+		BimRenderCanvas* canvas = AppHelper::getBimRenderCanvas(window_frame);
 		/*set callback redraw */
 		auto redraw_callback = [canvas]() {
 			canvas->Invalidate();

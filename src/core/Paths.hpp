@@ -16,6 +16,7 @@ namespace dragon::assets
 	inline const std::string ButtonToolBar_DrawGrid = Toolbar + "grid.ico";
 	inline const std::string ButtonToolBar_MultiSelect = Toolbar + "multi_select.ico";
 	inline const std::string ButtonToolBar_Debug = Toolbar + "debug.ico";
+	inline const std::string ButtonToolBar_Projection = Toolbar + "projection.ico"; 
 	inline const std::string Shader = "shaders/";
 }
 #endif // !_PATHS_HPP_

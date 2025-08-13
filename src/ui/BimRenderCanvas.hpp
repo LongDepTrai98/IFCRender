@@ -16,7 +16,7 @@ namespace dragon
 		BimRenderCanvas(wxWindow* parent, const wxGLAttributes& canvasAttrs);
 		~BimRenderCanvas() override;
 	public:
-		void OnCallbackToolbarCommand(ToolBarData& data);
+		void OnCallbackToolbarCommand(ToolBarData& data) override;
 		void OnMenu(wxCommandEvent& event);
 	private:
 		void initContextRenderer();

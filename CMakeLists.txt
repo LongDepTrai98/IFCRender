@@ -105,6 +105,9 @@ source_group("core//props" FILES ${APP_PROPS_CORE_SRC})
 #utils
 file(GLOB APP_UTILS_CORE_SRC "src/core/utils/*.cpp" "src/core/utils/*.hpp")
 source_group("core//utils" FILES ${APP_UTILS_CORE_SRC})
+#vector-tile 
+file(GLOB APP_VECTOR_TILE_CORE_SRC "src/core/utils/vector-tile/*.cpp" "src/core/utils/vector-tile/*.hpp")
+source_group("core//utils//vector-tile" FILES ${APP_VECTOR_TILE_CORE_SRC})
 #draw pass 
 file(GLOB APP_DRAWPASS_CORE_SRC "src/core/drawpass/*.cpp" "src/core/drawpass/*.hpp")
 source_group("core//drawpass" FILES ${APP_DRAWPASS_CORE_SRC})
@@ -158,6 +161,7 @@ add_executable(${EDITOR_NAME_PROJECT}
     ${SHADERS_SRC}
     ${MAPLIBRE_SRC}
     ${APP_CONTEXT_LOCK}
+    ${APP_VECTOR_TILE_CORE_SRC}
 )
 
  #add include 

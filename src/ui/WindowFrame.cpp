@@ -1,5 +1,6 @@
 ﻿#include "WindowFrame.hpp"
 #include "AppMenubar.hpp"
+#include "IGLCanvas.hpp"
 #include "BimRenderCanvas.hpp"
 #include "MapRenderCanvas.hpp"
 #include "config/app_config.hpp"
@@ -33,9 +34,16 @@ namespace dragon
 		Centre(wxBOTH);
 		Bind(wxEVT_SIZE, &WindowFrame::OnResize, this);
 	}
-	BimRenderCanvas* WindowFrame::getBimRenderCanvas()
+	IGLCanvas* WindowFrame::getCanvasWithName(const std::string& name)
 	{
-		return m_BimRenderCanvas.get();
+		for (auto& canvas : m_Canvas)
+		{
+			if (canvas->getCanvasName() == name)
+			{
+				return canvas.get(); 
+			}
+		}
+		return nullptr; 
 	}
 	ElementTreeCtrl* WindowFrame::getElementTreeCtrl()
 	{
@@ -122,14 +130,18 @@ namespace dragon
 			throw std::exception("glCanvans not support display attribute");
 		}
 
-		if (!m_BimRenderCanvas)
+		/*if (!m_BimRenderCanvas)
 		{
 			m_BimRenderCanvas = std::make_unique<BimRenderCanvas>(this,
 				dispAttrs);
 			const std::string& checkedPath = assets::Icons + "scene.ico";
 			m_UIManager->AddPane(m_BimRenderCanvas.get(), panel_config::scene_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
 			m_UIManager->Update();
-		}
+		}*/
+		std::unique_ptr<BimRenderCanvas> bim_render_canvas = std::make_unique<BimRenderCanvas>(this, dispAttrs); 
+		const std::string& checkedPath = assets::Icons + "scene.ico";
+		m_UIManager->AddPane(bim_render_canvas.get(), panel_config::scene_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
+		m_Canvas.emplace_back(std::move(bim_render_canvas)); 
 	}
 	void WindowFrame::initMapRenderCanvas()
 	{
@@ -162,14 +174,18 @@ namespace dragon
 		{
 			throw std::exception("glCanvans not support display attribute");
 		}
-		if (!m_MapRenderCanvas)
+		/*if (!m_MapRenderCanvas)
 		{
 			m_MapRenderCanvas = std::make_unique<MapRenderCanvas>(this,
 				dispAttrs);
 			const std::string& checkedPath = assets::Icons + "scene.ico";
 			m_UIManager->AddPane(m_MapRenderCanvas.get(), panel_config::map_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
 			m_UIManager->Update();
-		}
+		}*/
+		const std::string& checkedPath = assets::Icons + "scene.ico";
+		std::unique_ptr<MapRenderCanvas> map_render_canvas = std::make_unique<MapRenderCanvas>(this, dispAttrs); 
+		m_UIManager->AddPane(map_render_canvas.get(), panel_config::map_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
+		m_Canvas.emplace_back(std::move(map_render_canvas)); 
 	}
 	void WindowFrame::initCommand()
 	{
@@ -182,8 +198,12 @@ namespace dragon
 	}
 	void WindowFrame::OnCallbackToolbarCommand(ToolBarData& data)
 	{
-		if (m_BimRenderCanvas)
-			m_BimRenderCanvas->OnCallbackToolbarCommand(data);
+		/*if (m_BimRenderCanvas)
+			m_BimRenderCanvas->OnCallbackToolbarCommand(data);*/
+		for (auto& canvas : m_Canvas)
+		{
+			canvas->OnCallbackToolbarCommand(data); 
+		}
 	}
 	void WindowFrame::OnResize(wxSizeEvent& event)
 	{
@@ -192,5 +212,9 @@ namespace dragon
 	wxAuiToolBar* WindowFrame::getCustomToolBar()
 	{
 		return m_AppToolBar->m_ToolBar; 
+	}
+	std::vector<std::unique_ptr<IGLCanvas>>& WindowFrame::getCanvas()
+	{
+		return m_Canvas; 
 	}
 }

@@ -21,7 +21,7 @@ namespace dragon
 			const wxGLAttributes& canvasAttrs);
 		~MapRenderCanvas();
 	public:
-		void OnCallbackToolbarCommand(ToolBarData& data);
+		void OnCallbackToolbarCommand(ToolBarData& data) override;
 		void OnMenu(wxCommandEvent& event);
 	private:
 		void initContextMap();

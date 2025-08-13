@@ -13,6 +13,7 @@ namespace dragon
 		canvasAttrs)
 	{
 		/*INIT UI FOR RENDERER*/
+		m_Name = "bim-canvas"; 
 		ctxAttrs.PlatformDefaults()
 			.CoreProfile()
 			.OGLVersion(3, 3)
