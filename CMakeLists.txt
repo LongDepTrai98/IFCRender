@@ -59,7 +59,8 @@ set(MAPLIBRE_INCLUDE_SOURCE_DIRS
     ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/include
     ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/extras/expected-lite/include
     ${MAPLIBRE_SOURCE_DIR}/vendor/maplibre-native-base/extras/rapidjson/include
-    ${MAPLIBRE_SOURCE_DIR}/vendor/nontype_functional/include)
+    ${MAPLIBRE_SOURCE_DIR}/vendor/nontype_functional/include
+    ${MAPLIBRE_SOURCE_DIR}/vendor/unique_resource)
 #add_subdirectory(${MAPLIBRE_SOURCE_DIR})
 #project
 set(PROJECT_NAME Dragon)

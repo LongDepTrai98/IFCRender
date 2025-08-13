@@ -14,13 +14,14 @@ public:
     using TriangleIndexVector = mbgl::gfx::IndexVector<mbgl::gfx::Triangles>;
     ThreeDCustomDrawableStyleLayerHost(std::shared_ptr<threepp::Object3D> obj);
     ~ThreeDCustomDrawableStyleLayerHost();
-
     void initialize() override;
     void deinitialize() override;
-
     void update(Interface& interface) override;
-
+public: 
+    void addBim(Interface& interface);
 protected:
+    bool isAdded{ false }; 
+    std::shared_ptr<threepp::Object3D> m_Obj{ nullptr };
     static mbgl::Point<double> project(const mbgl::LatLng& c, const mbgl::TransformState& s);
 protected:
 };
