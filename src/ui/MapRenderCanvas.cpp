@@ -19,6 +19,10 @@
 #include <fstream>
 #include "core/lock/ContextLock.hpp"
 #include "map/example_custom_drawable_style_layer.hpp"
+#include "resource.hpp"
+#include "input/input.hpp"
+#include "core/utils/AppHelper.hpp"
+#include "WindowFrame.hpp"
 namespace dragon
 {
 	MapRenderCanvas::MapRenderCanvas(wxWindow* parent,
@@ -43,6 +47,32 @@ namespace dragon
 	}
 	void MapRenderCanvas::OnCallbackToolbarCommand(ToolBarData& data)
 	{
+		using namespace mbgl::style;
+		using namespace mbgl::style::expression::dsl;
+		if (data.event.GetId() == (int)ID_EVENT::TOOL_PROJECTION)
+		{
+			/*ADD BIM TO MAP*/
+			WindowFrame* main_frame = static_cast<WindowFrame*>(m_parent); 
+			MainViewPort* viewport_bim = AppHelper::getMainBimViewPortScene(main_frame);
+			/*GET MODEL BIM*/
+			auto model = viewport_bim->getScene()->getObjectByName("model"); 
+			if (model)
+			{
+				/*CLONE*/
+				MLN_TRACE_FUNC();
+				std::shared_ptr<threepp::Object3D> clone_model = model->clone(); 
+				mbgl::style::Style& style = m_Map->getStyle();
+				const std::string identifier = "Example-Bim-Layer";
+				const auto& existingLayer = style.getLayer(identifier);
+				if (!existingLayer) {
+					style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
+						identifier, std::make_unique<ThreeDCustomDrawableStyleLayerHost>(std::move(clone_model))));
+				}
+				else {
+					style.removeLayer(identifier);
+				}
+			}
+		}
 	}
 	void MapRenderCanvas::initContextMap()
 	{
@@ -121,17 +151,7 @@ namespace dragon
 		bimBtn->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event)
 			{
 				MLN_TRACE_FUNC();
-				mbgl::style::Style& style = m_Map->getStyle();
-				const std::string identifier = "ExampleCustomDrawableStyleLayer";
-				const auto& existingLayer = style.getLayer(identifier);
-
-				if (!existingLayer) {
-					style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
-						identifier, std::make_unique<ExampleCustomDrawableStyleLayerHost>("MLN_ASSETS_PATH")));
-				}
-				else {
-					style.removeLayer(identifier);
-				}
+			
 			}); 
 
 		btn3D->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event)

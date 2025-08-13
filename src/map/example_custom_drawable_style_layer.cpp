@@ -9,26 +9,27 @@
 #include <memory>
 #include <cmath>
 #include <filesystem>
+#include <threepp/threepp.hpp>
 
+ThreeDCustomDrawableStyleLayerHost::ThreeDCustomDrawableStyleLayerHost(std::shared_ptr<threepp::Object3D> obj)
+{
+}
 
-ExampleCustomDrawableStyleLayerHost::ExampleCustomDrawableStyleLayerHost(const std::string& assetsPath_)
-    : assetsPath(assetsPath_) {}
+ThreeDCustomDrawableStyleLayerHost::~ThreeDCustomDrawableStyleLayerHost() {}
 
-ExampleCustomDrawableStyleLayerHost::~ExampleCustomDrawableStyleLayerHost() {}
+void ThreeDCustomDrawableStyleLayerHost::initialize() {}
 
-void ExampleCustomDrawableStyleLayerHost::initialize() {}
+void ThreeDCustomDrawableStyleLayerHost::deinitialize() {}
 
-void ExampleCustomDrawableStyleLayerHost::deinitialize() {}
-
-void ExampleCustomDrawableStyleLayerHost::update(Interface& interface) {
+void ThreeDCustomDrawableStyleLayerHost::update(Interface& interface) {
     // if we have built our drawable(s) already, either update or skip
     if (interface.getDrawableCount() == 0) {
-        interface.addCustomDrawable(); 
+        interface.addCustomDrawableWithTile({ 16, 52186, 30788 });
         return;
     }
 }
 
-mbgl::Point<double> ExampleCustomDrawableStyleLayerHost::project(const mbgl::LatLng& c, const mbgl::TransformState& s) {
+mbgl::Point<double> ThreeDCustomDrawableStyleLayerHost::project(const mbgl::LatLng& c, const mbgl::TransformState& s) {
     mbgl::LatLng unwrappedLatLng = c.wrapped();
     unwrappedLatLng.unwrapForShortestPath(s.getLatLng(mbgl::LatLng::Wrapped));
     return mbgl::Projection::project(unwrappedLatLng, s.getScale());
