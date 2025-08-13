@@ -187,7 +187,7 @@ namespace dragon
 					toColor(literal("#00615f")),
 					100.f,
 					toColor(literal("#55e9ff")))));
-				extrusionLayer->setFillExtrusionOpacity(0.5f);
+				extrusionLayer->setFillExtrusionOpacity(1.0f);
 				extrusionLayer->setFillExtrusionHeight(PropertyExpression<float>(get("height")));
 				extrusionLayer->setFillExtrusionBase(PropertyExpression<float>(get("min_height")));
 				style.addLayer(std::move(extrusionLayer));

@@ -38,8 +38,11 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(Interface& interface)
                 if (impl->scene)
                 {
                     float scale_z = static_cast<float>(mbgl::gl::MecatorHelper::computeScaleZForLevel(15));
-                    m_Obj->rotation.x = -threepp::math::degToRad(-90);
-                    m_Obj->scale.set(10.0, scale_z * 10.0, 10.0);
+                  /*  m_Obj->rotation.x = threepp::math::degToRad(-90);
+                    m_Obj->updateMatrix(); 
+                    m_Obj->rotation.z = threepp::math::degToRad(-90);*/
+                    m_Obj->scale.set(1.0 * 10.0,-scale_z * 10.0,1.0 * 10.0);
+                    m_Obj->rotation.x = threepp::math::degToRad(-90);
                     m_Obj->matrixAutoUpdate = true;
                     impl->scene->add(m_Obj);
                     /*const auto sphereGeometry = threepp::SphereGeometry::create(300);
