@@ -230,6 +230,7 @@ namespace dragon
 			color.setRGB(placedColor.x, placedColor.y, placedColor.z);
 			material->color = color;
 			material->side = threepp::Side::Double;
+			material->depthFunc = threepp::DepthFunc::LessEqual; 
 			material->transparent = placedColor.w != 1.0;
 			if (material->transparent) material->opacity = placedColor.w;
 			std::vector<GeoWithExpressID> geometriesWithExpressID;

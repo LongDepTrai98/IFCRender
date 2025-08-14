@@ -29,9 +29,9 @@ namespace dragon
 		initMapRenderCanvas();
 		initBimRenderCanvas();
 		initTreeCtrl();
-		CreateStatusBar(2);
-		SetStatusText("Welcome to wxWidgets!");
-		Centre(wxBOTH);
+		//CreateStatusBar(2);
+		//SetStatusText("Welcome to wxWidgets!");
+		//Centre(wxBOTH);
 		Bind(wxEVT_SIZE, &WindowFrame::OnResize, this);
 	}
 	IGLCanvas* WindowFrame::getCanvasWithName(const std::string& name)
@@ -77,7 +77,6 @@ namespace dragon
 		// create panel store tree ctrl
 		wxPanel* treePanel = new wxPanel(this);
 		wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-		//wxTreeCtrl* tree = new wxTreeCtrl(treePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize);
 		long style = wxTR_HAS_BUTTONS | wxTR_NO_LINES | wxTR_TWIST_BUTTONS | wxTR_FULL_ROW_HIGHLIGHT | wxBORDER_SUNKEN;
 		m_ElementTreeCtrl = new ElementTreeCtrl(treePanel, wxDefaultPosition, wxDefaultSize, style);
 		sizer->Add(m_ElementTreeCtrl, 1, wxEXPAND | wxALL, 1);
@@ -95,7 +94,6 @@ namespace dragon
 			.Caption("Toolbar")
 			.ToolbarPane()
 			.Top()             
-			.DockFixed()        
 			.Gripper(false)); 
 	}
 	void WindowFrame::initBimRenderCanvas()
@@ -129,15 +127,6 @@ namespace dragon
 		{
 			throw std::exception("glCanvans not support display attribute");
 		}
-
-		/*if (!m_BimRenderCanvas)
-		{
-			m_BimRenderCanvas = std::make_unique<BimRenderCanvas>(this,
-				dispAttrs);
-			const std::string& checkedPath = assets::Icons + "scene.ico";
-			m_UIManager->AddPane(m_BimRenderCanvas.get(), panel_config::scene_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
-			m_UIManager->Update();
-		}*/
 		std::unique_ptr<BimRenderCanvas> bim_render_canvas = std::make_unique<BimRenderCanvas>(this, dispAttrs); 
 		const std::string& checkedPath = assets::Icons + "scene.ico";
 		m_UIManager->AddPane(bim_render_canvas.get(), panel_config::scene_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
@@ -174,14 +163,6 @@ namespace dragon
 		{
 			throw std::exception("glCanvans not support display attribute");
 		}
-		/*if (!m_MapRenderCanvas)
-		{
-			m_MapRenderCanvas = std::make_unique<MapRenderCanvas>(this,
-				dispAttrs);
-			const std::string& checkedPath = assets::Icons + "scene.ico";
-			m_UIManager->AddPane(m_MapRenderCanvas.get(), panel_config::map_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
-			m_UIManager->Update();
-		}*/
 		const std::string& checkedPath = assets::Icons + "scene.ico";
 		std::unique_ptr<MapRenderCanvas> map_render_canvas = std::make_unique<MapRenderCanvas>(this, dispAttrs); 
 		m_UIManager->AddPane(map_render_canvas.get(), panel_config::map_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
@@ -198,8 +179,6 @@ namespace dragon
 	}
 	void WindowFrame::OnCallbackToolbarCommand(ToolBarData& data)
 	{
-		/*if (m_BimRenderCanvas)
-			m_BimRenderCanvas->OnCallbackToolbarCommand(data);*/
 		for (auto& canvas : m_Canvas)
 		{
 			canvas->OnCallbackToolbarCommand(data); 
