@@ -2,6 +2,7 @@
 #define _MAP_RENDER_CANVAS_HPP_
 #include "ui/IGLCanvas.hpp"
 #include <memory>
+#include <functional>
 namespace editor
 {
 	class Win32View; 
@@ -14,6 +15,7 @@ namespace mbgl
 namespace dragon
 {
 	class ToolBarData;
+	class ItemData; 
 	class MapRenderCanvas : public IGLCanvas
 	{
 	public:
@@ -26,6 +28,7 @@ namespace dragon
 	private:
 		void initContextMap();
 		void initUI();
+		void initCallback(); 
 		void initMenu();
 		void bindFunction();
 	private:
@@ -50,6 +53,10 @@ namespace dragon
 		void swapBuff();
 		wxSize getSize();
 		void Invalidate();
+	public: 
+		/*CALLBACK*/
+		std::shared_ptr<std::function<void* (int, std::string)>> m_GetData_Item_Callback{ nullptr };
+		std::shared_ptr<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>> m_Toggle_Components_Callback{ nullptr };
 	private:
 		//main context
 		std::unique_ptr<editor::Win32View> m_Backend{ nullptr };

@@ -10,19 +10,20 @@
 #include <mbgl/util/platform.hpp>
 #include <mbgl/util/string.hpp>
 #include <mbgl/util/mapbox.hpp>
-#include <nlohmann/json.hpp>
 #include <mbgl/style/layers/fill_layer.hpp>
 #include <mbgl/util/instrumentation.hpp>
 #include <mbgl/style/expression/dsl.hpp>
 #include <mbgl/style/types.hpp>
 #include <mbgl/style/layers/fill_extrusion_layer.hpp>
 #include <fstream>
+#include <nlohmann/json.hpp>
 #include "core/lock/ContextLock.hpp"
 #include "map/example_custom_drawable_style_layer.hpp"
 #include "resource.hpp"
 #include "input/input.hpp"
 #include "core/utils/AppHelper.hpp"
 #include "WindowFrame.hpp"
+#include "core/node/MapElementTree.hpp"
 namespace dragon
 {
 	MapRenderCanvas::MapRenderCanvas(wxWindow* parent,
@@ -40,6 +41,7 @@ namespace dragon
 		bindFunction(); 
 		initContextMap();
 		initUI(); 
+		initCallback(); 
 		m_ContextLock->unlock(); 
 	}
 	MapRenderCanvas::~MapRenderCanvas()
@@ -102,6 +104,19 @@ namespace dragon
 			.withZoom(16)
 			.withBearing(0.0)
 			.withPitch(0.0));
+		/*set callback*/
+		auto callback_finsish_loading_style = [&]() {
+			if (!m_Map) return; 
+			mbgl::style::Style& style = m_Map->getStyle(); 
+			std::shared_ptr<MapLayerTree> tree = std::make_shared<MapLayerTree>(); 
+			tree->create(style);
+			WindowFrame* window_frame = static_cast<WindowFrame*>(m_parent);
+			auto element_tree = AppHelper::getMainTreeCtrl(window_frame);
+			element_tree->m_umap_callback["map"].m_GetData_Item_Callback = m_GetData_Item_Callback;
+			element_tree->m_umap_callback["map"].m_ToggleStateCallBackRecursively = m_Toggle_Components_Callback; 
+			element_tree->setData(std::move(tree),"map");
+		};
+		m_Backend->finishLoadingStyleCallback(callback_finsish_loading_style); 
 	}
 	void MapRenderCanvas::initUI()
 	{
@@ -192,6 +207,34 @@ namespace dragon
 				extrusionLayer->setFillExtrusionBase(PropertyExpression<float>(get("min_height")));
 				style.addLayer(std::move(extrusionLayer));
 			}); 
+	}
+	void MapRenderCanvas::initCallback()
+	{
+		auto lambda_get_item_value_callback = [&](int itemId, std::string label)
+			{
+				mbgl::style::Layer* layer = m_Map->getStyle().getLayer(label);
+				void* voidPtr = static_cast<void*>(layer); 
+				if (layer)
+				{
+					return voidPtr;
+				}
+				else
+				{
+					return ((void*)0);
+				}
+			}; 
+		auto lambda_toggle_componenents_callback = [&](const std::vector<std::pair<int, ItemData*>>& entities) {
+			for (auto& [state, ItemData] : entities)
+			{
+				mbgl::style::Layer* ptr_layer = static_cast<mbgl::style::Layer*>(ItemData->GetData());
+				if (ptr_layer)
+				{
+					ptr_layer->setVisibility(mbgl::style::VisibilityType(!state)); 
+				}
+			}
+			};
+		m_GetData_Item_Callback = std::make_shared<std::function<void* (int, std::string)>>(lambda_get_item_value_callback);
+		m_Toggle_Components_Callback = std::make_shared<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>>(lambda_toggle_componenents_callback);
 	}
 	void MapRenderCanvas::bindFunction()
 	{
@@ -308,7 +351,7 @@ namespace dragon
 	{
 		int delta = event.GetWheelRotation();// 1 or -1
 		double absDelta = delta < 0 ? -delta : delta;
-		double scale = 2.0 / (1.0 + std::exp(-absDelta / 100.0));
+		double scale = 2.0 / (1.0 + std::exp(-absDelta / 300.0));
 		if (delta < 0 && scale != 0) {
 			scale = 1.0 / scale;
 		}

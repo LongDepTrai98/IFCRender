@@ -14,40 +14,59 @@ namespace dragon
 	{
 		CreateStateImages();
 		CreateItemImages();
+		CreateRoot(); 
 		bindFunc();
 	}
 	void ElementTreeCtrl::bindFunc()
 	{
 		this->Bind(wxEVT_TREE_STATE_IMAGE_CLICK, &ElementTreeCtrl::OnItemStateClick, this);
 	}
-	void ElementTreeCtrl::setData(std::shared_ptr<ElementTree> treeData)
+	void ElementTreeCtrl::setData(std::shared_ptr<ElementTree> treeData, const std::string& key_root)
 	{
-		clearData();
-		m_Tree = treeData;
-		auto parent = m_Tree->m_Parent;
-		wxString str("Scene");
-		wxTreeItemId root_id = this->AddRoot(str);
-		SetItemImage(root_id, ElementTreeCtrl::SCENE, wxTreeItemIcon_Normal);
+		wxTreeItemId root_item_add; 
+		std::string name_root_item_add; 
+		/*HARD CODE*/
+		if (key_root == "bim")
+		{
+			root_item_add = root_bim_item_id;
+			name_root_item_add = "bim"; 
+		}
+		else if (key_root == "map")
+		{
+			root_item_add = root_map_item_id;
+			name_root_item_add = "map"; 
+		}
+		this->DeleteChildren(root_item_add);
+		//m_Tree = treeData;
+		//auto parent = m_Tree->m_Parent;
+		auto parent = treeData->m_Parent;
+		wxString str;
 		str.Printf(parent->getLabelNode().c_str());
-		wxTreeItemId id_item = AppendItem(root_id, str, -1, -1);
+		wxTreeItemId id_item = AppendItem(root_item_add, str, -1, -1);
 		ItemData::ItemValue item_value{ nullptr };
 		const int& idNode = parent->getID();
-		if (m_GetData_Item_Callback)
-			item_value = (*m_GetData_Item_Callback)(idNode);
-		SetItemData(id_item, new ItemData(item_value));
+		auto GetData_Item_Callback = m_umap_callback[key_root].m_GetData_Item_Callback.get(); 
+		if (GetData_Item_Callback)
+			item_value = (*GetData_Item_Callback)(idNode,str.ToStdString());
+		SetItemData(id_item, new ItemData(item_value,name_root_item_add));
 		SetItemState(id_item, 1);
 		if (parent->children.size() != 0)
 		{
-			SetItemImage(id_item, ElementTreeCtrl::EXPAND, wxTreeItemIcon_Normal);
+			auto t = ICON::EXPAND; 
+			SetItemImage(id_item, (int)ICON::EXPAND, wxTreeItemIcon_Normal);
 		}
 		else
 		{
-			SetItemImage(id_item, ElementTreeCtrl::ITEM, wxTreeItemIcon_Normal);
+			SetItemImage(id_item, (int)m_umap_callback[name_root_item_add].icon_item_type, wxTreeItemIcon_Normal);
 		}
-		AddItemsRecursively(id_item, parent);
+		AddItemsRecursively(id_item,
+			parent,
+			name_root_item_add);
 		this->ExpandAll();
 	}
-	void ElementTreeCtrl::AddItemsRecursively(const wxTreeItemId& idParent, const std::shared_ptr<TreeNode>& node)
+	void ElementTreeCtrl::AddItemsRecursively(const wxTreeItemId& idParent,
+		const std::shared_ptr<TreeNode>& node, 
+		const std::string& name)
 	{
 		wxString str;
 		for (auto& childNode : node->children)
@@ -56,22 +75,26 @@ namespace dragon
 			wxTreeItemId id_item = AppendItem(idParent, str, -1, -1);
 			ItemData::ItemValue item_value{ nullptr };
 			const int& idNode = childNode->getID();
-			if (m_GetData_Item_Callback)
-				item_value = (*m_GetData_Item_Callback)(idNode);
-			SetItemData(id_item, new ItemData(item_value));
+			auto GetData_Item_Callback = m_umap_callback[name].m_GetData_Item_Callback.get(); 
+			if (GetData_Item_Callback)
+				item_value = (*GetData_Item_Callback)(idNode,str.ToStdString());
+			SetItemData(id_item, new ItemData(item_value,name));
 			SetItemState(id_item, 1);
 			if (childNode->children.size() != 0)
 			{
-				SetItemImage(id_item, ElementTreeCtrl::EXPAND, wxTreeItemIcon_Normal);
+				SetItemImage(id_item, (int)ICON::EXPAND, wxTreeItemIcon_Normal);
 			}
 			else
 			{
-				SetItemImage(id_item, ElementTreeCtrl::ITEM, wxTreeItemIcon_Normal);
+				SetItemImage(id_item, (int)m_umap_callback[name].icon_item_type, wxTreeItemIcon_Normal);
 			}
-			AddItemsRecursively(id_item, childNode);
+			AddItemsRecursively(id_item,
+				childNode,
+				name);
 		}
 	}
-	void ElementTreeCtrl::createItemNode(const wxTreeItemId& itemId, std::vector<std::pair<int, ItemData*>>& itemsData)
+	void ElementTreeCtrl::createItemNode(const wxTreeItemId& itemId, 
+		std::vector<std::pair<int, ItemData*>>& itemsData)
 	{
 		ItemData* ptr_data = static_cast<ItemData*>(GetItemData(itemId));
 		itemsData.push_back({ GetItemState(itemId),ptr_data });
@@ -97,9 +120,15 @@ namespace dragon
 		const std::string& item_img_path = assets::Icons + "item_tree.ico";
 		const std::string& item_expand_img_path = assets::Icons + "item_expand_img.ico";
 		const std::string& item_scene_img_path = assets::Icons + "scene_tree.ico";
+		const std::string& item_map_img_path = assets::Icons + "map.ico";
+		const std::string& item_bim_img_path = assets::Icons + "bim.ico";
+		const std::string& item_layer_img_path = assets::Icons + "layer.ico";
 		images.push_back(AppHelper::loadBitmapBundle(item_img_path, wxBITMAP_TYPE_ICO));
 		images.push_back(AppHelper::loadBitmapBundle(item_expand_img_path, wxBITMAP_TYPE_ICO));
 		images.push_back(AppHelper::loadBitmapBundle(item_scene_img_path, wxBITMAP_TYPE_ICO));
+		images.push_back(AppHelper::loadBitmapBundle(item_map_img_path, wxBITMAP_TYPE_ICO));
+		images.push_back(AppHelper::loadBitmapBundle(item_bim_img_path, wxBITMAP_TYPE_ICO));
+		images.push_back(AppHelper::loadBitmapBundle(item_layer_img_path, wxBITMAP_TYPE_ICO));
 		SetImages(images);
 	}
 	void ElementTreeCtrl::CreateStateImages()
@@ -123,11 +152,14 @@ namespace dragon
 		}
 		else
 		{
+			ItemData* ptr_data = static_cast<ItemData*>(this->GetItemData(itemId));
+			std::string name = ptr_data->GetName(); 
 			DoToggleState(itemId);
 			std::vector<std::pair<int, ItemData*>> itemsData{};
 			createItemNode(itemId, itemsData);
-			if (m_ToggleStateCallBackRecursively)
-				(*m_ToggleStateCallBackRecursively)(itemsData);
+			auto ToggleStateCallBackRecursively = m_umap_callback[name].m_ToggleStateCallBackRecursively.get(); 
+			if (ToggleStateCallBackRecursively)
+				(*ToggleStateCallBackRecursively)(itemsData);
 		}
 	}
 	void ElementTreeCtrl::RecursiveChildItems(const wxTreeItemId& itemID,
@@ -149,7 +181,33 @@ namespace dragon
 	{
 		this->SetItemState(item, state);
 		ItemData* ptr_data = static_cast<ItemData*>(this->GetItemData(item));
-		if (m_ToggleStateCallBack)
-			(*m_ToggleStateCallBack)({ state, ptr_data });
+		std::string name = ptr_data->GetName(); 
+		auto toggleStateCallback = m_umap_callback["name"].m_ToggleStateCallBack.get(); 
+		if (toggleStateCallback)
+			(*toggleStateCallback)({ state, ptr_data });
+	}
+	void ElementTreeCtrl::CreateRoot()
+	{
+		clearData();
+		wxString str("Scene");
+		root_item_id = this->AddRoot(str);
+		ItemData::ItemValue item_value{ nullptr };
+		SetItemImage(root_item_id, (int)ICON::SCENE, wxTreeItemIcon_Normal);
+		str.Printf("Map");
+		root_map_item_id = AppendItem(root_item_id, str, -1, -1);
+		SetItemState(root_map_item_id, 1);
+		SetItemImage(root_map_item_id, (int)ICON::MAP, wxTreeItemIcon_Normal);
+		SetItemData(root_map_item_id, new ItemData(item_value,"map"));
+		func_callback map_callback; 
+		m_umap_callback.insert({ "map",func_callback()});
+		m_umap_callback["map"].icon_item_type = ICON::ITEM_LAYER; 
+		str.Printf("Bim"); 
+		root_bim_item_id = AppendItem(root_item_id,str,-1,-1);
+		SetItemImage(root_bim_item_id, (int)ICON::BIM, wxTreeItemIcon_Normal);
+		SetItemState(root_bim_item_id, 1); 
+		SetItemData(root_bim_item_id, new ItemData(item_value,"bim"));
+		m_umap_callback.insert({"bim",func_callback()});
+		m_umap_callback["bim"].icon_item_type = ICON::ITEM_BIM; 
+		this->ExpandAll(); 
 	}
 }

@@ -2,6 +2,7 @@
 #define _INODE_PROPERTIES_HPP_
 #include <memory>
 #include <string>
+#include <vector>
 namespace dragon
 {
 	class TreeNode

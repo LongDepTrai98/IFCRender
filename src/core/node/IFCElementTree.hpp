@@ -3,9 +3,7 @@
 #include "ElementTree.hpp"
 #include "core/utils/WebIFCHelper.hpp"
 #include "spdlog/spdlog.h"
-#include <vector>
 #include <unordered_map>
-#include <string>
 namespace dragon
 {
 	class IFCElementTree : public ElementTree

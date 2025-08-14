@@ -106,4 +106,8 @@ namespace editor
 		m_Map->setSize({ static_cast<uint32_t>(m_Width), static_cast<uint32_t>(m_Height) });
 		invalidate(); 
 	}
+	void Win32View::finishLoadingStyleCallback(std::function<void()> callback)
+	{
+		finishLoadingStyle_callback = std::move(callback); 
+	}
 }

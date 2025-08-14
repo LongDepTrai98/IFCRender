@@ -7,12 +7,10 @@
 #include <mbgl/util/geometry.hpp>
 #include <mbgl/util/run_loop.hpp>
 #include <mbgl/util/timer.hpp>
-
-
-
+#include <mbgl/util/instrumentation.hpp>
 #include <utility>
 #include <optional>
-
+#include <functional>
 #include "Win32Backend.hpp"
 #include "wxInclude.hpp"
 
@@ -38,6 +36,15 @@ namespace editor
 			bool benchmark,
 			const mbgl::ResourceOptions& resourceOptions,
 			const mbgl::ClientOptions& clientOptions);
+		void onDidFinishLoadingStyle() override
+		{
+			MLN_TRACE_FUNC();
+			std::cout << "finish load" << std::endl; 
+			if (finishLoadingStyle_callback)
+			{
+				finishLoadingStyle_callback();
+			}
+		}
 		~Win32View() override; 
 	public: 
 		void invalidate(); 
@@ -49,6 +56,7 @@ namespace editor
 		void runOnce(); 
 		void render(); 
 		void onWindowResize(int width, int height);
+		void finishLoadingStyleCallback(std::function<void()> callback); 
 	public: 
 		double m_lastX{ 0.0 };
 		double m_lastY{ 0.0 };
@@ -57,11 +65,8 @@ namespace editor
 		bool m_rotating = false;
 		mbgl::Map* m_Map = nullptr;
 	private: 
-
 		std::unique_ptr<Win32Backend> m_Backend{ nullptr }; 
 		Win32RenderFrontEnd* m_rendererFrontend = nullptr;
-
-
 		dragon::MapRenderCanvas* m_canvas{ nullptr };
 		bool m_Dirty = true;
 		bool m_Fullscreen = false;
@@ -72,9 +77,9 @@ namespace editor
 		float m_PixelRatio{ 0.0 }; 
 		mbgl::util::RunLoop m_RunLoop;
 		mbgl::util::Timer   m_FrameTick;
-
 		mbgl::ResourceOptions m_mapResourceOptions;
 		mbgl::ClientOptions m_mapClientOptions;
+		std::function<void()> finishLoadingStyle_callback{ nullptr }; 
 	};
 }
 #endif // !_WIN_32_VIEW_

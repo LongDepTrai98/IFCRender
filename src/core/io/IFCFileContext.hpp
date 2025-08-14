@@ -61,7 +61,7 @@ namespace dragon
 	public:
 		std::shared_ptr<std::function<void(const std::pair<int, ItemData*>&)>> m_Toggle_Component_Callback{ nullptr };
 		std::shared_ptr<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>> m_Toggle_Components_Callback{ nullptr };
-		std::shared_ptr<std::function<void* (const int&)>> m_GetData_Item_Callback{ nullptr };
+		std::shared_ptr<std::function<void* (int,std::string)>> m_GetData_Item_Callback{ nullptr };
 		std::shared_ptr<std::function<bool(const unsigned int)>> m_Callback_Intersect{ nullptr };
 	public:
 		std::function<void(const std::vector<std::shared_ptr<threepp::Mesh>>& meshes)> m_Add_Object_CallBack{ nullptr };

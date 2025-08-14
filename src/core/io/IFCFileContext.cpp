@@ -436,7 +436,7 @@ namespace dragon
 			if (OnRedrawCallback)
 				OnRedrawCallback();
 			};
-		auto lambda_get_item_value_callback = [&](const int& itemId) {
+		auto lambda_get_item_value_callback = [&](int itemId, std::string label) {
 			auto it = m_Model->m_Geometry_Offset.find(itemId);
 			if (it != m_Model->m_Geometry_Offset.end())
 			{
@@ -458,7 +458,7 @@ namespace dragon
 			};
 		m_Toggle_Component_Callback = std::make_shared<std::function<void(const std::pair<int, ItemData*>&)>>(lambda_toggle_component_callback);
 		m_Toggle_Components_Callback = std::make_shared<std::function<void(const std::vector<std::pair<int, ItemData*>>&)>>(lambda_toggle_componenents_callback);
-		m_GetData_Item_Callback = std::make_shared<std::function<void* (const int&)>>(lambda_get_item_value_callback);
+		m_GetData_Item_Callback = std::make_shared<std::function<void*(int,std::string)>>(lambda_get_item_value_callback);
 		m_Callback_Intersect = std::make_shared<std::function<bool(const unsigned int)>>(lambda_select_object);
 	}
 }

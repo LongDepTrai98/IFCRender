@@ -7,6 +7,7 @@
 namespace threepp
 {
     class Object3D;
+    class Scene; 
 }
 
 class ThreeDCustomDrawableStyleLayerHost : public mbgl::style::CustomDrawableLayerHost {
@@ -19,6 +20,8 @@ public:
     void update(Interface& interface) override;
 public: 
     void addBim(Interface& interface);
+private: 
+    void addLight(threepp::Scene& main_scene); 
 protected:
     bool isAdded{ false }; 
     std::shared_ptr<threepp::Object3D> m_Obj{ nullptr };
