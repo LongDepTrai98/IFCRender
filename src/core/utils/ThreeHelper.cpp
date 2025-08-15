@@ -234,6 +234,63 @@ namespace dragon
 		geometry->applyMatrix4(matrix);
 	}
 
+	threepp::Matrix4 ThreeHelper::createMatrixScaleAroundPivot(const threepp::Vector3& pivot, const float& scaleX, const float& scaleY, const float& scaleZ)
+	{
+		threepp::Matrix4 translateToOrigin{ };
+		translateToOrigin.makeTranslation(-pivot.x, -pivot.y, -pivot.z);
+		threepp::Matrix4 scaleMatrix;
+		scaleMatrix.makeScale(scaleX, scaleY, scaleZ);
+		threepp::Matrix4 translateBack;
+		translateBack.makeTranslation(pivot.x, pivot.y, pivot.z);
+		threepp::Matrix4 matrix;
+		matrix.multiplyMatrices(translateBack, scaleMatrix);
+		matrix.multiplyMatrices(matrix, translateToOrigin);
+		return matrix; 
+	}
+
+	threepp::Matrix4 ThreeHelper::createMatrixRotateAroundPivot(const threepp::Vector3& pivot, const float& rotateX, const float& rotateY, const float& rotateZ)
+	{
+		threepp::Matrix4 result;
+		result.identity();
+
+		threepp::Matrix4 translateToOrigin{ };
+		translateToOrigin.makeTranslation(-pivot.x, -pivot.y, -pivot.z);
+		threepp::Matrix4 rotationMatrix;
+		rotationMatrix.identity();
+		if (rotateZ != 0.0f) {
+			threepp::Matrix4 rotZ;
+			rotZ.makeRotationZ(rotateZ);
+			rotationMatrix.multiplyMatrices(rotationMatrix, rotZ);
+		}
+		if (rotateY != 0.0f) {
+			threepp::Matrix4 rotY;
+			rotY.makeRotationY(rotateY);
+			rotationMatrix.multiplyMatrices(rotationMatrix, rotY);
+		}
+		if (rotateX != 0.0f) {
+			threepp::Matrix4 rotX;
+			rotX.makeRotationX(rotateX);
+			rotationMatrix.multiplyMatrices(rotationMatrix, rotX);
+		}
+		threepp::Matrix4 translateBack;
+		translateBack.makeTranslation(pivot.x, pivot.y, pivot.z);
+		threepp::Matrix4 temp;
+		temp.multiplyMatrices(rotationMatrix, translateToOrigin);
+		result.multiplyMatrices(translateBack, temp);
+		return result;
+	}
+
+
+	threepp::Matrix4 ThreeHelper::createMatrixTranslateAroundPivot(const threepp::Vector3& pivot, const float& tar_x, const float& tar_y, const float& tar_z) {
+		threepp::Matrix4 result;
+		result.identity();
+		float deltaX = tar_x - pivot.x;
+		float deltaY = tar_y - pivot.y;
+		float deltaZ = tar_z - pivot.z;
+		result.makeTranslation(deltaX, deltaY, deltaZ);
+		return result;
+	}
+
 	std::shared_ptr<threepp::BufferGeometry> ThreeHelper::BuildSubGeometryWithOffset2(const std::map<int, std::vector<IFCModelCache::offset>>& view_geometries_offset_with_material,
 		const std::vector<float>& vertices,
 		const std::vector<float>& normals,

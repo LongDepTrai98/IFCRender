@@ -8,7 +8,6 @@ namespace dragon::panel_config
 		.MaximizeButton(true)
 		.PinButton(true)
 		.Left(); 
-		//.PaneBorder(); 
 	static wxAuiPaneInfo map_view_panel_info = wxAuiPaneInfo()
 		.Name("map")
 		.Caption("Map")
@@ -23,5 +22,4 @@ namespace dragon::panel_config
 		.MinimizeButton(true)
 		.PinButton(true)
 		.MinSize(400, 300); 
-		//.Dockable(true);
 }

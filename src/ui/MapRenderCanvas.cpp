@@ -19,6 +19,8 @@
 #include <nlohmann/json.hpp>
 #include "core/lock/ContextLock.hpp"
 #include "map/example_custom_drawable_style_layer.hpp"
+#include <mbgl/style/layers/custom_drawable_layer.hpp>
+#include <mbgl/style/layers/custom_drawable_layer_impl.hpp>
 #include "resource.hpp"
 #include "input/input.hpp"
 #include "core/utils/AppHelper.hpp"
@@ -51,6 +53,38 @@ namespace dragon
 	{
 		using namespace mbgl::style;
 		using namespace mbgl::style::expression::dsl;
+
+		if (data.event.GetId() == (int)ID_EVENT::TOOL_OPEN_EDIT_MODE)
+		{
+			/*GET CUSTOM 3D STYLE*/
+			auto host = getCustomDrawableStyleLayerHost(); 
+			if (host)
+			{
+				host->addGizmo(); 
+			}
+			/*MLN_TRACE_FUNC();
+			mbgl::style::Style& style = m_Map->getStyle();
+			const std::string identifier = "Example-Bim-Layer";
+			mbgl::style::Layer* custom_layer = style.getLayer(identifier);
+			if (custom_layer)
+			{
+				CustomDrawableLayer* ptr_custom_drawable_layer = static_cast<CustomDrawableLayer*>(custom_layer);
+				if (ptr_custom_drawable_layer)
+				{
+					const mbgl::style::CustomDrawableLayer::Impl& custom_impl = ptr_custom_drawable_layer->impl(); 
+					auto host = custom_impl.host; 
+					if (host)
+					{
+						ThreeDCustomDrawableStyleLayerHost* ptr_host = static_cast<ThreeDCustomDrawableStyleLayerHost*>(host.get());
+						if (ptr_host)
+						{
+							ptr_host->addGizmo(); 
+						}
+					}
+				}
+			}*/
+		}
+
 		if (data.event.GetId() == (int)ID_EVENT::TOOL_PROJECTION)
 		{
 			/*ADD BIM TO MAP*/
@@ -269,6 +303,12 @@ namespace dragon
 		wxPoint pos = event.GetPosition();
 		int x = pos.x; 
 		int y = pos.y; 
+
+		/*MOUSE STATE*/
+		const wxSize size = this->getSize();
+		m_MouseState.nor_mouse_pos.x = (pos.x / static_cast<float>(size.GetWidth())) * 2 - 1;
+		m_MouseState.nor_mouse_pos.y = -(pos.y / static_cast<float>(size.GetHeight())) * 2 + 1;
+
 		if (m_Backend)
 		{
 			const double dx = x - m_Backend->m_lastX;
@@ -292,6 +332,10 @@ namespace dragon
 			{
 				if (m_Backend->m_pitching)
 				{
+					auto lat = m_Map->getFreeCameraOptions().getLocation().value().location.latitude(); 
+					auto lon = m_Map->getFreeCameraOptions().getLocation().value().location.longitude(); 
+					auto alt = m_Map->getFreeCameraOptions().getLocation().value().altitude;
+					std::cout << std::format("lat : {}, lon : {}, altitude : {}", lat, lon, alt) << std::endl;  
 					m_Backend->m_Map->pitchBy(dy / 2.0);
 				}
 			}
@@ -309,8 +353,6 @@ namespace dragon
 		{
 			if (m_Backend)
 			{
-				m_BeginX = pos.x;
-				m_BeginY = pos.y;
 				m_Backend->m_pitching = true; 
 				m_Backend->m_rotating = true; 
 			}
@@ -319,6 +361,11 @@ namespace dragon
 		{
 			if (buttonFlag == wxMOUSE_BTN_LEFT)
 			{
+				auto host = getCustomDrawableStyleLayerHost();
+				if (host)
+				{
+					host->testRay(m_MouseState.nor_mouse_pos);
+				}
 				if (m_Backend)
 				{
 					m_Backend->m_tracking = true; 
@@ -381,6 +428,24 @@ namespace dragon
 	{
 		wxWindow::OnInternalIdle();
 		Refresh(false);
+	}
+	ThreeDCustomDrawableStyleLayerHost* MapRenderCanvas::getCustomDrawableStyleLayerHost()
+	{
+		using namespace mbgl::style;
+		using namespace mbgl::style::expression::dsl;
+		MLN_TRACE_FUNC();
+		mbgl::style::Style& style = m_Map->getStyle();
+		const std::string identifier = "Example-Bim-Layer";
+		mbgl::style::Layer* custom_layer = style.getLayer(identifier);
+		if (!custom_layer) return nullptr; 
+		CustomDrawableLayer* ptr_custom_drawable_layer = static_cast<CustomDrawableLayer*>(custom_layer);
+		if (!ptr_custom_drawable_layer) return nullptr; 
+		const mbgl::style::CustomDrawableLayer::Impl& custom_impl = ptr_custom_drawable_layer->impl();
+		auto host = custom_impl.host;
+		if (!host) return nullptr; 
+		ThreeDCustomDrawableStyleLayerHost* ptr_host = static_cast<ThreeDCustomDrawableStyleLayerHost*>(host.get());
+		if (!ptr_host) return nullptr; 
+		return ptr_host; 
 	}
 	void MapRenderCanvas::activeContext()
 	{

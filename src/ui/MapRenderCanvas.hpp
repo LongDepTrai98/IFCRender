@@ -1,6 +1,7 @@
 #ifndef _MAP_RENDER_CANVAS_HPP_
 #define _MAP_RENDER_CANVAS_HPP_
 #include "ui/IGLCanvas.hpp"
+#include "input/input.hpp"
 #include <memory>
 #include <functional>
 namespace editor
@@ -12,6 +13,7 @@ namespace mbgl
 {
 	class Map; 
 }
+class ThreeDCustomDrawableStyleLayerHost; 
 namespace dragon
 {
 	class ToolBarData;
@@ -43,6 +45,7 @@ namespace dragon
 		void OnKeyDown(wxKeyEvent& command);
 		void OnKeyUp(wxKeyEvent& command);
 		void OnInternalIdle() override;
+		ThreeDCustomDrawableStyleLayerHost* getCustomDrawableStyleLayerHost();
 		/*RENDER*/
 	private:
 		void enableMultisampling();
@@ -68,8 +71,7 @@ namespace dragon
 		float  m_dtTime{ 0.0 };
 		wxGLAttributes m_DispAttrs{};
 		bool m_bIsDirty{ true };
-		int m_BeginX{ 0 }; 
-		int m_BeginY{ 0 }; 
+		MouseState m_MouseState{}; 
 	};
 }
 #endif // !_MAP_RENDER_CANVAS_HPP_

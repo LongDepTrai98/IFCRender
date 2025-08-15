@@ -74,6 +74,15 @@ namespace dragon
 			"Projection",
 			"This is help for draw Grid",
 			NULL);
+		m_ToolBar->AddSeparator();
+		m_ToolBar->AddTool((int)ID_EVENT::TOOL_OPEN_EDIT_MODE,
+			"",
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Debug, wxBITMAP_TYPE_ICO),
+			wxNullBitmap,
+			wxITEM_CHECK,
+			"MAP EDIT MODE",
+			"MAP EDIT MODE",
+			NULL);
 		m_ToolBar->AddSeparator(); 
 		m_ToolBar->AddTool((int)ID_EVENT::TOOL_SWITCH_MODE_RENDER,
 			"",

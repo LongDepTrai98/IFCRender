@@ -31,7 +31,8 @@ namespace dragon
 		initTreeCtrl();
 		//CreateStatusBar(2);
 		//SetStatusText("Welcome to wxWidgets!");
-		//Centre(wxBOTH);
+		Centre(wxBOTH);
+		m_UIManager->Update(); 
 		Bind(wxEVT_SIZE, &WindowFrame::OnResize, this);
 	}
 	IGLCanvas* WindowFrame::getCanvasWithName(const std::string& name)
@@ -51,18 +52,12 @@ namespace dragon
 	}
 	void WindowFrame::initUI()
 	{
-		const std::string& iconAppPath = assets::Icons + "app.ico";
-		wxIcon(iconAppPath, wxBITMAP_TYPE_ICO);
+		const std::string iconAppPath = assets::Icons + "app.ico";
 		this->SetIcon(wxIcon(iconAppPath, wxBITMAP_TYPE_ICO));
 	}
 	void WindowFrame::initUIManager()
 	{
-		long style = wxAUI_DOCKART_GRADIENT_TYPE | wxAUI_GRADIENT_NONE; 
-		m_UIManager = std::make_unique<wxAuiManager>(this, wxAUI_GRADIENT_NONE);
-		wxAuiDockArt* art = m_UIManager->GetArtProvider();
-		customDockArt* default_doc_art = new customDockArt();
-		default_doc_art->setStyle(); 
-		m_UIManager->SetArtProvider(default_doc_art); 
+		m_UIManager = std::make_unique<wxAuiManager>(this);
 		m_UIManager->Update(); 
 	}
 	void WindowFrame::initMenuBar()

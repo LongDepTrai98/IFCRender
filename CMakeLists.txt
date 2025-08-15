@@ -139,6 +139,9 @@ source_group("shaders" FILES ${SHADERS_SRC})
 #maplibre 
 file(GLOB_RECURSE MAPLIBRE_SRC "src/map/*.hpp" "src/map/*.cpp")
 source_group("map" FILES ${MAPLIBRE_SRC})
+#tool 
+file(GLOB_RECURSE TOOL_SRC "src/tools/*.hpp" "src/tools/*.cpp")
+source_group("tools" FILES ${TOOL_SRC})
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/wxInclude.hpp
@@ -163,6 +166,7 @@ add_executable(${EDITOR_NAME_PROJECT}
     ${MAPLIBRE_SRC}
     ${APP_CONTEXT_LOCK}
     ${APP_VECTOR_TILE_CORE_SRC}
+    ${TOOL_SRC}
 )
 
  #add include 
