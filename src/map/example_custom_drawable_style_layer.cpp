@@ -47,11 +47,11 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(Interface& interface)
                     auto matrix_rotate = dragon::ThreeHelper::createMatrixRotateAroundPivot(threepp::Vector3(0, 0, 0), threepp::math::degToRad(-90),0.0,0.0);
                     m_Obj->as<threepp::Mesh>()->applyMatrix4(matrix_rotate); 
                     auto matrix_translate = dragon::ThreeHelper::createMatrixTranslateAroundPivot(threepp::Vector3(0, 0, 0), 4096.0, 4096.0, 0.0);
-                    //m_Obj->as<threepp::Mesh>()->applyMatrix4(matrix_translate);
+                    m_Obj->as<threepp::Mesh>()->applyMatrix4(matrix_translate);
                     m_Obj->matrixAutoUpdate = true;
-                    m_Obj->geometry()->computeBoundingBox(); 
-                    m_Obj->geometry()->computeBoundingSphere(); 
-                    impl->scene->clear();
+                    /*m_Obj->geometry()->computeBoundingBox(); 
+                    m_Obj->geometry()->computeBoundingSphere(); */
+                    //impl->scene->clear();
                     impl->scene->add(m_Obj);
                     addLight(*impl->scene); 
                     //create ray 
