@@ -92,6 +92,7 @@ namespace dragon
 			MainViewPort* viewport_bim = AppHelper::getMainBimViewPortScene(main_frame);
 			/*GET MODEL BIM*/
 			auto model = viewport_bim->getScene()->getObjectByName("model"); 
+			ThreeDCustomDrawableStyleLayerHost* custom_host{ nullptr }; 
 			if (model)
 			{
 				/*CLONE*/
@@ -102,11 +103,10 @@ namespace dragon
 				const auto& existingLayer = style.getLayer(identifier);
 				if (!existingLayer) {
 					style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
-						identifier, std::make_unique<ThreeDCustomDrawableStyleLayerHost>(std::move(clone_model))));
-				}
-				else {
-					style.removeLayer(identifier);
-				}
+						identifier, std::make_unique<ThreeDCustomDrawableStyleLayerHost>()));
+				}; 
+				custom_host = getCustomDrawableStyleLayerHost();
+				custom_host->addBim(clone_model); 
 			}
 		}
 	}
@@ -364,7 +364,7 @@ namespace dragon
 				auto host = getCustomDrawableStyleLayerHost();
 				if (host)
 				{
-					host->testRay(m_MouseState.nor_mouse_pos);
+					host->query(m_MouseState.nor_mouse_pos);
 				}
 				if (m_Backend)
 				{

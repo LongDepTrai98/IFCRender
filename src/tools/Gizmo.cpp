@@ -7,49 +7,94 @@ namespace dragon
 	{
 		target = target_; 
 		std::shared_ptr<threepp::Group> gizmo = threepp::Group::create(); 
-		//CREATE ARROW OX, PLANE OX
-		threepp::Vector3 ox_dir{ 1.0,0.0,0.0 }; 
-		std::shared_ptr<threepp::ArrowHelper> arrow_ox = threepp::ArrowHelper::create(
-			ox_dir, 
-			{ 0, 0, 0 },
-			arrow_length,
-			threepp::Color::red,
-			arrow_head_length,
-			arrow_head_width);
-		arrow_ox->name = "arrow_x"; 
-		const auto planeXYHelper = createXYPlaneHelper(plane_size);
-		planeXYHelper->name = "plane_xy";
-		//CREATE ARROW OY 
-		threepp::Vector3 oy_dir{ 0.0,1.0,0.0 }; 
-		std::shared_ptr<threepp::ArrowHelper> arrow_oy = threepp::ArrowHelper::create(
-			oy_dir,
-			{ 0, 0, 0 },
-			arrow_length,
-			threepp::Color::green,
-			arrow_head_length,
-			arrow_head_width); 
-		arrow_oy->name = "arrow_y";
-		threepp::Plane plane_oy(oy_dir, 0.0); 
-		const auto planeYZHelper = createYZPlaneHelper(plane_size);
-		planeXYHelper->name = "plane_yz";
-		//CREATE ARROW OZ 
+		gizmo->name = "gizmo"; 
+
+		threepp::Vector3 ox_dir{ 1.0,0.0,0.0 };
+		threepp::Vector3 oy_dir{ 1.0,1.0,0.0 }; 
 		threepp::Vector3 oz_dir{ 0.0,0.0,1.0 }; 
-		std::shared_ptr<threepp::ArrowHelper> arrow_oz = threepp::ArrowHelper::create(
-			oz_dir,
-			{ 0, 0, 0 }, 
-			arrow_length,
-			threepp::Color::blue, 
-			arrow_head_length,
-			arrow_head_width);
-		arrow_oz->name = "arrow_z";
-		const auto planeXZHelper = createXZPlaneHelper(plane_size);
-		planeXZHelper->name = "plane_xz";
-		gizmo->add(arrow_ox); 
-		gizmo->add(arrow_oy); 
-		gizmo->add(arrow_oz); 
-		gizmo->add(planeXYHelper); 
-		gizmo->add(planeXZHelper);
-		gizmo->add(planeYZHelper);
+		auto makeArrow = [&](const threepp::Color& color, const threepp::Vector3& dir, const std::string& name) {
+			auto group = threepp::Group::create();
+			auto length = arrow_length; 
+			auto thickness = 10.0f; 
+			// Thân mũi tên (cylinder)
+			auto cylGeo = threepp::CylinderGeometry::create(thickness, thickness, length, 8);
+			auto cylMat = threepp::MeshBasicMaterial::create();
+			cylMat->color = color;
+			auto cyl = threepp::Mesh::create(cylGeo, cylMat);
+
+			// Dịch chuyển thân để đầu nằm đúng vị trí
+			cyl->position.y = length / 2.0f;
+			group->add(cyl);
+
+			// Đầu mũi tên (cone)
+			auto coneGeo = threepp::ConeGeometry::create(thickness * 2, length * 0.2f, 12);
+			auto coneMat = threepp::MeshBasicMaterial::create();
+			coneMat->color = color;
+			auto cone = threepp::Mesh::create(coneGeo, coneMat);
+
+			cone->position.y = length + (length * 0.1f);
+			group->add(cone);
+
+			// Quay group theo hướng trục
+			if (dir.equals(threepp::Vector3(1, 0, 0))) {
+				group->rotation.z = -threepp::math::PI / 2;
+			}
+			else if (dir.equals(threepp::Vector3(0, 0, 1))) {
+				group->rotation.x = threepp::math::PI / 2;
+			}
+			group->name = name; 
+			return group;
+		};
+
+		gizmo->add(makeArrow(threepp::Color::red, threepp::Vector3(1, 0, 0), "ox"));
+		// Trục Y
+		gizmo->add(makeArrow(threepp::Color::green, threepp::Vector3(0, 1, 0), "oy"));
+		// Trục Z
+		gizmo->add(makeArrow(threepp::Color::blue, threepp::Vector3(0, 0, 1), "oz"));
+
+		//CREATE ARROW OX, PLANE OX
+		//threepp::Vector3 ox_dir{ 1.0,0.0,0.0 }; 
+		//std::shared_ptr<threepp::ArrowHelper> arrow_ox = threepp::ArrowHelper::create(
+		//	ox_dir, 
+		//	{ 0, 0, 0 },
+		//	arrow_length,
+		//	threepp::Color::red,
+		//	arrow_head_length,
+		//	arrow_head_width);
+		//arrow_ox->name = "arrow_x"; 
+		//const auto planeXYHelper = createXYPlaneHelper(plane_size);
+		//planeXYHelper->name = "plane_xy";
+		////CREATE ARROW OY 
+		//threepp::Vector3 oy_dir{ 0.0,1.0,0.0 }; 
+		//std::shared_ptr<threepp::ArrowHelper> arrow_oy = threepp::ArrowHelper::create(
+		//	oy_dir,
+		//	{ 0, 0, 0 },
+		//	arrow_length,
+		//	threepp::Color::green,
+		//	arrow_head_length,
+		//	arrow_head_width); 
+		//arrow_oy->name = "arrow_y";
+		//threepp::Plane plane_oy(oy_dir, 0.0); 
+		//const auto planeYZHelper = createYZPlaneHelper(plane_size);
+		//planeXYHelper->name = "plane_yz";
+		////CREATE ARROW OZ 
+		//threepp::Vector3 oz_dir{ 0.0,0.0,1.0 }; 
+		//std::shared_ptr<threepp::ArrowHelper> arrow_oz = threepp::ArrowHelper::create(
+		//	oz_dir,
+		//	{ 0, 0, 0 }, 
+		//	arrow_length,
+		//	threepp::Color::blue, 
+		//	arrow_head_length,
+		//	arrow_head_width);
+		//arrow_oz->name = "arrow_z";
+		//const auto planeXZHelper = createXZPlaneHelper(plane_size);
+		//planeXZHelper->name = "plane_xz";
+		//gizmo->add(arrow_ox); 
+		//gizmo->add(arrow_oy); 
+		//gizmo->add(arrow_oz); 
+		//gizmo->add(planeXYHelper); 
+		//gizmo->add(planeXZHelper);
+		//gizmo->add(planeYZHelper);
 		//CAL CENTER OF OBJECT 
 		threepp::Box3 box{};
 		box.setFromObject(*target_);

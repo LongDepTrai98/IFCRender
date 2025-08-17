@@ -16,7 +16,7 @@
 #include <spdlog/spdlog.h>
 #include "core/utils/ThreeHelper.hpp"
 
-ThreeDCustomDrawableStyleLayerHost::ThreeDCustomDrawableStyleLayerHost(std::shared_ptr<threepp::Object3D> obj) : m_Obj(obj)
+ThreeDCustomDrawableStyleLayerHost::ThreeDCustomDrawableStyleLayerHost()
 {
 }
 
@@ -26,54 +26,23 @@ void ThreeDCustomDrawableStyleLayerHost::initialize() {}
 
 void ThreeDCustomDrawableStyleLayerHost::deinitialize() {}
 
-void ThreeDCustomDrawableStyleLayerHost::addBim(Interface& interface)
-{
-    auto& layerGroup = interface.getLayerGroupBase(); 
-    mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(layerGroup.get());
-    tileLayerGroup->visitDrawables([&](const mbgl::gfx::Drawable& drawable) {
-        if (drawable.getDrawType() == mbgl::gfx::Drawable::DrawableType::DrawableCustom)
-        {
-            const mbgl::gfx::Drawable* ptrDrawable = &drawable; 
-            const mbgl::gl::DrawableCustom* ptrDrawableCustom = static_cast<const mbgl::gl::DrawableCustom*>(ptrDrawable); 
-            if (ptrDrawableCustom)
-            {
-                auto impl = ptrDrawableCustom->getImpl();
-                if (impl->scene)
-                {
-                    auto root_matrix = m_Obj->matrix;
-                    float scale_z = static_cast<float>(mbgl::gl::MecatorHelper::computeScaleZForLevel(15));
-                    auto matrix_scale = dragon::ThreeHelper::createMatrixScaleAroundPivot(threepp::Vector3(0,0,0), 1.0 * 10.0, -scale_z * 10.0, 1.0 * 10.0);
-                    m_Obj->as<threepp::Mesh>()->applyMatrix4(matrix_scale);
-                    auto matrix_rotate = dragon::ThreeHelper::createMatrixRotateAroundPivot(threepp::Vector3(0, 0, 0), threepp::math::degToRad(-90),0.0,0.0);
-                    m_Obj->as<threepp::Mesh>()->applyMatrix4(matrix_rotate); 
-                    auto matrix_translate = dragon::ThreeHelper::createMatrixTranslateAroundPivot(threepp::Vector3(0, 0, 0), 4096.0, 4096.0, 0.0);
-                    m_Obj->as<threepp::Mesh>()->applyMatrix4(matrix_translate);
-                    m_Obj->matrixAutoUpdate = true;
-                    /*m_Obj->geometry()->computeBoundingBox(); 
-                    m_Obj->geometry()->computeBoundingSphere(); */
-                    //impl->scene->clear();
-                    impl->scene->add(m_Obj);
-                    addLight(*impl->scene); 
-                    //create ray 
-                    isAdded = true; 
-                }
-            }
-        }
-    }); 
-    /*visit*/
-}
-
 void ThreeDCustomDrawableStyleLayerHost::update(Interface& interface) {
     // if we have built our drawable(s) already, either update or skip
     if (interface.getDrawableCount() == 0)
     {
         interface.addCustomDrawableWithTile({ 15, 26093, 15394 });
+        m_LayerGroup = interface.getLayerGroupBase(); 
         return;
     }
-    if (!isAdded)
+
+    if (!fnc_queue.empty())
     {
-        addBim(interface);
+        std::function<void()> fnc = fnc_queue.front(); 
+        if (fnc)
+            fnc(); 
+        fnc_queue.pop(); 
     }
+
     if (m_bAddGizmo)
     {
         createGizmo(interface); 
@@ -90,10 +59,20 @@ void ThreeDCustomDrawableStyleLayerHost::addGizmo()
     m_bAddGizmo = true; 
 }
 
-void ThreeDCustomDrawableStyleLayerHost::testRay(threepp::Vector2 nor_pos)
+void ThreeDCustomDrawableStyleLayerHost::query(threepp::Vector2 nor_pos)
 {
     m_nor_pos = nor_pos; 
     m_bIsClick = true; 
+
+    if (!m_LayerGroup)
+        return; 
+
+
+    auto test = m_LayerGroup->getDrawableCount(); 
+    mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(m_LayerGroup.get());
+    tileLayerGroup->visitDrawables([&](const mbgl::gfx::Drawable& drawable) {
+        int a = 3; 
+        }); 
    /* auto& layerGroup = interface.getLayerGroupBase();
     mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(layerGroup.get());
     tileLayerGroup->visitDrawables([&](const mbgl::gfx::Drawable& drawable) {
@@ -166,6 +145,49 @@ void ThreeDCustomDrawableStyleLayerHost::addLight(threepp::Scene& scene)
     directionalLight2->position.set(-1, 0.5, -1);
     scene.add(directionalLight2);
 
+}
+
+void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3D> bim_model)
+{
+    auto lambda = [&,bim_model]() { mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(m_LayerGroup.get());
+    tileLayerGroup->visitDrawables([&](const mbgl::gfx::Drawable& drawable) {
+        if (drawable.getDrawType() == mbgl::gfx::Drawable::DrawableType::DrawableCustom)
+        {
+            const mbgl::gfx::Drawable* ptrDrawable = &drawable;
+            const mbgl::gl::DrawableCustom* ptrDrawableCustom = static_cast<const mbgl::gl::DrawableCustom*>(ptrDrawable);
+            if (ptrDrawableCustom)
+            {
+                auto impl = ptrDrawableCustom->getImpl();
+                if (impl->scene)
+                {
+
+                    auto model = impl->scene->getObjectByName("model");
+                    if (!model)
+                    {
+                        addLight(*impl->scene);
+                    }
+                    else
+                    {
+                        impl->scene->remove(*model); 
+                    }
+                    auto root_matrix = bim_model->matrix;
+                    float scale_z = static_cast<float>(mbgl::gl::MecatorHelper::computeScaleZForLevel(15));
+                    auto matrix_scale = dragon::ThreeHelper::createMatrixScaleAroundPivot(threepp::Vector3(0, 0, 0), 1.0 * 10.0, -scale_z * 10.0, 1.0 * 10.0);
+                    bim_model->as<threepp::Mesh>()->applyMatrix4(matrix_scale);
+                    auto matrix_rotate = dragon::ThreeHelper::createMatrixRotateAroundPivot(threepp::Vector3(0, 0, 0), threepp::math::degToRad(-90), 0.0, 0.0);
+                    bim_model->as<threepp::Mesh>()->applyMatrix4(matrix_rotate);
+                    auto matrix_translate = dragon::ThreeHelper::createMatrixTranslateAroundPivot(threepp::Vector3(0, 0, 0), 4096.0, 4096.0, 0.0);
+                    bim_model->as<threepp::Mesh>()->applyMatrix4(matrix_translate);
+                    bim_model->matrixAutoUpdate = false;
+                    bim_model->updateMatrixWorld(true); 
+                    bim_model->name = "model"; 
+                    impl->scene->add(bim_model);
+                }
+            }
+        }
+        });
+        }; 
+    fnc_queue.push(std::move(lambda));
 }
 
 mbgl::Point<double> ThreeDCustomDrawableStyleLayerHost::project(const mbgl::LatLng& c, const mbgl::TransformState& s) {
