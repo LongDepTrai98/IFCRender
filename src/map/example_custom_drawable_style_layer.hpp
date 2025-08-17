@@ -11,6 +11,7 @@ namespace threepp
 {
     class Object3D;
     class Scene; 
+    class Raycaster; 
 }
 
 namespace dragon
@@ -27,16 +28,14 @@ public:
     void deinitialize() override;
     void update(Interface& interface) override;
 public: 
-    void addGizmo(); 
-    void createGizmo(Interface& interface);
+    void openEditMode(bool open);
     void query(threepp::Vector2 nor_pos);
-    void addBim(std::shared_ptr<threepp::Object3D> bim_model); 
+    void addBim(std::shared_ptr<threepp::Object3D> bim_model);
 private: 
     void addLight(threepp::Scene& main_scene); 
 protected:
-    std::queue<std::function<void()>> fnc_queue{};  
-    bool m_bAddGizmo{ false };
-    bool m_bIsClick{ false }; 
+    std::queue<std::function<void()>> fnc_queue{};
+    std::unique_ptr<threepp::Raycaster> m_RayCaster{ nullptr };
     std::shared_ptr<dragon::Gizmo> m_Gizmo{ nullptr };
     std::shared_ptr<mbgl::LayerGroupBase> m_LayerGroup{ nullptr }; 
     threepp::Vector2 m_nor_pos{ -threepp::Infinity<float>, -threepp::Infinity<float> };

@@ -13,10 +13,12 @@ namespace dragon
 	class Gizmo
 	{
 	public:
-		std::shared_ptr<threepp::Group> create(threepp::Object3D* target_);
+		std::shared_ptr<threepp::Group> create();
 		std::shared_ptr<threepp::Mesh> createXYPlaneHelper(float size); 
 		std::shared_ptr<threepp::Mesh> createXZPlaneHelper(float size); 
-		std::shared_ptr<threepp::Mesh> createYZPlaneHelper(float size); 
+		std::shared_ptr<threepp::Mesh> createYZPlaneHelper(float size);
+	public: 
+		void setTarget(threepp::Object3D* target_); 
 		//createXYPlaneHelper
 	public: 
 		float arrow_length{ 300.0f }; 

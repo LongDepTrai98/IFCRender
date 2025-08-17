@@ -12,12 +12,15 @@
 #include <cmath>
 #include <filesystem>
 #include <threepp/threepp.hpp>
+#include <threepp/core/Raycaster.hpp>
 #include <mbgl/helper/MecatorHelper.hpp>
 #include <spdlog/spdlog.h>
 #include "core/utils/ThreeHelper.hpp"
 
 ThreeDCustomDrawableStyleLayerHost::ThreeDCustomDrawableStyleLayerHost()
 {
+    m_RayCaster = std::make_unique<threepp::Raycaster>();
+    m_RayCaster->params.lineThreshold = 0.1f; 
 }
 
 ThreeDCustomDrawableStyleLayerHost::~ThreeDCustomDrawableStyleLayerHost() {}
@@ -42,40 +45,38 @@ void ThreeDCustomDrawableStyleLayerHost::update(Interface& interface) {
             fnc(); 
         fnc_queue.pop(); 
     }
-
-    if (m_bAddGizmo)
-    {
-        createGizmo(interface); 
-    }
-    if (m_bIsClick)
-    {
-        interface.updatePosMouseNor(m_nor_pos.x, m_nor_pos.y);
-        m_bIsClick = false; 
-    }
 }
 
-void ThreeDCustomDrawableStyleLayerHost::addGizmo()
+void ThreeDCustomDrawableStyleLayerHost::openEditMode(bool open)
 {
-    m_bAddGizmo = true; 
+    mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(m_LayerGroup.get());
+    tileLayerGroup->visitDrawables([&](const mbgl::gfx::Drawable& drawable) {
+        if (drawable.getDrawType() == mbgl::gfx::Drawable::DrawableType::DrawableCustom)
+        {
+            const mbgl::gfx::Drawable* ptrDrawable = &drawable;
+            const mbgl::gl::DrawableCustom* ptrDrawableCustom = static_cast<const mbgl::gl::DrawableCustom*>(ptrDrawable);
+            if (ptrDrawableCustom)
+            {
+                auto impl = ptrDrawableCustom->getImpl();
+                if (impl->scene)
+                {
+                    auto bim_model = impl->scene->getObjectByName("model"); 
+                    auto gizmo = impl->scene->getObjectByName("gizmo"); 
+                    if (bim_model)
+                        bim_model->visible = !open;
+                    gizmo->visible = open;
+                }
+            }
+        }}); 
 }
 
 void ThreeDCustomDrawableStyleLayerHost::query(threepp::Vector2 nor_pos)
 {
     m_nor_pos = nor_pos; 
-    m_bIsClick = true; 
-
     if (!m_LayerGroup)
         return; 
-
-
-    auto test = m_LayerGroup->getDrawableCount(); 
     mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(m_LayerGroup.get());
     tileLayerGroup->visitDrawables([&](const mbgl::gfx::Drawable& drawable) {
-        int a = 3; 
-        }); 
-   /* auto& layerGroup = interface.getLayerGroupBase();
-    mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(layerGroup.get());
-    tileLayerGroup->visitDrawables([&](const mbgl::gfx::Drawable& drawable) {
         if (drawable.getDrawType() == mbgl::gfx::Drawable::DrawableType::DrawableCustom)
         {
             const mbgl::gfx::Drawable* ptrDrawable = &drawable;
@@ -83,55 +84,21 @@ void ThreeDCustomDrawableStyleLayerHost::query(threepp::Vector2 nor_pos)
             if (ptrDrawableCustom)
             {
                 auto impl = ptrDrawableCustom->getImpl();
-                if (impl->scene)
+                if (!impl) return; 
+                auto scene = impl->scene.get(); 
+                auto camera = impl->camera.get(); 
+                if (scene && camera && m_RayCaster)
                 {
-                    auto model = impl->scene->getObjectByName("model");
-                    if (!model)
-                        return;
-                    model->visible = false;
-                    float scale_z = static_cast<float>(mbgl::gl::MecatorHelper::computeScaleZForLevel(15));
-                    m_Gizmo = std::make_shared<dragon::Gizmo>();
-                    std::shared_ptr<threepp::Group> arrow_group = m_Gizmo->create(model);
-                    arrow_group->name = "gizmo";
-                    arrow_group->scale.set(1.0, 1.0, scale_z);
-                    impl->scene->add(arrow_group);
-                    spdlog::info("Create gizmo arrow");
+                    m_RayCaster->setFromCamera(nor_pos, *camera); 
+                    auto gizmo = scene->getObjectByName("gizmo"); 
+                    if (!gizmo || !gizmo->visible)return;
+                    const auto intersects = m_RayCaster->intersectObjects(gizmo->children,true);
+                    if (intersects.size() != 0) {
+                        spdlog::info("Intersect"); 
+                    };
                 }
             }
-        }
-        });*/
-}
-
-void ThreeDCustomDrawableStyleLayerHost::createGizmo(Interface& interface)
-{
-    auto& layerGroup = interface.getLayerGroupBase();
-    mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(layerGroup.get());
-    tileLayerGroup->visitDrawables([&](const mbgl::gfx::Drawable& drawable) {
-        if (drawable.getDrawType() == mbgl::gfx::Drawable::DrawableType::DrawableCustom)
-        {
-            const mbgl::gfx::Drawable* ptrDrawable = &drawable;
-            const mbgl::gl::DrawableCustom* ptrDrawableCustom = static_cast<const mbgl::gl::DrawableCustom*>(ptrDrawable);
-            if (ptrDrawableCustom)
-            {
-                auto impl = ptrDrawableCustom->getImpl();
-                if (impl->scene)
-                {
-                    auto model = impl->scene->getObjectByName("model");
-                    if (!model)
-                        return;
-                    model->visible = false; 
-                    float scale_z = static_cast<float>(mbgl::gl::MecatorHelper::computeScaleZForLevel(15));
-                    m_Gizmo = std::make_shared<dragon::Gizmo>(); 
-                    std::shared_ptr<threepp::Group> arrow_group = m_Gizmo->create(model); 
-                    arrow_group->name = "gizmo"; 
-                    arrow_group->scale.set(1.0, 1.0, scale_z); 
-                    impl->scene->add(arrow_group);
-                    spdlog::info("Create gizmo arrow"); 
-                }
-            }
-        }
-        });
-    m_bAddGizmo = false; 
+        }});
 }
 
 void ThreeDCustomDrawableStyleLayerHost::addLight(threepp::Scene& scene)
@@ -160,18 +127,26 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                 auto impl = ptrDrawableCustom->getImpl();
                 if (impl->scene)
                 {
-
+                    float scale_z = static_cast<float>(mbgl::gl::MecatorHelper::computeScaleZForLevel(15));
                     auto model = impl->scene->getObjectByName("model");
                     if (!model)
                     {
                         addLight(*impl->scene);
+                        m_Gizmo = std::make_shared<dragon::Gizmo>(); 
+                        std::shared_ptr<threepp::Group> arrow_group = m_Gizmo->create();
+                        arrow_group->name = "gizmo";
+                        arrow_group->scale.set(1.0, 1.0, scale_z);
+                        arrow_group->visible = false; 
+                        arrow_group->matrixAutoUpdate = true; 
+                        arrow_group->updateMatrixWorld(true); 
+                        impl->scene->add(arrow_group);
+                        spdlog::info("Create gizmo arrow");
                     }
                     else
                     {
                         impl->scene->remove(*model); 
                     }
                     auto root_matrix = bim_model->matrix;
-                    float scale_z = static_cast<float>(mbgl::gl::MecatorHelper::computeScaleZForLevel(15));
                     auto matrix_scale = dragon::ThreeHelper::createMatrixScaleAroundPivot(threepp::Vector3(0, 0, 0), 1.0 * 10.0, -scale_z * 10.0, 1.0 * 10.0);
                     bim_model->as<threepp::Mesh>()->applyMatrix4(matrix_scale);
                     auto matrix_rotate = dragon::ThreeHelper::createMatrixRotateAroundPivot(threepp::Vector3(0, 0, 0), threepp::math::degToRad(-90), 0.0, 0.0);
@@ -182,6 +157,8 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                     bim_model->updateMatrixWorld(true); 
                     bim_model->name = "model"; 
                     impl->scene->add(bim_model);
+                    m_Gizmo->setTarget(bim_model.get()); 
+                    spdlog::info("show model bim");
                 }
             }
         }

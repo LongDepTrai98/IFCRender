@@ -3,10 +3,9 @@
 #include "threepp/threepp.hpp"
 namespace dragon
 {
-	std::shared_ptr<threepp::Group> Gizmo::create(threepp::Object3D* target_)
+	std::shared_ptr<threepp::Group> Gizmo::create()
 	{
-		target = target_; 
-		std::shared_ptr<threepp::Group> gizmo = threepp::Group::create(); 
+		gizmo = threepp::Group::create(); 
 		gizmo->name = "gizmo"; 
 
 		threepp::Vector3 ox_dir{ 1.0,0.0,0.0 };
@@ -18,8 +17,9 @@ namespace dragon
 			auto thickness = 10.0f; 
 			// Thân mũi tên (cylinder)
 			auto cylGeo = threepp::CylinderGeometry::create(thickness, thickness, length, 8);
-			auto cylMat = threepp::MeshBasicMaterial::create();
+			auto cylMat = threepp::MeshStandardMaterial::create();
 			cylMat->color = color;
+			cylMat->side = threepp::Side::Double; 
 			auto cyl = threepp::Mesh::create(cylGeo, cylMat);
 
 			// Dịch chuyển thân để đầu nằm đúng vị trí
@@ -27,9 +27,10 @@ namespace dragon
 			group->add(cyl);
 
 			// Đầu mũi tên (cone)
-			auto coneGeo = threepp::ConeGeometry::create(thickness * 2, length * 0.2f, 12);
-			auto coneMat = threepp::MeshBasicMaterial::create();
+			auto coneGeo = threepp::ConeGeometry::create(thickness * 5, length * 0.4f, 12);
+			auto coneMat = threepp::MeshStandardMaterial::create();
 			coneMat->color = color;
+			coneMat->side = threepp::Side::Double; 
 			auto cone = threepp::Mesh::create(coneGeo, coneMat);
 
 			cone->position.y = length + (length * 0.1f);
@@ -53,7 +54,6 @@ namespace dragon
 		gizmo->add(makeArrow(threepp::Color::blue, threepp::Vector3(0, 0, 1), "oz"));
 
 		//CREATE ARROW OX, PLANE OX
-		//threepp::Vector3 ox_dir{ 1.0,0.0,0.0 }; 
 		//std::shared_ptr<threepp::ArrowHelper> arrow_ox = threepp::ArrowHelper::create(
 		//	ox_dir, 
 		//	{ 0, 0, 0 },
@@ -65,7 +65,6 @@ namespace dragon
 		//const auto planeXYHelper = createXYPlaneHelper(plane_size);
 		//planeXYHelper->name = "plane_xy";
 		////CREATE ARROW OY 
-		//threepp::Vector3 oy_dir{ 0.0,1.0,0.0 }; 
 		//std::shared_ptr<threepp::ArrowHelper> arrow_oy = threepp::ArrowHelper::create(
 		//	oy_dir,
 		//	{ 0, 0, 0 },
@@ -78,7 +77,6 @@ namespace dragon
 		//const auto planeYZHelper = createYZPlaneHelper(plane_size);
 		//planeXYHelper->name = "plane_yz";
 		////CREATE ARROW OZ 
-		//threepp::Vector3 oz_dir{ 0.0,0.0,1.0 }; 
 		//std::shared_ptr<threepp::ArrowHelper> arrow_oz = threepp::ArrowHelper::create(
 		//	oz_dir,
 		//	{ 0, 0, 0 }, 
@@ -96,10 +94,7 @@ namespace dragon
 		//gizmo->add(planeXZHelper);
 		//gizmo->add(planeYZHelper);
 		//CAL CENTER OF OBJECT 
-		threepp::Box3 box{};
-		box.setFromObject(*target_);
-		auto center = box.getCenter();
-		gizmo->position.set(center.x,center.y,center.z); 
+		
 		return gizmo;
 	}
 	std::shared_ptr<threepp::Mesh> Gizmo::createXYPlaneHelper(float size)
@@ -136,5 +131,13 @@ namespace dragon
 		plane->rotation.y = threepp::math::degToRad(90);;
 		plane->position.set(0.0, pos + padding_plane, pos + padding_plane);
 		return plane;
+	}
+	void Gizmo::setTarget(threepp::Object3D* target_)
+	{
+		target = target_; 
+		threepp::Box3 box{};
+		box.setFromObject(*target_);
+		auto center = box.getCenter();
+		gizmo->position.set(center.x, center.y, center.z);
 	}
 }

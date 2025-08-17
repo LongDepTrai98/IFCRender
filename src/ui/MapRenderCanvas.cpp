@@ -57,32 +57,13 @@ namespace dragon
 		if (data.event.GetId() == (int)ID_EVENT::TOOL_OPEN_EDIT_MODE)
 		{
 			/*GET CUSTOM 3D STYLE*/
+			m_ContextLock->lock(); 
 			auto host = getCustomDrawableStyleLayerHost(); 
 			if (host)
 			{
-				host->addGizmo(); 
+				host->openEditMode(data.bIsCheck); 
 			}
-			/*MLN_TRACE_FUNC();
-			mbgl::style::Style& style = m_Map->getStyle();
-			const std::string identifier = "Example-Bim-Layer";
-			mbgl::style::Layer* custom_layer = style.getLayer(identifier);
-			if (custom_layer)
-			{
-				CustomDrawableLayer* ptr_custom_drawable_layer = static_cast<CustomDrawableLayer*>(custom_layer);
-				if (ptr_custom_drawable_layer)
-				{
-					const mbgl::style::CustomDrawableLayer::Impl& custom_impl = ptr_custom_drawable_layer->impl(); 
-					auto host = custom_impl.host; 
-					if (host)
-					{
-						ThreeDCustomDrawableStyleLayerHost* ptr_host = static_cast<ThreeDCustomDrawableStyleLayerHost*>(host.get());
-						if (ptr_host)
-						{
-							ptr_host->addGizmo(); 
-						}
-					}
-				}
-			}*/
+			m_ContextLock->unlock(); 
 		}
 
 		if (data.event.GetId() == (int)ID_EVENT::TOOL_PROJECTION)
@@ -347,6 +328,7 @@ namespace dragon
 	}
 	void MapRenderCanvas::OnMousePress(wxMouseEvent& event)
 	{
+		m_ContextLock->lock();
 		int buttonFlag = event.GetButton();
 		wxPoint pos = event.GetPosition();
 		if (wxMOUSE_BTN_RIGHT == buttonFlag)
@@ -372,6 +354,7 @@ namespace dragon
 				}
 			}
 		}
+		m_ContextLock->unlock();
 		event.Skip(); 
 	}
 	void MapRenderCanvas::OnMouseRelease(wxMouseEvent& event)
