@@ -224,8 +224,12 @@ namespace dragon
 		{
 			/*CREATE MATERIAL*/
 			std::shared_ptr<threepp::MeshStandardMaterial> material = threepp::MeshStandardMaterial::create();
+			std::vector<threepp::Plane> clippingPlanes = {
+				threepp::Plane(threepp::Vector3(0, 0, 1), 0)
+			};
 			material->flatShading = true; 
 			material->roughness = 0.1; 
+			material->clippingPlanes = clippingPlanes; 
 			threepp::Color color;
 			color.setRGB(placedColor.x, placedColor.y, placedColor.z);
 			material->color = color;

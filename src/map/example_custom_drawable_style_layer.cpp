@@ -237,7 +237,7 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                         bim_model->as<threepp::Mesh>()->applyMatrix4(matrix_scale);
                         auto matrix_rotate = dragon::ThreeHelper::createMatrixRotateAroundPivot(threepp::Vector3(0, 0, 0), threepp::math::degToRad(-90), 0.0, 0.0);
                         bim_model->as<threepp::Mesh>()->applyMatrix4(matrix_rotate);
-                        auto matrix_translate = dragon::ThreeHelper::createMatrixTranslateAroundPivot(threepp::Vector3(0.0,0.0,0.0), 0.0, 0.0, 0.0);
+                        auto matrix_translate = dragon::ThreeHelper::createMatrixTranslateAroundPivot(threepp::Vector3(0.0,0.0,0.0), 4096.0, 4096.0, 0.0);
                         bim_model->as<threepp::Mesh>()->applyMatrix4(matrix_translate);
                         bim_model->matrixAutoUpdate = false;
                         bim_model->updateMatrixWorld(true);
