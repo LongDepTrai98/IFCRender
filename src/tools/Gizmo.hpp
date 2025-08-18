@@ -2,6 +2,9 @@
 #ifndef _GIZMO_HPP_
 #define _GIZMO_HPP_
 #include <memory>
+#include "threepp/math/Plane.hpp"
+#include "threepp/math/Vector3.hpp"
+#include "threepp/math/Ray.hpp"
 namespace threepp
 {
 	class Group; 
@@ -19,15 +22,19 @@ namespace dragon
 		std::shared_ptr<threepp::Mesh> createYZPlaneHelper(float size);
 	public: 
 		void setTarget(threepp::Object3D* target_); 
+		void startDrag(threepp::Ray& ray, threepp::Vector3& camDirection, threepp::Vector3& selected_axis); 
+		void updateDrag(threepp::Ray& ray); 
+		void endDrag(); 
 		//createXYPlaneHelper
 	public: 
-		float arrow_length{ 300.0f }; 
-		float arrow_head_length{ 100.0f };
-		float arrow_head_width{ 100.0f };
-		float plane_size{ 150.0f }; 
-		float padding_plane{ 50.0f }; 
+		float arrow_length{ 50.0f }; 
+		float plane_size{ 25.0f }; 
+		float padding_plane{ 10.0f }; 
 		threepp::Object3D* target{ nullptr }; 
-		std::shared_ptr<threepp::Group> gizmo{ nullptr }; 
+		std::shared_ptr<threepp::Group> gizmo{ nullptr };
+		threepp::Plane dragPlane;
+		threepp::Vector3 startPoint{0.0,0.0,0.0}; 
+		threepp::Vector3 selected_axis{0.0,0.0,0.0}; 
 	};
 }
 #endif // !_GIZMO_HPP_

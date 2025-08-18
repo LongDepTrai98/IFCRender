@@ -20,6 +20,11 @@ namespace dragon
 	class ItemData; 
 	class MapRenderCanvas : public IGLCanvas
 	{
+	public: 
+		enum class MODE {
+			VIEW, 
+			EDIT
+		};
 	public:
 		MapRenderCanvas(wxWindow* parent, 
 			const wxGLAttributes& canvasAttrs);
@@ -71,7 +76,8 @@ namespace dragon
 		float  m_dtTime{ 0.0 };
 		wxGLAttributes m_DispAttrs{};
 		bool m_bIsDirty{ true };
-		MouseState m_MouseState{}; 
+		MouseState m_MouseState{};
+		MODE mode{ MODE::VIEW }; 
 	};
 }
 #endif // !_MAP_RENDER_CANVAS_HPP_

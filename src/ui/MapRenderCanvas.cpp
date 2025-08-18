@@ -63,6 +63,7 @@ namespace dragon
 			{
 				host->openEditMode(data.bIsCheck); 
 			}
+			data.bIsCheck ? mode = MODE::EDIT : mode = MODE::VIEW; 
 			m_ContextLock->unlock(); 
 		}
 
@@ -289,40 +290,52 @@ namespace dragon
 		const wxSize size = this->getSize();
 		m_MouseState.nor_mouse_pos.x = (pos.x / static_cast<float>(size.GetWidth())) * 2 - 1;
 		m_MouseState.nor_mouse_pos.y = -(pos.y / static_cast<float>(size.GetHeight())) * 2 + 1;
+		auto host = getCustomDrawableStyleLayerHost();
+		if (host)
+		{
+			host->mouseMove(m_MouseState.nor_mouse_pos); 
+		}
+		
+		if (mode == MODE::VIEW)
+		{
 
+			if (m_Backend)
+			{
+				const double dx = x - m_Backend->m_lastX;
+				const double dy = y - m_Backend->m_lastY;
+				if (m_Backend->m_tracking)
+				{
+					if (dx || dy) {
+						m_Backend->m_Map->moveBy(mbgl::ScreenCoordinate{ dx, dy });
+					}
+				}
+				const int dx_p_r = std::abs(dx);
+				const int dy_p_r = std::abs(dy);
+				if (dx_p_r > dy_p_r)
+				{
+					if (m_Backend->m_rotating)
+					{
+						m_Backend->m_Map->rotateBy({ m_Backend->m_lastX, m_Backend->m_lastY }, { static_cast<double>(x), static_cast<double>(y) });
+					}
+				}
+				else
+				{
+					if (m_Backend->m_pitching)
+					{
+						auto lat = m_Map->getFreeCameraOptions().getLocation().value().location.latitude();
+						auto lon = m_Map->getFreeCameraOptions().getLocation().value().location.longitude();
+						auto alt = m_Map->getFreeCameraOptions().getLocation().value().altitude;
+						std::cout << std::format("lat : {}, lon : {}, altitude : {}", lat, lon, alt) << std::endl;
+						m_Backend->m_Map->pitchBy(dy / 2.0);
+					}
+				}
+
+			}
+		}
 		if (m_Backend)
 		{
-			const double dx = x - m_Backend->m_lastX;
-			const double dy = y - m_Backend->m_lastY;
-			if (m_Backend->m_tracking)
-			{
-				if (dx || dy) {
-					m_Backend->m_Map->moveBy(mbgl::ScreenCoordinate{ dx, dy });
-				}
-			}
-			const int dx_p_r = std::abs(dx);
-			const int dy_p_r = std::abs(dy);
-			if (dx_p_r > dy_p_r)
-			{
-				if (m_Backend->m_rotating)
-				{
-					m_Backend->m_Map->rotateBy({ m_Backend->m_lastX, m_Backend->m_lastY }, { static_cast<double>(x), static_cast<double>(y) });
-				}
-			}
-			else
-			{
-				if (m_Backend->m_pitching)
-				{
-					auto lat = m_Map->getFreeCameraOptions().getLocation().value().location.latitude(); 
-					auto lon = m_Map->getFreeCameraOptions().getLocation().value().location.longitude(); 
-					auto alt = m_Map->getFreeCameraOptions().getLocation().value().altitude;
-					std::cout << std::format("lat : {}, lon : {}, altitude : {}", lat, lon, alt) << std::endl;  
-					m_Backend->m_Map->pitchBy(dy / 2.0);
-				}
-			}
 			m_Backend->m_lastX = static_cast<double>(x);
 			m_Backend->m_lastY = static_cast<double>(y);
-			
 		}
 		event.Skip();
 	}
@@ -333,24 +346,30 @@ namespace dragon
 		wxPoint pos = event.GetPosition();
 		if (wxMOUSE_BTN_RIGHT == buttonFlag)
 		{
-			if (m_Backend)
+			if (mode == MODE::VIEW)
 			{
-				m_Backend->m_pitching = true; 
-				m_Backend->m_rotating = true; 
+				if (m_Backend)
+				{
+					m_Backend->m_pitching = true;
+					m_Backend->m_rotating = true;
+				}
 			}
 		}
 		else
 		{
 			if (buttonFlag == wxMOUSE_BTN_LEFT)
 			{
+				if (mode == MODE::VIEW)
+				{
+					if (m_Backend)
+					{
+						m_Backend->m_tracking = true;
+					}
+				}
 				auto host = getCustomDrawableStyleLayerHost();
 				if (host)
 				{
 					host->query(m_MouseState.nor_mouse_pos);
-				}
-				if (m_Backend)
-				{
-					m_Backend->m_tracking = true; 
 				}
 			}
 		}
@@ -362,16 +381,27 @@ namespace dragon
 		int buttonFlag = event.GetButton();
 		if (wxMOUSE_BTN_RIGHT == buttonFlag)
 		{
-			m_Backend->m_pitching = false; 
-			m_Backend->m_rotating = false; 
+			if (mode == MODE::VIEW)
+			{
+				m_Backend->m_pitching = false;
+				m_Backend->m_rotating = false;
+			}
 		}
 		else
 		{
 			if (buttonFlag == wxMOUSE_BTN_LEFT)
 			{
-				if (m_Backend)
+				if (mode == MODE::VIEW)
 				{
-					m_Backend->m_tracking = false;
+					if (m_Backend)
+					{
+						m_Backend->m_tracking = false;
+					}
+				}
+				auto host = getCustomDrawableStyleLayerHost();
+				if (host)
+				{
+					host->mouseRelease(m_MouseState.nor_mouse_pos); 
 				}
 			}
 		}
@@ -379,17 +409,20 @@ namespace dragon
 	}
 	void MapRenderCanvas::OnMouseWheel(wxMouseEvent& event)
 	{
-		int delta = event.GetWheelRotation();// 1 or -1
-		double absDelta = delta < 0 ? -delta : delta;
-		double scale = 2.0 / (1.0 + std::exp(-absDelta / 300.0));
-		if (delta < 0 && scale != 0) {
-			scale = 1.0 / scale;
-		}
-		scale = (scale - 1.0) / 2.0 + 1.0;
-		if (m_Backend)
+		if (mode == MODE::VIEW)
 		{
-			m_Backend->m_Map->scaleBy(scale, mbgl::ScreenCoordinate{ m_Backend->m_lastX, m_Backend->m_lastY },
-				mbgl::AnimationOptions{ {mbgl::Milliseconds(100)} });
+			int delta = event.GetWheelRotation();// 1 or -1
+			double absDelta = delta < 0 ? -delta : delta;
+			double scale = 2.0 / (1.0 + std::exp(-absDelta / 300.0));
+			if (delta < 0 && scale != 0) {
+				scale = 1.0 / scale;
+			}
+			scale = (scale - 1.0) / 2.0 + 1.0;
+			if (m_Backend)
+			{
+				m_Backend->m_Map->scaleBy(scale, mbgl::ScreenCoordinate{ m_Backend->m_lastX, m_Backend->m_lastY },
+					mbgl::AnimationOptions{ {mbgl::Milliseconds(100)} });
+			}
 		}
 		event.Skip();
 	}

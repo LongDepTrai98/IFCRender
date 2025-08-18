@@ -1,41 +1,41 @@
 ﻿#include "Gizmo.hpp"
 #include "threepp/helpers/PlaneHelper.hpp"
 #include "threepp/threepp.hpp"
+#include <spdlog/spdlog.h>
 namespace dragon
 {
 	std::shared_ptr<threepp::Group> Gizmo::create()
 	{
 		gizmo = threepp::Group::create(); 
 		gizmo->name = "gizmo"; 
-
 		threepp::Vector3 ox_dir{ 1.0,0.0,0.0 };
 		threepp::Vector3 oy_dir{ 1.0,1.0,0.0 }; 
 		threepp::Vector3 oz_dir{ 0.0,0.0,1.0 }; 
 		auto makeArrow = [&](const threepp::Color& color, const threepp::Vector3& dir, const std::string& name) {
+			std::string cone_name = "cone_" + name; 
+			std::string cyl_name = "cyl_" + name; 
 			auto group = threepp::Group::create();
 			auto length = arrow_length; 
-			auto thickness = 10.0f; 
+			auto thickness = 1.0f; 
 			// Thân mũi tên (cylinder)
 			auto cylGeo = threepp::CylinderGeometry::create(thickness, thickness, length, 8);
-			auto cylMat = threepp::MeshStandardMaterial::create();
+			auto cylMat = threepp::MeshBasicMaterial::create();
 			cylMat->color = color;
-			cylMat->side = threepp::Side::Double; 
+			cylMat->side = threepp::Side::Double;
+			cylMat->depthTest = false; 
 			auto cyl = threepp::Mesh::create(cylGeo, cylMat);
-
-			// Dịch chuyển thân để đầu nằm đúng vị trí
 			cyl->position.y = length / 2.0f;
+			cyl->name = cyl_name; 
 			group->add(cyl);
-
-			// Đầu mũi tên (cone)
 			auto coneGeo = threepp::ConeGeometry::create(thickness * 5, length * 0.4f, 12);
-			auto coneMat = threepp::MeshStandardMaterial::create();
+			auto coneMat = threepp::MeshBasicMaterial::create();
 			coneMat->color = color;
-			coneMat->side = threepp::Side::Double; 
+			coneMat->side = threepp::Side::Double;
+			coneMat->depthTest = false; 
 			auto cone = threepp::Mesh::create(coneGeo, coneMat);
-
 			cone->position.y = length + (length * 0.1f);
+			cone->name = cone_name; 
 			group->add(cone);
-
 			// Quay group theo hướng trục
 			if (dir.equals(threepp::Vector3(1, 0, 0))) {
 				group->rotation.z = -threepp::math::PI / 2;
@@ -46,55 +46,19 @@ namespace dragon
 			group->name = name; 
 			return group;
 		};
-
+		const auto planeXYHelper = createXYPlaneHelper(plane_size);
+		const auto planeYZHelper = createYZPlaneHelper(plane_size);
+		const auto planeXZHelper = createXZPlaneHelper(plane_size);
+		//ox
 		gizmo->add(makeArrow(threepp::Color::red, threepp::Vector3(1, 0, 0), "ox"));
-		// Trục Y
+		// oy
 		gizmo->add(makeArrow(threepp::Color::green, threepp::Vector3(0, 1, 0), "oy"));
-		// Trục Z
+		// oz
 		gizmo->add(makeArrow(threepp::Color::blue, threepp::Vector3(0, 0, 1), "oz"));
-
-		//CREATE ARROW OX, PLANE OX
-		//std::shared_ptr<threepp::ArrowHelper> arrow_ox = threepp::ArrowHelper::create(
-		//	ox_dir, 
-		//	{ 0, 0, 0 },
-		//	arrow_length,
-		//	threepp::Color::red,
-		//	arrow_head_length,
-		//	arrow_head_width);
-		//arrow_ox->name = "arrow_x"; 
-		//const auto planeXYHelper = createXYPlaneHelper(plane_size);
-		//planeXYHelper->name = "plane_xy";
-		////CREATE ARROW OY 
-		//std::shared_ptr<threepp::ArrowHelper> arrow_oy = threepp::ArrowHelper::create(
-		//	oy_dir,
-		//	{ 0, 0, 0 },
-		//	arrow_length,
-		//	threepp::Color::green,
-		//	arrow_head_length,
-		//	arrow_head_width); 
-		//arrow_oy->name = "arrow_y";
-		//threepp::Plane plane_oy(oy_dir, 0.0); 
-		//const auto planeYZHelper = createYZPlaneHelper(plane_size);
-		//planeXYHelper->name = "plane_yz";
-		////CREATE ARROW OZ 
-		//std::shared_ptr<threepp::ArrowHelper> arrow_oz = threepp::ArrowHelper::create(
-		//	oz_dir,
-		//	{ 0, 0, 0 }, 
-		//	arrow_length,
-		//	threepp::Color::blue, 
-		//	arrow_head_length,
-		//	arrow_head_width);
-		//arrow_oz->name = "arrow_z";
-		//const auto planeXZHelper = createXZPlaneHelper(plane_size);
-		//planeXZHelper->name = "plane_xz";
-		//gizmo->add(arrow_ox); 
-		//gizmo->add(arrow_oy); 
-		//gizmo->add(arrow_oz); 
-		//gizmo->add(planeXYHelper); 
-		//gizmo->add(planeXZHelper);
-		//gizmo->add(planeYZHelper);
-		//CAL CENTER OF OBJECT 
-		
+		//plane x
+		gizmo->add(planeXYHelper); 
+		gizmo->add(planeXZHelper); 
+		gizmo->add(planeYZHelper); 
 		return gizmo;
 	}
 	std::shared_ptr<threepp::Mesh> Gizmo::createXYPlaneHelper(float size)
@@ -104,6 +68,7 @@ namespace dragon
 		auto pos = size * 0.5f;
 		material->color = threepp::Color::yellow; 
 		material->side = threepp::Side::Double;
+		material->depthTest = false;
 		auto plane = threepp::Mesh::create(geometry, material);
 		plane->position.set(pos + padding_plane, pos + padding_plane, 0.0);
 		return plane;
@@ -115,6 +80,7 @@ namespace dragon
 		auto pos = size * 0.5f;
 		material->color = threepp::Color::violet; 
 		material->side = threepp::Side::Double;
+		material->depthTest = false; 
 		auto plane = threepp::Mesh::create(geometry, material);
 		plane->rotation.x = threepp::math::degToRad(90);;
 		plane->position.set(pos + padding_plane, 0.0, pos + padding_plane);
@@ -127,6 +93,7 @@ namespace dragon
 		auto material = threepp::MeshBasicMaterial::create();
 		material->color = threepp::Color::lightblue;
 		material->side = threepp::Side::Double;
+		material->depthTest = false;
 		auto plane = threepp::Mesh::create(geometry, material);
 		plane->rotation.y = threepp::math::degToRad(90);;
 		plane->position.set(0.0, pos + padding_plane, pos + padding_plane);
@@ -139,5 +106,34 @@ namespace dragon
 		box.setFromObject(*target_);
 		auto center = box.getCenter();
 		gizmo->position.set(center.x, center.y, center.z);
+	}
+	void Gizmo::startDrag(threepp::Ray& ray, threepp::Vector3& camDirection, threepp::Vector3& selected_axis_)
+	{
+		selected_axis = selected_axis_; 
+		threepp::Vector3 u = camDirection.clone().cross(selected_axis);
+		threepp::Vector3 planeNormal = u.cross(selected_axis).normalize();
+		dragPlane.setFromNormalAndCoplanarPoint(planeNormal,gizmo->position); 
+		ray.intersectPlane(dragPlane, startPoint); 
+		spdlog::info("Start Drag: {}, {}, {}", startPoint.x,startPoint.y, startPoint.z); 
+	}
+	void Gizmo::updateDrag(threepp::Ray& ray)
+	{
+		threepp::Vector3 hitPointNow; 
+		ray.intersectPlane(dragPlane, hitPointNow); 
+		threepp::Vector3 delta = hitPointNow - startPoint;
+		float moveAmount = delta.dot(selected_axis.normalize());
+		threepp::Vector3 translation = selected_axis.normalize() * moveAmount;
+		spdlog::info("Translation delta : {}, {} , {}", translation.x, translation.y, translation.z); 
+		startPoint = hitPointNow; 
+		//update ui 
+		threepp::Matrix4 translationMatrix;
+		translationMatrix.makeTranslation(translation);
+		gizmo->applyMatrix4(translationMatrix); 
+		target->applyMatrix4(translationMatrix); 
+	}
+	void Gizmo::endDrag()
+	{
+		selected_axis = threepp::Vector3(0.0, 0.0, 0.0); 
+		spdlog::info("End drag"); 
 	}
 }
