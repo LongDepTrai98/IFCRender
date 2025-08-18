@@ -46,6 +46,35 @@ namespace dragon
 			group->name = name; 
 			return group;
 		};
+
+		auto makeRing = [&](const threepp::Color& color, const threepp::Vector3& axis, const std::string& name) {
+			// torus: radius lớn = bán kính vòng, radius nhỏ = độ dày vòng
+			const float R = 30.0f;       // scale tuỳ ý, sẽ scale theo bounding của object
+			const float r = 0.5f;
+
+			auto geo = threepp::TorusGeometry::create(R, r, 16, 64);
+			auto mat = threepp::MeshBasicMaterial::create();
+			mat->color = color;
+			mat->transparent = true;
+			mat->opacity = 0.85f;
+			mat->depthTest = false;               // để luôn thấy gizmo
+			mat->depthWrite = false;
+
+			auto mesh = threepp::Mesh::create(geo, mat);
+			mesh->name = name;
+
+			// Torus mặc định nằm trong mặt phẳng XZ (normal = Y). Ta xoay để normal // axis
+			if (axis.equals(threepp::Vector3(1, 0, 0))) {        // vòng quay quanh X => normal = X
+				mesh->rotation.y = threepp::math::PI / 2;      // đưa normal từ Y -> X
+			}
+			else if (axis.equals(threepp::Vector3(0, 0, 1))) { // vòng quay quanh Z => normal = Z
+				mesh->rotation.x = threepp::math::PI / 2;      // đưa normal từ Y -> Z
+			}
+			// vòng quanh Y thì giữ nguyên (normal = Y)
+
+			return mesh;
+		};
+
 		const auto planeXYHelper = createXYPlaneHelper(plane_size);
 		planeXYHelper->name = "plane_xy"; 
 		const auto planeYZHelper = createYZPlaneHelper(plane_size);
@@ -62,6 +91,15 @@ namespace dragon
 		gizmo->add(planeXYHelper); 
 		gizmo->add(planeXZHelper); 
 		gizmo->add(planeYZHelper); 
+
+		auto ringX = makeRing(threepp::Color::red, threepp::Vector3(1, 0, 0), "ringX");
+		auto ringY = makeRing(threepp::Color::green, threepp::Vector3(0, 1, 0), "ringY");
+		auto ringZ = makeRing(threepp::Color::blue, threepp::Vector3(0, 0, 1), "ringZ");
+
+		gizmo->add(ringX); 
+		gizmo->add(ringY); 
+		gizmo->add(ringZ); 
+
 		return gizmo;
 	}
 	std::shared_ptr<threepp::Mesh> Gizmo::createXYPlaneHelper(float size)
