@@ -22,7 +22,7 @@ namespace dragon
 		std::shared_ptr<threepp::Mesh> createYZPlaneHelper(float size);
 	public: 
 		void setTarget(threepp::Object3D* target_); 
-		void startDrag(threepp::Ray& ray, threepp::Vector3& camDirection, threepp::Vector3& selected_axis); 
+		void startDrag(threepp::Ray& ray, threepp::Vector3& camDirection, threepp::Vector3& selected_axis, bool isAxis_); 
 		void updateDrag(threepp::Ray& ray); 
 		void endDrag(); 
 		//createXYPlaneHelper
@@ -35,6 +35,7 @@ namespace dragon
 		threepp::Plane dragPlane;
 		threepp::Vector3 startPoint{0.0,0.0,0.0}; 
 		threepp::Vector3 selected_axis{0.0,0.0,0.0}; 
+		bool isAxis{ false }; 
 	};
 }
 #endif // !_GIZMO_HPP_

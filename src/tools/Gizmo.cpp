@@ -47,8 +47,11 @@ namespace dragon
 			return group;
 		};
 		const auto planeXYHelper = createXYPlaneHelper(plane_size);
+		planeXYHelper->name = "plane_xy"; 
 		const auto planeYZHelper = createYZPlaneHelper(plane_size);
+		planeYZHelper->name = "plane_yz"; 
 		const auto planeXZHelper = createXZPlaneHelper(plane_size);
+		planeXZHelper->name = "plane_xz"; 
 		//ox
 		gizmo->add(makeArrow(threepp::Color::red, threepp::Vector3(1, 0, 0), "ox"));
 		// oy
@@ -107,11 +110,20 @@ namespace dragon
 		auto center = box.getCenter();
 		gizmo->position.set(center.x, center.y, center.z);
 	}
-	void Gizmo::startDrag(threepp::Ray& ray, threepp::Vector3& camDirection, threepp::Vector3& selected_axis_)
+	void Gizmo::startDrag(threepp::Ray& ray, threepp::Vector3& camDirection, threepp::Vector3& selected_axis_, bool isAxis_)
 	{
 		selected_axis = selected_axis_; 
-		threepp::Vector3 u = camDirection.clone().cross(selected_axis);
-		threepp::Vector3 planeNormal = u.cross(selected_axis).normalize();
+		threepp::Vector3 planeNormal;
+		isAxis = isAxis_;
+		if (isAxis)
+		{
+			threepp::Vector3 u = camDirection.clone().cross(selected_axis);
+			planeNormal = u.cross(selected_axis).normalize();
+		}
+		else
+		{
+			planeNormal = selected_axis; 
+		}
 		dragPlane.setFromNormalAndCoplanarPoint(planeNormal,gizmo->position); 
 		ray.intersectPlane(dragPlane, startPoint); 
 		spdlog::info("Start Drag: {}, {}, {}", startPoint.x,startPoint.y, startPoint.z); 
@@ -121,8 +133,16 @@ namespace dragon
 		threepp::Vector3 hitPointNow; 
 		ray.intersectPlane(dragPlane, hitPointNow); 
 		threepp::Vector3 delta = hitPointNow - startPoint;
-		float moveAmount = delta.dot(selected_axis.normalize());
-		threepp::Vector3 translation = selected_axis.normalize() * moveAmount;
+		threepp::Vector3 translation; 
+		if (isAxis)
+		{
+			float moveAmount = delta.dot(selected_axis.normalize());
+			translation = selected_axis.normalize() * moveAmount;
+		}
+		else
+		{
+			translation = delta; 
+		}
 		spdlog::info("Translation delta : {}, {} , {}", translation.x, translation.y, translation.z); 
 		startPoint = hitPointNow; 
 		//update ui 

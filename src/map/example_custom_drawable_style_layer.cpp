@@ -105,16 +105,33 @@ void ThreeDCustomDrawableStyleLayerHost::query(threepp::Vector2 nor_pos)
                     const auto intersects = m_RayCaster->intersectObjects(gizmo->children,true);
                     if (intersects.size() != 0) {
                         threepp::Vector3 selected_axis{0.0,0.0,0.0};
-                        if (intersects[0].object->name == "cone_ox")
+                        std::string obj_name = intersects[0].object->name;
+                        bool isAxis{ false }; 
+                        if (obj_name == "cone_ox")
                         {
                             selected_axis = threepp::Vector3(1.0, 0.0, 0.0); 
-                        } else if (intersects[0].object->name == "cone_oy")
+                            isAxis = true; 
+                        } else if (obj_name == "cone_oy")
                         {
                             selected_axis = threepp::Vector3(0.0, 1.0, 0.0);
-                        } if (intersects[0].object->name == "cone_oz")
+                            isAxis = true;
+                        } else if (obj_name == "cone_oz")
                         {
                             selected_axis = threepp::Vector3(0.0, 0.0, 1.0);
-                        } 
+                            isAxis = true;
+                        }
+                        else if (obj_name == "plane_xy")
+                        {
+                            selected_axis = threepp::Vector3(0.0,0.0, 1.0);
+                        }
+                        else if (obj_name == "plane_yz")
+                        {
+                            selected_axis = threepp::Vector3(1.0, 0.0,0.0);
+                        }
+                        else if (obj_name == "plane_xz")
+                        {
+                            selected_axis = threepp::Vector3(0.0, 1.0, 0.0); 
+                        }
                         if (selected_axis == threepp::Vector3(0.0, 0.0, 0.0))
                         {
                             return; 
@@ -124,7 +141,7 @@ void ThreeDCustomDrawableStyleLayerHost::query(threepp::Vector2 nor_pos)
                         const auto& e = camera->matrixWorld->elements;
                         cam_dir.set(e[8], e[9], e[10]).normalize();
                         cam_dir.negate();
-                        m_Gizmo->startDrag(m_RayCaster->ray, cam_dir, selected_axis); 
+                        m_Gizmo->startDrag(m_RayCaster->ray, cam_dir, selected_axis,isAxis); 
                     };
                 }
             }
