@@ -44,7 +44,7 @@ void ThreeDCustomDrawableStyleLayerHost::update(Interface& interface) {
     // if we have built our drawable(s) already, either update or skip
     if (interface.getDrawableCount() == 0)
     {
-        interface.addCustomDrawableWithTile({ 15, 26093, 15394 });
+        interface.addCustomDrawableWithTile({ 16, 53558, 28597 });
         m_LayerGroup = interface.getLayerGroupBase(); 
         return;
     }
@@ -132,6 +132,13 @@ void ThreeDCustomDrawableStyleLayerHost::query(threepp::Vector2 nor_pos)
                         {
                             selected_axis = threepp::Vector3(0.0, 1.0, 0.0); 
                         }
+                        else if (obj_name == "ring_z")
+                        {
+                            selected_axis = threepp::Vector3(0.0, 0.0, 1.0); 
+                            /*threepp::Plane plane(threepp::Vector3(0, 0, 1), -gizmo->position.dot(threepp::Vector3(0, 0, 1))); 
+                            auto plane_helper = threepp::PlaneHelper::create(plane, 200); */
+                            //scene->add(plane_helper); 
+                        }
                         if (selected_axis == threepp::Vector3(0.0, 0.0, 0.0))
                         {
                             return; 
@@ -178,7 +185,11 @@ void ThreeDCustomDrawableStyleLayerHost::mouseMove(threepp::Vector2 nor_pos)
                         auto gizmo = scene->getObjectByName("gizmo");
                         if (!gizmo || !gizmo->visible)return;
                         auto ray = m_RayCaster->ray; 
-                        m_Gizmo->updateDrag(ray); 
+                        threepp::Vector3 cam_dir;
+                        const auto& e = camera->matrixWorld->elements;
+                        cam_dir.set(e[8], e[9], e[10]).normalize();
+                        cam_dir.negate();
+                        m_Gizmo->updateDrag(ray, cam_dir);
                     }
                 }
             }});
@@ -198,7 +209,7 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                 auto impl = ptrDrawableCustom->getImpl();
                 if (impl->scene)
                 {
-                    float scale_z = static_cast<float>(mbgl::gl::MecatorHelper::computeScaleZForLevel(15));
+                    float scale_z = static_cast<float>(mbgl::gl::MecatorHelper::computeScaleZForLevel(16));
                     auto model = impl->scene->getObjectByName("model");
                     if (!model)
                     {
@@ -237,7 +248,7 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                         bim_model->as<threepp::Mesh>()->applyMatrix4(matrix_scale);
                         auto matrix_rotate = dragon::ThreeHelper::createMatrixRotateAroundPivot(threepp::Vector3(0, 0, 0), threepp::math::degToRad(-90), 0.0, 0.0);
                         bim_model->as<threepp::Mesh>()->applyMatrix4(matrix_rotate);
-                        auto matrix_translate = dragon::ThreeHelper::createMatrixTranslateAroundPivot(threepp::Vector3(0.0,0.0,0.0), 4096.0, 4096.0, 0.0);
+                        auto matrix_translate = dragon::ThreeHelper::createMatrixTranslateAroundPivot(threepp::Vector3(0.0,0.0,0.0), 0.0, 0.0, 0);
                         bim_model->as<threepp::Mesh>()->applyMatrix4(matrix_translate);
                         bim_model->matrixAutoUpdate = false;
                         bim_model->updateMatrixWorld(true);
@@ -252,6 +263,11 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
         });
         }; 
     fnc_queue.push(std::move(lambda));
+}
+
+dragon::Gizmo* ThreeDCustomDrawableStyleLayerHost::getGizmo() const
+{
+    return m_Gizmo.get(); 
 }
 
 Plane ThreeDCustomDrawableStyleLayerHost::chooseBestPlane(const threepp::Vector3& gizmoOrigin, const threepp::Vector3& selectedAxis, const threepp::Vector3& cameraDir)

@@ -26,6 +26,7 @@
 #include "core/utils/AppHelper.hpp"
 #include "WindowFrame.hpp"
 #include "core/node/MapElementTree.hpp"
+#include "tools/Gizmo.hpp"
 namespace dragon
 {
 	MapRenderCanvas::MapRenderCanvas(wxWindow* parent,
@@ -114,10 +115,10 @@ namespace dragon
 			resourceOptions,
 			clientOptions);
 		m_Backend->setMap(m_Map.get());
-		m_Map->getStyle().loadURL(orderedStyles[1].getUrl());
+		m_Map->getStyle().loadURL(orderedStyles[0].getUrl());
 		m_Map->jumpTo(mbgl::CameraOptions()
-			.withCenter(mbgl::LatLng{ 10.810507389340282, 106.66832163838852 })
-			.withZoom(16)
+			.withCenter(mbgl::LatLng{ 22.3211062071827, 114.20821043557319 })
+			.withZoom(17)
 			.withBearing(0.0)
 			.withPitch(0.0));
 		/*set callback*/
@@ -160,6 +161,16 @@ namespace dragon
 		wxButton* gridBtn = new wxButton(this, wxID_ANY, "Grid", wxPoint(10, posYButton), wxSize(30, 30));
 		posYButton = gridBtn->GetPosition().y + padding + buttonSize;
 
+		wxButton* transButton = new wxButton(this, wxID_ANY, "Trans", wxPoint(10, posYButton), wxSize(30, 30));
+		posYButton = transButton->GetPosition().y + padding + buttonSize;
+
+		wxButton* rotateButton = new wxButton(this, wxID_ANY, "Rot", wxPoint(10, posYButton), wxSize(30, 30));
+		posYButton = rotateButton->GetPosition().y + padding + buttonSize;
+
+
+		rotateButton->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event) {
+			getCustomDrawableStyleLayerHost()->getGizmo()->switchMode(Gizmo::MODE::ROTATE); 
+		}); 
 
 		gridBtn->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event) {
 			MLN_TRACE_FUNC();
@@ -198,11 +209,11 @@ namespace dragon
 					auto visible = layer->getVisibility(); 
 					if (visible == VisibilityType::Visible)
 					{
-						layer->setVisibility(VisibilityType(false));
+						layer->setVisibility(VisibilityType::None);
 					}
 					else
 					{
-						layer->setVisibility(VisibilityType(true));
+						layer->setVisibility(VisibilityType::Visible);
 					}
 					return;
 				}

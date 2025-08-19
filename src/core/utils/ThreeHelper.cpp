@@ -291,6 +291,24 @@ namespace dragon
 		return result;
 	}
 
+	threepp::Matrix4 ThreeHelper::createMatrixRotateAroundPivot(const threepp::Vector3& pivot, const threepp::Vector3& axisWorld, float angle)
+	{
+		threepp::Matrix4 result;
+		result.identity();
+		threepp::Quaternion q;
+		q.setFromAxisAngle(axisWorld, angle);
+		threepp::Matrix4 rotationMatrix;
+		rotationMatrix.makeRotationFromQuaternion(q);
+		threepp::Matrix4 translateToOrigin{ };
+		translateToOrigin.makeTranslation(-pivot.x, -pivot.y, -pivot.z);
+		threepp::Matrix4 translateBack;
+		translateBack.makeTranslation(pivot.x, pivot.y, pivot.z);
+		threepp::Matrix4 temp;
+		temp.multiplyMatrices(rotationMatrix, translateToOrigin);
+		result.multiplyMatrices(translateBack, temp);
+		return result;
+	}
+
 	std::shared_ptr<threepp::BufferGeometry> ThreeHelper::BuildSubGeometryWithOffset2(const std::map<int, std::vector<IFCModelCache::offset>>& view_geometries_offset_with_material,
 		const std::vector<float>& vertices,
 		const std::vector<float>& normals,

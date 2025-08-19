@@ -62,6 +62,9 @@ namespace dragon
 			const float& tar_x,
 			const float& tar_y,
 			const float& tar_z);
+		static threepp::Matrix4 createMatrixRotateAroundPivot(const threepp::Vector3& pivot,
+			const threepp::Vector3& axisWorld,
+			float angle); 
 	private:
 		ThreeHelper() = default;
 	};

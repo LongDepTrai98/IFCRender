@@ -1,6 +1,7 @@
 ﻿#include "Gizmo.hpp"
 #include "threepp/helpers/PlaneHelper.hpp"
 #include "threepp/threepp.hpp"
+#include "core/utils/ThreeHelper.hpp"
 #include <spdlog/spdlog.h>
 namespace dragon
 {
@@ -46,35 +47,21 @@ namespace dragon
 			group->name = name; 
 			return group;
 		};
-
-		auto makeRing = [&](const threepp::Color& color, const threepp::Vector3& axis, const std::string& name) {
-			// torus: radius lớn = bán kính vòng, radius nhỏ = độ dày vòng
-			const float R = 30.0f;       // scale tuỳ ý, sẽ scale theo bounding của object
-			const float r = 0.5f;
-
-			auto geo = threepp::TorusGeometry::create(R, r, 16, 64);
+		auto makeRingZ = [&]() {
+			// Torus mặc định nằm trong mặt phẳng XZ, normal = Y
+			auto geo = threepp::TorusGeometry::create(100.0f, 5.0f, 16, 64);
 			auto mat = threepp::MeshBasicMaterial::create();
-			mat->color = color;
+			mat->color = threepp::Color::blue;
 			mat->transparent = true;
-			mat->opacity = 0.85f;
-			mat->depthTest = false;               // để luôn thấy gizmo
+			mat->opacity = 0.8f;
+			mat->depthTest = false;
 			mat->depthWrite = false;
-
 			auto mesh = threepp::Mesh::create(geo, mat);
-			mesh->name = name;
-
-			// Torus mặc định nằm trong mặt phẳng XZ (normal = Y). Ta xoay để normal // axis
-			if (axis.equals(threepp::Vector3(1, 0, 0))) {        // vòng quay quanh X => normal = X
-				mesh->rotation.y = threepp::math::PI / 2;      // đưa normal từ Y -> X
-			}
-			else if (axis.equals(threepp::Vector3(0, 0, 1))) { // vòng quay quanh Z => normal = Z
-				mesh->rotation.x = threepp::math::PI / 2;      // đưa normal từ Y -> Z
-			}
-			// vòng quanh Y thì giữ nguyên (normal = Y)
-
 			return mesh;
 		};
 
+
+		std::shared_ptr<threepp::Group> translate_group = threepp::Group::create(); 
 		const auto planeXYHelper = createXYPlaneHelper(plane_size);
 		planeXYHelper->name = "plane_xy"; 
 		const auto planeYZHelper = createYZPlaneHelper(plane_size);
@@ -82,24 +69,25 @@ namespace dragon
 		const auto planeXZHelper = createXZPlaneHelper(plane_size);
 		planeXZHelper->name = "plane_xz"; 
 		//ox
-		gizmo->add(makeArrow(threepp::Color::red, threepp::Vector3(1, 0, 0), "ox"));
+		translate_group->add(makeArrow(threepp::Color::red, threepp::Vector3(1, 0, 0), "ox"));
 		// oy
-		gizmo->add(makeArrow(threepp::Color::green, threepp::Vector3(0, 1, 0), "oy"));
+		translate_group->add(makeArrow(threepp::Color::green, threepp::Vector3(0, 1, 0), "oy"));
 		// oz
-		gizmo->add(makeArrow(threepp::Color::blue, threepp::Vector3(0, 0, 1), "oz"));
+		translate_group->add(makeArrow(threepp::Color::blue, threepp::Vector3(0, 0, 1), "oz"));
 		//plane x
-		gizmo->add(planeXYHelper); 
-		gizmo->add(planeXZHelper); 
-		gizmo->add(planeYZHelper); 
-
-		auto ringX = makeRing(threepp::Color::red, threepp::Vector3(1, 0, 0), "ringX");
-		auto ringY = makeRing(threepp::Color::green, threepp::Vector3(0, 1, 0), "ringY");
-		auto ringZ = makeRing(threepp::Color::blue, threepp::Vector3(0, 0, 1), "ringZ");
-
-		gizmo->add(ringX); 
-		gizmo->add(ringY); 
-		gizmo->add(ringZ); 
-
+		translate_group->add(planeXYHelper);
+		translate_group->add(planeXZHelper);
+		translate_group->add(planeYZHelper);
+		translate_group->name = "translate_grp"; 
+		gizmo->add(translate_group); 
+		std::shared_ptr<threepp::Group> rotate_group = threepp::Group::create();
+		auto ringZ = makeRingZ(); 
+		ringZ->name = "ring_z";
+		rotate_group->add(ringZ);
+		//rotate_group->add(ringZ);
+		rotate_group->name = "rotate_grp"; 
+		gizmo->add(rotate_group); 
+		switchMode(MODE::TRANSLATE); 
 		return gizmo;
 	}
 	std::shared_ptr<threepp::Mesh> Gizmo::createXYPlaneHelper(float size)
@@ -150,48 +138,129 @@ namespace dragon
 	}
 	void Gizmo::startDrag(threepp::Ray& ray, threepp::Vector3& camDirection, threepp::Vector3& selected_axis_, bool isAxis_)
 	{
-		selected_axis = selected_axis_; 
-		threepp::Vector3 planeNormal;
-		isAxis = isAxis_;
-		if (isAxis)
+		if (currentMode == MODE::TRANSLATE)
 		{
-			threepp::Vector3 u = camDirection.clone().cross(selected_axis);
-			planeNormal = u.cross(selected_axis).normalize();
-		}
-		else
+			selected_axis = selected_axis_;
+			threepp::Vector3 planeNormal;
+			isAxis = isAxis_;
+			if (isAxis)
+			{
+				threepp::Vector3 u = camDirection.clone().cross(selected_axis);
+				planeNormal = u.cross(selected_axis).normalize();
+			}
+			else
+			{
+				planeNormal = selected_axis;
+			}
+			dragPlane.setFromNormalAndCoplanarPoint(planeNormal, gizmo->position);
+			ray.intersectPlane(dragPlane, startPoint);
+			spdlog::info("Start Drag: {}, {}, {}", startPoint.x, startPoint.y, startPoint.z);
+		} else if (currentMode == MODE::ROTATE)
 		{
-			planeNormal = selected_axis; 
+			rs.dragging = true;
+			//rs.axisName = picked->name;
+			rs.startObjQuat.copy(target->quaternion);
+			rs.ringNormalWorld.copy(selected_axis_);
+			rs.totalAngle = 0.0f;
+			rs.vPrev.z = 0;
+
+			threepp::Vector3 hit; 
+			threepp::Vector3 gizmo_worldpos;
+			gizmo->getWorldPosition(gizmo_worldpos);
+			threepp::Plane plane(rs.ringNormalWorld, -rs.ringNormalWorld.dot(gizmo_worldpos));
+			ray.intersectPlane(plane, hit); 
+			rs.vPrev = hit.sub(gizmo_worldpos).normalize();
+			//rs.v0.projectOnPlane(rs.ringNormalWorld).normalize(); 
 		}
-		dragPlane.setFromNormalAndCoplanarPoint(planeNormal,gizmo->position); 
-		ray.intersectPlane(dragPlane, startPoint); 
-		spdlog::info("Start Drag: {}, {}, {}", startPoint.x,startPoint.y, startPoint.z); 
 	}
-	void Gizmo::updateDrag(threepp::Ray& ray)
+	void Gizmo::updateDrag(threepp::Ray& ray, threepp::Vector3 camDir)
 	{
-		threepp::Vector3 hitPointNow; 
-		ray.intersectPlane(dragPlane, hitPointNow); 
-		threepp::Vector3 delta = hitPointNow - startPoint;
-		threepp::Vector3 translation; 
-		if (isAxis)
+		if (currentMode == MODE::TRANSLATE)
 		{
-			float moveAmount = delta.dot(selected_axis.normalize());
-			translation = selected_axis.normalize() * moveAmount;
-		}
-		else
+			threepp::Vector3 hitPointNow;
+			ray.intersectPlane(dragPlane, hitPointNow);
+			threepp::Vector3 delta = hitPointNow - startPoint;
+			threepp::Vector3 translation;
+			if (isAxis)
+			{
+				float moveAmount = delta.dot(selected_axis.normalize());
+				translation = selected_axis.normalize() * moveAmount;
+			}
+			else
+			{
+				translation = delta;
+			}
+			spdlog::info("Translation delta : {}, {} , {}", translation.x, translation.y, translation.z);
+			startPoint = hitPointNow;
+			//update ui 
+			threepp::Matrix4 translationMatrix;
+			translationMatrix.makeTranslation(translation);
+			gizmo->applyMatrix4(translationMatrix);
+			target->applyMatrix4(translationMatrix);
+		} else if (currentMode == MODE::ROTATE)
 		{
-			translation = delta; 
+			threepp::Vector3 gizmo_worldpos; 
+			gizmo->getWorldPosition(gizmo_worldpos); 
+			threepp::Plane plane(rs.ringNormalWorld, -rs.ringNormalWorld.dot(gizmo_worldpos));
+			threepp::Vector3 hit; 
+			ray.intersectPlane(plane,hit);
+			threepp::Vector3 v1 = hit.clone().sub(gizmo_worldpos);
+			v1.z = 0;    
+			v1.normalize();
+			float delta = std::atan2(
+				threepp::Vector3(0, 0, 1).dot(rs.vPrev.clone().cross(v1)), // sin
+				rs.vPrev.dot(v1)                                // cos
+			);
+			float c; 
+			delta < 0 ? c = -1.0f : c = 1.0f; 
+			rs.totalAngle += delta; 
+			rs.vPrev = v1;
+
+			threepp::Matrix4 rotMat = ThreeHelper::createMatrixRotateAroundPivot(gizmo_worldpos, rs.ringNormalWorld, c * 0.05);
+			gizmo->applyMatrix4(rotMat); 
+			target->applyMatrix4(rotMat); 
 		}
-		spdlog::info("Translation delta : {}, {} , {}", translation.x, translation.y, translation.z); 
-		startPoint = hitPointNow; 
-		//update ui 
-		threepp::Matrix4 translationMatrix;
-		translationMatrix.makeTranslation(translation);
-		gizmo->applyMatrix4(translationMatrix); 
-		target->applyMatrix4(translationMatrix); 
+	}
+	void Gizmo::switchMode(MODE mode)
+	{
+		auto switch_lambda = [&](MODE mode) {
+			switch (mode)
+			{
+			case dragon::Gizmo::MODE::TRANSLATE:
+			{
+				if (auto translate_grp = gizmo->getObjectByName("translate_grp"))
+				{
+					translate_grp->visible = true; 
+				}
+				if (auto rotate_grp = gizmo->getObjectByName("rotate_grp"))
+				{
+					rotate_grp->visible = false; 
+				}
+				break;
+			}
+			case dragon::Gizmo::MODE::ROTATE:
+			{
+				if (auto translate_grp = gizmo->getObjectByName("translate_grp"))
+				{
+					translate_grp->visible = false;
+				}
+				if (auto rotate_grp = gizmo->getObjectByName("rotate_grp"))
+				{
+					rotate_grp->visible = true;
+				}
+				break;
+			}
+			default:
+				break;
+			}
+		}; 
+		currentMode = mode;
+		switch_lambda(currentMode); 
 	}
 	void Gizmo::endDrag()
 	{
 		selected_axis = threepp::Vector3(0.0, 0.0, 0.0); 
+		rs.totalAngle = 0; 
 		spdlog::info("End drag"); 
 	}
 }
