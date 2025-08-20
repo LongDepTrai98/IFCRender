@@ -11,6 +11,7 @@ namespace threepp
 	class Group; 
 	class Object3D; 
 	class Mesh; 
+	class Raycaster;
 }
 
 namespace dragon
@@ -24,13 +25,19 @@ namespace dragon
 			ROTATE
 		};
 		struct RotState {
-			bool dragging{ false };
 			std::string axisName;
 			threepp::Quaternion startObjQuat{};
 			threepp::Vector3    ringNormalWorld{};
 			threepp::Vector3 vPrev;   
 			float totalAngle{ 0.0f };
 		}; 
+		struct SelectState {
+			std::string axisName; 
+			threepp::Vector3 planeNormalWorld; 
+			bool isAxis{ false };
+			threepp::Plane dragPlane;
+			threepp::Vector3 startPoint{ 0.0,0.0,0.0 };
+		};
 	public:
 		std::shared_ptr<threepp::Group> create();
 		std::shared_ptr<threepp::Mesh> createXYPlaneHelper(float size); 
@@ -38,8 +45,8 @@ namespace dragon
 		std::shared_ptr<threepp::Mesh> createYZPlaneHelper(float size);
 	public: 
 		void setTarget(threepp::Object3D* target_); 
-		void startDrag(threepp::Ray& ray, threepp::Vector3& camDirection, threepp::Vector3& selected_axis, bool isAxis_); 
-		void updateDrag(threepp::Ray& ray, threepp::Vector3 camDir);
+		void startDrag(threepp::Raycaster* rayCaster, threepp::Vector3& camDirection);
+		void updateDrag(threepp::Raycaster* rayCaster, threepp::Vector3 camDir);
 		void switchMode(MODE mode);
 		void endDrag();
 	public: 
@@ -48,12 +55,10 @@ namespace dragon
 		float padding_plane{ 10.0f }; 
 		threepp::Object3D* target{ nullptr }; 
 		std::shared_ptr<threepp::Group> gizmo{ nullptr };
-		threepp::Plane dragPlane;
-		threepp::Vector3 startPoint{0.0,0.0,0.0}; 
-		threepp::Vector3 selected_axis{0.0,0.0,0.0}; 
-		bool isAxis{ false }; 
 		MODE currentMode{ MODE::TRANSLATE };
-		RotState rs; 
+		RotState rs;
+		SelectState ss; 
+		bool dragging{ false };
 	};
 }
 #endif // !_GIZMO_HPP_

@@ -6,6 +6,7 @@
 #include "threepp/core/Raycaster.hpp"
 #include "threepp/math/infinity.hpp"
 #include "threepp/math/Vector3.hpp"
+#include "threepp/math/Matrix4.hpp"
 #include <queue>
 #include <functional>
 namespace threepp
@@ -40,7 +41,7 @@ public:
     void mouseRelease(threepp::Vector2 nor_pos);
     void mouseMove(threepp::Vector2 nor_pos);
     void addBim(std::shared_ptr<threepp::Object3D> bim_model);
-    dragon::Gizmo* getGizmo() const; 
+    dragon::Gizmo* getGizmo() const;
 protected:
     std::queue<std::function<void()>> fnc_queue{};
     std::unique_ptr<threepp::Raycaster> m_RayCaster{ nullptr };

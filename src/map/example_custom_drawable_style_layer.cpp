@@ -1,4 +1,4 @@
-#include "example_custom_drawable_style_layer.hpp"
+﻿#include "example_custom_drawable_style_layer.hpp"
 #include "tools/Gizmo.hpp"
 #include <mbgl/style/layer.hpp>
 #include <mbgl/style/layers/custom_drawable_layer.hpp>
@@ -102,54 +102,12 @@ void ThreeDCustomDrawableStyleLayerHost::query(threepp::Vector2 nor_pos)
                     m_RayCaster->setFromCamera(nor_pos, *camera); 
                     auto gizmo = scene->getObjectByName("gizmo"); 
                     if (!gizmo || !gizmo->visible)return;
-                    const auto intersects = m_RayCaster->intersectObjects(gizmo->children,true);
-                    if (intersects.size() != 0) {
-                        threepp::Vector3 selected_axis{0.0,0.0,0.0};
-                        std::string obj_name = intersects[0].object->name;
-                        bool isAxis{ false }; 
-                        if (obj_name == "cone_ox")
-                        {
-                            selected_axis = threepp::Vector3(1.0, 0.0, 0.0); 
-                            isAxis = true; 
-                        } else if (obj_name == "cone_oy")
-                        {
-                            selected_axis = threepp::Vector3(0.0, 1.0, 0.0);
-                            isAxis = true;
-                        } else if (obj_name == "cone_oz")
-                        {
-                            selected_axis = threepp::Vector3(0.0, 0.0, 1.0);
-                            isAxis = true;
-                        }
-                        else if (obj_name == "plane_xy")
-                        {
-                            selected_axis = threepp::Vector3(0.0,0.0, 1.0);
-                        }
-                        else if (obj_name == "plane_yz")
-                        {
-                            selected_axis = threepp::Vector3(1.0, 0.0,0.0);
-                        }
-                        else if (obj_name == "plane_xz")
-                        {
-                            selected_axis = threepp::Vector3(0.0, 1.0, 0.0); 
-                        }
-                        else if (obj_name == "ring_z")
-                        {
-                            selected_axis = threepp::Vector3(0.0, 0.0, 1.0); 
-                            /*threepp::Plane plane(threepp::Vector3(0, 0, 1), -gizmo->position.dot(threepp::Vector3(0, 0, 1))); 
-                            auto plane_helper = threepp::PlaneHelper::create(plane, 200); */
-                            //scene->add(plane_helper); 
-                        }
-                        if (selected_axis == threepp::Vector3(0.0, 0.0, 0.0))
-                        {
-                            return; 
-                        }
-                        isDrag = true;
-                        threepp::Vector3 cam_dir;
-                        const auto& e = camera->matrixWorld->elements;
-                        cam_dir.set(e[8], e[9], e[10]).normalize();
-                        cam_dir.negate();
-                        m_Gizmo->startDrag(m_RayCaster->ray, cam_dir, selected_axis,isAxis); 
-                    };
+                    threepp::Vector3 cam_dir;
+                    const auto& e = camera->matrixWorld->elements;
+                    cam_dir.set(e[8], e[9], e[10]).normalize();
+                    cam_dir.negate();
+                    isDrag = true;
+                    m_Gizmo->startDrag(m_RayCaster.get(), cam_dir);
                 }
             }
         }});
@@ -181,15 +139,15 @@ void ThreeDCustomDrawableStyleLayerHost::mouseMove(threepp::Vector2 nor_pos)
                     auto camera = impl->camera.get();
                     if (scene && camera && m_RayCaster)
                     {
-                        m_RayCaster->setFromCamera(nor_pos, *camera);
-                        auto gizmo = scene->getObjectByName("gizmo");
-                        if (!gizmo || !gizmo->visible)return;
-                        auto ray = m_RayCaster->ray; 
                         threepp::Vector3 cam_dir;
                         const auto& e = camera->matrixWorld->elements;
                         cam_dir.set(e[8], e[9], e[10]).normalize();
                         cam_dir.negate();
-                        m_Gizmo->updateDrag(ray, cam_dir);
+                        m_RayCaster->setFromCamera(nor_pos, *camera);
+                        if (m_Gizmo->dragging)
+                        {
+                            m_Gizmo->updateDrag(m_RayCaster.get(), cam_dir);
+                        }
                     }
                 }
             }});
@@ -209,8 +167,8 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                 auto impl = ptrDrawableCustom->getImpl();
                 if (impl->scene)
                 {
-                    float scale_z = static_cast<float>(mbgl::gl::MecatorHelper::computeScaleZForLevel(16));
                     auto model = impl->scene->getObjectByName("model");
+                    float scale = static_cast<float>(mbgl::gl::MecatorHelper::computeScaleZForLevel(16));
                     if (!model)
                     {
                         auto addLight_lambda = [&](threepp::Scene& scene) {
@@ -226,13 +184,39 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
 
                         auto addGizmo_lambda = [&](threepp::Scene& scene){
                             m_Gizmo = std::make_shared<dragon::Gizmo>();
-                            std::shared_ptr<threepp::Group> arrow_group = m_Gizmo->create();
-                            arrow_group->name = "gizmo";
-                            arrow_group->scale.set(1.0, 1.0, scale_z);
-                            arrow_group->visible = false;
-                            arrow_group->matrixAutoUpdate = true;
-                            arrow_group->updateMatrixWorld(true);
-                            scene.add(arrow_group); 
+                            std::shared_ptr<threepp::Group> gizmo_group = m_Gizmo->create();
+                            gizmo_group->name = "gizmo";
+                            threepp::Matrix4 scale_mat; 
+                            scale_mat.makeScale(1.0, 1.0, scale * 1.0f);
+                          /*  std::function<void(threepp::Object3D*,threepp::Matrix4&)> dfs =
+                                [&](threepp::Object3D* obj, threepp::Matrix4& root_mat) {
+                                if (auto mesh = obj->as<threepp::Mesh>()) {
+                                    if (mesh)
+                                    {
+                                        if (mesh && mesh->geometry()) {
+                                            threepp::Matrix4 mat; 
+                                            mat.multiplyMatrices(*mesh->matrix, root_mat); 
+                                            mesh->geometry()->applyMatrix4(mat);
+                                            mesh->geometry()->computeBoundingSphere();
+                                            mesh->geometry()->computeBoundingBox();
+                                            return; 
+                                        }
+                                    }
+                                }
+                                else if (auto group = obj->as<threepp::Group>())
+                                {
+                                    root_mat.multiply(*obj->matrixWorld);
+                                }
+
+                                for (auto& child : obj->children) {
+                                    dfs(child, root_mat);
+                                }
+                            }; */
+                            gizmo_group->scale.set(1.0, 1.0, scale);
+                            gizmo_group->visible = false;
+                            gizmo_group->matrixAutoUpdate = true;
+                            gizmo_group->updateMatrixWorld(true); 
+                            scene.add(gizmo_group);
                         }; 
                         addLight_lambda(*impl->scene);
                         addGizmo_lambda(*impl->scene); 
@@ -243,16 +227,30 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                     }
 
                     auto add_model_lambda = [&,bim_model](threepp::Scene& scene) {
-                        auto root_matrix = bim_model->matrix;
-                        auto matrix_scale = dragon::ThreeHelper::createMatrixScaleAroundPivot(threepp::Vector3(0, 0, 0), 1.0 * 10.0, -scale_z * 10.0, 1.0 * 10.0);
-                        bim_model->as<threepp::Mesh>()->applyMatrix4(matrix_scale);
-                        auto matrix_rotate = dragon::ThreeHelper::createMatrixRotateAroundPivot(threepp::Vector3(0, 0, 0), threepp::math::degToRad(-90), 0.0, 0.0);
-                        bim_model->as<threepp::Mesh>()->applyMatrix4(matrix_rotate);
-                        auto matrix_translate = dragon::ThreeHelper::createMatrixTranslateAroundPivot(threepp::Vector3(0.0,0.0,0.0), 0.0, 0.0, 0);
-                        bim_model->as<threepp::Mesh>()->applyMatrix4(matrix_translate);
-                        bim_model->matrixAutoUpdate = false;
-                        bim_model->updateMatrixWorld(true);
-                        bim_model->name = "model";
+                        auto mesh = bim_model->as<threepp::Mesh>(); 
+                        // 1. Scale
+                        auto matrix_scale = dragon::ThreeHelper::createMatrixScaleAroundPivot(
+                            threepp::Vector3(0, 0, 0),
+                            1.0 * 10.0, -scale * 10.0, 1.0 * 10.0
+                        );
+                        // 2. Rotate
+                        auto matrix_rotate = dragon::ThreeHelper::createMatrixRotateAroundPivot(
+                            threepp::Vector3(0, 0, 0),
+                            threepp::math::degToRad(-90), 0.0, 0.0
+                        );
+                        // 3. Translate
+                        auto matrix_translate = dragon::ThreeHelper::createMatrixTranslateAroundPivot(
+                            threepp::Vector3(0.0, 0.0, 0.0),
+                            0.0, 0.0, 0
+                        );
+                        threepp::Matrix4 combined;
+                        combined.multiplyMatrices(matrix_rotate, matrix_scale); // T * R
+                        mesh->geometry()->applyMatrix4(combined);
+                        mesh->geometry()->computeBoundingBox(); 
+                        mesh->geometry()->computeBoundingSphere(); 
+                        mesh->geometry()->computeVertexNormals(); 
+                        mesh->applyMatrix4(matrix_translate); 
+                        mesh->name = "model";
                         scene.add(bim_model);
                     }; 
                     add_model_lambda(*impl->scene); 

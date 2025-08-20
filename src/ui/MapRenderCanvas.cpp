@@ -80,9 +80,10 @@ namespace dragon
 			{
 				/*CLONE*/
 				MLN_TRACE_FUNC();
-				std::shared_ptr<threepp::Object3D> clone_model = model->clone(); 
+				std::shared_ptr<threepp::Object3D> clone_model = model->clone(true); 
 				mbgl::style::Style& style = m_Map->getStyle();
 				const std::string identifier = "Example-Bim-Layer";
+				clone_model->matrixAutoUpdate = false; 
 				const auto& existingLayer = style.getLayer(identifier);
 				if (!existingLayer) {
 					style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
@@ -139,39 +140,31 @@ namespace dragon
 	{
 		using namespace mbgl::style;
 		using namespace mbgl::style::expression::dsl;
-
 		int padding = 3;
 		int buttonSize = 30; 
 		int posYButton = 0; 
 		wxButton* btnZoomIn = new wxButton(this, wxID_ANY, "+", wxPoint(10, 10), wxSize(buttonSize, buttonSize));
 		posYButton = btnZoomIn->GetPosition().y + padding + buttonSize;
-
 		wxButton* btnZoomOut = new wxButton(this, wxID_ANY, "-", wxPoint(10, posYButton), wxSize(30, 30));
 		posYButton = btnZoomOut->GetPosition().y + padding + buttonSize;
-
 		wxButton* btn2D = new wxButton(this, wxID_ANY, "2D", wxPoint(10, posYButton), wxSize(30, 30));
 		posYButton = btn2D->GetPosition().y + padding + buttonSize;
-		
 		wxButton* btn3D = new wxButton(this, wxID_ANY, "3D", wxPoint(10, posYButton), wxSize(30, 30));
 		posYButton = btn3D->GetPosition().y + padding + buttonSize;
-		
 		wxButton* bimBtn = new wxButton(this, wxID_ANY, "Bim", wxPoint(10, posYButton), wxSize(30, 30));
 		posYButton = bimBtn->GetPosition().y + padding + buttonSize;
-
 		wxButton* gridBtn = new wxButton(this, wxID_ANY, "Grid", wxPoint(10, posYButton), wxSize(30, 30));
 		posYButton = gridBtn->GetPosition().y + padding + buttonSize;
-
 		wxButton* transButton = new wxButton(this, wxID_ANY, "Trans", wxPoint(10, posYButton), wxSize(30, 30));
 		posYButton = transButton->GetPosition().y + padding + buttonSize;
-
 		wxButton* rotateButton = new wxButton(this, wxID_ANY, "Rot", wxPoint(10, posYButton), wxSize(30, 30));
 		posYButton = rotateButton->GetPosition().y + padding + buttonSize;
-
-
-		rotateButton->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event) {
-			getCustomDrawableStyleLayerHost()->getGizmo()->switchMode(Gizmo::MODE::ROTATE); 
+		transButton->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event) {
+			getCustomDrawableStyleLayerHost()->getGizmo()->switchMode(Gizmo::MODE::TRANSLATE); 
 		}); 
-
+		rotateButton->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event) {
+			getCustomDrawableStyleLayerHost()->getGizmo()->switchMode(Gizmo::MODE::ROTATE);
+		});
 		gridBtn->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event) {
 			MLN_TRACE_FUNC();
 			if (m_Map)
