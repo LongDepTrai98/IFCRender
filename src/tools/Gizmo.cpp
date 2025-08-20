@@ -208,14 +208,13 @@ namespace dragon
 			v1.z = 0;    
 			v1.normalize();
 			float delta = std::atan2(
-				threepp::Vector3(0, 0, 1).dot(rs.vPrev.clone().cross(v1)), // sin
-				rs.vPrev.dot(v1)                                // cos
+				threepp::Vector3(0, 0, 1).dot(rs.vPrev.clone().cross(v1)), 
+				rs.vPrev.dot(v1)                                
 			);
 			float c; 
 			delta < 0 ? c = -1.0f : c = 1.0f; 
 			rs.totalAngle += delta; 
 			rs.vPrev = v1;
-
 			threepp::Matrix4 rotMat = ThreeHelper::createMatrixRotateAroundPivot(gizmo_worldpos, rs.ringNormalWorld, c * 0.05);
 			gizmo->applyMatrix4(rotMat); 
 			target->applyMatrix4(rotMat); 
