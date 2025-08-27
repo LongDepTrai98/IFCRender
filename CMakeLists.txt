@@ -22,6 +22,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(threepp)
 #add include dirs web-ifc 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/lib)
+#add cesium-native
+
 set(WEB_IFC_INCLUDE_DIRS 
     ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/tinynurbs-src/include
     ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/fastfloat-src/include

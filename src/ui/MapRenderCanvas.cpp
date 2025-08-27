@@ -140,7 +140,7 @@ namespace dragon
 	{
 		using namespace mbgl::style;
 		using namespace mbgl::style::expression::dsl;
-		int padding = 3;
+		int padding = 1;
 		int buttonSize = 30; 
 		int posYButton = 0; 
 		wxButton* btnZoomIn = new wxButton(this, wxID_ANY, "+", wxPoint(10, 10), wxSize(buttonSize, buttonSize));

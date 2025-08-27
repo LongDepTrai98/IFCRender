@@ -2,3 +2,4 @@ build/
 3rdparty/
 vcpkg/
 maplibre/
+cesium-native/
