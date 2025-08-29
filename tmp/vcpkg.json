@@ -1,15 +1,15 @@
 {
-  "name": "comfypp",
-  "version": "1.0.0",
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "dependencies": [
     "asyncplusplus",
     "curl",
     "doctest",
     "expected-lite",
+    "glm",
     "ms-gsl",
     "rapidjson",
-    "stb",
     "spdlog",
+    "stb",
     "ada-url",
     "draco",
     "ktx",
@@ -19,8 +19,6 @@
     "s2geometry",
     "libjpeg-turbo",
     "sqlite3",
-    "glm",
-    "fmt",
     "tinyxml2",
     "libwebp",
     "zlib-ng",
@@ -42,8 +40,7 @@
     {
       "name": "asmjit",
       "platform": "!ios"
-    }, 
-	"glew", 
-	"nlohmann-json"
-]
+    }
+  ]
 }
+
