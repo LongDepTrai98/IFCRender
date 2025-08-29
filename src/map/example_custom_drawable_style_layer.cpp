@@ -14,6 +14,7 @@
 #include "threepp/threepp.hpp"
 #include "threepp/core/Raycaster.hpp"
 #include "threepp/helpers/PlaneHelper.hpp"
+#include "threepp/loaders/AssimpLoader.hpp"
 #include <mbgl/helper/MecatorHelper.hpp>
 #include <spdlog/spdlog.h>
 #include "core/utils/ThreeHelper.hpp"
@@ -254,7 +255,27 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                         scene.add(bim_model);
                     }; 
                     add_model_lambda(*impl->scene); 
-                    m_Gizmo->setTarget(bim_model.get()); 
+                    threepp::AssimpLoader loader;
+                    auto test_model = loader.load("C:\\Users\\vbd\\Downloads\\a.b3dm.glb");
+                    auto matrix_scale = dragon::ThreeHelper::createMatrixScaleAroundPivot(
+                        threepp::Vector3(0, 0, 0),
+                        1.0, -scale, 1.0
+                    );
+                    test_model->applyMatrix4(matrix_scale); 
+                    // 2. Rotate
+                    auto matrix_rotate = dragon::ThreeHelper::createMatrixRotateAroundPivot(
+                        threepp::Vector3(0, 0, 0),
+                        threepp::math::degToRad(-90), 0.0, 0.0
+                    );
+                    test_model->applyMatrix4(matrix_rotate); 
+                    // 3. Translate
+                    auto matrix_translate = dragon::ThreeHelper::createMatrixTranslateAroundPivot(
+                        threepp::Vector3(0.0, 0.0, 0.0),
+                        0.0, 0.0, 0
+                    );
+                    test_model->applyMatrix4(matrix_translate); 
+                    impl->scene->add(test_model);
+                    //m_Gizmo->setTarget(bim_model.get()); 
                 }
             }
         }

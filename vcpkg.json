@@ -44,6 +44,7 @@
       "platform": "!ios"
     }, 
 	"glew", 
-	"nlohmann-json"
+	"nlohmann-json", 
+	"assimp"
 ]
 }

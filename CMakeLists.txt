@@ -127,6 +127,7 @@ project(${PROJECT_NAME})
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(s2 CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
+find_package(assimp CONFIG REQUIRED)
 #add file 
 #ui
 file(GLOB_RECURSE UI_SRC "src/ui/*.cpp" "src/ui/*.hpp")
@@ -235,6 +236,7 @@ PRIVATE threepp::threepp
 PRIVATE nlohmann_json
 PRIVATE s2::s2
 PRIVATE fmt::fmt
+PRIVATE assimp::assimp
 $<$<CONFIG:Debug>:/Debug/web-ifc-library.lib>
 $<$<CONFIG:Release>:/Release/web-ifc-library.lib>
 $<$<CONFIG:Debug>:${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libuv.lib
