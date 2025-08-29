@@ -4,6 +4,7 @@
 #include "core/utils/ThreeHelper.hpp"
 #include "threepp/core/Raycaster.hpp"
 #include <spdlog/spdlog.h>
+#include <iostream>
 namespace dragon
 {
 	std::shared_ptr<threepp::Group> Gizmo::create()
@@ -129,6 +130,8 @@ namespace dragon
 		threepp::Box3 box{};
 		box.setFromObject(*target_);
 		auto center = box.getCenter();
+		std::cout << box.min().x << " " << box.max().x << std::endl; 
+		std::cout << box.min().y << " " << box.max().y << std::endl; 
 		threepp::Vector3 target_pos; 
 		threepp::Quaternion target_quaternion; 
 		threepp::Vector3 target_scale; 

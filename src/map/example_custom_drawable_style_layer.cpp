@@ -231,7 +231,7 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                         // 1. Scale
                         auto matrix_scale = dragon::ThreeHelper::createMatrixScaleAroundPivot(
                             threepp::Vector3(0, 0, 0),
-                            1.0 * 10.0, -scale * 10.0, 1.0 * 10.0
+                            1.0 , -scale, 1.0
                         );
                         // 2. Rotate
                         auto matrix_rotate = dragon::ThreeHelper::createMatrixRotateAroundPivot(
