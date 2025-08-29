@@ -275,7 +275,7 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                     );
                     test_model->applyMatrix4(matrix_translate); 
                     impl->scene->add(test_model);
-                    //m_Gizmo->setTarget(bim_model.get()); 
+                    m_Gizmo->setTarget(bim_model.get()); 
                 }
             }
         }
