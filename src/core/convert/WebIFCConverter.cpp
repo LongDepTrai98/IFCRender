@@ -1,9 +1,6 @@
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include "WebIFCConverter.hpp"
-#include "web-ifc/parsing/IfcLoader.h"
-#include "web-ifc/schema/IfcSchemaManager.h"
-#include "web-ifc/schema/ifc-schema.h"
-#include "web-ifc/modelmanager/ModelManager.h"
-#include "web-ifc/geometry/IfcGeometryProcessor.h"
 #include "io_helpers.h"
 #include "threepp/threepp.hpp"
 #include "threepp/geometries/EdgesGeometry.hpp"
@@ -12,7 +9,12 @@
 #include "threepp/utils/BufferGeometryUtils.hpp"
 #include "core/utils/MathHelper.hpp"
 #include "config/app_config.hpp"
-#include <glm/gtc/type_ptr.hpp>
+//#include <glm/gtc/type_ptr.hpp>
+#include "web-ifc/parsing/IfcLoader.h"
+#include "web-ifc/schema/IfcSchemaManager.h"
+#include "web-ifc/schema/ifc-schema.h"
+#include "web-ifc/modelmanager/ModelManager.h"
+#include "web-ifc/geometry/IfcGeometryProcessor.h"
 #include <execution>
 #include <algorithm>
 namespace dragon

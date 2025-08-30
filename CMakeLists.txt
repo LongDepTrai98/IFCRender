@@ -3,6 +3,8 @@ include(FetchContent)
 include(ExternalProject)
 set(CMAKE_TOOLCHAIN_FILE "./vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 cmake_policy(SET CMP0142 NEW)
+
+#cesium 
 #build type 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 project(workflow LANGUAGES CXX)
@@ -11,6 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Build options
 option(BUILD_TESTS "Build test targets" ON)
 option(USE_STATIC_LIBS "Use static libraries" OFF)
+
 #add threepp 
 set(THREEPP_BUILD_TESTS OFF)
 set(THREEPP_BUILD_EXAMPLES OFF)
@@ -20,6 +23,50 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/markaren/threepp.git
 )
 FetchContent_MakeAvailable(threepp)
+set_target_properties(threepp PROPERTIES FOLDER "render")
+#add cesium-native
+set(DCESIUM_USE_EZVCPG OFF)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cesium-native)
+if(NOT CESIUM_DISABLE_CURL) 
+    list(APPEND cesium_native_targets CesiumCurl)
+endif()
+set(cesium_native_targets
+    Cesium3DTiles
+    Cesium3DTilesContent
+    Cesium3DTilesReader
+    Cesium3DTilesSelection
+    Cesium3DTilesWriter
+    CesiumAsync
+    CesiumGeometry
+    CesiumGeospatial
+    CesiumGltf
+    CesiumGltfContent
+    CesiumGltfReader
+    CesiumGltfWriter
+    CesiumIonClient
+    CesiumITwinClient
+    CesiumVectorData
+    CesiumQuantizedMeshTerrain
+    CesiumRasterOverlays
+    CesiumUtility
+)
+set(cesium_include_directories "")
+foreach(target ${cesium_native_targets})
+    get_target_property(_public_private_include_directories ${target} INCLUDE_DIRECTORIES)
+    get_target_property(_interface_include_directories ${target} INTERFACE_INCLUDE_DIRECTORIES)
+    list(APPEND _private_include_directories ${_public_private_include_directories})
+    list(REMOVE_ITEM _private_include_directories ${_interface_include_directories})
+    list(APPEND cesium_include_directories ${_private_include_directories})
+endforeach()
+foreach(tgt IN LISTS cesium_native_targets)
+    set_target_properties(${tgt} PROPERTIES FOLDER "cesium-native")
+endforeach()
+set_target_properties(CesiumClientCommon PROPERTIES FOLDER "cesium-native")
+set_target_properties(CesiumCurl PROPERTIES FOLDER "cesium-native")
+set_target_properties(CesiumJsonReader PROPERTIES FOLDER "cesium-native")
+set_target_properties(CesiumJsonWriter PROPERTIES FOLDER "cesium-native")
+message(${cesium_include_directories})
+
 #add include dirs web-ifc 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/lib)
 set(WEB_IFC_INCLUDE_DIRS 
@@ -27,13 +74,13 @@ set(WEB_IFC_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/fastfloat-src/include
     ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/cdt-src/CDT/include
     ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/earcut-src/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/spdlog-src/include
     ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/stduuid-src/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/glm-src/glm
-    ${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/glm-src
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/lib
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/lib/test
 )
+set_target_properties(web-ifc PROPERTIES FOLDER "ifc")
+set_target_properties(web-ifc-library PROPERTIES FOLDER "ifc")
+set_target_properties(web-ifc-test PROPERTIES FOLDER "ifc")
 #add maplibre 
 set(MAPLIBRE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/maplibre)
 if(NOT EXISTS ${MAPLIBRE_SOURCE_DIR}/CMakeLists.txt)
@@ -78,6 +125,9 @@ project(${PROJECT_NAME})
 #find_package(wxWidgets CONFIG REQUIRED)
 #find_package(glew CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+find_package(s2 CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+find_package(assimp CONFIG REQUIRED)
 #add file 
 #ui
 file(GLOB_RECURSE UI_SRC "src/ui/*.cpp" "src/ui/*.hpp")
@@ -176,12 +226,17 @@ add_executable(${EDITOR_NAME_PROJECT}
 	PRIVATE ${WX_INCLUDE_PATH}/msvc
     PRIVATE ${WEB_IFC_INCLUDE_DIRS}
     PRIVATE ${MAPLIBRE_INCLUDE_SOURCE_DIRS}
+    PRIVATE ${cesium_include_directories}
  )
  #link lib 
 target_link_libraries(${EDITOR_NAME_PROJECT}  
 #PRIVATE GLEW::glew
+PUBLIC ${cesium_native_targets}
 PRIVATE threepp::threepp
 PRIVATE nlohmann_json
+PRIVATE s2::s2
+PRIVATE fmt::fmt
+PRIVATE assimp::assimp
 $<$<CONFIG:Debug>:/Debug/web-ifc-library.lib>
 $<$<CONFIG:Release>:/Release/web-ifc-library.lib>
 $<$<CONFIG:Debug>:${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libuv.lib
@@ -229,7 +284,7 @@ PRIVATE ${WX_LIB_PATH}
 PRIVATE ${WEB_IFC_LIB_PATH})
 
 target_compile_definitions(${EDITOR_NAME_PROJECT}
-PRIVATE _UNICODE UNICODE _USE_MATH_DEFINES _CRT_SECURE_NO_WARNINGS NANORT_ENABLE_PARALLEL_BUILD FMT_UNICODE=0  NANORT_USE_CPP11_FEATURE=1)
+PRIVATE _UNICODE UNICODE _USE_MATH_DEFINES _CRT_SECURE_NO_WARNINGS NANORT_ENABLE_PARALLEL_BUILD FMT_UNICODE=0  NANORT_USE_CPP11_FEATURE=1 SPDLOG_COMPILED_LIB SPDLOG_HEADER_ONLY)
 
 # Custom command to copy assets
 
