@@ -13,8 +13,6 @@ namespace dragon
 	class WebIFCHelper
 	{
 	public:
-		static nlohmann::json ReadValue(webifc::manager::ModelManager& manager, uint32_t modelID, webifc::parsing::IfcTokenType t);
-		static nlohmann::json GetArgs(webifc::manager::ModelManager& manager, uint32_t modelID, bool inObject = false, bool inList = false);
 		static nlohmann::json GetLine(webifc::manager::ModelManager& manager, const uint32_t& modelID, const uint32_t& line, bool flatten, bool inverse);
 		static std::vector<uint32_t> GetLineIDsWithType(webifc::manager::ModelManager& manager, const uint32_t& modelID, const uint32_t& expressID);
 		static nlohmann::json GetLineFromRawLine(const nlohmann::json& json, webifc::schema::IfcSchemaManager& schemaManager);

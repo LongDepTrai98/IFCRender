@@ -43,12 +43,13 @@ namespace dragon
 	}
 	std::shared_ptr<ElementTree> IFCProperties::createTreeNode(const uint32_t& modelID)
 	{
-		std::unordered_map<int, std::vector<int>> chunks{};
-		getChunks(modelID, m_propsNamesMap["spatial"], chunks);
-		getChunks(modelID, m_propsNamesMap["aggregates"], chunks);
+		std::unordered_map<int, std::vector<int>> aggregates_chunks{};
+		std::unordered_map<int, std::vector<int>> contained_chunks{};
+		getChunks(modelID, m_propsNamesMap["spatial"], aggregates_chunks);
+		getChunks(modelID, m_propsNamesMap["aggregates"], contained_chunks);
 		/*CREATE IFC NODE TREE*/
 		std::shared_ptr<IFCElementTree> tree_nodes = std::make_shared<IFCElementTree>();
-		auto parent_node = tree_nodes->create(modelID, m_modelManager, chunks);
+		auto parent_node = tree_nodes->createSpatialAndGroupByType(modelID, m_modelManager, aggregates_chunks, contained_chunks);
 		auto RawLine = WebIFCHelper::GetLine(*m_modelManager, modelID, parent_node->expressID, true, true);
 		spdlog::info(RawLine.dump());
 		if (parent_node)
