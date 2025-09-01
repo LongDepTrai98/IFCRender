@@ -187,8 +187,11 @@ source_group("threadpool" FILES ${THREADPOOL_SRC})
 file(GLOB_RECURSE SHADERS_SRC "src/shaders/*.vert" "src/shaders/*.frag")
 source_group("shaders" FILES ${SHADERS_SRC})
 #maplibre 
-file(GLOB_RECURSE MAPLIBRE_SRC "src/map/*.hpp" "src/map/*.cpp")
+file(GLOB MAPLIBRE_SRC "src/map/*.hpp" "src/map/*.cpp")
 source_group("map" FILES ${MAPLIBRE_SRC})
+#cesium
+file(GLOB MAPLIBRE_CESIUM_SRC "src/map/cesium/*.hpp" "src/map/cesium/*.cpp")
+source_group("map//cesium" FILES ${MAPLIBRE_CESIUM_SRC})
 #tool 
 file(GLOB_RECURSE TOOL_SRC "src/tools/*.hpp" "src/tools/*.cpp")
 source_group("tools" FILES ${TOOL_SRC})
@@ -217,6 +220,7 @@ add_executable(${EDITOR_NAME_PROJECT}
     ${APP_CONTEXT_LOCK}
     ${APP_VECTOR_TILE_CORE_SRC}
     ${TOOL_SRC}
+    ${MAPLIBRE_CESIUM_SRC}
 )
 
  #add include 
@@ -284,7 +288,7 @@ PRIVATE ${WX_LIB_PATH}
 PRIVATE ${WEB_IFC_LIB_PATH})
 
 target_compile_definitions(${EDITOR_NAME_PROJECT}
-PRIVATE _UNICODE UNICODE _USE_MATH_DEFINES _CRT_SECURE_NO_WARNINGS NANORT_ENABLE_PARALLEL_BUILD FMT_UNICODE=0  NANORT_USE_CPP11_FEATURE=1 SPDLOG_COMPILED_LIB SPDLOG_HEADER_ONLY)
+PRIVATE _UNICODE UNICODE _USE_MATH_DEFINES _CRT_SECURE_NO_WARNINGS NANORT_ENABLE_PARALLEL_BUILD FMT_UNICODE=0  NANORT_USE_CPP11_FEATURE=1 SPDLOG_COMPILED_LIB SPDLOG_HEADER_ONLY _SILENCE_CXX20_OLD_SHARED_PTR_WARNING)
 
 # Custom command to copy assets
 

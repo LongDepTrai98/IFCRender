@@ -100,5 +100,14 @@ namespace dragon
 			"Debug mode",
 			"Debug mode", 
 			NULL);
+		m_ToolBar->AddSeparator();
+		m_ToolBar->AddTool((int)ID_EVENT::TOOL_ADD_CESIUM_LAYER,
+			"",
+			AppHelper::loadBitmapBundle(assets::ButtonToolBar_Debug, wxBITMAP_TYPE_ICO),
+			wxNullBitmap,
+			wxITEM_CHECK,
+			"Debug mode",
+			"Debug mode",
+			NULL);
 	}
 }

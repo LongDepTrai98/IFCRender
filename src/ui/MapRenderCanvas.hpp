@@ -50,7 +50,7 @@ namespace dragon
 		void OnKeyDown(wxKeyEvent& command);
 		void OnKeyUp(wxKeyEvent& command);
 		void OnInternalIdle() override;
-		ThreeDCustomDrawableStyleLayerHost* getCustomDrawableStyleLayerHost();
+		ThreeDCustomDrawableStyleLayerHost* getCustomDrawableStyleLayerHost(const std::string& name);
 		/*RENDER*/
 	private:
 		void enableMultisampling();

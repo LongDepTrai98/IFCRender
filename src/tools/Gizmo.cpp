@@ -138,7 +138,7 @@ namespace dragon
 		threepp::Matrix4 rotate_matrix; 
 		rotate_matrix.makeRotationFromQuaternion(target_quaternion); 
 		gizmo->position.set(center.x, center.y, center.z);
-		gizmo->applyMatrix4(rotate_matrix); 
+		//gizmo->applyMatrix4(rotate_matrix); 
 	}
 	void Gizmo::startDrag(threepp::Raycaster* rayCaster, threepp::Vector3& camDirection)
 	{

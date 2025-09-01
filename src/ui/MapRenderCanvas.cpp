@@ -19,6 +19,7 @@
 #include <nlohmann/json.hpp>
 #include "core/lock/ContextLock.hpp"
 #include "map/example_custom_drawable_style_layer.hpp"
+#include "map/CesiumLayer.hpp"
 #include <mbgl/style/layers/custom_drawable_layer.hpp>
 #include <mbgl/style/layers/custom_drawable_layer_impl.hpp>
 #include "resource.hpp"
@@ -59,7 +60,7 @@ namespace dragon
 		{
 			/*GET CUSTOM 3D STYLE*/
 			m_ContextLock->lock(); 
-			auto host = getCustomDrawableStyleLayerHost(); 
+			auto host = getCustomDrawableStyleLayerHost("Example-Bim-Layer");
 			if (host)
 			{
 				host->openEditMode(data.bIsCheck); 
@@ -81,17 +82,33 @@ namespace dragon
 				/*CLONE*/
 				MLN_TRACE_FUNC();
 				std::shared_ptr<threepp::Object3D> clone_model = model->clone(true); 
+				clone_model->matrixAutoUpdate = false;
 				mbgl::style::Style& style = m_Map->getStyle();
 				const std::string identifier = "Example-Bim-Layer";
-				clone_model->matrixAutoUpdate = false; 
 				const auto& existingLayer = style.getLayer(identifier);
 				if (!existingLayer) {
 					style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
 						identifier, std::make_unique<ThreeDCustomDrawableStyleLayerHost>()));
 				}; 
-				custom_host = getCustomDrawableStyleLayerHost();
+				custom_host = getCustomDrawableStyleLayerHost("Example-Bim-Layer");
 				custom_host->addBim(clone_model); 
 			}
+		}
+		if (data.event.GetId() == (int)ID_EVENT::TOOL_ADD_CESIUM_LAYER)
+		{
+			MLN_TRACE_FUNC();
+			mbgl::style::Style& style = m_Map->getStyle();
+			const std::string identifier = "Test-Cesium";
+			const auto& existingLayer = style.getLayer(identifier);
+			if (!existingLayer) {
+				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
+					identifier, std::make_unique<CesiumDrawableStyleLayerHost>()));
+				m_Map->jumpTo(mbgl::CameraOptions()
+					.withCenter(mbgl::LatLng{ 39.94704, -75.152325 })
+					.withZoom(17)
+					.withBearing(0.0)
+					.withPitch(0.0));
+			};
 		}
 	}
 	void MapRenderCanvas::initContextMap()
@@ -160,10 +177,10 @@ namespace dragon
 		wxButton* rotateButton = new wxButton(this, wxID_ANY, "Rot", wxPoint(10, posYButton), wxSize(30, 30));
 		posYButton = rotateButton->GetPosition().y + padding + buttonSize;
 		transButton->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event) {
-			getCustomDrawableStyleLayerHost()->getGizmo()->switchMode(Gizmo::MODE::TRANSLATE); 
+			getCustomDrawableStyleLayerHost("Example-Bim-Layer")->getGizmo()->switchMode(Gizmo::MODE::TRANSLATE);
 		}); 
 		rotateButton->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event) {
-			getCustomDrawableStyleLayerHost()->getGizmo()->switchMode(Gizmo::MODE::ROTATE);
+			getCustomDrawableStyleLayerHost("Example-Bim-Layer")->getGizmo()->switchMode(Gizmo::MODE::ROTATE);
 		});
 		gridBtn->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event) {
 			MLN_TRACE_FUNC();
@@ -294,7 +311,7 @@ namespace dragon
 		const wxSize size = this->getSize();
 		m_MouseState.nor_mouse_pos.x = (pos.x / static_cast<float>(size.GetWidth())) * 2 - 1;
 		m_MouseState.nor_mouse_pos.y = -(pos.y / static_cast<float>(size.GetHeight())) * 2 + 1;
-		auto host = getCustomDrawableStyleLayerHost();
+		auto host = getCustomDrawableStyleLayerHost("Example-Bim-Layer");
 		if (host)
 		{
 			host->mouseMove(m_MouseState.nor_mouse_pos); 
@@ -370,7 +387,7 @@ namespace dragon
 						m_Backend->m_tracking = true;
 					}
 				}
-				auto host = getCustomDrawableStyleLayerHost();
+				auto host = getCustomDrawableStyleLayerHost("Example-Bim-Layer");
 				if (host)
 				{
 					host->query(m_MouseState.nor_mouse_pos);
@@ -402,7 +419,7 @@ namespace dragon
 						m_Backend->m_tracking = false;
 					}
 				}
-				auto host = getCustomDrawableStyleLayerHost();
+				auto host = getCustomDrawableStyleLayerHost("Example-Bim-Layer");
 				if (host)
 				{
 					host->mouseRelease(m_MouseState.nor_mouse_pos); 
@@ -449,13 +466,13 @@ namespace dragon
 		wxWindow::OnInternalIdle();
 		Refresh(false);
 	}
-	ThreeDCustomDrawableStyleLayerHost* MapRenderCanvas::getCustomDrawableStyleLayerHost()
+	ThreeDCustomDrawableStyleLayerHost* MapRenderCanvas::getCustomDrawableStyleLayerHost(const std::string& name)
 	{
 		using namespace mbgl::style;
 		using namespace mbgl::style::expression::dsl;
 		MLN_TRACE_FUNC();
 		mbgl::style::Style& style = m_Map->getStyle();
-		const std::string identifier = "Example-Bim-Layer";
+		const std::string identifier = name;
 		mbgl::style::Layer* custom_layer = style.getLayer(identifier);
 		if (!custom_layer) return nullptr; 
 		CustomDrawableLayer* ptr_custom_drawable_layer = static_cast<CustomDrawableLayer*>(custom_layer);
