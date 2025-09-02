@@ -34,6 +34,8 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 	CesiumGeospatial::Cartographic position = CesiumGeospatial::Cartographic::fromDegrees(39.94704, -75.152325, 0.0);
 	glm::dvec3 ecef = CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(position);
 	glm::dmat4 enuMatrix = CesiumGeospatial::GlobeTransforms::eastNorthUpToFixedFrame(ecef);
+
+
 	mockAssetAccessor = std::make_shared<CesiumNativeTests::SimpleAssetAccessor>(); 
 	tilesetExternals = std::make_shared<Cesium3DTilesSelection::TilesetExternals>(
 		mockAssetAccessor,
@@ -51,6 +53,8 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 	tileset->loadTiles();
 	Cesium3DTilesSelection::Tile* pTilesetJson = const_cast<Cesium3DTilesSelection::Tile*>(tileset->getRootTile());
 	pTilesetJson->setTransform(enuMatrix);
+	std::cout << "Root tile children count: " << tileset->getRootTile()->getChildren().size() << std::endl;
+	std::cout << "Root geometric error: " << tileset->getRootTile()->getGeometricError() << std::endl;
 }
 
 CesiumDrawableStyleLayerHost::~CesiumDrawableStyleLayerHost()
