@@ -1,6 +1,7 @@
 #pragma once 
 #ifndef _CESIUM_LAYER_HPP_
 #define _CESIUM_LAYER_HPP_
+#include <Cesium3DTilesSelection/ViewState.h>
 #include <mbgl/style/layers/custom_drawable_layer.hpp>
 #include <memory>
 namespace Cesium3DTilesSelection
@@ -29,6 +30,8 @@ public:
 	void initialize() override;
 	void deinitialize() override;
 	void update(Interface& interface) override;
+private: 
+	Cesium3DTilesSelection::ViewState createViewState(Interface& interface); 
 public: 
 	std::shared_ptr<Cesium3DTilesSelection::Tileset> tileset{ nullptr };
 	std::unique_ptr<CesiumAsync::AsyncSystem> asyncSystem{ nullptr };
