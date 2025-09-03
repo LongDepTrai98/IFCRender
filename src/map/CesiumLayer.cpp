@@ -61,8 +61,9 @@ static void printMatrix(const glm::dmat4& M) {
 CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 {
 	Cesium3DTilesContent::registerAllTileContentTypes();
-	CesiumGeospatial::Cartographic position = CesiumGeospatial::Cartographic::fromDegrees(39.94704, -75.152325, 0.0);
-	glm::dvec3 ecef = CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(position);
+	const CesiumGeospatial::Ellipsoid& ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
+	CesiumGeospatial::Cartographic position = CesiumGeospatial::Cartographic::fromDegrees(-75.152325, 39.94704, 0.0);
+	glm::dvec3 ecef = ellipsoid.cartographicToCartesian(position);
 	glm::dmat4 enuMatrix = CesiumGeospatial::GlobeTransforms::eastNorthUpToFixedFrame(ecef);
 	printMatrix(enuMatrix);
 	mockAssetAccessor = std::make_shared<CesiumNativeTests::SimpleAssetAccessor>(); 
@@ -72,7 +73,7 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 		CesiumAsync::AsyncSystem(std::make_shared<CesiumNativeTests::SimpleTaskProcessor>()),
 		nullptr
 	); 
-	std::string path_tileset{"D:\\GITHUB\\3d-tiles-samples\\1.1\\MetadataGranularities\\tileset.json" }; 
+	std::string path_tileset{"D:\\Code\\3d-tiles-samples\\1.1\\MetadataGranularities\\tileset.json" }; 
 	//Cesium3DTilesSelection::TilesetOptions options{};
 	Cesium3DTilesSelection::TilesetOptions options;
 	options.maximumScreenSpaceError = 16.0;
@@ -122,18 +123,20 @@ Cesium3DTilesSelection::ViewState CesiumDrawableStyleLayerHost::createViewState2
 	const double& cam_altitude_wgs84 = free_cam_options.getLocation().value().altitude; //
 	CesiumGeospatial::Cartographic radian_camera_location = CesiumGeospatial::Cartographic::fromDegrees(location_cam_wgs84.longitude(), location_cam_wgs84.latitude(), cam_altitude_wgs84);
 	glm::dvec3 ecef_camera_location = ellipsoid.cartographicToCartesian(radian_camera_location);
-	
+	auto carto_camera = ellipsoid.cartesianToCartographic(ecef_camera_location);
+	glm::dvec3 worldUp = ellipsoid.geodeticSurfaceNormal(ecef_camera_location);
 	// Viewport và FOV
 	double aspectRatio = state.getSize().aspectRatio();
 	glm::dvec2 viewPortSize = glm::dvec2(state.getSize().width, state.getSize().height);
-	double horizontalFieldOfView = CesiumUtility::Math::degreesToRadians(60.0);
-	double verticalFieldOfView =
-		std::atan(std::tan(horizontalFieldOfView * 0.5) / aspectRatio) * 2.0;
+	double horizontalFieldOfView = CesiumUtility::Math::degreesToRadians(50); /* state.getFieldOfView();*/
+	double verticalFieldOfView = std::atan(std::tan(horizontalFieldOfView * 0.5) / aspectRatio) * 2.0;
 	glm::dvec3 direction = glm::normalize(ecef_center - ecef_camera_location);
+	glm::dvec3 right = glm::normalize(glm::cross(direction, worldUp)); 
+	glm::dvec3 vUp = glm::cross(right, direction); 
 	return Cesium3DTilesSelection::ViewState(
 		ecef_camera_location,
 		direction,
-		glm::dvec3{ 0.0,-1.0, 0.0 },
+		vUp,
 		viewPortSize,
 		horizontalFieldOfView,
 		verticalFieldOfView,
