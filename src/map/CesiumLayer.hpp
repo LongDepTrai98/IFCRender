@@ -32,6 +32,7 @@ public:
 	void update(Interface& interface) override;
 private: 
 	Cesium3DTilesSelection::ViewState createViewState(Interface& interface); 
+	Cesium3DTilesSelection::ViewState createViewState2(Interface& interface); 
 public: 
 	std::shared_ptr<Cesium3DTilesSelection::Tileset> tileset{ nullptr };
 	std::unique_ptr<CesiumAsync::AsyncSystem> asyncSystem{ nullptr };
