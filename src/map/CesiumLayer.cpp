@@ -190,7 +190,6 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 	Cesium3DTilesSelection::ViewUpdateResult result = tileset->updateView(
 		{ viewstate }
 	);
-	//tileset->loadedTiles(); 
 	std::cout << std::format("Tile render this frame : {}", result.tilesToRenderThisFrame.size()) << std::endl; 
 }
 
