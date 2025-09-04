@@ -21,17 +21,17 @@
     // to a certain position on the globe
     const tileset = viewer.scene.primitives.add(
     await Cesium.Cesium3DTileset.fromUrl(
-        "http://127.0.0.1:8080/1.1/MetadataGranularities/tileset.json",
+        "http://127.0.0.1:8080/1.2/tileset.json",
         {
         debugShowBoundingVolume: true,
         }
     )
     );
-    tileset.modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
-    Cesium.Cartesian3.fromDegrees(-75.152325, 39.94704, 0.0)
-    );
+    // tileset.modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
+    // Cesium.Cartesian3.fromDegrees(-75.152325, 39.94704, 0.0)
+    // );
 
-    console.log(Cesium.Cartesian3.fromDegrees(-75.152325, 39.94704, 0.0)); 
+    // console.log(Cesium.Cartesian3.fromDegrees(-75.152325, 39.94704, 0.0)); 
 
     // Create an HTML element that will serve as the
     // tooltip that displays the metadata information
@@ -111,13 +111,24 @@
         // );
         // viewer.zoomTo(tileset, offset); 
 
-        viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(-75.152325, 39.94704, 896.16109403405540),
-        orientation: {
-            heading: Cesium.Math.toRadians(0.0),
-            pitch: Cesium.Math.toRadians(-90.0),
-        }
-        });
+        // viewer.camera.flyTo({
+        // destination: Cesium.Cartesian3.fromDegrees(-75.152325, 39.94704, 896.16109403405540),
+        // orientation: {
+        //     heading: Cesium.Math.toRadians(0.0),
+        //     pitch: Cesium.Math.toRadians(-90.0),
+        // }
+        // });
+
+        viewer.flyTo(tileset, {
+                duration: 4.0,
+                maximumHeight: 2000,
+                offset: {
+                    heading: 0,
+                    pitch: -0.8,
+                    range: 200
+                }
+            });
+
         viewer.scene.postRender.addEventListener(function(scene, time) {
             console.log("Camera pos:", viewer.camera.positionWC);
             console.log("Heading:", Cesium.Math.toDegrees(viewer.camera.heading));

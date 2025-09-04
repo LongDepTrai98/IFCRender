@@ -31,7 +31,6 @@
 #include "TilesetJsonLoader.h"
 #include "core/utils/CesiumHelper.hpp"
 #include "core/convert/Tile.hpp"
-
 static void saveMatrixToFile(const glm::dmat4& m, const std::string& filename) {
 	std::ofstream out(filename);
 	if (!out.is_open()) {
@@ -90,7 +89,7 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 		CesiumAsync::AsyncSystem(std::make_shared<CesiumNativeTests::ThreadTaskProcessor>()),
 		nullptr
 	); 
-	std::string path_tileset{"D:/GITHUB/IFCRender/cesium-native/Cesium3DTilesSelection/test/data/ReplaceTileset/tileset.json" }; 
+	std::string path_tileset{"D:/Code/IFCRender/js/1.2/tileset.json" }; 
 	Cesium3DTilesSelection::TilesetOptions options;
 	options.maximumScreenSpaceError = 16.0;
 	tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
@@ -163,6 +162,19 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 		const Cesium3DTilesSelection::BoundingVolume& BoundingVolume = tile_root->getBoundingVolume();
 		fnc_create_drawable(interface,BoundingVolume);
 		fnc_create_drawable = nullptr; 
+	}
+	for (auto& tile : result.tilesToRenderThisFrame)
+	{
+		if (tile->getState() == Cesium3DTilesSelection::TileLoadState::Done)
+		{
+			const Cesium3DTilesSelection::BoundingVolume& bounding_voulume = tile->getBoundingVolume();
+			glm::dvec3 cecf_center = dragon::CesiumHelper::getCenterBoundingVolume(bounding_voulume); 
+			std::optional<glm::dvec3> wgs84_center = dragon::CesiumHelper::ecefToWgs84(cecf_center);
+			double ScalemetersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84_center.value().y);
+			auto scale = dragon::CesiumHelper::getMetersPerExtentUnit2(wgs84_center.value().y); 
+			//glm::dvec3 lengths = bounding_voulume.getLengths();
+			int a = 3; 
+		}
 	}
 	std::cout << std::format("Tile render this frame : {}", result.tilesToRenderThisFrame.size()) << std::endl; 
 }

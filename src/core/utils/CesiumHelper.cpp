@@ -3,7 +3,9 @@
 #include <CesiumGeospatial/Ellipsoid.h>
 #include <CesiumGeospatial/BoundingRegion.h>
 #include <CesiumGeospatial/GlobeRectangle.h>
-#include <CesiumGeospatial/S2CellBoundingVolume.h>1
+#include <CesiumGeospatial/S2CellBoundingVolume.h>
+#include <mbgl/util/projection.hpp>
+#include <mbgl/util/constants.hpp>
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <cmath>
 #include "CesiumHelper.hpp"
@@ -144,7 +146,7 @@ namespace dragon
 		if (!cart) return std::nullopt; 
 		return glm::dvec3(CesiumUtility::Math::radiansToDegrees(cart.value().longitude),
 			CesiumUtility::Math::radiansToDegrees(cart.value().latitude), 
-			CesiumUtility::Math::radiansToDegrees(cart.value().height));
+			cart.value().height);
 	}
 	glm::dvec3 CesiumHelper::getCenterBoundingVolume(const Cesium3DTilesSelection::BoundingVolume& BoundingVolume)
 	{
@@ -190,5 +192,32 @@ namespace dragon
 			},
 			BoundingVolume
 		);
+	}
+	
+	double CesiumHelper::getMetersPerExtentUnit(double lat, int zoom, int extent, int tileSize)
+	{
+		// Validate input
+		if (extent <= 0 || tileSize <= 0 || zoom < 0) {
+			return 0.0;
+		}
+
+		double latRad = CesiumUtility::Math::degreesToRadians(lat);
+		double earthCircumference = 2.0 * M_PI * 6378137.0;
+
+		// Tính meters per pixel
+		double metersPerPixel = (earthCircumference * std::cos(latRad)) /
+			(tileSize * std::pow(2.0, zoom));
+
+		// Tính tỷ lệ extent units to pixels
+		double extentToPixelRatio = static_cast<double>(extent) / tileSize;
+
+		return metersPerPixel * extentToPixelRatio;
+	}
+	double CesiumHelper::getMetersPerExtentUnit2(double lat, int zoom)
+	{
+		auto scale_512 = mbgl::Projection::getMetersPerPixelAtLatitude(lat, 16);
+
+		return (scale_512 * mbgl::util::EXTENT) * 1 / mbgl::util::tileSize_D; 
+
 	}
 }
