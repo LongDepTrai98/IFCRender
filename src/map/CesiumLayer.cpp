@@ -157,16 +157,12 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 		{ viewstate }
 	);
 	auto tile_root = tileset->getRootTile();
-	if (tile_root->getState() == Cesium3DTilesSelection::TileLoadState::Done)
+	if (fnc_create_drawable && tile_root->getState() == Cesium3DTilesSelection::TileLoadState::Done)
 	{
 		//hard code get center
-		if (fnc_create_drawable)
-		{
-			const Cesium3DTilesSelection::BoundingVolume& BoundingVolume = tile_root->getBoundingVolume();
-			fnc_create_drawable(interface,BoundingVolume);
-			fnc_create_drawable = nullptr; 
-		}; 
-
+		const Cesium3DTilesSelection::BoundingVolume& BoundingVolume = tile_root->getBoundingVolume();
+		fnc_create_drawable(interface,BoundingVolume);
+		fnc_create_drawable = nullptr; 
 	}
 	std::cout << std::format("Tile render this frame : {}", result.tilesToRenderThisFrame.size()) << std::endl; 
 }
