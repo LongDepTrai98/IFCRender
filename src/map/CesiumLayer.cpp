@@ -21,6 +21,7 @@
 #include <CesiumGeometry/Transforms.h>
 #include <CesiumUtility/Math.h>
 #include <format>
+#include <glm/gtc/type_ptr.hpp>
 #include "CesiumLayer.hpp"
 #include "cesium/ThreadTaskProcessor.hpp"
 #include "cesium/SimplePrepareRendererResource.hpp"
@@ -28,7 +29,8 @@
 #include "cesium/SimpleAssetAccessor.hpp"
 #include "threepp/threepp.hpp"
 #include "TilesetJsonLoader.h"
-#include <glm/gtc/type_ptr.hpp>
+#include "core/utils/CesiumHelper.hpp"
+#include "core/convert/Tile.hpp"
 
 static void saveMatrixToFile(const glm::dmat4& m, const std::string& filename) {
 	std::ofstream out(filename);
@@ -61,43 +63,50 @@ static void printMatrix(const glm::dmat4& M) {
 CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 {
 	Cesium3DTilesContent::registerAllTileContentTypes();
-	const CesiumGeospatial::Ellipsoid& ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
-	CesiumGeospatial::Cartographic position = CesiumGeospatial::Cartographic::fromDegrees(-75.152325, 39.94704, 0.0);
-	glm::dvec3 ecef = ellipsoid.cartographicToCartesian(position);
+
+
+	double rw = -1.3197209591796106;
+	double rs = 0.6988424218;
+	double re = -1.3196390408203893;
+	double rn = 0.6989055782;
+	double mh = 0;
+	double maxh = 88;
+
+	double ww = CesiumUtility::Math::radiansToDegrees(rw);
+	double ws = CesiumUtility::Math::radiansToDegrees(rs);
+	double we = CesiumUtility::Math::radiansToDegrees(re);
+	double wn = CesiumUtility::Math::radiansToDegrees(rn);
+
+	double center_test_lon = (ww + we) * 0.5f; 
+	double center_test_lat = (ws + wn) * 0.5f; 
+
+	glm::dvec3 ecef = dragon::CesiumHelper::wgs84ToEcef(center_test_lon,center_test_lat,0.0);
 	glm::dmat4 enuMatrix = CesiumGeospatial::GlobeTransforms::eastNorthUpToFixedFrame(ecef);
 	printMatrix(enuMatrix);
 	mockAssetAccessor = std::make_shared<CesiumNativeTests::SimpleAssetAccessor>(); 
 	tilesetExternals = std::make_shared<Cesium3DTilesSelection::TilesetExternals>(
 		mockAssetAccessor,
 		std::make_shared<Cesium3DTilesSelection::SimplePrepareRendererResource>(),
-		CesiumAsync::AsyncSystem(std::make_shared<CesiumNativeTests::SimpleTaskProcessor>()),
+		CesiumAsync::AsyncSystem(std::make_shared<CesiumNativeTests::ThreadTaskProcessor>()),
 		nullptr
 	); 
-	std::string path_tileset{"D:\\Code\\3d-tiles-samples\\1.1\\MetadataGranularities\\tileset.json" }; 
-	//Cesium3DTilesSelection::TilesetOptions options{};
+	std::string path_tileset{"D:/GITHUB/IFCRender/cesium-native/Cesium3DTilesSelection/test/data/ReplaceTileset/tileset.json" }; 
 	Cesium3DTilesSelection::TilesetOptions options;
 	options.maximumScreenSpaceError = 16.0;
 	tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
 		path_tileset,
 		options);
-	//Cesium3DTilesSelection::Tile* pTilesetJson = const_cast<Cesium3DTilesSelection::Tile*>(tileset->getRootTile());
-	////pTilesetJson->setTransform(enuMatrix);
-	//std::cout << "Root tile children count: " << tileset->getRootTile()->getChildren().size() << std::endl;
-	//std::cout << "Root geometric error: " << tileset->getRootTile()->getGeometricError() << std::endl;
 
-	/*HARD CODE TEST LOADER TILESET*/
-	//glm::dmat4 enuMatrix = CesiumGeospatial::GlobeTransforms::eastNorthUpToFixedFrame(ecef);
-	//std::string tilesetPathStr = path_tileset; 
-	//auto loaderResultFuture = Cesium3DTilesSelection::TilesetJsonLoader::createLoader(*tilesetExternals, tilesetPathStr, {});
-	//tilesetExternals->asyncSystem.dispatchMainThreadTasks();
-	//auto loaderResult = loaderResultFuture.wait();
-	//auto pTilesetJson = loaderResult.pRootTile.get();
-	//pTilesetJson->setTransform(enuMatrix); 
-	//auto pRootTile = &pTilesetJson->getChildren()[0];
-	//pRootTile->setTransform(enuMatrix); 
-	//tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
-	//	path_tileset); 
-	//auto children = pRootTile->getChildren();
+	fnc_create_drawable = [&](Interface& interface, const Cesium3DTilesSelection::BoundingVolume& BoundingVolume)
+	{
+		glm::dvec3 ecef_center_bounding_volume = dragon::CesiumHelper::getCenterBoundingVolume(BoundingVolume);
+		std::optional<glm::dvec3> wgs84_center_bounding_volume = dragon::CesiumHelper::ecefToWgs84(ecef_center_bounding_volume);
+		const double lon = wgs84_center_bounding_volume.value().x;
+		const double lat = wgs84_center_bounding_volume.value().y;
+		auto tile = Convert::wgs84ToTile(lon, lat);
+		interface.addCustomDrawableWithTile({ (uint8_t)tile.tileZ, (uint32_t)tile.tileX, (uint32_t)tile.tileY });
+	}; 
+
 }
 
 CesiumDrawableStyleLayerHost::~CesiumDrawableStyleLayerHost()
@@ -108,22 +117,19 @@ void CesiumDrawableStyleLayerHost::initialize()
 {
 }
 
-Cesium3DTilesSelection::ViewState CesiumDrawableStyleLayerHost::createViewState2(Interface& interface)
+Cesium3DTilesSelection::ViewState CesiumDrawableStyleLayerHost::createViewState(Interface& interface)
 {
 	const CesiumGeospatial::Ellipsoid& ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
 	const mbgl::TransformState& state = interface.state; 
-	auto tmp = state.getCamera().up();
 	const mbgl::LatLng& center = state.getLatLng();
 	double center_altitude = 0.0;
 	CesiumGeospatial::Cartographic radian_center_location = CesiumGeospatial::Cartographic::fromDegrees(center.longitude(), center.latitude(), center_altitude);
-	glm::dvec3 ecef_center = ellipsoid.cartographicToCartesian(radian_center_location);
-
+	glm::dvec3 ecef_center = dragon::CesiumHelper::wgs84ToEcef(center.longitude(),center.latitude(),center_altitude);
 	const mbgl::FreeCameraOptions& free_cam_options = state.getFreeCameraOptions();
 	const mbgl::LatLng& location_cam_wgs84 = free_cam_options.getLocation().value().location;//lat lon 
 	const double& cam_altitude_wgs84 = free_cam_options.getLocation().value().altitude; //
 	CesiumGeospatial::Cartographic radian_camera_location = CesiumGeospatial::Cartographic::fromDegrees(location_cam_wgs84.longitude(), location_cam_wgs84.latitude(), cam_altitude_wgs84);
-	glm::dvec3 ecef_camera_location = ellipsoid.cartographicToCartesian(radian_camera_location);
-	auto carto_camera = ellipsoid.cartesianToCartographic(ecef_camera_location);
+	glm::dvec3 ecef_camera_location = dragon::CesiumHelper::wgs84ToEcef(location_cam_wgs84.longitude(), location_cam_wgs84.latitude(), cam_altitude_wgs84);
 	glm::dvec3 worldUp = ellipsoid.geodeticSurfaceNormal(ecef_camera_location);
 	// Viewport và FOV
 	double aspectRatio = state.getSize().aspectRatio();
@@ -132,52 +138,11 @@ Cesium3DTilesSelection::ViewState CesiumDrawableStyleLayerHost::createViewState2
 	double verticalFieldOfView = std::atan(std::tan(horizontalFieldOfView * 0.5) / aspectRatio) * 2.0;
 	glm::dvec3 direction = glm::normalize(ecef_center - ecef_camera_location);
 	glm::dvec3 right = glm::normalize(glm::cross(direction, worldUp)); 
-	glm::dvec3 vUp = glm::cross(right, direction); 
+	glm::dvec3 up = glm::cross(right, direction); 
 	return Cesium3DTilesSelection::ViewState(
 		ecef_camera_location,
 		direction,
-		vUp,
-		viewPortSize,
-		horizontalFieldOfView,
-		verticalFieldOfView,
-		ellipsoid);
-}
-
-Cesium3DTilesSelection::ViewState CesiumDrawableStyleLayerHost::createViewState(Interface& interface)
-{
-	const CesiumGeospatial::Ellipsoid& ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
-	const mbgl::TransformState& state = interface.state;
-	const mbgl::util::Camera& camera = state.getCamera();
-	//vector up
-	auto bearing = state.getBearing(); 
-	auto pitch = state.getPitch(); 
-	const mbgl::vec3& up = camera.up();
-	//center
-	const mbgl::LatLng& center = state.getLatLng();
-	//forward 
-	const mbgl::vec3& forward = camera.forward(); 
-	CesiumGeospatial::Cartographic radian_center_location = CesiumGeospatial::Cartographic::fromDegrees(center.longitude(), center.latitude(), 0.0);
-	glm::dvec3 ecef_center = ellipsoid.cartographicToCartesian(radian_center_location); 
-	const mbgl::FreeCameraOptions& free_cam_options = state.getFreeCameraOptions();
-	const mbgl::LatLng& location_cam_wgs84 = free_cam_options.getLocation().value().location;//lat lon 
-	const double& cam_altitude_wgs84 = free_cam_options.getLocation().value().altitude; //
-	CesiumGeospatial::Cartographic radian_camera_location = CesiumGeospatial::Cartographic::fromDegrees(location_cam_wgs84.longitude(), location_cam_wgs84.latitude(), cam_altitude_wgs84);
-	glm::dvec3 ecef_camera_location = ellipsoid.cartographicToCartesian(radian_camera_location);
-	glm::dmat4 enuToEcef = CesiumGeospatial::GlobeTransforms::eastNorthUpToFixedFrame(ecef_camera_location);
-	double aspectRatio = state.getSize().aspectRatio();
-	glm::dvec3 direction_t = glm::normalize(ecef_center - ecef_camera_location); //viewFocus - ViewPostion
-	glm::dvec3 direction = glm::dvec3(forward[0], forward[1], forward[2]); 
-	glm::dvec3 viewUp = glm::dvec3(camera.up()[0], camera.up()[1], camera.up()[2]);
-	glm::dvec2 viewPortSize = glm::dvec2(state.getSize().width,state.getSize().height); 
-	double horizontalFieldOfView = state.getFieldOfView(); 
-	double verticalFieldOfView =
-		std::atan(std::tan(horizontalFieldOfView * 0.5) / aspectRatio) * 2.0;
-	glm::dvec3 forwardECEF = glm::normalize(glm::dvec3(enuToEcef * glm::dvec4(direction, 0.0)));
-	glm::dvec3 upECEF = glm::normalize(glm::dvec3(enuToEcef * glm::dvec4(viewUp, 0.0)));
-	return Cesium3DTilesSelection::ViewState(
-		ecef_camera_location,
-		direction_t,
-		upECEF,
+		up,
 		viewPortSize,
 		horizontalFieldOfView,
 		verticalFieldOfView,
@@ -186,13 +151,29 @@ Cesium3DTilesSelection::ViewState CesiumDrawableStyleLayerHost::createViewState(
 
 void CesiumDrawableStyleLayerHost::update(Interface& interface)
 {
-	Cesium3DTilesSelection::ViewState viewstate = createViewState2(interface);
+	auto& state = interface.state; 
+	Cesium3DTilesSelection::ViewState viewstate = createViewState(interface);
 	Cesium3DTilesSelection::ViewUpdateResult result = tileset->updateView(
 		{ viewstate }
 	);
+	auto tile_root = tileset->getRootTile();
+	if (tile_root->getState() == Cesium3DTilesSelection::TileLoadState::Done)
+	{
+		//hard code get center
+		if (fnc_create_drawable)
+		{
+			const Cesium3DTilesSelection::BoundingVolume& BoundingVolume = tile_root->getBoundingVolume();
+			fnc_create_drawable(interface,BoundingVolume);
+			fnc_create_drawable = nullptr; 
+		}; 
+
+	}
 	std::cout << std::format("Tile render this frame : {}", result.tilesToRenderThisFrame.size()) << std::endl; 
 }
 
 void CesiumDrawableStyleLayerHost::deinitialize()
 {
 }
+
+
+

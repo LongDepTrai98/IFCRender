@@ -39,7 +39,7 @@ public:
   }
 
   virtual void* prepareInMainThread(
-      Cesium3DTilesSelection::Tile& /*tile*/,
+      Cesium3DTilesSelection::Tile& tile,
       void* pLoadThreadResult) override {
     if (pLoadThreadResult) {
       AllocationResult* loadThreadResult =

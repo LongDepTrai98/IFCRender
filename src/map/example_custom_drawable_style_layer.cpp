@@ -236,7 +236,7 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                         // 1. Scale
                         auto matrix_scale = dragon::ThreeHelper::createMatrixScaleAroundPivot(
                             threepp::Vector3(0, 0, 0),
-                            1.0 , -scale, 1.0
+                            1.0 * 10, -scale * 10, 1.0 * 10
                         );
                         // 2. Rotate
                         auto matrix_rotate = dragon::ThreeHelper::createMatrixRotateAroundPivot(
@@ -257,10 +257,11 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                         mesh->applyMatrix4(matrix_translate); 
                         mesh->name = "model";
                         scene.add(bim_model);
+                        m_Gizmo->setTarget(bim_model.get()); 
                     }; 
                     add_model_lambda(*impl->scene); 
 
-                    const std::string pathGLB = "C:\\Users\\ntlon\\Downloads\\a.b3dm.glb";
+                   /* const std::string pathGLB = "C:\\Users\\ntlon\\Downloads\\a.b3dm.glb";
                     std::vector<std::byte> glbFile = dragon::StringHelper::readFile(pathGLB);
                     auto test_model = dragon::CesiumHelper::createGLB(glbFile);
                     threepp::Matrix4 matrix_scale; 
@@ -275,8 +276,8 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                     rotate.makeRotationY(threepp::math::degToRad(180));
                     test_model->applyMatrix4(rotate); 
                     test_model->applyMatrix4(matrix_scale); 
-                    impl->scene->add(test_model);
-                    m_Gizmo->setTarget(test_model.get()); 
+                    impl->scene->add(test_model);*/
+                    //m_Gizmo->setTarget(*impl->scene);
                 }
             }
         }

@@ -4,6 +4,7 @@
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <mbgl/style/layers/custom_drawable_layer.hpp>
 #include <memory>
+#include <functional>
 namespace Cesium3DTilesSelection
 {
 	class Tileset;
@@ -32,12 +33,12 @@ public:
 	void update(Interface& interface) override;
 private: 
 	Cesium3DTilesSelection::ViewState createViewState(Interface& interface); 
-	Cesium3DTilesSelection::ViewState createViewState2(Interface& interface); 
 public: 
 	std::shared_ptr<Cesium3DTilesSelection::Tileset> tileset{ nullptr };
 	std::unique_ptr<CesiumAsync::AsyncSystem> asyncSystem{ nullptr };
 	std::shared_ptr<CesiumNativeTests::SimpleAssetAccessor> mockAssetAccessor{ nullptr };
 	std::unique_ptr<CesiumNativeTests::ThreadTaskProcessor> pMockTaskProcessor{ nullptr };
 	std::shared_ptr<Cesium3DTilesSelection::TilesetExternals> tilesetExternals{ nullptr }; 
+	std::function<void(Interface&,const Cesium3DTilesSelection::BoundingVolume&)> fnc_create_drawable{ nullptr };
 }; 
 #endif // !_CESIUM_LAYER_HPP_

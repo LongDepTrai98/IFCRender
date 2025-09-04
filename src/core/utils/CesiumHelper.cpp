@@ -1,7 +1,10 @@
-#include <CesiumGltfReader/GltfReader.h>
+﻿#include <CesiumGltfReader/GltfReader.h>
 #include <CesiumGeospatial/Cartographic.h>
 #include <CesiumGeospatial/Ellipsoid.h>
-#include <CesiumGeospatial/Cartographic.h>
+#include <CesiumGeospatial/BoundingRegion.h>
+#include <CesiumGeospatial/GlobeRectangle.h>
+#include <CesiumGeospatial/S2CellBoundingVolume.h>1
+#include <CesiumGeospatial/GlobeTransforms.h>
 #include <cmath>
 #include "CesiumHelper.hpp"
 #include "threepp/threepp.hpp"
@@ -127,5 +130,65 @@ namespace dragon
 			container->add(threepp_mesh);
 		}
 		return container;
+	}
+	glm::dvec3 CesiumHelper::wgs84ToEcef(const double& lon, const double& lat, const double& height)
+	{
+		const CesiumGeospatial::Ellipsoid& ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
+		CesiumGeospatial::Cartographic wgs_coord_deg = CesiumGeospatial::Cartographic::fromDegrees(lon,lat,height);
+		return ellipsoid.cartographicToCartesian(wgs_coord_deg);
+	}
+	std::optional<glm::dvec3> CesiumHelper::ecefToWgs84(glm::dvec3 ecef)
+	{
+		const CesiumGeospatial::Ellipsoid& ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
+		std::optional<CesiumGeospatial::Cartographic> cart = ellipsoid.cartesianToCartographic(ecef);
+		if (!cart) return std::nullopt; 
+		return glm::dvec3(CesiumUtility::Math::radiansToDegrees(cart.value().longitude),
+			CesiumUtility::Math::radiansToDegrees(cart.value().latitude), 
+			CesiumUtility::Math::radiansToDegrees(cart.value().height));
+	}
+	glm::dvec3 CesiumHelper::getCenterBoundingVolume(const Cesium3DTilesSelection::BoundingVolume& BoundingVolume)
+	{
+		return std::visit(
+			[](auto&& arg) -> glm::dvec3 {
+				using T = std::decay_t<decltype(arg)>;
+
+				if constexpr (std::is_same_v<T, CesiumGeometry::BoundingSphere>) {
+					return arg.getCenter();
+				}
+				else if constexpr (std::is_same_v<T, CesiumGeometry::OrientedBoundingBox>) {
+					return arg.getCenter();
+				}
+				else if constexpr (std::is_same_v<T, CesiumGeospatial::BoundingRegion>) {
+					return arg.getBoundingBox().getCenter();
+				}
+				//else if constexpr (std::is_same_v<T, CesiumGeospatial::BoundingRegionWithLooseFittingHeights>) {
+				//	const auto& rect = arg.getBoundingRegion().getRectangle();
+				//	double lon = (rect.west + rect.east) * 0.5;
+				//	double lat = (rect.south + rect.north) * 0.5;
+				//	double h = (arg.getBoundingRegion().getMinimumHeight() +
+				//		arg.getBoundingRegion().getMaximumHeight()) * 0.5;
+				//	CesiumGeospatial::Cartographic c(lon, lat, h);
+				//	return CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(c);
+				//}
+				//else if constexpr (std::is_same_v<T, CesiumGeospatial::S2CellBoundingVolume>) {
+				//	// Lấy tâm của S2 cell
+				//	CesiumGeospatial::Cartographic c = arg.getBoundingRectangle().computeCenter();
+				//	return CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(c);
+				//}
+				//else if constexpr (std::is_same_v<T, CesiumGeometry::BoundingCylinderRegion>) {
+				//	const auto& rect = arg.getRectangle();
+				//	double lon = (rect.west + rect.east) * 0.5;
+				//	double lat = (rect.south + rect.north) * 0.5;
+				//	double h = (arg.getMinimumHeight() + arg.getMaximumHeight()) * 0.5;
+				//	CesiumGeospatial::Cartographic c(lon, lat, h);
+				//	return CesiumGeospatial::Ellipsoid::WGS84.cartographicToCartesian(c);
+				//}
+				else {
+					// fallback
+					return glm::dvec3(0.0);
+				}
+			},
+			BoundingVolume
+		);
 	}
 }
