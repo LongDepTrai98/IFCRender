@@ -133,7 +133,7 @@ namespace dragon
 			resourceOptions,
 			clientOptions);
 		m_Backend->setMap(m_Map.get());
-		m_Map->getStyle().loadURL(orderedStyles[0].getUrl());
+		m_Map->getStyle().loadURL(orderedStyles[4].getUrl());
 		m_Map->jumpTo(mbgl::CameraOptions()
 			.withCenter(mbgl::LatLng{ 22.3211062071827, 114.20821043557319 })
 			.withZoom(17)

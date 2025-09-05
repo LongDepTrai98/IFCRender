@@ -20,11 +20,19 @@
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <CesiumGeometry/Transforms.h>
 #include <CesiumUtility/Math.h>
+#include <mbgl/style/layer.hpp>
+#include <mbgl/style/layers/custom_drawable_layer.hpp>
+#include <mbgl/util/io.hpp>
+#include <mbgl/gfx/drawable.hpp>
+#include <mbgl/gl/drawable_custom.hpp>
+#include <mbgl/gl/drawable_custom_impl.hpp>
+#include <mbgl/util/logging.hpp>
+#include <mbgl/renderer/layer_group.hpp>
 #include <format>
 #include <glm/gtc/type_ptr.hpp>
 #include "CesiumLayer.hpp"
 #include "cesium/ThreadTaskProcessor.hpp"
-#include "cesium/SimplePrepareRendererResource.hpp"
+#include "cesium/MaplibrePrepareRendererResource.hpp"
 #include "cesium/SimpleTaskProcessor.hpp"
 #include "cesium/SimpleAssetAccessor.hpp"
 #include "threepp/threepp.hpp"
@@ -61,40 +69,45 @@ static void printMatrix(const glm::dmat4& M) {
 
 CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 {
-	Cesium3DTilesContent::registerAllTileContentTypes();
 
+	auto lambda = [&](Interface& interface) {
+		Cesium3DTilesContent::registerAllTileContentTypes();
+		double rw = -1.3197209591796106;
+		double rs = 0.6988424218;
+		double re = -1.3196390408203893;
+		double rn = 0.6989055782;
+		double mh = 0;
+		double maxh = 88;
 
-	double rw = -1.3197209591796106;
-	double rs = 0.6988424218;
-	double re = -1.3196390408203893;
-	double rn = 0.6989055782;
-	double mh = 0;
-	double maxh = 88;
+		double ww = CesiumUtility::Math::radiansToDegrees(rw);
+		double ws = CesiumUtility::Math::radiansToDegrees(rs);
+		double we = CesiumUtility::Math::radiansToDegrees(re);
+		double wn = CesiumUtility::Math::radiansToDegrees(rn);
 
-	double ww = CesiumUtility::Math::radiansToDegrees(rw);
-	double ws = CesiumUtility::Math::radiansToDegrees(rs);
-	double we = CesiumUtility::Math::radiansToDegrees(re);
-	double wn = CesiumUtility::Math::radiansToDegrees(rn);
+		double center_test_lon = (ww + we) * 0.5f;
+		double center_test_lat = (ws + wn) * 0.5f;
 
-	double center_test_lon = (ww + we) * 0.5f; 
-	double center_test_lat = (ws + wn) * 0.5f; 
-
-	glm::dvec3 ecef = dragon::CesiumHelper::wgs84ToEcef(center_test_lon,center_test_lat,0.0);
-	glm::dmat4 enuMatrix = CesiumGeospatial::GlobeTransforms::eastNorthUpToFixedFrame(ecef);
-	printMatrix(enuMatrix);
-	mockAssetAccessor = std::make_shared<CesiumNativeTests::SimpleAssetAccessor>(); 
-	tilesetExternals = std::make_shared<Cesium3DTilesSelection::TilesetExternals>(
-		mockAssetAccessor,
-		std::make_shared<Cesium3DTilesSelection::SimplePrepareRendererResource>(),
-		CesiumAsync::AsyncSystem(std::make_shared<CesiumNativeTests::ThreadTaskProcessor>()),
-		nullptr
-	); 
-	std::string path_tileset{"D:/Code/IFCRender/js/1.2/tileset.json" }; 
-	Cesium3DTilesSelection::TilesetOptions options;
-	options.maximumScreenSpaceError = 16.0;
-	tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
-		path_tileset,
-		options);
+		glm::dvec3 ecef = dragon::CesiumHelper::wgs84ToEcef(center_test_lon, center_test_lat, 0.0);
+		glm::dmat4 enuMatrix = CesiumGeospatial::GlobeTransforms::eastNorthUpToFixedFrame(ecef);
+		printMatrix(enuMatrix);
+		mockAssetAccessor = std::make_shared<CesiumNativeTests::SimpleAssetAccessor>();
+		prepareRendererResource = std::make_shared<Cesium3DTilesSelection::MaplibrePrepareRendererResource>();
+		tilesetExternals = std::make_shared<Cesium3DTilesSelection::TilesetExternals>(
+			mockAssetAccessor,
+			prepareRendererResource,
+			CesiumAsync::AsyncSystem(std::make_shared<CesiumNativeTests::ThreadTaskProcessor>()),
+			nullptr
+		);
+		std::string path_tileset{ "D:/Code/IFCRender/js/1.2/tileset.json" };
+		Cesium3DTilesSelection::TilesetOptions options;
+		options.maximumScreenSpaceError = 16.0;
+		tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
+			path_tileset,
+			options);
+		isLoadedTileset = true; 
+		m_LayerGroup = interface.getLayerGroupBase();
+	}; 
+	fnc_queue.push(lambda); 
 
 	fnc_create_drawable = [&](Interface& interface, const Cesium3DTilesSelection::BoundingVolume& BoundingVolume)
 	{
@@ -104,6 +117,25 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 		const double lat = wgs84_center_bounding_volume.value().y;
 		auto tile = Convert::wgs84ToTile(lon, lat);
 		interface.addCustomDrawableWithTile({ (uint8_t)tile.tileZ, (uint32_t)tile.tileX, (uint32_t)tile.tileY });
+
+		//set scene 
+
+		mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(m_LayerGroup.get());
+		tileLayerGroup->visitDrawables([&](const mbgl::gfx::Drawable& drawable) {
+			if (drawable.getDrawType() == mbgl::gfx::Drawable::DrawableType::DrawableCustom)
+			{
+				const mbgl::gfx::Drawable* ptrDrawable = &drawable;
+				const mbgl::gl::DrawableCustom* ptrDrawableCustom = static_cast<const mbgl::gl::DrawableCustom*>(ptrDrawable);
+				if (ptrDrawableCustom)
+				{
+					auto impl = ptrDrawableCustom->getImpl();
+					if (impl->scene)
+					{
+						prepareRendererResource->scene = impl->scene.get(); 
+						return; 
+					}
+				}
+			}});
 	}; 
 
 }
@@ -150,33 +182,47 @@ Cesium3DTilesSelection::ViewState CesiumDrawableStyleLayerHost::createViewState(
 
 void CesiumDrawableStyleLayerHost::update(Interface& interface)
 {
-	auto& state = interface.state; 
-	Cesium3DTilesSelection::ViewState viewstate = createViewState(interface);
-	Cesium3DTilesSelection::ViewUpdateResult result = tileset->updateView(
-		{ viewstate }
-	);
-	auto tile_root = tileset->getRootTile();
-	if (fnc_create_drawable && tile_root->getState() == Cesium3DTilesSelection::TileLoadState::Done)
+	if (!fnc_queue.empty())
 	{
-		//hard code get center
-		const Cesium3DTilesSelection::BoundingVolume& BoundingVolume = tile_root->getBoundingVolume();
-		fnc_create_drawable(interface,BoundingVolume);
-		fnc_create_drawable = nullptr; 
-	}
-	for (auto& tile : result.tilesToRenderThisFrame)
-	{
-		if (tile->getState() == Cesium3DTilesSelection::TileLoadState::Done)
+		std::function<void(Interface&)> fnc = fnc_queue.front(); 
+		if (fnc)
 		{
-			const Cesium3DTilesSelection::BoundingVolume& bounding_voulume = tile->getBoundingVolume();
-			glm::dvec3 cecf_center = dragon::CesiumHelper::getCenterBoundingVolume(bounding_voulume); 
-			std::optional<glm::dvec3> wgs84_center = dragon::CesiumHelper::ecefToWgs84(cecf_center);
-			double ScalemetersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84_center.value().y);
-			auto scale = dragon::CesiumHelper::getMetersPerExtentUnit2(wgs84_center.value().y); 
-			//glm::dvec3 lengths = bounding_voulume.getLengths();
-			int a = 3; 
+			fnc(interface); 
+			fnc_queue.pop(); 
 		}
 	}
-	std::cout << std::format("Tile render this frame : {}", result.tilesToRenderThisFrame.size()) << std::endl; 
+
+	if (isLoadedTileset)
+	{
+		auto& state = interface.state;
+		Cesium3DTilesSelection::ViewState viewstate = createViewState(interface);
+		Cesium3DTilesSelection::ViewUpdateResult result = tileset->updateView(
+			{ viewstate }
+		);
+
+		if (auto tile_root = tileset->getRootTile())
+		{
+			//hard code get center
+			if (fnc_create_drawable)
+			{
+				const Cesium3DTilesSelection::BoundingVolume& BoundingVolume = tile_root->getBoundingVolume();
+				fnc_create_drawable(interface, BoundingVolume);
+				fnc_create_drawable = nullptr;
+			}
+		}
+
+		for (auto& tile : result.tilesToRenderThisFrame)
+		{
+			if (tile->getState() == Cesium3DTilesSelection::TileLoadState::Done)
+			{
+				const Cesium3DTilesSelection::BoundingVolume& bounding_voulume = tile->getBoundingVolume();
+				glm::dvec3 cecf_center = dragon::CesiumHelper::getCenterBoundingVolume(bounding_voulume);
+				std::optional<glm::dvec3> wgs84_center = dragon::CesiumHelper::ecefToWgs84(cecf_center);
+				double ScalemetersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84_center.value().y);
+				auto scale = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84_center.value().y);
+			}
+		}
+	}
 }
 
 void CesiumDrawableStyleLayerHost::deinitialize()

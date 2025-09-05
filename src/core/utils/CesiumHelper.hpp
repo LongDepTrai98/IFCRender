@@ -19,8 +19,7 @@ namespace dragon
 		static glm::dvec3 wgs84ToEcef(const double& lon, const double& lat, const double& height);
 		static std::optional<glm::dvec3> ecefToWgs84(glm::dvec3 ecef); 
 		static glm::dvec3 getCenterBoundingVolume(const Cesium3DTilesSelection::BoundingVolume& BoundingVolume);
-		static double getMetersPerExtentUnit(double lat, int zoom = 16, int extent = 8192, int tileSize = 512);
-		static double getMetersPerExtentUnit2(double lat, int zoom = 16); 
+		static double getMetersPerExtentUnit(double lat, int zoom = 16); 
 	};
 }
 #endif // !_CESIUM_HELPER_HPP_

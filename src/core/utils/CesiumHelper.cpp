@@ -194,26 +194,7 @@ namespace dragon
 		);
 	}
 	
-	double CesiumHelper::getMetersPerExtentUnit(double lat, int zoom, int extent, int tileSize)
-	{
-		// Validate input
-		if (extent <= 0 || tileSize <= 0 || zoom < 0) {
-			return 0.0;
-		}
-
-		double latRad = CesiumUtility::Math::degreesToRadians(lat);
-		double earthCircumference = 2.0 * M_PI * 6378137.0;
-
-		// Tính meters per pixel
-		double metersPerPixel = (earthCircumference * std::cos(latRad)) /
-			(tileSize * std::pow(2.0, zoom));
-
-		// Tính tỷ lệ extent units to pixels
-		double extentToPixelRatio = static_cast<double>(extent) / tileSize;
-
-		return metersPerPixel * extentToPixelRatio;
-	}
-	double CesiumHelper::getMetersPerExtentUnit2(double lat, int zoom)
+	double CesiumHelper::getMetersPerExtentUnit(double lat, int zoom)
 	{
 		auto scale_512 = mbgl::Projection::getMetersPerPixelAtLatitude(lat, 16);
 

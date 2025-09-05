@@ -5,10 +5,13 @@
 #include <mbgl/style/layers/custom_drawable_layer.hpp>
 #include <memory>
 #include <functional>
+#include <queue>
+#include <atomic>
 namespace Cesium3DTilesSelection
 {
 	class Tileset;
 	class TilesetExternals; 
+	class MaplibrePrepareRendererResource; 
 }
 namespace CesiumNativeTests
 {
@@ -34,8 +37,12 @@ public:
 private: 
 	Cesium3DTilesSelection::ViewState createViewState(Interface& interface); 
 public: 
+	std::atomic<bool> isLoadedTileset{ false }; 
+	std::queue<std::function<void(Interface&)>> fnc_queue{};
+	std::shared_ptr<mbgl::LayerGroupBase> m_LayerGroup{ nullptr };
 	std::shared_ptr<Cesium3DTilesSelection::Tileset> tileset{ nullptr };
 	std::unique_ptr<CesiumAsync::AsyncSystem> asyncSystem{ nullptr };
+	std::shared_ptr<Cesium3DTilesSelection::MaplibrePrepareRendererResource> prepareRendererResource{ nullptr }; 
 	std::shared_ptr<CesiumNativeTests::SimpleAssetAccessor> mockAssetAccessor{ nullptr };
 	std::unique_ptr<CesiumNativeTests::ThreadTaskProcessor> pMockTaskProcessor{ nullptr };
 	std::shared_ptr<Cesium3DTilesSelection::TilesetExternals> tilesetExternals{ nullptr }; 
