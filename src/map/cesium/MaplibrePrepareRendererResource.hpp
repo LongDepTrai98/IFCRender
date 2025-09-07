@@ -6,7 +6,7 @@
 #include <spdlog/spdlog.h>
 #include <atomic>
 #include <functional>
-
+#include <mbgl/tile/tile_id.hpp>
 
 namespace threepp
 {
@@ -98,5 +98,7 @@ public:
       [](const TileLoadResult& /*result*/) {};
 public: 
     threepp::Scene* scene{ nullptr }; 
+    mbgl::CanonicalTileID root_tile_id{ 0,0,0 };
+    std::atomic<int> t_count{ 0 }; 
 };
 } // namespace Cesium3DTilesSelection

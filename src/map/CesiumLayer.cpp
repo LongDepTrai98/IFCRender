@@ -131,7 +131,9 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 					auto impl = ptrDrawableCustom->getImpl();
 					if (impl->scene)
 					{
-						prepareRendererResource->scene = impl->scene.get(); 
+						prepareRendererResource->scene = impl->scene.get();
+						auto& tile = ptrDrawable->getTileID();
+						prepareRendererResource->root_tile_id = tile.value().canonical; 
 						return; 
 					}
 				}

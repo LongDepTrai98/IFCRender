@@ -237,7 +237,8 @@ namespace dragon
 	threepp::Matrix4 ThreeHelper::createMatrixScaleAroundPivot(const threepp::Vector3& pivot, const float& scaleX, const float& scaleY, const float& scaleZ)
 	{
 		threepp::Matrix4 translateToOrigin{ };
-		translateToOrigin.makeTranslation(-pivot.x, -pivot.y, -pivot.z);
+		translateToOrigin.identity();
+		//translateToOrigin.makeTranslation(-pivot.x, -pivot.y, -pivot.z);
 		threepp::Matrix4 scaleMatrix;
 		scaleMatrix.makeScale(scaleX, scaleY, scaleZ);
 		threepp::Matrix4 translateBack;
