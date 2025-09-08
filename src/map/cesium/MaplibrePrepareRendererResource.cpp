@@ -97,11 +97,12 @@ namespace Cesium3DTilesSelection
                         matrixRotate = glm::rotate(matrixRotate, eulerAngles.x, glm::dvec3(1.0, 0.0, 0.0));
                     }
 
-                    double scaleZ = Convert::computeScaleZForLevel(root_tile_id.z);
                     double metersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84Rtc.value().y);
+                    double scaleZ = 1 / metersPerExtentUnit;
+
                     glm::dmat4 scaleMatrix = glm::scale(glm::dmat4(1.0), glm::dvec3(1.0 * metersPerExtentUnit,
                         -1.0 * metersPerExtentUnit,
-                        1.0 * scaleZ * metersPerExtentUnit));
+                        1.0));
 
                     glm::dmat4 translateBackMatrix = glm::translate(glm::dmat4(1.0), glm::dvec3(tile.localX,
                         tile.localY,
@@ -123,7 +124,7 @@ namespace Cesium3DTilesSelection
                         child.geometry()->computeBoundingSphere();
                         child.geometry()->computeVertexNormals();
                         });
-                    threepp::Box3 box_; 
+              /*      threepp::Box3 box_; 
                     box_.setFromObject(*tmp); 
                     auto min = box_.min(); 
                     tmp->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
@@ -131,7 +132,7 @@ namespace Cesium3DTilesSelection
                         child.geometry()->computeBoundingBox();
                         child.geometry()->computeBoundingSphere();
                         child.geometry()->computeVertexNormals();
-                        });
+                        });*/
                     tmp->matrixAutoUpdate = false;
                 }
                 //scene->add(orientedBoundingBox);
