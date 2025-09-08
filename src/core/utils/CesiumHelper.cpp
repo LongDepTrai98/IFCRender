@@ -209,7 +209,7 @@ namespace dragon
 					const auto& indexBuffer = gltf.buffers[indicesBufferView.buffer];
 					size_t indexOffset = indicesBufferView.byteOffset + indicesAccessor.byteOffset;
 					if (indicesAccessor.componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT)
-					{
+					{ 
 						const uint16_t* indexData = reinterpret_cast<const uint16_t*>(indexBuffer.cesium.data.data() + indexOffset);
 						std::vector<uint32_t> indices32(indexData, indexData + indicesAccessor.count);
 						geometry->setIndex(std::move(indices32));
@@ -350,6 +350,45 @@ namespace dragon
 	{
 		auto scale_512 = mbgl::Projection::getMetersPerPixelAtLatitude(lat, 16);
 		return (scale_512 * mbgl::util::EXTENT) * 1 / mbgl::util::tileSize_D; 
+	}
+
+	glm::dmat4 CesiumHelper::createMatrixRotateAroundPivot(const glm::dvec3& pivot, double rotateX, double rotateY, double rotateZ)
+	{
+		glm::dmat4 result(1.0); // identity
+		glm::dmat4 translateToOrigin = glm::translate(glm::dmat4(1.0), -pivot);
+		glm::dmat4 rotation(1.0);
+		if (rotateZ != 0.0) {
+			rotation = glm::rotate(rotation, rotateZ, glm::dvec3(0.0, 0.0, 1.0));
+		}
+		if (rotateY != 0.0) {
+			rotation = glm::rotate(rotation, rotateY, glm::dvec3(0.0, 1.0, 0.0));
+		}
+		if (rotateX != 0.0) {
+			rotation = glm::rotate(rotation, rotateX, glm::dvec3(1.0, 0.0, 0.0));
+		}
+		glm::dmat4 translateBack = glm::translate(glm::dmat4(1.0), pivot);
+		result = translateBack * rotation * translateToOrigin;
+		return result;
+	}
+
+	glm::dmat4 CesiumHelper::createMatrixScaleAroundPivot(const glm::dvec3& pivot, double scaleX, double scaleY, double scaleZ)
+	{
+		glm::dmat4 translateToOrigin = glm::translate(glm::dmat4(1.0), -pivot);
+
+		glm::dmat4 scaleMatrix = glm::scale(glm::dmat4(1.0), glm::dvec3(scaleX, scaleY, scaleZ));
+
+		glm::dmat4 translateBack = glm::translate(glm::dmat4(1.0), pivot);
+
+		return translateBack * scaleMatrix * translateToOrigin;
+	}
+
+	glm::dmat4 CesiumHelper::createMatrixTranslateAroundPivot(const glm::dvec3& pivot, double tar_x, double tar_y, double tar_z)
+	{
+		double deltaX = tar_x - pivot.x;
+		double deltaY = tar_y - pivot.y;
+		double deltaZ = tar_z - pivot.z;
+		glm::dmat4 result = glm::translate(glm::dmat4(1.0), glm::dvec3(deltaX, deltaY, deltaZ));
+		return result;
 	}
 
 	std::shared_ptr<threepp::Mesh> CesiumHelper::createOrientedBoundingBox(Cesium3DTilesSelection::BoundingVolume& boundingVolume, const mbgl::CanonicalTileID& tileID)

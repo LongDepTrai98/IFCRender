@@ -30,7 +30,21 @@ namespace dragon
 		static glm::dvec3 getCenterBoundingVolume(const Cesium3DTilesSelection::BoundingVolume& BoundingVolume);
 		static double calculateECEFMercatorTilt(const glm::dvec3& ecefPoint);
 		static double getMetersPerExtentUnit(double lat);
+		static glm::dmat4 createMatrixRotateAroundPivot(const glm::dvec3& pivot,
+			double rotateX,
+			double rotateY,
+			double rotateZ); 
 		static std::shared_ptr<threepp::Mesh> createOrientedBoundingBox(Cesium3DTilesSelection::BoundingVolume& boundingVolume,const mbgl::CanonicalTileID& tileID); 
+		static glm::dmat4 createMatrixScaleAroundPivot(
+			const glm::dvec3& pivot,
+			double scaleX,
+			double scaleY,
+			double scaleZ);
+		static glm::dmat4 createMatrixTranslateAroundPivot(
+			const glm::dvec3& pivot,
+			double tar_x,
+			double tar_y,
+			double tar_z); 
 	};
 }
 #endif // !_CESIUM_HELPER_HPP_
