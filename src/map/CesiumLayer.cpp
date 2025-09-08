@@ -97,7 +97,7 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 			CesiumAsync::AsyncSystem(std::make_shared<CesiumNativeTests::ThreadTaskProcessor>()),
 			nullptr
 		);
-		std::string path_tileset{ "C:/Users/vbd/Downloads/quan_1_ab_tower/quan_1_ab_tower/root.json" };
+		std::string path_tileset{ "C:/Users/ntlon/Downloads/quan_1_ab_tower/quan_1_ab_tower/root.json" };
 		Cesium3DTilesSelection::TilesetOptions options;
 		options.maximumScreenSpaceError = 16.0;
 		tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,

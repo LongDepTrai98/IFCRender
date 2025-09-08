@@ -83,9 +83,6 @@ namespace Cesium3DTilesSelection
                     glm::dmat3 rotationMatrix = glm::transpose(ecefMatrix);
                     glm::dquat q1 = glm::quat_cast(rotationMatrix);
 
-                    double totalRotationAngle = 2.0 * std::acos(glm::clamp(std::abs(q1.w), 0.0, 1.0));
-                    double totalRotationAngle_degrees = glm::degrees(totalRotationAngle);
-
                     // HOẶC tính góc Euler (roll, pitch, yaw)
                     glm::dvec3 eulerAngles = glm::eulerAngles(q1);
                     glm::dmat4 matrixRotate(1.0); 
@@ -129,33 +126,13 @@ namespace Cesium3DTilesSelection
                     threepp::Box3 box_; 
                     box_.setFromObject(*tmp); 
                     auto min = box_.min(); 
-                    auto max = box_.max(); 
-                    auto d = max.z - min.z;  
-
-                    auto mat = dragon::CesiumHelper::createMatrixTranslateAroundPivot(glm::dvec3(box_.getCenter().x, box_.getCenter().y, box_.getCenter().z),
-                        center.x,
-                        center.y,
-                        center.z - min.z); 
-                    threepp::Matrix4 tmat1;
-                    for (int col = 0; col < 4; ++col) {
-                        for (int row = 0; row < 4; ++row) {
-                            tmat1.elements[col * 4 + row] = static_cast<float>(mat[col][row]);
-                        }
-                    }
-
-
-                /*    tmp->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
-                        child.geometry()->applyMatrix4(tmat1);
+                    tmp->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
+                        child.geometry()->translate(0, 0, -min.z); 
                         child.geometry()->computeBoundingBox();
                         child.geometry()->computeBoundingSphere();
                         child.geometry()->computeVertexNormals();
-                        });*/
-                    //tmp->position.z = -min.z;
+                        });
                     tmp->matrixAutoUpdate = false;
-
-
-
-
                 }
                 //scene->add(orientedBoundingBox);
                 scene->add(tmp); 
