@@ -102,7 +102,6 @@ namespace Cesium3DTilesSelection
 
                     double scaleZ = Convert::computeScaleZForLevel(root_tile_id.z);
                     double metersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84Rtc.value().y);
-                    metersPerExtentUnit = 14;
                     glm::dmat4 scaleMatrix = glm::scale(glm::dmat4(1.0), glm::dvec3(1.0 * metersPerExtentUnit,
                         -1.0 * metersPerExtentUnit,
                         1.0 * scaleZ * metersPerExtentUnit));
@@ -127,85 +126,36 @@ namespace Cesium3DTilesSelection
                         child.geometry()->computeBoundingSphere();
                         child.geometry()->computeVertexNormals();
                         });
-                   /* tmp->position.set(tile.localX,
-                        tile.localY,
-                        wgs84Rtc.value().z);*/
+                    threepp::Box3 box_; 
+                    box_.setFromObject(*tmp); 
+                    auto min = box_.min(); 
+                    auto max = box_.max(); 
+                    auto d = max.z - min.z;  
+
+                    auto mat = dragon::CesiumHelper::createMatrixTranslateAroundPivot(glm::dvec3(box_.getCenter().x, box_.getCenter().y, box_.getCenter().z),
+                        center.x,
+                        center.y,
+                        center.z - min.z); 
+                    threepp::Matrix4 tmat1;
+                    for (int col = 0; col < 4; ++col) {
+                        for (int row = 0; row < 4; ++row) {
+                            tmat1.elements[col * 4 + row] = static_cast<float>(mat[col][row]);
+                        }
+                    }
+
+
+                /*    tmp->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
+                        child.geometry()->applyMatrix4(tmat1);
+                        child.geometry()->computeBoundingBox();
+                        child.geometry()->computeBoundingSphere();
+                        child.geometry()->computeVertexNormals();
+                        });*/
+                    //tmp->position.z = -min.z;
                     tmp->matrixAutoUpdate = false;
 
 
 
 
-                   // glm::dvec3 localUp = ellipsoid.geodeticSurfaceNormal(extension.rtcCenter);
-                   // glm::dvec3 maplibreZUp = glm::dvec3(0, 0, 1);
-
-                   // // Normalize local up vector
-                   // glm::dvec3 worldUp = glm::normalize(ellipsoid.geodeticSurfaceNormal(extension.rtcCenter));
-                   // glm::dvec3 targetUp = glm::dvec3(0, 0, 1);
-
-                   // double dotProduct = glm::clamp(glm::dot(worldUp, targetUp), -1.0, 1.0);
-                   // double angle = std::acos(dotProduct);
-
-                   // glm::dquat q;
-                   // if (angle > 0.001) { // Tránh góc quá nhỏ
-                   //     glm::dvec3 axis = glm::normalize(glm::cross(worldUp, targetUp));
-                   //     q = glm::angleAxis(angle, axis);
-                   // }
-                   // else {
-                   //     q = glm::dquat(1, 0, 0, 0); // Identity quaternion
-                   // }
-
-
-                   // threepp::Quaternion tq(
-                   // 	static_cast<float>(q.x),
-                   // 	static_cast<float>(q.y),
-                   // 	static_cast<float>(q.z),
-                   // 	static_cast<float>(q.w)
-                   // );
-                   // threepp::Euler euler; 
-                   // euler.setFromQuaternion(tq);
-                   // double eulerX = threepp::math::radToDeg(euler.x); 
-                   // double eulerY = threepp::math::radToDeg(euler.y);
-                   // double eulerZ = threepp::math::radToDeg(euler.z);
-         
-                   // glm::dmat4 matrix_rotate = dragon::CesiumHelper::createMatrixRotateAroundPivot(dcenter,
-                   //     eulerAngles.x,
-                   //     eulerAngles.y,
-                   //     eulerAngles.z);
-                   // transformed_center1 = matrix_rotate * glm::dvec4(dcenter, 1.0);
-                   // //dcenter = glm::dvec3(transformed_center1); 
-
-                   // double scaleZ = Convert::computeScaleZForLevel(root_tile_id.z);
-                   // double metersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84Rtc.value().y);
-                   // glm::dmat4 matrix_scale = dragon::CesiumHelper::createMatrixScaleAroundPivot(dcenter,
-                   //     1.0 * metersPerExtentUnit,
-                   //    1.0 * metersPerExtentUnit,
-                   //     1.0 * scaleZ * metersPerExtentUnit);
-                   // //transformed_center1 = matrix_scale * glm::dvec4(dcenter, 1.0);
-                   // ///dcenter = glm::dvec3(transformed_center1);
-                   //
-                   ///* glm::dmat4 matrix_translate = dragon::CesiumHelper::createMatrixTranslateAroundPivot(glm::dvec3(0,0,0),
-                   //     tile.localX,
-                   //     tile.localY,
-                   //     wgs84Rtc.value().z);*/
-
-                   // glm::dmat4 matrix_translate = glm::translate(glm::dmat4(1.0), glm::dvec3(tile.localX,
-                   //     tile.localY,
-                   //     wgs84Rtc.value().z));
-
-                   // glm::dmat4 result_matrix = matrix_translate * matrix_scale * matrix_rotate * CesiumGeometry::Transforms::Y_UP_TO_Z_UP;
-                   // threepp::Matrix4 tmat; 
-                   // for (int col = 0; col < 4; ++col) {
-                   //     for (int row = 0; row < 4; ++row) {
-                   //         tmat.elements[col * 4 + row] = static_cast<float>(result_matrix[col][row]);
-                   //     }
-                   // }
-                   // tmp->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
-                   //   child.geometry()->applyMatrix4(tmat);
-                   //   child.geometry()->computeBoundingBox();
-                   //   child.geometry()->computeBoundingSphere();
-                   //   child.geometry()->computeVertexNormals();
-                   //  });
-                   // tmp->matrixAutoUpdate = false;
                 }
                 //scene->add(orientedBoundingBox);
                 scene->add(tmp); 

@@ -348,8 +348,8 @@ namespace dragon
 	
 	double CesiumHelper::getMetersPerExtentUnit(double lat)
 	{
-		auto scale_512 = mbgl::Projection::getMetersPerPixelAtLatitude(lat, 16);
-		return (scale_512 * mbgl::util::EXTENT) * 1 / mbgl::util::tileSize_D; 
+		auto scale_512 = 1 / mbgl::Projection::getMetersPerPixelAtLatitude(lat, 16);
+		return (scale_512 * (double)mbgl::util::EXTENT) * 1 / mbgl::util::tileSize_D; 
 	}
 
 	glm::dmat4 CesiumHelper::createMatrixRotateAroundPivot(const glm::dvec3& pivot, double rotateX, double rotateY, double rotateZ)
