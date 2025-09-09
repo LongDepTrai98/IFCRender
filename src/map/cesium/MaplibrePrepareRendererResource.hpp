@@ -7,14 +7,25 @@
 #include <atomic>
 #include <functional>
 #include <mbgl/tile/tile_id.hpp>
+#include <mutex>
+
 
 namespace threepp
 {
     class Scene; 
+    class Group; 
 }
 
 namespace Cesium3DTilesSelection {
 class MaplibrePrepareRendererResource : public Cesium3DTilesSelection::IPrepareRendererResources {
+public: 
+    struct drawable_context
+    {
+        threepp::Scene* scene{ nullptr };
+        std::unordered_map<std::string, std::shared_ptr<threepp::Group>>* groupResourceCache{nullptr};
+        mbgl::CanonicalTileID root_tile_id{ 0,0,0 };
+    };
+
 public:
   std::atomic<size_t> totalAllocation{};
 
@@ -96,9 +107,11 @@ public:
 
   std::function<void(const TileLoadResult&)> prepareInLoadThreadTestCallback =
       [](const TileLoadResult& /*result*/) {};
+
+  std::shared_ptr<threepp::Group> createGroupThreeppFromModel(Cesium3DTilesSelection::Tile& tile);
 public: 
-    threepp::Scene* scene{ nullptr }; 
-    mbgl::CanonicalTileID root_tile_id{ 0,0,0 };
     std::atomic<int> t_count{ 0 }; 
+    std::mutex mutexResource{};
+    drawable_context context{};
 };
 } // namespace Cesium3DTilesSelection

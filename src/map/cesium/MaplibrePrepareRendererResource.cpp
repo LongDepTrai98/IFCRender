@@ -6,6 +6,8 @@
 #include <core/convert/Tile.hpp>
 #include "threepp/threepp.hpp"
 #include <core/utils/ThreeHelper.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 namespace Cesium3DTilesSelection
 {
     CesiumAsync::Future<TileLoadResultAndRenderResources> MaplibrePrepareRendererResource::prepareInLoadThread(
@@ -28,116 +30,15 @@ namespace Cesium3DTilesSelection
             AllocationResult* loadThreadResult =
                 reinterpret_cast<AllocationResult*>(pLoadThreadResult);
             //create new bounding box 
-            std::string tile_str_id = std::get<std::string>(tile.getTileID());
-
-            if (t_count == 0)
+          
+            std::shared_ptr<threepp::Group> model_tile = createGroupThreeppFromModel(tile);
+            if (model_tile)
             {
-                Cesium3DTilesSelection::BoundingVolume bouding_tile_voulume = tile.getBoundingVolume();
-                Cesium3DTilesSelection::TileRenderContent* renderContent = tile.getContent().getRenderContent();
-                CesiumGltf::Model model = renderContent->getModel();
-                dragon::CesiumHelper::B3DMExtensions extension;
-                auto tmp = dragon::CesiumHelper::createMesh(model, extension);
-                auto t = std::get<CesiumGeometry::BoundingSphere>(bouding_tile_voulume); 
-
-                std::shared_ptr<threepp::Mesh> orientedBoundingBox = dragon::CesiumHelper::createOrientedBoundingBox(bouding_tile_voulume, root_tile_id);
-                extension.rtcCenter = t.getCenter(); 
-                if(orientedBoundingBox) orientedBoundingBox->name = tile_str_id;
-
-                if (extension.hasRTC)
-                {
-                    const CesiumGeospatial::Ellipsoid& ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
-                    std::optional<glm::dvec3> wgs84Rtc = dragon::CesiumHelper::ecefToWgs84(extension.rtcCenter);
-                    auto tile = Convert::wgs84ToLocalInTile(wgs84Rtc.value().x, wgs84Rtc.value().y, root_tile_id.x, root_tile_id.y); 
-                    threepp::Box3 box;
-                    box.setFromObject(*tmp);
-                    auto center = box.getCenter(); 
-                    glm::dvec3 dcenter = glm::dvec3(center.x, center.y, center.z);
-
-                    glm::dmat4 matrix_transform(1.0);
-                    glm::dmat4 translateToOriginMatrix = glm::translate(glm::dmat4(1.0), -dcenter);
-
-                    glm::dvec3 oZ_ecef = glm::normalize(ellipsoid.geodeticSurfaceNormal(extension.rtcCenter)); // Up
-                    glm::dvec3 oX_ecef = glm::normalize(glm::cross(glm::dvec3(0, 0, 1), oZ_ecef));           // East
-                    glm::dvec3 oY_ecef = glm::cross(oZ_ecef, oX_ecef);                                       // North
-
-                    // 3 vector target trên Mercator
-                    glm::dvec3 oX_mercator = glm::dvec3(1, 0, 0);
-                    glm::dvec3 oY_mercator = glm::dvec3(0, 1, 0);
-                    glm::dvec3 oZ_mercator = glm::dvec3(0, 0, 1);
-
-                    // TÍNH CÁC GÓC giữa từng cặp vector:
-
-                    // Góc giữa X_ecef và X_mercator  
-                    double angle_X = std::acos(glm::clamp(glm::dot(oX_ecef, oX_mercator), -1.0, 1.0));
-                    double angle_X_degrees = glm::degrees(angle_X);
-
-                    // Góc giữa Y_ecef và Y_mercator
-                    double angle_Y = std::acos(glm::clamp(glm::dot(oY_ecef, oY_mercator), -1.0, 1.0));
-                    double angle_Y_degrees = glm::degrees(angle_Y);
-
-                    // Góc giữa Z_ecef và Z_mercator
-                    double angle_Z = std::acos(glm::clamp(glm::dot(oZ_ecef, oZ_mercator), -1.0, 1.0));
-                    double angle_Z_degrees = glm::degrees(angle_Z);
-
-                    glm::dmat3 ecefMatrix = glm::dmat3(oX_ecef, oY_ecef, oZ_ecef);
-                    glm::dmat3 rotationMatrix = glm::transpose(ecefMatrix);
-                    glm::dquat q1 = glm::quat_cast(rotationMatrix);
-
-                    // HOẶC tính góc Euler (roll, pitch, yaw)
-                    glm::dvec3 eulerAngles = glm::eulerAngles(q1);
-                    glm::dmat4 matrixRotate(1.0); 
-
-                    if (eulerAngles.z != 0.0) {
-                        matrixRotate = glm::rotate(matrixRotate, eulerAngles.z, glm::dvec3(0.0, 0.0, 1.0));
-                    }
-                    if (eulerAngles.y != 0.0) {
-                        matrixRotate = glm::rotate(matrixRotate, eulerAngles.y, glm::dvec3(0.0, 1.0, 0.0));
-                    }
-                    if (eulerAngles.x != 0.0) {
-                        matrixRotate = glm::rotate(matrixRotate, eulerAngles.x, glm::dvec3(1.0, 0.0, 0.0));
-                    }
-
-                    double metersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84Rtc.value().y);
-                    double scaleZ = 1 / metersPerExtentUnit;
-
-                    glm::dmat4 scaleMatrix = glm::scale(glm::dmat4(1.0), glm::dvec3(1.0 * metersPerExtentUnit,
-                        -1.0 * metersPerExtentUnit,
-                        1.0));
-
-                    glm::dmat4 translateBackMatrix = glm::translate(glm::dmat4(1.0), glm::dvec3(tile.localX,
-                        tile.localY,
-                        wgs84Rtc.value().z));
-
-
-                    matrix_transform = translateBackMatrix * scaleMatrix * matrixRotate * CesiumGeometry::Transforms::Y_UP_TO_Z_UP * translateToOriginMatrix; 
-
-                    threepp::Matrix4 tmat;
-                    for (int col = 0; col < 4; ++col) {
-                        for (int row = 0; row < 4; ++row) {
-                            tmat.elements[col * 4 + row] = static_cast<float>(matrix_transform[col][row]);
-                        }
-                    }
-
-                    tmp->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
-                        child.geometry()->applyMatrix4(tmat);
-                        child.geometry()->computeBoundingBox();
-                        child.geometry()->computeBoundingSphere();
-                        child.geometry()->computeVertexNormals();
-                        });
-              /*      threepp::Box3 box_; 
-                    box_.setFromObject(*tmp); 
-                    auto min = box_.min(); 
-                    tmp->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
-                        child.geometry()->translate(0, 0, -min.z); 
-                        child.geometry()->computeBoundingBox();
-                        child.geometry()->computeBoundingSphere();
-                        child.geometry()->computeVertexNormals();
-                        });*/
-                    tmp->matrixAutoUpdate = false;
-                }
-                //scene->add(orientedBoundingBox);
-                scene->add(tmp); 
-                t_count++; 
+                context.groupResourceCache->insert({
+                    model_tile->name,
+                    model_tile
+                    });
+                context.scene->add(model_tile);
             }
             delete loadThreadResult;
         }
@@ -159,5 +60,126 @@ namespace Cesium3DTilesSelection
                 reinterpret_cast<AllocationResult*>(pLoadThreadResult);
             delete loadThreadResult;
         }
+    }
+    std::shared_ptr<threepp::Group> MaplibrePrepareRendererResource::createGroupThreeppFromModel(Cesium3DTilesSelection::Tile& tile)
+    {
+        std::string tile_str_id = std::get<std::string>(tile.getTileID());
+        Cesium3DTilesSelection::BoundingVolume boundingVolume = tile.getBoundingVolume();
+        Cesium3DTilesSelection::TileRenderContent* renderContent = tile.getContent().getRenderContent();
+        CesiumGltf::Model gltf_model = renderContent->getModel();
+        dragon::CesiumHelper::B3DMExtensions b3dm_extension;
+        glm::dvec3 center_volume = dragon::CesiumHelper::getCenterBoundingVolume(boundingVolume);
+        auto model_tile = dragon::CesiumHelper::createMesh(gltf_model, b3dm_extension);
+        if (!b3dm_extension.hasRTC)
+            return nullptr;
+        threepp::Box3 box;
+        box.setFromObject(*model_tile);
+        auto center = box.getCenter();
+        auto model_size = box.getSize(); 
+        glm::dvec3 dcenter = glm::dvec3(center.x, center.y, center.z);
+        const CesiumGeospatial::Ellipsoid& ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
+        std::optional<glm::dvec3> wgs84Rtc = dragon::CesiumHelper::ecefToWgs84(center_volume);
+        std::optional<glm::dvec3> wgs84Rtc_box = dragon::CesiumHelper::ecefToWgs84(center_volume);
+        auto mecator_tile = Convert::wgs84ToLocalInTile(wgs84Rtc.value().x, wgs84Rtc.value().y, context.root_tile_id.x,
+            context.root_tile_id.y);
+        auto mecator_box = Convert::wgs84ToLocalInTile(wgs84Rtc_box.value().x, wgs84Rtc_box.value().y, context.root_tile_id.x,
+            context.root_tile_id.y);
+
+
+        glm::dmat4 matrix_transform(1.0);
+        glm::dmat4 translateToOriginMatrix = glm::translate(glm::dmat4(1.0), -dcenter);
+        glm::dmat4 translateBackMatrix = glm::translate(glm::dmat4(1.0), dcenter);
+
+        glm::dvec3 oZ_ecef = glm::normalize(ellipsoid.geodeticSurfaceNormal(center_volume)); // Up
+        glm::dvec3 oX_ecef = glm::normalize(glm::cross(glm::dvec3(0, 0, 1), oZ_ecef));           // East
+        glm::dvec3 oY_ecef = glm::cross(oZ_ecef, oX_ecef);                                       // North
+
+        // 3 vector target trên Mercator
+        glm::dvec3 oX_mercator = glm::dvec3(1, 0, 0);
+        glm::dvec3 oY_mercator = glm::dvec3(0, 1, 0);
+        glm::dvec3 oZ_mercator = glm::dvec3(0, 0, 1);
+
+        // TÍNH CÁC GÓC giữa từng cặp vector:
+
+        // Góc giữa X_ecef và X_mercator  
+        double angle_X = std::acos(glm::clamp(glm::dot(oX_ecef, oX_mercator), -1.0, 1.0));
+        double angle_X_degrees = glm::degrees(angle_X);
+
+        // Góc giữa Y_ecef và Y_mercator
+        double angle_Y = std::acos(glm::clamp(glm::dot(oY_ecef, oY_mercator), -1.0, 1.0));
+        double angle_Y_degrees = glm::degrees(angle_Y);
+
+        // Góc giữa Z_ecef và Z_mercator
+        double angle_Z = std::acos(glm::clamp(glm::dot(oZ_ecef, oZ_mercator), -1.0, 1.0));
+        double angle_Z_degrees = glm::degrees(angle_Z);
+
+        glm::dmat3 ecefMatrix = glm::dmat3(oX_ecef, oY_ecef, oZ_ecef);
+        glm::dmat3 rotationMatrix = glm::transpose(ecefMatrix);
+        glm::dquat q1 = glm::quat_cast(rotationMatrix);
+        glm::dmat4 matrixRotate(1.0);
+        matrixRotate = glm::toMat4(q1); 
+        //// HOẶC tính góc Euler (roll, pitch, yaw)
+        //glm::dvec3 eulerAngles = glm::eulerAngles(q1);
+        //glm::dmat4 matrixRotate(1.0);
+
+        //if (eulerAngles.z != 0.0) {
+        //    matrixRotate = glm::rotate(matrixRotate, eulerAngles.z, glm::dvec3(0.0, 0.0, 1.0));
+        //}
+        //if (eulerAngles.y != 0.0) {
+        //    matrixRotate = glm::rotate(matrixRotate, eulerAngles.y, glm::dvec3(0.0, 1.0, 0.0));
+        //}
+        //if (eulerAngles.x != 0.0) {
+        //    matrixRotate = glm::rotate(matrixRotate, eulerAngles.x, glm::dvec3(1.0, 0.0, 0.0));
+        //}
+
+        double metersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84Rtc.value().y);
+        double scaleZ = 1 / metersPerExtentUnit;
+
+        glm::dmat4 scaleMatrix = glm::scale(glm::dmat4(1.0), glm::dvec3(1.0 * metersPerExtentUnit,
+            -1.0 * metersPerExtentUnit,
+            1.0));
+
+        matrix_transform = translateBackMatrix * scaleMatrix * matrixRotate * CesiumGeometry::Transforms::Y_UP_TO_Z_UP * translateToOriginMatrix;
+
+        threepp::Matrix4 tmat;
+        for (int col = 0; col < 4; ++col) {
+            for (int row = 0; row < 4; ++row) {
+                tmat.elements[col * 4 + row] = static_cast<float>(matrix_transform[col][row]);
+            }
+        }
+
+        model_tile->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
+            child.geometry()->applyMatrix4(tmat);
+            child.geometry()->computeBoundingBox();
+            child.geometry()->computeBoundingSphere();
+            child.geometry()->computeVertexNormals();
+            });
+        
+        box.setFromObject(*model_tile); 
+        auto box_center = box.getCenter(); 
+        auto b_size = box.getSize(); 
+        glm::dvec3 new_target = glm::dvec3(mecator_tile.localX,mecator_tile.localY,wgs84Rtc.value().z);
+        glm::dvec3 finalTranslation = new_target - glm::dvec3(glm::dvec3(box_center.x, box_center.y, box_center.z));
+        glm::dmat4 finalTranslateMatrix = glm::translate(glm::dmat4(1.0), finalTranslation);
+
+        for (int col = 0; col < 4; ++col) {
+            for (int row = 0; row < 4; ++row) {
+                tmat.elements[col * 4 + row] = static_cast<float>(finalTranslateMatrix[col][row]);
+            }
+        }
+
+        model_tile->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
+            child.geometry()->applyMatrix4(tmat);
+            child.geometry()->computeBoundingBox();
+            child.geometry()->computeBoundingSphere();
+            child.geometry()->computeVertexNormals();
+            });
+
+        box.setFromObject(*model_tile);
+        box_center = box.getCenter();
+
+        model_tile->matrixAutoUpdate = false;
+        model_tile->name = tile_str_id; 
+        return model_tile; 
     }
 }

@@ -343,10 +343,6 @@ namespace dragon
 				{
 					if (m_Backend->m_pitching)
 					{
-						auto lat = m_Map->getFreeCameraOptions().getLocation().value().location.latitude();
-						auto lon = m_Map->getFreeCameraOptions().getLocation().value().location.longitude();
-						auto alt = m_Map->getFreeCameraOptions().getLocation().value().altitude;
-						std::cout << std::format("lat : {}, lon : {}, altitude : {}", lat, lon, alt) << std::endl;
 						m_Backend->m_Map->pitchBy(dy / 2.0);
 					}
 				}

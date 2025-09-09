@@ -39,56 +39,11 @@
 #include "TilesetJsonLoader.h"
 #include "core/utils/CesiumHelper.hpp"
 #include "core/convert/Tile.hpp"
-static void saveMatrixToFile(const glm::dmat4& m, const std::string& filename) {
-	std::ofstream out(filename);
-	if (!out.is_open()) {
-		std::cerr << "Không mở được file: " << filename << std::endl;
-		return;
-	}
-
-	const double* ptr = glm::value_ptr(m); // Lấy con trỏ tới data
-	for (int i = 0; i < 16; i++) {
-		out << ptr[i];
-		if (i < 15) out << " ";
-	}
-	out << std::endl;
-
-	out.close();
-	std::cout << "Đã ghi ma trận vào file " << filename << std::endl;
-}
-
-static void printMatrix(const glm::dmat4& M) {
-	const double* p = glm::value_ptr(M); // lấy pointer tới 16 phần tử (column-major)
-	std::cout << std::fixed << std::setprecision(12);
-	for (int i = 0; i < 16; ++i) {
-		std::cout << p[i];
-		if (i != 15) std::cout << ",";
-	}
-	std::cout << std::endl;
-}
 
 CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 {
 	auto lambda = [&](Interface& interface) {
 		Cesium3DTilesContent::registerAllTileContentTypes();
-		double rw = -1.3197209591796106;
-		double rs = 0.6988424218;
-		double re = -1.3196390408203893;
-		double rn = 0.6989055782;
-		double mh = 0;
-		double maxh = 88;
-
-		double ww = CesiumUtility::Math::radiansToDegrees(rw);
-		double ws = CesiumUtility::Math::radiansToDegrees(rs);
-		double we = CesiumUtility::Math::radiansToDegrees(re);
-		double wn = CesiumUtility::Math::radiansToDegrees(rn);
-
-		double center_test_lon = (ww + we) * 0.5f;
-		double center_test_lat = (ws + wn) * 0.5f;
-
-		glm::dvec3 ecef = dragon::CesiumHelper::wgs84ToEcef(center_test_lon, center_test_lat, 0.0);
-		glm::dmat4 enuMatrix = CesiumGeospatial::GlobeTransforms::eastNorthUpToFixedFrame(ecef);
-		printMatrix(enuMatrix);
 		mockAssetAccessor = std::make_shared<CesiumNativeTests::SimpleAssetAccessor>();
 		prepareRendererResource = std::make_shared<Cesium3DTilesSelection::MaplibrePrepareRendererResource>();
 		tilesetExternals = std::make_shared<Cesium3DTilesSelection::TilesetExternals>(
@@ -97,7 +52,7 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 			CesiumAsync::AsyncSystem(std::make_shared<CesiumNativeTests::ThreadTaskProcessor>()),
 			nullptr
 		);
-		std::string path_tileset{ "C:/Users/ntlon/Downloads/quan_1_ab_tower/quan_1_ab_tower/root.json" };
+		std::string path_tileset{ "C:/Users/vbd/Downloads/quan_1_ab_tower/quan_1_ab_tower/root.json" };
 		Cesium3DTilesSelection::TilesetOptions options;
 		options.maximumScreenSpaceError = 16.0;
 		tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
@@ -128,15 +83,13 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 					auto impl = ptrDrawableCustom->getImpl();
 					if (impl->scene)
 					{
-						prepareRendererResource->scene = impl->scene.get();
 						auto& tile = ptrDrawable->getTileID();
-						prepareRendererResource->root_tile_id = tile.value().canonical; 
+						prepareRendererResource->context = { impl->scene.get(),&groupResourceCache,tile.value().canonical }; 
 						return; 
 					}
 				}
 			}});
 	}; 
-
 }
 
 CesiumDrawableStyleLayerHost::~CesiumDrawableStyleLayerHost()
@@ -210,17 +163,29 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 			}
 		}
 
-		for (auto& tile : result.tilesToRenderThisFrame)
-		{
-			if (tile->getState() == Cesium3DTilesSelection::TileLoadState::Done)
+		auto callback_render = [&](Cesium3DTilesSelection::ViewUpdateResult& result) {
+			std::unordered_set<std::string> tile_show; 
+			for (auto& tile : result.tilesToRenderThisFrame)
 			{
-				const Cesium3DTilesSelection::BoundingVolume& bounding_voulume = tile->getBoundingVolume();
-				glm::dvec3 cecf_center = dragon::CesiumHelper::getCenterBoundingVolume(bounding_voulume);
-				std::optional<glm::dvec3> wgs84_center = dragon::CesiumHelper::ecefToWgs84(cecf_center);
-				double ScalemetersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84_center.value().y);
-				auto scale = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84_center.value().y);
+				if (tile->getState() == Cesium3DTilesSelection::TileLoadState::Done)
+				{
+					std::string tile_str_id = std::get<std::string>(tile->getTileID());
+					std::cout << std::format("tile show : {}", tile_str_id) << std::endl; 
+					tile_show.insert({ tile_str_id }); 
+				}
 			}
-		}
+			for (auto&[id,resource] : groupResourceCache)
+			{
+				if (tile_show.count(id) != 0)
+				{
+					resource->visible = true;
+				}
+				else
+					resource->visible = false; 
+			}
+		}; 
+
+		callback_render(result); 
 	}
 }
 
