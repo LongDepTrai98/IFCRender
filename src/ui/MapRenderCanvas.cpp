@@ -104,7 +104,7 @@ namespace dragon
 				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
 					identifier, std::make_unique<CesiumDrawableStyleLayerHost>()));
 				m_Map->jumpTo(mbgl::CameraOptions()
-					.withCenter(mbgl::LatLng{ 10.770091878555718, 106.69353758860171 })
+					.withCenter(mbgl::LatLng{ 10.759637476519089, 106.69353758860171 })
 					.withZoom(16)
 					.withBearing(0.0)
 					.withPitch(0.0));

@@ -52,9 +52,12 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 			CesiumAsync::AsyncSystem(std::make_shared<CesiumNativeTests::ThreadTaskProcessor>()),
 			nullptr
 		);
-		std::string path_tileset{ "C:/Users/vbd/Downloads/quan_1_ab_tower/quan_1_ab_tower/root.json" };
+		auto t = dragon::CesiumHelper::ecefToWgs84(glm::dvec3(-1800081.6336563815,
+			6002674.4507558359,
+			1182903.2896941833)); 
+		std::string path_tileset{ "C:/Users/vbd/Downloads/3dtiles/root.json" };
 		Cesium3DTilesSelection::TilesetOptions options;
-		options.maximumScreenSpaceError = 1.0;
+		options.maximumScreenSpaceError = 16.0;
 		tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
 			path_tileset,
 			options);
@@ -174,7 +177,13 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 				if (tile->getState() == Cesium3DTilesSelection::TileLoadState::Done)
 				{
 					std::string tile_str_id = std::get<std::string>(tile->getTileID());
-					tile_show.insert({ tile_str_id }); 
+					const Cesium3DTilesSelection::TileRenderContent* renderContent = tile->getContent().getRenderContent();
+					if (renderContent == nullptr) return;
+					if (renderContent->getRenderResources())
+					{
+						std::string* model_tile_id = reinterpret_cast<std::string*>(renderContent->getRenderResources());
+						tile_show.insert({ tile_str_id });
+					}
 				}
 			}
 			for (auto&[id,resource] : groupResourceCache)

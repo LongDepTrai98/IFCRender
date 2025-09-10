@@ -109,6 +109,8 @@ public:
       [](const TileLoadResult& /*result*/) {};
 
   std::shared_ptr<threepp::Group> createGroupThreeppFromModel(Cesium3DTilesSelection::Tile& tile);
+  std::shared_ptr<threepp::Group> createGroupThreeppFromModel(CesiumGltf::Model& model, 
+      glm::dmat4& tile_transform);
 public: 
     std::atomic<int> t_count{ 0 }; 
     std::mutex mutexResource{};
