@@ -47,6 +47,7 @@ public:
 	std::shared_ptr<mbgl::LayerGroupBase> m_LayerGroup{ nullptr };
 	std::shared_ptr<Cesium3DTilesSelection::Tileset> tileset{ nullptr };
 	std::unique_ptr<CesiumAsync::AsyncSystem> asyncSystem{ nullptr };
+	threepp::Scene* scene{ nullptr };
 	std::unordered_map<std::string, std::shared_ptr<threepp::Group>> groupResourceCache{};
 	std::shared_ptr<Cesium3DTilesSelection::MaplibrePrepareRendererResource> prepareRendererResource{ nullptr }; 
 	std::shared_ptr<CesiumNativeTests::SimpleAssetAccessor> mockAssetAccessor{ nullptr };

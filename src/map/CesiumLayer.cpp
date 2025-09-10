@@ -57,7 +57,7 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 			1182903.2896941833)); 
 		std::string path_tileset{ "C:/Users/vbd/Downloads/3dtiles/root.json" };
 		Cesium3DTilesSelection::TilesetOptions options;
-		options.maximumScreenSpaceError = 16.0;
+		options.maximumScreenSpaceError = 4.0;
 		tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
 			path_tileset,
 			options);
@@ -87,6 +87,7 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 					if (impl->scene)
 					{
 						auto& tile = ptrDrawable->getTileID();
+						scene = impl->scene.get(); 
 						prepareRendererResource->context = { impl->scene.get(),&groupResourceCache,tile.value().canonical }; 
 						return; 
 					}
@@ -124,7 +125,7 @@ Cesium3DTilesSelection::ViewState CesiumDrawableStyleLayerHost::createViewState(
 	// Viewport và FOV
 	double aspectRatio = state.getSize().aspectRatio();
 	glm::dvec2 viewPortSize = glm::dvec2(state.getSize().width, state.getSize().height);
-	double horizontalFieldOfView =  state.getFieldOfView();
+	double horizontalFieldOfView =  CesiumUtility::Math::degreesToRadians(60);
 	double verticalFieldOfView = std::atan(std::tan(horizontalFieldOfView * 0.5) / aspectRatio) * 2.0;
 	glm::dvec3 direction = glm::normalize(ecef_center - ecef_camera_location);
 	glm::dvec3 right = glm::normalize(glm::cross(direction, worldUp)); 
@@ -170,40 +171,52 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 			}
 		}
 
-		auto callback_render = [&](Cesium3DTilesSelection::ViewUpdateResult& result) {
-			std::unordered_set<std::string> tile_show; 
-			for (auto& tile : result.tilesToRenderThisFrame)
+		auto callback_render_show = [&](Cesium3DTilesSelection::ViewUpdateResult& result) {
+			for (auto tile : result.tilesToRenderThisFrame)
 			{
-				if (tile->getState() == Cesium3DTilesSelection::TileLoadState::Done)
-				{
-					std::string tile_str_id = std::get<std::string>(tile->getTileID());
-					const Cesium3DTilesSelection::TileRenderContent* renderContent = tile->getContent().getRenderContent();
-					if (renderContent == nullptr) return;
-					if (renderContent->getRenderResources())
-					{
-						std::string* model_tile_id = reinterpret_cast<std::string*>(renderContent->getRenderResources());
-						tile_show.insert({ tile_str_id });
-					}
+				if (tile->getState() != Cesium3DTilesSelection::TileLoadState::Done) {
+					return;
 				}
-			}
-			for (auto&[id,resource] : groupResourceCache)
-			{
-				if (tile_show.count(id) != 0)
-				{
-					resource->visible = true;
-				}
-				else
-					resource->visible = false; 
+				const Cesium3DTilesSelection::TileRenderContent* renderContent = tile->getContent().getRenderContent();
+				if (renderContent == nullptr) return;
+				threepp::Object3D* model_tile = reinterpret_cast<threepp::Object3D*>(renderContent->getRenderResources());
+				if (!model_tile) break; 
+				model_tile->visible = true;
 			}
 		}; 
 
-		callback_render(result); 
+		auto callback_render_hide = [&](Cesium3DTilesSelection::ViewUpdateResult& result) {
+			for (auto tile : result.tilesFadingOut)
+			{
+				if (tile->getState() == Cesium3DTilesSelection::TileLoadState::Failed) {
+					std::string tileIdStr = Cesium3DTilesSelection::TileIdUtilities::createTileIdString(tile->getTileID());
+					spdlog::error("Failed to load tile : {}", tileIdStr);
+					return;
+				}
+				if (tile->getState() != Cesium3DTilesSelection::TileLoadState::Done) {
+					return;
+				}
+				const Cesium3DTilesSelection::TileContent& content = tile->getContent();
+				const Cesium3DTilesSelection::TileRenderContent* renderContent = content.getRenderContent();
+				if (renderContent == nullptr) {
+					return;
+				}
+				threepp::Object3D* model_tile = reinterpret_cast<threepp::Object3D*>(renderContent->getRenderResources());
+				if (!model_tile) return;
+				model_tile->visible = false;
+			}
+		};
+
+		callback_render_show(result);
+		callback_render_hide(result);
 	}
 }
 
 void CesiumDrawableStyleLayerHost::deinitialize()
 {
 }
+
+
 
 
 
