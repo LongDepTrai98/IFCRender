@@ -54,7 +54,14 @@ namespace Cesium3DTilesSelection
                 reinterpret_cast<AllocationResult*>(pMainThreadResult);
             delete mainThreadResult;
         }
-
+        std::string tile_str_id = std::get<std::string>(tile.getTileID());
+        spdlog::info("Free tile : {}", tile_str_id);
+        if (context.groupResourceCache->count(tile_str_id))
+        {
+            auto model_tile = context.groupResourceCache->at(tile_str_id); 
+            context.scene->remove(*model_tile);
+            context.groupResourceCache->erase(tile_str_id); 
+        }
         if (pLoadThreadResult) {
             AllocationResult* loadThreadResult =
                 reinterpret_cast<AllocationResult*>(pLoadThreadResult);
@@ -74,21 +81,41 @@ namespace Cesium3DTilesSelection
             return nullptr;
         threepp::Box3 box;
         box.setFromObject(*model_tile);
-        auto center = box.getCenter();
-        auto model_size = box.getSize(); 
-        glm::dvec3 dcenter = glm::dvec3(center.x, center.y, center.z);
+        glm::dvec3 local_center(box.getCenter().x,box.getCenter().y,box.getCenter().z); 
+        glm::dmat4 tile_transform = tile.getTransform(); 
+        glm::dmat4 rtc_transform(
+            glm::dvec4(1.0, 0.0, 0.0, 0.0),
+            glm::dvec4(0.0, 1.0, 0.0, 0.0),
+            glm::dvec4(0.0, 0.0, 1.0, 0.0),
+            glm::dvec4(b3dm_extension.rtcCenter.x, b3dm_extension.rtcCenter.y, b3dm_extension.rtcCenter.z, 1.0)
+        );
+        tile_transform = tile_transform * rtc_transform; 
+        auto gltfUpAxisIt = gltf_model.extras.find("gltfUpAxis");
+        if (gltfUpAxisIt == gltf_model.extras.end()) {
+            tile_transform = tile_transform * CesiumGeometry::Transforms::Y_UP_TO_Z_UP;
+        }
+        const CesiumUtility::JsonValue& gltfUpAxis = gltfUpAxisIt->second;
+        int gltfUpAxisValue = static_cast<int>(gltfUpAxis.getSafeNumberOrDefault(1));
+        if (gltfUpAxisValue == static_cast<int>(CesiumGeometry::Axis::X)) {
+            tile_transform = tile_transform * CesiumGeometry::Transforms::X_UP_TO_Z_UP;
+        }
+        else if (gltfUpAxisValue == static_cast<int>(CesiumGeometry::Axis::Y)) {
+            tile_transform = tile_transform * CesiumGeometry::Transforms::Y_UP_TO_Z_UP;
+        }
+        else if (gltfUpAxisValue == static_cast<int>(CesiumGeometry::Axis::Z)) {
+            // No transform required
+        }
+        //glm::dvec3 new_center = glm::dvec3(box.getCenter().x,box.getCenter().y,box.getCenter().z) + b3dm_extension.rtcCenter;
+        glm::dvec4 new_ecef_center = tile_transform * glm::vec4(local_center,1.0);
+        std::optional<glm::dvec3> wgs84Rtc = dragon::CesiumHelper::ecefToWgs84(glm::dvec3(new_ecef_center));
+
         const CesiumGeospatial::Ellipsoid& ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
-        std::optional<glm::dvec3> wgs84Rtc = dragon::CesiumHelper::ecefToWgs84(center_volume);
-        std::optional<glm::dvec3> wgs84Rtc_box = dragon::CesiumHelper::ecefToWgs84(center_volume);
         auto mecator_tile = Convert::wgs84ToLocalInTile(wgs84Rtc.value().x, wgs84Rtc.value().y, context.root_tile_id.x,
             context.root_tile_id.y);
-        auto mecator_box = Convert::wgs84ToLocalInTile(wgs84Rtc_box.value().x, wgs84Rtc_box.value().y, context.root_tile_id.x,
-            context.root_tile_id.y);
-
 
         glm::dmat4 matrix_transform(1.0);
-        glm::dmat4 translateToOriginMatrix = glm::translate(glm::dmat4(1.0), -dcenter);
-        glm::dmat4 translateBackMatrix = glm::translate(glm::dmat4(1.0), dcenter);
+        glm::dmat4 translateToOriginMatrix = glm::translate(glm::dmat4(1.0), -local_center);
+        glm::dmat4 translateBackMatrix = glm::translate(glm::dmat4(1.0), glm::dvec3(mecator_tile.localX,mecator_tile.localY, wgs84Rtc.value().z));
 
         glm::dvec3 oZ_ecef = glm::normalize(ellipsoid.geodeticSurfaceNormal(center_volume)); // Up
         glm::dvec3 oX_ecef = glm::normalize(glm::cross(glm::dvec3(0, 0, 1), oZ_ecef));           // East
@@ -149,34 +176,29 @@ namespace Cesium3DTilesSelection
         }
 
         model_tile->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
-            child.geometry()->applyMatrix4(tmat);
-            child.geometry()->computeBoundingBox();
-            child.geometry()->computeBoundingSphere();
-            child.geometry()->computeVertexNormals();
-            });
+            child.matrix->identity();
+            child.position.set(0, 0, 0);
+            child.rotation.set(0, 0, 0);
+            child.scale.set(1, 1, 1);
+            child.matrixAutoUpdate = false;
+        });
         
-        box.setFromObject(*model_tile); 
-        auto box_center = box.getCenter(); 
-        auto b_size = box.getSize(); 
-        glm::dvec3 new_target = glm::dvec3(mecator_tile.localX,mecator_tile.localY,wgs84Rtc.value().z);
-        glm::dvec3 finalTranslation = new_target - glm::dvec3(glm::dvec3(box_center.x, box_center.y, box_center.z));
-        glm::dmat4 finalTranslateMatrix = glm::translate(glm::dmat4(1.0), finalTranslation);
+        //box.setFromObject(*model_tile); 
+        //auto box_center = box.getCenter(); 
+        //auto b_size = box.getSize(); 
+        //glm::dvec3 new_target = glm::dvec3(mecator_tile.localX,mecator_tile.localY,wgs84Rtc.value().z);
+        //glm::dvec3 finalTranslation = new_target - glm::dvec3(glm::dvec3(box_center.x, box_center.y, box_center.z));
+        //glm::dmat4 finalTranslateMatrix = glm::translate(glm::dmat4(1.0), finalTranslation);
 
-        for (int col = 0; col < 4; ++col) {
-            for (int row = 0; row < 4; ++row) {
-                tmat.elements[col * 4 + row] = static_cast<float>(finalTranslateMatrix[col][row]);
-            }
-        }
+        //for (int col = 0; col < 4; ++col) {
+        //    for (int row = 0; row < 4; ++row) {
+        //        tmat.elements[col * 4 + row] = static_cast<float>(finalTranslateMatrix[col][row]);
+        //    }
+        //}
 
         model_tile->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
-            child.geometry()->applyMatrix4(tmat);
-            child.geometry()->computeBoundingBox();
-            child.geometry()->computeBoundingSphere();
-            child.geometry()->computeVertexNormals();
-            });
-
-        box.setFromObject(*model_tile);
-        box_center = box.getCenter();
+            child.applyMatrix4(tmat);
+         });
 
         model_tile->matrixAutoUpdate = false;
         model_tile->name = tile_str_id; 

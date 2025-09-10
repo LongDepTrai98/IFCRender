@@ -54,7 +54,7 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 		);
 		std::string path_tileset{ "C:/Users/vbd/Downloads/quan_1_ab_tower/quan_1_ab_tower/root.json" };
 		Cesium3DTilesSelection::TilesetOptions options;
-		options.maximumScreenSpaceError = 16.0;
+		options.maximumScreenSpaceError = 1.0;
 		tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
 			path_tileset,
 			options);
@@ -94,6 +94,10 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 
 CesiumDrawableStyleLayerHost::~CesiumDrawableStyleLayerHost()
 {
+	tileset.reset(); 
+	tilesetExternals.reset(); 
+	prepareRendererResource.reset(); 
+	mockAssetAccessor.reset(); 
 }
 
 void CesiumDrawableStyleLayerHost::initialize()
@@ -117,7 +121,7 @@ Cesium3DTilesSelection::ViewState CesiumDrawableStyleLayerHost::createViewState(
 	// Viewport và FOV
 	double aspectRatio = state.getSize().aspectRatio();
 	glm::dvec2 viewPortSize = glm::dvec2(state.getSize().width, state.getSize().height);
-	double horizontalFieldOfView = CesiumUtility::Math::degreesToRadians(50); /* state.getFieldOfView();*/
+	double horizontalFieldOfView =  state.getFieldOfView();
 	double verticalFieldOfView = std::atan(std::tan(horizontalFieldOfView * 0.5) / aspectRatio) * 2.0;
 	glm::dvec3 direction = glm::normalize(ecef_center - ecef_camera_location);
 	glm::dvec3 right = glm::normalize(glm::cross(direction, worldUp)); 
@@ -170,7 +174,6 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 				if (tile->getState() == Cesium3DTilesSelection::TileLoadState::Done)
 				{
 					std::string tile_str_id = std::get<std::string>(tile->getTileID());
-					std::cout << std::format("tile show : {}", tile_str_id) << std::endl; 
 					tile_show.insert({ tile_str_id }); 
 				}
 			}
