@@ -268,20 +268,6 @@ namespace dragon
 			auto threepp_mesh = threepp::Mesh::create(mergeo, mats);
 			container->add(threepp_mesh);
 		}
-
-		for (auto& buffer : gltf.buffers) {
-			buffer.cesium.data.clear();
-			buffer.cesium.data.shrink_to_fit();
-		}
-
-		// Clear image pixel data
-		for (auto& image : gltf.images) {
-			if (image.pAsset && image.pAsset->pixelData.size() > 0) {
-				image.pAsset->pixelData.clear();
-				image.pAsset->pixelData.shrink_to_fit();
-			}
-		}
-
 		// Optional: Clear other data structures if not neede
 
 		return container; 

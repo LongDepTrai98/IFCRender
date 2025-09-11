@@ -20,17 +20,18 @@ namespace Cesium3DTilesSelection
             const glm::dmat4& transform,
             const std::any& rendererOptions)
     {
-        prepareInLoadThreadTestCallback(tileLoadResult);
         CesiumGltf::Model* model_gltf = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
         if (model_gltf == nullptr)
         {
             return asyncSystem.createResolvedFuture(TileLoadResultAndRenderResources{ std::move(tileLoadResult), nullptr });
         }
-        glm::dmat4 tile_transform = transform; 
-        std::shared_ptr<threepp::Group> model_tile = createGroupThreeppFromModel(*model_gltf, tile_transform);
-        return asyncSystem.createResolvedFuture(TileLoadResultAndRenderResources{
-            std::move(tileLoadResult),
-            new PrepareResult(model_tile)});
+        return asyncSystem.createFuture<TileLoadResultAndRenderResources>([=, this](CesiumAsync::Promise<TileLoadResultAndRenderResources> p_promise) {
+            glm::dmat4 tile_transform = transform;
+            std::shared_ptr<threepp::Group> model_tile = createGroupThreeppFromModel(*model_gltf, tile_transform);
+            p_promise.resolve(TileLoadResultAndRenderResources{
+                std::move(tileLoadResult),
+                new PrepareResult(model_tile) }); 
+        }); 
     }
 
     void* MaplibrePrepareRendererResource::prepareInMainThread(
