@@ -25,8 +25,11 @@ namespace CesiumNativeTests {
         std::vector<std::byte> bytes{};
         if (r.status_code == 200)
         {
-            bytes = std::vector<std::byte>(reinterpret_cast<const std::byte*>(r.text.data()),
-                reinterpret_cast<const std::byte*>(r.text.data() + r.text.size())); 
+            if (!r.text.empty())
+            {
+                bytes = std::vector<std::byte>(reinterpret_cast<const std::byte*>(r.text.data()),
+                    reinterpret_cast<const std::byte*>(r.text.data() + r.text.size()));
+            }
         }
         std::unique_ptr<SimpleAssetResponse> pResponse;
         pResponse = std::make_unique<SimpleAssetResponse>(

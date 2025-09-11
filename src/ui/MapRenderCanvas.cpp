@@ -101,16 +101,16 @@ namespace dragon
 			const std::string identifier = "3d-model-01";
 			const auto& existingLayer = style.getLayer(identifier);
 			if (!existingLayer) {
-				std::string path_tileset{ "http://10.222.3.84:9000/3dtiles/root.json" };
-				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
-					identifier, std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset)));
+				//std::string path_tileset{ "http://10.222.3.84:9000/3dtiles/root.json" };
+				//style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
+				//	identifier, std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset)));
 
 				std::string path_tileset2{ "http://10.222.3.84:9000/chobinhdien/Cho_Binh_Dien/root.json" };
 				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
 					"3d-model-02", std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset2)));
 
 				m_Map->jumpTo(mbgl::CameraOptions()
-					.withCenter(mbgl::LatLng{ 10.759637476519089, 106.69353758860171 })
+					.withCenter(mbgl::LatLng{ 10.702674031450162, 106.60981146617425 })
 					.withZoom(16)
 					.withBearing(0.0)
 					.withPitch(0.0));
@@ -141,7 +141,7 @@ namespace dragon
 		m_Backend->setMap(m_Map.get());
 		m_Map->getStyle().loadURL(orderedStyles[5].getUrl());
 		m_Map->jumpTo(mbgl::CameraOptions()
-			.withCenter(mbgl::LatLng{ 10.770091878555718, 106.69353758860171 })
+			.withCenter(mbgl::LatLng{ 10.702674031450162, 106.60981146617425 })
 			.withZoom(16)
 			.withBearing(0.0)
 			.withPitch(0.0));

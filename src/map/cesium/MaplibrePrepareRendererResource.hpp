@@ -14,6 +14,7 @@ namespace threepp
 {
     class Scene; 
     class Group; 
+    class Object3D; 
 }
 
 namespace Cesium3DTilesSelection {
@@ -22,20 +23,18 @@ public:
     struct drawable_context
     {
         threepp::Scene* scene{ nullptr };
-        std::unordered_map<std::string, std::shared_ptr<threepp::Group>>* groupResourceCache{nullptr};
         mbgl::CanonicalTileID root_tile_id{ 0,0,0 };
     };
 
 public:
   std::atomic<size_t> totalAllocation{};
 
-  struct AllocationResult {
-    AllocationResult(std::atomic<size_t>& allocCount_)
-        : allocCount{allocCount_} {
-      ++allocCount;
+  struct PrepareResult {
+      PrepareResult(std::shared_ptr<threepp::Object3D> obj_)
+        : obj{ obj_ } {
     }
-    ~AllocationResult() noexcept { --allocCount; }
-    std::atomic<size_t>& allocCount;
+      ~PrepareResult() noexcept { obj = nullptr; }
+    std::shared_ptr<threepp::Object3D> obj;
   };
 
   ~MaplibrePrepareRendererResource() noexcept {  }
@@ -59,19 +58,19 @@ public:
   virtual void* prepareRasterInLoadThread(
       CesiumGltf::ImageAsset& image,
       const std::any& rendererOptions) override {
-    return new AllocationResult{totalAllocation};
+    return new PrepareResult{nullptr};
   }
 
   virtual void* prepareRasterInMainThread(
       CesiumRasterOverlays::RasterOverlayTile& /*rasterTile*/,
       void* pLoadThreadResult) override {
     if (pLoadThreadResult) {
-      AllocationResult* loadThreadResult =
-          reinterpret_cast<AllocationResult*>(pLoadThreadResult);
+        PrepareResult* loadThreadResult =
+          reinterpret_cast<PrepareResult*>(pLoadThreadResult);
       delete loadThreadResult;
     }
 
-    return new AllocationResult{totalAllocation};
+    return new PrepareResult{nullptr};
   }
 
   virtual void freeRaster(
@@ -79,14 +78,14 @@ public:
       void* pLoadThreadResult,
       void* pMainThreadResult) noexcept override {
     if (pMainThreadResult) {
-      AllocationResult* mainThreadResult =
-          reinterpret_cast<AllocationResult*>(pMainThreadResult);
+        PrepareResult* mainThreadResult =
+          reinterpret_cast<PrepareResult*>(pMainThreadResult);
       delete mainThreadResult;
     }
 
     if (pLoadThreadResult) {
-      AllocationResult* loadThreadResult =
-          reinterpret_cast<AllocationResult*>(pLoadThreadResult);
+        PrepareResult* loadThreadResult =
+          reinterpret_cast<PrepareResult*>(pLoadThreadResult);
       delete loadThreadResult;
     }
   }

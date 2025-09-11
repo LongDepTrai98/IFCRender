@@ -7,8 +7,10 @@
 #include <core/convert/Tile.hpp>
 #include "threepp/threepp.hpp"
 #include <core/utils/ThreeHelper.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <thread>
 namespace Cesium3DTilesSelection
 {
@@ -26,14 +28,9 @@ namespace Cesium3DTilesSelection
         }
         glm::dmat4 tile_transform = transform; 
         std::shared_ptr<threepp::Group> model_tile = createGroupThreeppFromModel(*model_gltf, tile_transform);
-        if (model_tile)
-        {
-            std::string uuid = model_tile->uuid;
-            context.groupResourceCache->insert({ model_tile->uuid,model_tile });
-        }
         return asyncSystem.createResolvedFuture(TileLoadResultAndRenderResources{
             std::move(tileLoadResult),
-            (void*)model_tile.get()});
+            new PrepareResult(model_tile)});
     }
 
     void* MaplibrePrepareRendererResource::prepareInMainThread(
@@ -41,17 +38,18 @@ namespace Cesium3DTilesSelection
         void* pLoadThreadResult){
         const Cesium3DTilesSelection::TileContent& content = tile.getContent();
         const Cesium3DTilesSelection::TileRenderContent* pRenderContent = content.getRenderContent();
-
+        std::cout << "prepare" << std::endl; 
         if (pRenderContent == nullptr) {
             return pLoadThreadResult;
         }
         if (pLoadThreadResult) {
-            spdlog::info("Prepare in main thread Tile id : {}", std::get<std::string>(tile.getTileID()));
-            spdlog::info("child size : {}", context.groupResourceCache->size());
-            threepp::Object3D* model_tile = reinterpret_cast<threepp::Object3D*>(pLoadThreadResult);
-            context.scene->add(context.groupResourceCache->at(model_tile->uuid));
+            PrepareResult* ptr_model = reinterpret_cast<PrepareResult*>(pLoadThreadResult);
+            if (ptr_model->obj)
+            {
+                context.scene->add(ptr_model->obj);
+            }
         }
-        return pLoadThreadResult; 
+        return pLoadThreadResult;
     }
 
     void MaplibrePrepareRendererResource::free(
@@ -60,13 +58,12 @@ namespace Cesium3DTilesSelection
         void* pMainThreadResult) noexcept {
         if (!pMainThreadResult)
             return; 
-        threepp::Object3D* model_tile = reinterpret_cast<threepp::Object3D*>(pMainThreadResult);
-        const std::string uuid = model_tile->uuid;
-        spdlog::info("Free tile : {}", uuid);
-        //mutexResource.lock();
-        context.scene->remove(*model_tile);
-        context.groupResourceCache->erase(uuid);
-        //mutexResource.unlock(); 
+        PrepareResult* ptr_model = reinterpret_cast<PrepareResult*>(pMainThreadResult);
+        if (ptr_model->obj)
+        {
+            context.scene->remove(*ptr_model->obj); 
+        }
+        delete pMainThreadResult; 
     }
     std::shared_ptr<threepp::Group> MaplibrePrepareRendererResource::createGroupThreeppFromModel(Cesium3DTilesSelection::Tile& tile)
     {
@@ -83,25 +80,27 @@ namespace Cesium3DTilesSelection
     {
         dragon::CesiumHelper::B3DMExtensions b3dm_extension;
         auto model_tile = dragon::CesiumHelper::createMesh(gltf_model, b3dm_extension);
-        if (!b3dm_extension.hasRTC)
+        glm::dquat quat = glm::quat_cast(glm::dmat3(tile_transform));
+        glm::dmat4 rtc_transform(1.0); 
+        if (b3dm_extension.hasRTC)
         {
-            spdlog::error("not have rtc"); 
-            return nullptr;
+            rtc_transform = glm::dmat4(
+                glm::dvec4(1.0, 0.0, 0.0, 0.0),
+                glm::dvec4(0.0, 1.0, 0.0, 0.0),
+                glm::dvec4(0.0, 0.0, 1.0, 0.0),
+                glm::dvec4(b3dm_extension.rtcCenter.x, b3dm_extension.rtcCenter.y, b3dm_extension.rtcCenter.z, 1.0)
+            );
         }
         threepp::Box3 box;
         box.setFromObject(*model_tile);
         glm::dvec3 local_center(box.getCenter().x, box.getCenter().y, box.getCenter().z);
-        glm::dmat4 rtc_transform(
-            glm::dvec4(1.0, 0.0, 0.0, 0.0),
-            glm::dvec4(0.0, 1.0, 0.0, 0.0),
-            glm::dvec4(0.0, 0.0, 1.0, 0.0),
-            glm::dvec4(b3dm_extension.rtcCenter.x, b3dm_extension.rtcCenter.y, b3dm_extension.rtcCenter.z, 1.0)
-        );
+
         tile_transform = tile_transform * rtc_transform;
         auto gltfUpAxisIt = gltf_model.extras.find("gltfUpAxis");
         if (gltfUpAxisIt == gltf_model.extras.end()) {
             tile_transform = tile_transform * CesiumGeometry::Transforms::Y_UP_TO_Z_UP;
         }
+
         const CesiumUtility::JsonValue& gltfUpAxis = gltfUpAxisIt->second;
         int gltfUpAxisValue = static_cast<int>(gltfUpAxis.getSafeNumberOrDefault(1));
         if (gltfUpAxisValue == static_cast<int>(CesiumGeometry::Axis::X)) {
@@ -113,6 +112,7 @@ namespace Cesium3DTilesSelection
         else if (gltfUpAxisValue == static_cast<int>(CesiumGeometry::Axis::Z)) {
             // No transform required
         }
+
         //glm::dvec3 new_center = glm::dvec3(box.getCenter().x,box.getCenter().y,box.getCenter().z) + b3dm_extension.rtcCenter;
         glm::dvec4 new_ecef_center = tile_transform * glm::vec4(local_center, 1.0);
         std::optional<glm::dvec3> wgs84Rtc = dragon::CesiumHelper::ecefToWgs84(glm::dvec3(new_ecef_center));
@@ -153,6 +153,7 @@ namespace Cesium3DTilesSelection
         glm::dquat q1 = glm::quat_cast(rotationMatrix);
         glm::dmat4 matrixRotate(1.0);
         matrixRotate = glm::toMat4(q1);
+        matrixRotate = matrixRotate * glm::toMat4(quat); 
         //// HOẶC tính góc Euler (roll, pitch, yaw)
         //glm::dvec3 eulerAngles = glm::eulerAngles(q1);
         //glm::dmat4 matrixRotate(1.0);
@@ -189,8 +190,6 @@ namespace Cesium3DTilesSelection
             child.rotation.set(0, 0, 0);
             child.scale.set(1, 1, 1);
             child.matrixAutoUpdate = false;
-            child.geometry()->boundingBox = std::nullopt; 
-            child.geometry()->boundingSphere = std::nullopt; 
             child.applyMatrix4(tmat);
         });
 

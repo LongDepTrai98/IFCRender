@@ -61,6 +61,7 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tile
 			options);
 		isLoadedTileset = true; 
 		m_LayerGroup = interface.getLayerGroupBase();
+		tileset->loadedTiles(); 
 	}; 
 	fnc_queue.push(lambda); 
 
@@ -86,7 +87,7 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tile
 					{
 						auto& tile = ptrDrawable->getTileID();
 						scene = impl->scene.get(); 
-						prepareRendererResource->context = { impl->scene.get(),&groupResourceCache,tile.value().canonical }; 
+						prepareRendererResource->context = { impl->scene.get(),tile.value().canonical }; 
 						return; 
 					}
 				}
@@ -150,25 +151,25 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 		}
 	}
 
-	if (isLoadedTileset)
+
+	auto& state = interface.state;
+	Cesium3DTilesSelection::ViewState viewstate = createViewState(interface);
+	const Cesium3DTilesSelection::ViewUpdateResult& result = tileset->updateView(
+		{ viewstate }
+	);
+
+	if (fnc_create_drawable)
 	{
-		auto& state = interface.state;
-		Cesium3DTilesSelection::ViewState viewstate = createViewState(interface);
-		const Cesium3DTilesSelection::ViewUpdateResult& result = tileset->updateView(
-			 { viewstate }
-		);
-		if (fnc_create_drawable)
+		if (auto tile_root = tileset->getRootTile())
 		{
-			if (auto tile_root = tileset->getRootTile())
-			{
-				//hard code get center
-
-				const Cesium3DTilesSelection::BoundingVolume& BoundingVolume = tile_root->getBoundingVolume();
-				fnc_create_drawable(interface, BoundingVolume);
-				fnc_create_drawable = nullptr;
-			}
+			//hard code get center
+			const Cesium3DTilesSelection::BoundingVolume& BoundingVolume = tile_root->getBoundingVolume();
+			fnc_create_drawable(interface, BoundingVolume);
+			fnc_create_drawable = nullptr;
 		}
-
+	}
+	else
+	{
 		auto callback_render_show = [&](const Cesium3DTilesSelection::ViewUpdateResult& result) {
 			for (auto& tile : result.tilesToRenderThisFrame)
 			{
@@ -177,12 +178,13 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 				}
 				const Cesium3DTilesSelection::TileRenderContent* renderContent = tile->getContent().getRenderContent();
 				if (renderContent == nullptr) return;
-				threepp::Object3D* model_tile = reinterpret_cast<threepp::Object3D*>(renderContent->getRenderResources());
-				if (!model_tile) break; 
-				model_tile->visible = true;
+				Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareResult* ptr_model = reinterpret_cast<Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareResult*>(renderContent->getRenderResources());
+				if (!ptr_model) break;
+				if(ptr_model->obj)
+					ptr_model->obj->visible = true;
 			}
 			//spdlog::info("Tile render this frame : {}", result.tilesToRenderThisFrame.size()); 
-		}; 
+			};
 
 		auto callback_render_hide = [&](const Cesium3DTilesSelection::ViewUpdateResult& result) {
 			for (auto& tile : result.tilesFadingOut)
@@ -200,20 +202,14 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 				if (renderContent == nullptr) {
 					return;
 				}
-				threepp::Object3D* model_tile = reinterpret_cast<threepp::Object3D*>(renderContent->getRenderResources());
-				if (!model_tile) return;
-				model_tile->visible = false;
-				//spdlog::info("Tile hide this frame : {}", result.tilesFadingOut.size());
+				Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareResult* ptr_model = reinterpret_cast<Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareResult*>(renderContent->getRenderResources());
+				if (!ptr_model) break;
+				if (ptr_model->obj)
+					ptr_model->obj->visible = false;
 			}
-		};
-		if (scene)
-		{
-			//scene->traverse([](threepp::Object3D& obj) {
-			//	obj.visible = false;
-			//	});
+			};
 			callback_render_show(result);
 			callback_render_hide(result);
-		}
 	}
 }
 
