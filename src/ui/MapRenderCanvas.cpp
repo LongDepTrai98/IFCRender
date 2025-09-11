@@ -101,9 +101,9 @@ namespace dragon
 			const std::string identifier = "3d-model-01";
 			const auto& existingLayer = style.getLayer(identifier);
 			if (!existingLayer) {
-				//std::string path_tileset{ "http://10.222.3.84:9000/3dtiles/root.json" };
-				//style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
-				//	identifier, std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset)));
+				std::string path_tileset{ "http://10.222.3.84:9000/3dtiles/root.json" };
+				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
+					identifier, std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset)));
 
 				std::string path_tileset2{ "http://10.222.3.84:9000/chobinhdien/Cho_Binh_Dien/root.json" };
 				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(

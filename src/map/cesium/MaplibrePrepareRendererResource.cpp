@@ -64,6 +64,7 @@ namespace Cesium3DTilesSelection
             context.scene->remove(*ptr_model->obj); 
         }
         delete pMainThreadResult; 
+        pMainThreadResult = nullptr; 
     }
     std::shared_ptr<threepp::Group> MaplibrePrepareRendererResource::createGroupThreeppFromModel(Cesium3DTilesSelection::Tile& tile)
     {
