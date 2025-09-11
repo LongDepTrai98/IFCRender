@@ -98,11 +98,17 @@ namespace dragon
 		{
 			MLN_TRACE_FUNC();
 			mbgl::style::Style& style = m_Map->getStyle();
-			const std::string identifier = "Test-Cesium";
+			const std::string identifier = "3d-model-01";
 			const auto& existingLayer = style.getLayer(identifier);
 			if (!existingLayer) {
+				std::string path_tileset{ "http://10.222.3.84:9000/3dtiles/root.json" };
 				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
-					identifier, std::make_unique<CesiumDrawableStyleLayerHost>()));
+					identifier, std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset)));
+
+				std::string path_tileset2{ "http://10.222.3.84:9000/chobinhdien/Cho_Binh_Dien/root.json" };
+				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
+					"3d-model-02", std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset2)));
+
 				m_Map->jumpTo(mbgl::CameraOptions()
 					.withCenter(mbgl::LatLng{ 10.759637476519089, 106.69353758860171 })
 					.withZoom(16)

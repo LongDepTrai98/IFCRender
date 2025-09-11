@@ -40,9 +40,9 @@
 #include "core/utils/CesiumHelper.hpp"
 #include "core/convert/Tile.hpp"
 
-CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
+CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tileset)
 {
-	auto lambda = [&](Interface& interface) {
+	auto lambda = [&, path_tileset](Interface& interface) {
 		Cesium3DTilesContent::registerAllTileContentTypes();
 		mockAssetAccessor = std::make_shared<CesiumNativeTests::MaplibreAssetAccessor>();
 		prepareRendererResource = std::make_shared<Cesium3DTilesSelection::MaplibrePrepareRendererResource>();
@@ -55,9 +55,7 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost()
 		auto t = dragon::CesiumHelper::ecefToWgs84(glm::dvec3(-1800081.6336563815,
 			6002674.4507558359,
 			1182903.2896941833)); 
-		std::string path_tileset{ "http://10.222.3.84:9000/3dtiles/root.json"};
 		Cesium3DTilesSelection::TilesetOptions options;
-		options.maximumScreenSpaceError = 8.0;
 		tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
 			path_tileset,
 			options);

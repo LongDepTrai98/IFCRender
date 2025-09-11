@@ -33,7 +33,7 @@ namespace threepp
 class CesiumDrawableStyleLayerHost : public mbgl::style::CustomDrawableLayerHost
 {
 public:
-	CesiumDrawableStyleLayerHost(); 
+	CesiumDrawableStyleLayerHost(std::string path_tileset);
 	~CesiumDrawableStyleLayerHost(); 
 public: 
 	void initialize() override;

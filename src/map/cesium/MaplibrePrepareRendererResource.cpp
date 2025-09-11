@@ -26,8 +26,11 @@ namespace Cesium3DTilesSelection
         }
         glm::dmat4 tile_transform = transform; 
         std::shared_ptr<threepp::Group> model_tile = createGroupThreeppFromModel(*model_gltf, tile_transform);
-        std::string uuid = model_tile->uuid;
-        context.groupResourceCache->insert({ model_tile->uuid,model_tile });
+        if (model_tile)
+        {
+            std::string uuid = model_tile->uuid;
+            context.groupResourceCache->insert({ model_tile->uuid,model_tile });
+        }
         return asyncSystem.createResolvedFuture(TileLoadResultAndRenderResources{
             std::move(tileLoadResult),
             (void*)model_tile.get()});
@@ -81,7 +84,10 @@ namespace Cesium3DTilesSelection
         dragon::CesiumHelper::B3DMExtensions b3dm_extension;
         auto model_tile = dragon::CesiumHelper::createMesh(gltf_model, b3dm_extension);
         if (!b3dm_extension.hasRTC)
+        {
+            spdlog::error("not have rtc"); 
             return nullptr;
+        }
         threepp::Box3 box;
         box.setFromObject(*model_tile);
         glm::dvec3 local_center(box.getCenter().x, box.getCenter().y, box.getCenter().z);
