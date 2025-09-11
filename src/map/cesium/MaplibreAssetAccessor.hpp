@@ -28,6 +28,7 @@ public:
             const std::string& url,
             const std::vector<THeader>& headers,
             const std::span<const std::byte>&) override; 
+    CesiumAsync::Future<std::shared_ptr<CesiumAsync::IAssetRequest>> process_request(std::string method, const CesiumAsync::AsyncSystem& asyncSystem, const std::string& url, const std::vector<THeader>& headers /*= {}*/);
 
   virtual void tick() noexcept override; 
 
