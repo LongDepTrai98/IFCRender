@@ -7,6 +7,7 @@
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <CesiumGeospatial/LocalHorizontalCoordinateSystem.h>
 #include <CesiumGltf/ExtensionCesiumRTC.h>
+#include <CesiumGltf/BufferCesium.h>
 #include <mbgl/util/projection.hpp>
 #include <mbgl/util/constants.hpp>
 #include <cmath>
@@ -168,12 +169,13 @@ namespace dragon
 					if (positionIt->second >= 0)
 					{
 						const CesiumGltf::Accessor& positionAccessor = gltf.accessors[size_t(positionIt->second)];
-						const CesiumGltf::BufferView& positionBufferView = gltf.bufferViews[size_t(positionAccessor.bufferView)];
-						const auto& posBuffer = gltf.buffers[positionBufferView.buffer];
+						CesiumGltf::BufferView& positionBufferView = gltf.bufferViews[size_t(positionAccessor.bufferView)];
+						auto& posBuffer = gltf.buffers[positionBufferView.buffer];
 						size_t posOffset = positionBufferView.byteOffset + positionAccessor.byteOffset;
 						const float* posData = reinterpret_cast<const float*>(posBuffer.cesium.data.data() + posOffset);
 						size_t posCount = positionAccessor.count;
 						geometry->setAttribute("position", threepp::FloatBufferAttribute::create(std::vector<float>(posData, posData + posCount * 3), 3));
+					
 					}
 				}
 				if (primitive.attributes.find("NORMAL") != primitive.attributes.end())

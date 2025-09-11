@@ -19,13 +19,15 @@ namespace Cesium3DTilesSelection
             const std::any& rendererOptions)
     {
         prepareInLoadThreadTestCallback(tileLoadResult);
-        CesiumGltf::Model model_gltf = std::get<CesiumGltf::Model>(tileLoadResult.contentKind);
+        CesiumGltf::Model* model_gltf = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
+        if (model_gltf == nullptr)
+        {
+            return asyncSystem.createResolvedFuture(TileLoadResultAndRenderResources{ std::move(tileLoadResult), nullptr });
+        }
         glm::dmat4 tile_transform = transform; 
-        mutexResource.lock(); 
-        std::shared_ptr<threepp::Group> model_tile = createGroupThreeppFromModel(model_gltf,tile_transform);
-        std::string uuid = model_tile->uuid; 
+        std::shared_ptr<threepp::Group> model_tile = createGroupThreeppFromModel(*model_gltf, tile_transform);
+        std::string uuid = model_tile->uuid;
         context.groupResourceCache->insert({ model_tile->uuid,model_tile });
-        mutexResource.unlock(); 
         return asyncSystem.createResolvedFuture(TileLoadResultAndRenderResources{
             std::move(tileLoadResult),
             (void*)model_tile.get()});
@@ -42,11 +44,9 @@ namespace Cesium3DTilesSelection
         }
         if (pLoadThreadResult) {
             spdlog::info("Prepare in main thread Tile id : {}", std::get<std::string>(tile.getTileID()));
+            spdlog::info("child size : {}", context.groupResourceCache->size());
             threepp::Object3D* model_tile = reinterpret_cast<threepp::Object3D*>(pLoadThreadResult);
-            mutexResource.lock(); 
-            std::string tile_str_id = std::get<std::string>(tile.getTileID());
             context.scene->add(context.groupResourceCache->at(model_tile->uuid));
-            mutexResource.unlock(); 
         }
         return pLoadThreadResult; 
     }
@@ -60,10 +60,10 @@ namespace Cesium3DTilesSelection
         threepp::Object3D* model_tile = reinterpret_cast<threepp::Object3D*>(pMainThreadResult);
         const std::string uuid = model_tile->uuid;
         spdlog::info("Free tile : {}", uuid);
-        mutexResource.lock();
+        //mutexResource.lock();
         context.scene->remove(*model_tile);
         context.groupResourceCache->erase(uuid);
-        mutexResource.unlock(); 
+        //mutexResource.unlock(); 
     }
     std::shared_ptr<threepp::Group> MaplibrePrepareRendererResource::createGroupThreeppFromModel(Cesium3DTilesSelection::Tile& tile)
     {
@@ -183,8 +183,10 @@ namespace Cesium3DTilesSelection
             child.rotation.set(0, 0, 0);
             child.scale.set(1, 1, 1);
             child.matrixAutoUpdate = false;
+            child.geometry()->boundingBox = std::nullopt; 
+            child.geometry()->boundingSphere = std::nullopt; 
             child.applyMatrix4(tmat);
-            });
+        });
 
         model_tile->matrixAutoUpdate = false;
         return model_tile;

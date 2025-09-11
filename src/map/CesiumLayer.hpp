@@ -24,7 +24,7 @@ namespace CesiumAsync
 }
 namespace CesiumNativeTests
 {
-	class SimpleAssetAccessor;
+	class MaplibreAssetAccessor;
 }
 namespace threepp
 {
@@ -50,7 +50,7 @@ public:
 	threepp::Scene* scene{ nullptr };
 	std::unordered_map<std::string, std::shared_ptr<threepp::Group>> groupResourceCache{};
 	std::shared_ptr<Cesium3DTilesSelection::MaplibrePrepareRendererResource> prepareRendererResource{ nullptr }; 
-	std::shared_ptr<CesiumNativeTests::SimpleAssetAccessor> mockAssetAccessor{ nullptr };
+	std::shared_ptr<CesiumNativeTests::MaplibreAssetAccessor> mockAssetAccessor{ nullptr };
 	std::unique_ptr<CesiumNativeTests::ThreadTaskProcessor> pMockTaskProcessor{ nullptr };
 	std::shared_ptr<Cesium3DTilesSelection::TilesetExternals> tilesetExternals{ nullptr }; 
 	std::function<void(Interface&,const Cesium3DTilesSelection::BoundingVolume&)> fnc_create_drawable{ nullptr };

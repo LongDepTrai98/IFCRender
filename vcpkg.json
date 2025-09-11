@@ -45,6 +45,7 @@
     }, 
 	"glew", 
 	"nlohmann-json", 
-	"assimp"
+	"assimp", 
+    "cpr"
 ]
 }
