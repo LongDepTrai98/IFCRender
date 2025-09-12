@@ -33,7 +33,9 @@ public:
       PrepareResult(std::shared_ptr<threepp::Object3D> obj_)
         : obj{ obj_ } {
     }
-      ~PrepareResult() noexcept { obj = nullptr; }
+      ~PrepareResult() noexcept { 
+          obj = nullptr;
+      }
     std::shared_ptr<threepp::Object3D> obj;
   };
 

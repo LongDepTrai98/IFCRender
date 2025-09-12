@@ -39,15 +39,14 @@ namespace Cesium3DTilesSelection
         void* pLoadThreadResult){
         const Cesium3DTilesSelection::TileContent& content = tile.getContent();
         const Cesium3DTilesSelection::TileRenderContent* pRenderContent = content.getRenderContent();
-        std::cout << "prepare" << std::endl; 
         if (pRenderContent == nullptr) {
             return pLoadThreadResult;
         }
         if (pLoadThreadResult) {
-            PrepareResult* ptr_model = reinterpret_cast<PrepareResult*>(pLoadThreadResult);
-            if (ptr_model->obj)
+            PrepareResult* loadThreadResult = reinterpret_cast<PrepareResult*>(pLoadThreadResult);
+            if (loadThreadResult->obj)
             {
-                context.scene->add(ptr_model->obj);
+                context.scene->add(loadThreadResult->obj);
             }
         }
         return pLoadThreadResult;
@@ -59,13 +58,14 @@ namespace Cesium3DTilesSelection
         void* pMainThreadResult) noexcept {
         if (!pMainThreadResult)
             return; 
-        PrepareResult* ptr_model = reinterpret_cast<PrepareResult*>(pMainThreadResult);
-        if (ptr_model->obj)
+        PrepareResult* mainThreadResult = reinterpret_cast<PrepareResult*>(pMainThreadResult);
+        if (mainThreadResult->obj)
         {
-            context.scene->remove(*ptr_model->obj); 
+            spdlog::info("free obj : {}", mainThreadResult->obj->uuid); 
+            context.scene->remove(*mainThreadResult->obj);
         }
-        delete pMainThreadResult; 
-        pMainThreadResult = nullptr; 
+        delete mainThreadResult;
+        mainThreadResult = nullptr;
     }
     std::shared_ptr<threepp::Group> MaplibrePrepareRendererResource::createGroupThreeppFromModel(Cesium3DTilesSelection::Tile& tile)
     {

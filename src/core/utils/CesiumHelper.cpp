@@ -244,10 +244,10 @@ namespace dragon
 							auto size = image.pixelData.size();
 							std::vector<unsigned char> ucharBuffer(size);
 							std::memcpy(ucharBuffer.data(), image.pixelData.data(), image.pixelData.size());
-							threepp::Image three_img(ucharBuffer,
+							threepp::Image three_img(std::move(ucharBuffer),
 								image.width,
 								image.height);
-							auto texture = threepp::Texture::create(three_img);
+							auto texture = threepp::Texture::create(std::move(three_img));
 							if (image.channels == 4)
 							{
 								texture->format = threepp::Format::RGBA;

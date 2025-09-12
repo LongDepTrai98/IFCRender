@@ -77,5 +77,13 @@ namespace Convert
         return 1.0 / scale;
     }
 
+    static std::pair<double, double> tileToLatLon(int x, int y, int z) {
+        double n = std::pow(2.0, z);
+        double lon = x / n * 360.0 - 180.0;
+        double lat_rad = std::atan(std::sinh(M_PI * (1 - 2.0 * y / n)));
+        double lat = lat_rad * 180.0 / M_PI;
+        return { lat, lon };
+    }
+
 }
 #endif // !_TILE_HPP_

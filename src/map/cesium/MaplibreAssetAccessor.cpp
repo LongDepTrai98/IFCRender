@@ -46,7 +46,7 @@ namespace CesiumNativeTests {
             static_cast<uint16_t>(r.status_code),
             "doesn't matter",
             CesiumAsync::HttpHeaders{},
-            bytes);
+            std::move(bytes));
         std::shared_ptr<CesiumNativeTests::SimpleAssetRequest> request = std::make_shared<CesiumNativeTests::SimpleAssetRequest>(method,
             url,
             requestHeaders,

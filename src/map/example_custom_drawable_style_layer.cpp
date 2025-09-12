@@ -22,6 +22,8 @@
 #include "core/utils/CesiumHelper.hpp"
 #include <Cesium3DTilesSelection/ViewState.h>
 #include <Cesium3DTilesSelection/Tileset.h>
+#include "core/convert/WebIFCConverter.hpp"
+#include "core/convert/Tile.hpp"
 
 static std::shared_ptr<threepp::PlaneHelper> makePlaneFromAxis(const threepp::Vector3& normal, const threepp::Vector3& gizmoPos)
 {
@@ -33,9 +35,16 @@ static std::shared_ptr<threepp::PlaneHelper> makePlaneFromAxis(const threepp::Ve
     return helper; 
 }
 
-ThreeDCustomDrawableStyleLayerHost::ThreeDCustomDrawableStyleLayerHost()
+ThreeDCustomDrawableStyleLayerHost::ThreeDCustomDrawableStyleLayerHost(std::string filePath)
 {
     m_RayCaster = std::make_unique<threepp::Raycaster>();
+    std::shared_ptr<threepp::Group> container{ nullptr };
+    uint8_t z = 16; 
+    root_tile_id = { z,52195,30791 };
+
+    dragon::WebIFCConverter IFCApi{};
+    container = IFCApi.convert(filePath);
+    addBim(std::move(container)); 
     m_RayCaster->params.lineThreshold = 0.1f; 
 }
 
@@ -49,7 +58,7 @@ void ThreeDCustomDrawableStyleLayerHost::update(Interface& interface) {
     // if we have built our drawable(s) already, either update or skip
     if (interface.getDrawableCount() == 0)
     {
-        interface.addCustomDrawableWithTile({ 16, 53558, 28597 });
+        interface.addCustomDrawableWithTile({ (uint8_t)root_tile_id.z,root_tile_id.x,root_tile_id.y, });
         m_LayerGroup = interface.getLayerGroupBase(); 
         return;
     }
@@ -193,30 +202,6 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                             gizmo_group->name = "gizmo";
                             threepp::Matrix4 scale_mat; 
                             scale_mat.makeScale(1.0, 1.0, scale * 1.0f);
-                          /*  std::function<void(threepp::Object3D*,threepp::Matrix4&)> dfs =
-                                [&](threepp::Object3D* obj, threepp::Matrix4& root_mat) {
-                                if (auto mesh = obj->as<threepp::Mesh>()) {
-                                    if (mesh)
-                                    {
-                                        if (mesh && mesh->geometry()) {
-                                            threepp::Matrix4 mat; 
-                                            mat.multiplyMatrices(*mesh->matrix, root_mat); 
-                                            mesh->geometry()->applyMatrix4(mat);
-                                            mesh->geometry()->computeBoundingSphere();
-                                            mesh->geometry()->computeBoundingBox();
-                                            return; 
-                                        }
-                                    }
-                                }
-                                else if (auto group = obj->as<threepp::Group>())
-                                {
-                                    root_mat.multiply(*obj->matrixWorld);
-                                }
-
-                                for (auto& child : obj->children) {
-                                    dfs(child, root_mat);
-                                }
-                            }; */
                             gizmo_group->scale.set(1.0, 1.0, scale);
                             gizmo_group->visible = false;
                             gizmo_group->matrixAutoUpdate = true;
@@ -232,11 +217,14 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                     }
 
                     auto add_model_lambda = [&,bim_model](threepp::Scene& scene) {
-                        auto mesh = bim_model->as<threepp::Mesh>(); 
+                        auto latlng = Convert::tileToLatLon(root_tile_id.x, root_tile_id.y, root_tile_id.z); 
+                        double metersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(latlng.first);
                         // 1. Scale
                         auto matrix_scale = dragon::ThreeHelper::createMatrixScaleAroundPivot(
                             threepp::Vector3(0, 0, 0),
-                            1.0 * 10, -scale * 10, 1.0 * 10
+                            1.0 * metersPerExtentUnit,
+                            -scale * metersPerExtentUnit,
+                            1.0 * metersPerExtentUnit
                         );
                         // 2. Rotate
                         auto matrix_rotate = dragon::ThreeHelper::createMatrixRotateAroundPivot(
@@ -249,35 +237,29 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                             0.0, 0.0, 0
                         );
                         threepp::Matrix4 combined;
-                        combined.multiplyMatrices(matrix_rotate, matrix_scale); // T * R
-                        mesh->geometry()->applyMatrix4(combined);
-                        mesh->geometry()->computeBoundingBox(); 
-                        mesh->geometry()->computeBoundingSphere(); 
-                        mesh->geometry()->computeVertexNormals(); 
-                        mesh->applyMatrix4(matrix_translate); 
-                        mesh->name = "model";
+                        bim_model->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
+                            combined.multiplyMatrices(matrix_rotate, matrix_scale); // T * R
+                            child.geometry()->applyMatrix4(combined);
+                            child.geometry()->computeBoundingBox();
+                            child.geometry()->computeBoundingSphere();
+                            child.geometry()->computeVertexNormals();
+                            child.applyMatrix4(matrix_translate);
+                            }); 
+                        threepp::Box3 box; 
+                        box.setFromObject(*bim_model); 
+                        bim_model->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
+                            combined.makeTranslation(0,0,-box.min().z);
+                            child.geometry()->applyMatrix4(combined);
+                            child.geometry()->computeBoundingBox();
+                            child.geometry()->computeBoundingSphere();
+                            child.geometry()->computeVertexNormals();
+                            child.applyMatrix4(matrix_translate);
+                            });
+                        bim_model->name = "model";
                         scene.add(bim_model);
                         m_Gizmo->setTarget(bim_model.get()); 
                     }; 
                     add_model_lambda(*impl->scene); 
-
-                   /* const std::string pathGLB = "C:\\Users\\ntlon\\Downloads\\a.b3dm.glb";
-                    std::vector<std::byte> glbFile = dragon::StringHelper::readFile(pathGLB);
-                    auto test_model = dragon::CesiumHelper::createGLB(glbFile);
-                    threepp::Matrix4 matrix_scale; 
-                    matrix_scale.identity(); 
-                    threepp::Box3 box; 
-                    box.setFromObject(*test_model); 
-                    matrix_scale = dragon::ThreeHelper::createMatrixScaleAroundPivot(
-                        box.getCenter(),
-                        1.0, 1.0, scale
-                    );
-                    threepp::Matrix4 rotate; 
-                    rotate.makeRotationY(threepp::math::degToRad(180));
-                    test_model->applyMatrix4(rotate); 
-                    test_model->applyMatrix4(matrix_scale); 
-                    impl->scene->add(test_model);*/
-                    //m_Gizmo->setTarget(*impl->scene);
                 }
             }
         }

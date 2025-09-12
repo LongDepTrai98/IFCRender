@@ -28,6 +28,7 @@
 #include "WindowFrame.hpp"
 #include "core/node/MapElementTree.hpp"
 #include "tools/Gizmo.hpp"
+
 namespace dragon
 {
 	MapRenderCanvas::MapRenderCanvas(wxWindow* parent,
@@ -81,7 +82,7 @@ namespace dragon
 			{
 				/*CLONE*/
 				MLN_TRACE_FUNC();
-				std::shared_ptr<threepp::Object3D> clone_model = model->clone(true); 
+			/*	std::shared_ptr<threepp::Object3D> clone_model = model->clone(true); 
 				clone_model->matrixAutoUpdate = false;
 				mbgl::style::Style& style = m_Map->getStyle();
 				const std::string identifier = "Example-Bim-Layer";
@@ -91,30 +92,11 @@ namespace dragon
 						identifier, std::make_unique<ThreeDCustomDrawableStyleLayerHost>()));
 				}; 
 				custom_host = getCustomDrawableStyleLayerHost("Example-Bim-Layer");
-				custom_host->addBim(clone_model); 
+				custom_host->addBim(clone_model); */
 			}
 		}
 		if (data.event.GetId() == (int)ID_EVENT::TOOL_ADD_CESIUM_LAYER)
 		{
-			MLN_TRACE_FUNC();
-			mbgl::style::Style& style = m_Map->getStyle();
-			const std::string identifier = "3d-model-01";
-			const auto& existingLayer = style.getLayer(identifier);
-			if (!existingLayer) {
-				std::string path_tileset{ "http://10.222.3.84:9000/3dtiles/root.json" };
-				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
-					identifier, std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset)));
-
-				std::string path_tileset2{ "http://10.222.3.84:9000/chobinhdien/Cho_Binh_Dien/root.json" };
-				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
-					"3d-model-02", std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset2)));
-
-				m_Map->jumpTo(mbgl::CameraOptions()
-					.withCenter(mbgl::LatLng{ 10.702674031450162, 106.60981146617425 })
-					.withZoom(16)
-					.withBearing(0.0)
-					.withPitch(0.0));
-			};
 		}
 	}
 	void MapRenderCanvas::initContextMap()
@@ -139,23 +121,92 @@ namespace dragon
 			resourceOptions,
 			clientOptions);
 		m_Backend->setMap(m_Map.get());
-		m_Map->getStyle().loadURL(orderedStyles[5].getUrl());
+		m_Map->getStyle().loadURL(orderedStyles[0].getUrl());
 		m_Map->jumpTo(mbgl::CameraOptions()
-			.withCenter(mbgl::LatLng{ 10.702674031450162, 106.60981146617425 })
+			.withCenter(mbgl::LatLng{ 10.795038116554723, 106.72154882542614 })
 			.withZoom(16)
 			.withBearing(0.0)
 			.withPitch(0.0));
 		/*set callback*/
 		auto callback_finsish_loading_style = [&]() {
+			using namespace mbgl::style;
+			using namespace mbgl::style::expression::dsl;
+			MLN_TRACE_FUNC();
 			if (!m_Map) return; 
 			mbgl::style::Style& style = m_Map->getStyle(); 
-			std::shared_ptr<MapLayerTree> tree = std::make_shared<MapLayerTree>(); 
-			tree->create(style);
-			WindowFrame* window_frame = static_cast<WindowFrame*>(m_parent);
-			auto element_tree = AppHelper::getMainTreeCtrl(window_frame);
-			element_tree->m_umap_callback["map"].m_GetData_Item_Callback = m_GetData_Item_Callback;
-			element_tree->m_umap_callback["map"].m_ToggleStateCallBackRecursively = m_Toggle_Components_Callback; 
-			element_tree->setData(std::move(tree),"map");
+			const std::string identifier = "3d-model-01";
+			const auto& existingLayer = style.getLayer(identifier);
+			if (!existingLayer) {
+				std::string path_tileset{ "http://10.222.3.84:9000/3dtiles/root.json" };
+				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
+					identifier, std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset)));
+
+				std::string path_tileset2{ "http://10.222.3.84:9000/chobinhdien/Cho_Binh_Dien/root.json" };
+				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
+					"3d-model-02", std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset2)));
+
+				std::string path_tileset3{ "http://10.222.3.84:9000/caolanhcity/caolanh_city3d/root.json" };
+				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
+					"3d-model-03", std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset3)));
+
+				if (!style.getSource("composite")) {
+					return;
+				}
+				if (auto layer = style.getLayer("3d-buildings")) {
+					auto visible = layer->getVisibility();
+					if (visible == VisibilityType::Visible)
+					{
+						layer->setVisibility(VisibilityType::None);
+					}
+					else
+					{
+						layer->setVisibility(VisibilityType::Visible);
+					}
+					return;
+				}
+				auto extrusionLayer = std::make_unique<FillExtrusionLayer>("3d-buildings", "composite");
+				extrusionLayer->setSourceLayer("building");
+				extrusionLayer->setMinZoom(15.0f);
+				extrusionLayer->setFilter(Filter(eq(get("extrude"), literal("true"))));
+				extrusionLayer->setFillExtrusionColor(PropertyExpression<mbgl::Color>(interpolate(linear(),
+					number(get("height")),
+					0.f,
+					toColor(literal("#160e23")),
+					50.f,
+					toColor(literal("#00615f")),
+					100.f,
+					toColor(literal("#55e9ff")))));
+				extrusionLayer->setFillExtrusionOpacity(0.8f);
+				extrusionLayer->setFillExtrusionHeight(PropertyExpression<float>(get("height")));
+				extrusionLayer->setFillExtrusionBase(PropertyExpression<float>(get("min_height")));
+				style.addLayer(std::move(extrusionLayer));
+
+
+				//std::shared_ptr<threepp::Object3D> clone_model = model->clone(true);
+				//clone_model->matrixAutoUpdate = false;
+				std::string path = "ifc/S_Office_Integrated Design Archi.ifc"; 
+				mbgl::style::Style& style = m_Map->getStyle();
+				const std::string identifier = "Example-Bim-Layer";
+				const auto& existingLayer = style.getLayer(identifier);
+				if (!existingLayer) {
+					style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
+						identifier, std::make_unique<ThreeDCustomDrawableStyleLayerHost>(path)));
+				};
+
+				m_Map->jumpTo(mbgl::CameraOptions()
+					.withCenter(mbgl::LatLng{ 10.795536743953814, 106.71569824218750 })
+					.withZoom(18)
+					.withBearing(0.0)
+					.withPitch(0.0));
+
+				std::shared_ptr<MapLayerTree> tree = std::make_shared<MapLayerTree>();
+				tree->create(style);
+				WindowFrame* window_frame = static_cast<WindowFrame*>(m_parent);
+				auto element_tree = AppHelper::getMainTreeCtrl(window_frame);
+				element_tree->m_umap_callback["map"].m_GetData_Item_Callback = m_GetData_Item_Callback;
+				element_tree->m_umap_callback["map"].m_ToggleStateCallBackRecursively = m_Toggle_Components_Callback;
+				element_tree->setData(std::move(tree), "map");
+			};
 		};
 		m_Backend->finishLoadingStyleCallback(callback_finsish_loading_style); 
 	}
@@ -214,7 +265,7 @@ namespace dragon
 
 		btn3D->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event)
 			{
-				MLN_TRACE_FUNC();
+				/*MLN_TRACE_FUNC();
 				using namespace mbgl::style;
 				using namespace mbgl::style::expression::dsl;
 				mbgl::style::Style& style = m_Map->getStyle(); 
@@ -248,7 +299,7 @@ namespace dragon
 				extrusionLayer->setFillExtrusionOpacity(1.0f);
 				extrusionLayer->setFillExtrusionHeight(PropertyExpression<float>(get("height")));
 				extrusionLayer->setFillExtrusionBase(PropertyExpression<float>(get("min_height")));
-				style.addLayer(std::move(extrusionLayer));
+				style.addLayer(std::move(extrusionLayer));*/
 			}); 
 	}
 	void MapRenderCanvas::initCallback()

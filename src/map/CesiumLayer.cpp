@@ -56,6 +56,8 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tile
 			6002674.4507558359,
 			1182903.2896941833)); 
 		Cesium3DTilesSelection::TilesetOptions options;
+		options.maximumCachedBytes = 256LL * 1024 * 1024; 
+		options.maximumScreenSpaceError = 4.0; 
 		tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
 			path_tileset,
 			options);
@@ -124,7 +126,7 @@ Cesium3DTilesSelection::ViewState CesiumDrawableStyleLayerHost::createViewState(
 	// Viewport và FOV
 	double aspectRatio = state.getSize().aspectRatio();
 	glm::dvec2 viewPortSize = glm::dvec2(state.getSize().width, state.getSize().height);
-	double horizontalFieldOfView =  state.getFieldOfView();
+	double horizontalFieldOfView = CesiumUtility::Math::degreesToRadians(60.0);
 	double verticalFieldOfView = std::atan(std::tan(horizontalFieldOfView * 0.5) / aspectRatio) * 2.0;
 	glm::dvec3 direction = glm::normalize(ecef_center - ecef_camera_location);
 	glm::dvec3 right = glm::normalize(glm::cross(direction, worldUp)); 

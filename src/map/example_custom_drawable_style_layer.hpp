@@ -3,6 +3,7 @@
 #undef interface __STRUCT__
 #endif // interface __STRUCT__
 #include <mbgl/style/layers/custom_drawable_layer.hpp>
+#include <mbgl/tile/tile_id.hpp>
 #include "threepp/core/Raycaster.hpp"
 #include "threepp/math/infinity.hpp"
 #include "threepp/math/Vector3.hpp"
@@ -30,7 +31,7 @@ struct Plane {
 class ThreeDCustomDrawableStyleLayerHost : public mbgl::style::CustomDrawableLayerHost {
 public:
     using TriangleIndexVector = mbgl::gfx::IndexVector<mbgl::gfx::Triangles>;
-    ThreeDCustomDrawableStyleLayerHost();
+    ThreeDCustomDrawableStyleLayerHost(std::string filePath);
     ~ThreeDCustomDrawableStyleLayerHost();
     void initialize() override;
     void deinitialize() override;
@@ -54,5 +55,6 @@ protected:
     /*HARD CODE*/
     bool isDrag{ false }; 
     static mbgl::Point<double> project(const mbgl::LatLng& c, const mbgl::TransformState& s);
+    mbgl::CanonicalTileID root_tile_id{ 0,0,0 };
 protected:
 };
