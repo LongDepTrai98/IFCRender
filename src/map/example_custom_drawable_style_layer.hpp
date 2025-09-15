@@ -36,6 +36,7 @@ public:
     void initialize() override;
     void deinitialize() override;
     void update(Interface& interface) override;
+    void printMatrix(); 
 public: 
     void openEditMode(bool open);
     void query(threepp::Vector2 nor_pos);

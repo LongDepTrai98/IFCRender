@@ -17,6 +17,10 @@
 #include "threepp/loaders/AssimpLoader.hpp"
 #include <mbgl/helper/MecatorHelper.hpp>
 #include <spdlog/spdlog.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include "core/utils/ThreeHelper.hpp"
 #include "core/utils/StringHelper.hpp"
 #include "core/utils/CesiumHelper.hpp"
@@ -24,6 +28,9 @@
 #include <Cesium3DTilesSelection/Tileset.h>
 #include "core/convert/WebIFCConverter.hpp"
 #include "core/convert/Tile.hpp"
+#include <fstream>
+#include <iomanip>
+
 
 static std::shared_ptr<threepp::PlaneHelper> makePlaneFromAxis(const threepp::Vector3& normal, const threepp::Vector3& gizmoPos)
 {
@@ -53,6 +60,42 @@ ThreeDCustomDrawableStyleLayerHost::~ThreeDCustomDrawableStyleLayerHost() {}
 void ThreeDCustomDrawableStyleLayerHost::initialize() {}
 
 void ThreeDCustomDrawableStyleLayerHost::deinitialize() {}
+
+void ThreeDCustomDrawableStyleLayerHost::printMatrix()
+{
+    if (!m_LayerGroup)
+        return;
+    mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(m_LayerGroup.get());
+    tileLayerGroup->visitDrawables([&](const mbgl::gfx::Drawable& drawable) {
+        if (drawable.getDrawType() == mbgl::gfx::Drawable::DrawableType::DrawableCustom)
+        {
+            const mbgl::gfx::Drawable* ptrDrawable = &drawable;
+            const mbgl::gl::DrawableCustom* ptrDrawableCustom = static_cast<const mbgl::gl::DrawableCustom*>(ptrDrawable);
+            if (ptrDrawableCustom)
+            {
+                auto impl = ptrDrawableCustom->getImpl();
+                if (!impl) return;
+                auto scene = impl->scene.get();
+                if (scene)
+                {
+                    auto bim_model = scene->getObjectByName("model");
+                    if (bim_model)
+                    {
+                        std::cout << "print matrix" << std::endl; 
+                        auto matrix = bim_model->matrix.get();
+                        auto te = matrix->elements; 
+                        std::ofstream out("D:/matrix.json");
+                        out << std::fixed << std::setprecision(12);
+                        out << te[0] << "," << te[4] << "," << te[8] << "," << te[12] << "\n";
+                        out << te[1] << "," << te[5] << "," << te[9] << "," << te[13] << "\n";
+                        out << te[2] << "," << te[6] << "," << te[10] << "," << te[14] << "\n";
+                        out << te[3] << "," << te[7] << "," << te[11] << "," << te[15] << "\n";
+                        out.close();
+                    }
+                }
+            }
+        }});
+}
 
 void ThreeDCustomDrawableStyleLayerHost::update(Interface& interface) {
     // if we have built our drawable(s) already, either update or skip
@@ -216,50 +259,71 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                         impl->scene->remove(*model); 
                     }
 
-                    auto add_model_lambda = [&,bim_model](threepp::Scene& scene) {
+                    auto add_model_lambda = [&,bim_model](threepp::Scene& scene, threepp::Matrix4& matrixTransform) {
+                        threepp::Box3 box;
+                        box.setFromObject(*bim_model);
                         auto latlng = Convert::tileToLatLon(root_tile_id.x, root_tile_id.y, root_tile_id.z); 
                         double metersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(latlng.first);
                         // 1. Scale
                         auto matrix_scale = dragon::ThreeHelper::createMatrixScaleAroundPivot(
-                            threepp::Vector3(0, 0, 0),
+                            box.getCenter(),
                             1.0 * metersPerExtentUnit,
                             -scale * metersPerExtentUnit,
                             1.0 * metersPerExtentUnit
                         );
                         // 2. Rotate
                         auto matrix_rotate = dragon::ThreeHelper::createMatrixRotateAroundPivot(
-                            threepp::Vector3(0, 0, 0),
+                            box.getCenter(),
                             threepp::math::degToRad(-90), 0.0, 0.0
                         );
                         // 3. Translate
                         auto matrix_translate = dragon::ThreeHelper::createMatrixTranslateAroundPivot(
-                            threepp::Vector3(0.0, 0.0, 0.0),
-                            0.0, 0.0, 0
+                            box.getCenter(),
+                            1700.0, 2000.0, 0
                         );
-                        threepp::Matrix4 combined;
+
+
+                        //threepp::Matrix4 combined = matrix_translate * matrix_rotate * matrix_scale;
+                        threepp::Matrix4 scale_rot; 
+                        scale_rot.multiplyMatrices(matrix_rotate,matrix_scale);
+                        matrix_translate.multiply(scale_rot); 
                         bim_model->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
-                            combined.multiplyMatrices(matrix_rotate, matrix_scale); // T * R
-                            child.geometry()->applyMatrix4(combined);
-                            child.geometry()->computeBoundingBox();
-                            child.geometry()->computeBoundingSphere();
-                            child.geometry()->computeVertexNormals();
-                            child.applyMatrix4(matrix_translate);
-                            }); 
-                        threepp::Box3 box; 
-                        box.setFromObject(*bim_model); 
+                            child.matrix->identity();
+                            child.position.set(0, 0, 0);
+                            child.rotation.set(0, 0, 0);
+                            child.scale.set(1, 1, 1);
+                            child.matrixAutoUpdate = false;
+                            });
+                        bim_model->applyMatrix4(matrixTransform);
+                        bim_model->name = "model";
+                        scene.add(bim_model);
+                        bim_model->matrixAutoUpdate = false; 
+                        m_Gizmo->setTarget(bim_model.get()); 
+                    }; 
+
+                    auto add_model_with_transform_lambda = [&, bim_model](threepp::Scene& scene, threepp::Matrix4 matrixTransform) {
                         bim_model->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
-                            combined.makeTranslation(0,0,-box.min().z);
-                            child.geometry()->applyMatrix4(combined);
-                            child.geometry()->computeBoundingBox();
-                            child.geometry()->computeBoundingSphere();
-                            child.geometry()->computeVertexNormals();
-                            child.applyMatrix4(matrix_translate);
+                            child.matrix->identity();
+                            child.position.set(0, 0, 0);
+                            child.rotation.set(0, 0, 0);
+                            child.scale.set(1, 1, 1);
+                            child.matrixAutoUpdate = false;
+                            child.applyMatrix4(matrixTransform);
                             });
                         bim_model->name = "model";
                         scene.add(bim_model);
-                        m_Gizmo->setTarget(bim_model.get()); 
-                    }; 
-                    add_model_lambda(*impl->scene); 
+                        m_Gizmo->setTarget(bim_model.get());
+                     }; 
+
+                    //add_model_lambda(*impl->scene); 
+                    threepp::Matrix4 transform;
+                    transform.set(
+                        0.283599674702, -0.000000044490, -13.635078430176, 3220.403076171875,
+                        13.635078430176, 0.000000000925, 0.283599674702, 2973.635498046875,
+                        0.000000000000, 1.018017053604, -0.000000596137, 47.956161499023,
+                        0.000000000000, 0.000000000000, 0.000000000000, 1.000000000000
+                    );
+                    add_model_lambda(*impl->scene, transform);
                 }
             }
         }

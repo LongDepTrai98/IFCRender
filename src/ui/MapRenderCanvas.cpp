@@ -72,28 +72,30 @@ namespace dragon
 
 		if (data.event.GetId() == (int)ID_EVENT::TOOL_PROJECTION)
 		{
-			/*ADD BIM TO MAP*/
-			WindowFrame* main_frame = static_cast<WindowFrame*>(m_parent); 
-			MainViewPort* viewport_bim = AppHelper::getMainBimViewPortScene(main_frame);
-			/*GET MODEL BIM*/
-			auto model = viewport_bim->getScene()->getObjectByName("model"); 
-			ThreeDCustomDrawableStyleLayerHost* custom_host{ nullptr }; 
-			if (model)
-			{
-				/*CLONE*/
-				MLN_TRACE_FUNC();
-			/*	std::shared_ptr<threepp::Object3D> clone_model = model->clone(true); 
-				clone_model->matrixAutoUpdate = false;
-				mbgl::style::Style& style = m_Map->getStyle();
-				const std::string identifier = "Example-Bim-Layer";
-				const auto& existingLayer = style.getLayer(identifier);
-				if (!existingLayer) {
-					style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
-						identifier, std::make_unique<ThreeDCustomDrawableStyleLayerHost>()));
-				}; 
-				custom_host = getCustomDrawableStyleLayerHost("Example-Bim-Layer");
-				custom_host->addBim(clone_model); */
-			}
+			MLN_TRACE_FUNC(); 
+			getCustomDrawableStyleLayerHost("Example-Bim-Layer")->printMatrix(); 
+			///*ADD BIM TO MAP*/
+			//WindowFrame* main_frame = static_cast<WindowFrame*>(m_parent); 
+			//MainViewPort* viewport_bim = AppHelper::getMainBimViewPortScene(main_frame);
+			///*GET MODEL BIM*/
+			//auto model = viewport_bim->getScene()->getObjectByName("model"); 
+			//ThreeDCustomDrawableStyleLayerHost* custom_host{ nullptr }; 
+			//if (model)
+			//{
+			//	/*CLONE*/
+			//	MLN_TRACE_FUNC();
+			///*	std::shared_ptr<threepp::Object3D> clone_model = model->clone(true); 
+			//	clone_model->matrixAutoUpdate = false;
+			//	mbgl::style::Style& style = m_Map->getStyle();
+			//	const std::string identifier = "Example-Bim-Layer";
+			//	const auto& existingLayer = style.getLayer(identifier);
+			//	if (!existingLayer) {
+			//		style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
+			//			identifier, std::make_unique<ThreeDCustomDrawableStyleLayerHost>()));
+			//	}; 
+			//	custom_host = getCustomDrawableStyleLayerHost("Example-Bim-Layer");
+			//	custom_host->addBim(clone_model); */
+			//}
 		}
 		if (data.event.GetId() == (int)ID_EVENT::TOOL_ADD_CESIUM_LAYER)
 		{
