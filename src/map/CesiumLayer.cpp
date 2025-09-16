@@ -112,7 +112,8 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tile
 		}
 		//const double lat = wgs84_center_bounding_volume.value().y;
 		auto tile = Convert::wgs84ToTile(lon, lat);
-		interface.addCustomDrawableWithTile({ 16,53559,28598 });
+		interface.addCustomDrawableWithTile({ (uint8_t)tile.tileZ, (uint32_t)tile.tileX, (uint32_t)tile.tileY });
+		//interface.addCustomDrawableWithTile({ 16,53559,28598 });
 		//set scene 
 		mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(m_LayerGroup.get());
 		tileLayerGroup->visitDrawables([&](const mbgl::gfx::Drawable& drawable) {

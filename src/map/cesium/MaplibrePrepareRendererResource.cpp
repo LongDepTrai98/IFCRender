@@ -117,12 +117,16 @@ namespace Cesium3DTilesSelection
         threepp::Box3 box;
         box.setFromObject(*model_tile);
         glm::dvec3 local_center(box.getCenter().x, box.getCenter().y, box.getCenter().z);
-        local_center = local_center + glmPos; 
-
+        glm::dvec4 newLocalPos = transformationMat * glm::dvec4(local_center, 1.0);
+        glm::dvec3 v3pos = glm::dvec3(newLocalPos); 
         model_tile->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
-            child.geometry()->translate(glmPos.x, glmPos.y, glmPos.z); 
+            child.geometry()->translate(v3pos.x, v3pos.y, v3pos.z);
+            //child.geometry()->applyQuaternion(threepp::Quaternion(glmRot.x, glmRot.y, glmRot.z, glmRot.w));
         });
 
+        local_center = local_center + glmPos; 
+
+      
         box.setFromObject(*model_tile);
         auto min1 = box.min();
         auto max1 = box.max();
@@ -148,7 +152,7 @@ namespace Cesium3DTilesSelection
         }
 
         //glm::dvec3 new_center = glm::dvec3(box.getCenter().x,box.getCenter().y,box.getCenter().z) + b3dm_extension.rtcCenter;
-        glm::dvec4 new_ecef_center = tile_transform * glm::vec4(local_center, 1.0);
+        glm::dvec4 new_ecef_center = tile_transform * glm::dvec4(local_center, 1.0);
         std::optional<glm::dvec3> wgs84Rtc = dragon::CesiumHelper::ecefToWgs84(glm::dvec3(new_ecef_center));
 
         spdlog::info("x : {}, y: {}, z : {}", wgs84Rtc.value().x, wgs84Rtc.value().y, wgs84Rtc.value().z);
