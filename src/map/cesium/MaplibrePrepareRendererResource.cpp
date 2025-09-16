@@ -11,6 +11,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <thread>
 namespace Cesium3DTilesSelection
 {
@@ -43,6 +44,8 @@ namespace Cesium3DTilesSelection
             return pLoadThreadResult;
         }
         if (pLoadThreadResult) {
+            auto t = dragon::CesiumHelper::getCenterBoundingVolume(tile.getBoundingVolume());
+            auto center = dragon::CesiumHelper::ecefToWgs84(t); 
             PrepareResult* loadThreadResult = reinterpret_cast<PrepareResult*>(pLoadThreadResult);
             if (loadThreadResult->obj)
             {
@@ -78,8 +81,26 @@ namespace Cesium3DTilesSelection
         return model_tile; 
     }
     std::shared_ptr<threepp::Group> MaplibrePrepareRendererResource::createGroupThreeppFromModel(CesiumGltf::Model& gltf_model,
-        glm::dmat4& tile_transform)
+        glm::dmat4& tiletransform)
     {
+        glm::dmat4 tile_transform = tiletransform; 
+        const CesiumGltf::Node& rootNode = gltf_model.nodes.at(0);
+        const std::vector<double>& translationArray = rootNode.translation;
+        const std::vector<double>& rotationArray = rootNode.rotation;
+        const std::vector<double>& scaleArray = rootNode.scale;
+
+        glm::dmat4 transformationMat; 
+        for (int32_t i = 0; i < 4; ++i) {
+            for (int32_t j = 0; j < 4; ++j) {
+                transformationMat[i][j] = rootNode.matrix[i * 4 + j];
+            }
+        }
+        glm::dvec3 glmPos;
+        glm::dquat glmRot;
+        constexpr int32_t translationColumnIndex = 3;
+        glmPos = transformationMat[translationColumnIndex];
+        glmRot = glm::quat_cast(transformationMat);
+        tile_transform = tile_transform; 
         dragon::CesiumHelper::B3DMExtensions b3dm_extension;
         auto model_tile = dragon::CesiumHelper::createMesh(gltf_model, b3dm_extension);
         glm::dquat quat = glm::quat_cast(glm::dmat3(tile_transform));
@@ -96,6 +117,17 @@ namespace Cesium3DTilesSelection
         threepp::Box3 box;
         box.setFromObject(*model_tile);
         glm::dvec3 local_center(box.getCenter().x, box.getCenter().y, box.getCenter().z);
+        local_center = local_center + glmPos; 
+
+        model_tile->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
+            child.geometry()->translate(glmPos.x, glmPos.y, glmPos.z); 
+        });
+
+        box.setFromObject(*model_tile);
+        auto min1 = box.min();
+        auto max1 = box.max();
+        auto center1 = box.getCenter();
+
 
         tile_transform = tile_transform * rtc_transform;
         auto gltfUpAxisIt = gltf_model.extras.find("gltfUpAxis");
@@ -119,6 +151,8 @@ namespace Cesium3DTilesSelection
         glm::dvec4 new_ecef_center = tile_transform * glm::vec4(local_center, 1.0);
         std::optional<glm::dvec3> wgs84Rtc = dragon::CesiumHelper::ecefToWgs84(glm::dvec3(new_ecef_center));
 
+        spdlog::info("x : {}, y: {}, z : {}", wgs84Rtc.value().x, wgs84Rtc.value().y, wgs84Rtc.value().z);
+       
         const CesiumGeospatial::Ellipsoid& ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
         auto mecator_tile = Convert::wgs84ToLocalInTile(wgs84Rtc.value().x, wgs84Rtc.value().y, context.root_tile_id.x,
             context.root_tile_id.y);
@@ -155,20 +189,7 @@ namespace Cesium3DTilesSelection
         glm::dquat q1 = glm::quat_cast(rotationMatrix);
         glm::dmat4 matrixRotate(1.0);
         matrixRotate = glm::toMat4(q1);
-        matrixRotate = matrixRotate * glm::toMat4(quat); 
-        //// HOẶC tính góc Euler (roll, pitch, yaw)
-        //glm::dvec3 eulerAngles = glm::eulerAngles(q1);
-        //glm::dmat4 matrixRotate(1.0);
-
-        //if (eulerAngles.z != 0.0) {
-        //    matrixRotate = glm::rotate(matrixRotate, eulerAngles.z, glm::dvec3(0.0, 0.0, 1.0));
-        //}
-        //if (eulerAngles.y != 0.0) {
-        //    matrixRotate = glm::rotate(matrixRotate, eulerAngles.y, glm::dvec3(0.0, 1.0, 0.0));
-        //}
-        //if (eulerAngles.x != 0.0) {
-        //    matrixRotate = glm::rotate(matrixRotate, eulerAngles.x, glm::dvec3(1.0, 0.0, 0.0));
-        //}
+        matrixRotate = matrixRotate * glm::toMat4(glmRot) *glm::toMat4(quat);
 
         double metersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84Rtc.value().y);
         double scaleZ = 1 / metersPerExtentUnit;
@@ -194,7 +215,10 @@ namespace Cesium3DTilesSelection
             child.matrixAutoUpdate = false;
             child.applyMatrix4(tmat);
         });
-
+        box.setFromObject(*model_tile);
+        auto min = box.min(); 
+        auto max = box.max();
+        auto center = box.getCenter(); 
         model_tile->matrixAutoUpdate = false;
         return model_tile;
     }

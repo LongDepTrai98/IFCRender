@@ -157,8 +157,8 @@ namespace dragon
 		for (size_t meshIndex = 0; meshIndex < gltf.meshes.size(); ++meshIndex)
 		{
 			const auto& gltfMesh = gltf.meshes[meshIndex];
-			std::vector<std::shared_ptr<threepp::BufferGeometry>> geos;
-			std::vector<std::shared_ptr<threepp::Material>> mats;
+	/*		std::vector<std::shared_ptr<threepp::BufferGeometry>> geos;
+			std::vector<std::shared_ptr<threepp::Material>> mats;*/
 			for (size_t primIndex = 0; primIndex < gltfMesh.primitives.size(); ++primIndex)
 			{
 				const auto& primitive = gltfMesh.primitives[primIndex];
@@ -261,12 +261,14 @@ namespace dragon
 						}
 					}
 				}
-				mats.emplace_back(material);
-				geos.emplace_back(geometry);
+			/*	mats.emplace_back(material);
+				geos.emplace_back(geometry);*/
+				std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(geometry, material); 
+				container->add(mesh); 
 			}
-			auto mergeo = threepp::mergeBufferGeometries(geos, true);
-			auto threepp_mesh = threepp::Mesh::create(mergeo, mats);
-			container->add(threepp_mesh);
+			/*auto mergeo = threepp::mergeBufferGeometries(geos, true);
+			auto threepp_mesh = threepp::Mesh::create(mergeo, mats);*/
+			//container->add(threepp_mesh);
 		}
 		// Optional: Clear other data structures if not neede
 

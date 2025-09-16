@@ -19,6 +19,12 @@
 #include <CesiumGeospatial/S2CellBoundingVolume.h>
 #include <CesiumGeospatial/GlobeTransforms.h>
 #include <CesiumGeometry/Transforms.h>
+#include <CesiumIonClient/ApplicationData.h>
+#include <CesiumIonClient/Connection.h>
+#include <CesiumIonClient/Defaults.h>
+#include <CesiumIonClient/Geocoder.h>
+#include <CesiumIonClient/Profile.h>
+#include <CesiumIonClient/Response.h>
 #include <CesiumUtility/Math.h>
 #include <mbgl/style/layer.hpp>
 #include <mbgl/style/layers/custom_drawable_layer.hpp>
@@ -52,18 +58,44 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tile
 			CesiumAsync::AsyncSystem(std::make_shared<CesiumNativeTests::ThreadTaskProcessor>()),
 			nullptr
 		);
-		auto t = dragon::CesiumHelper::ecefToWgs84(glm::dvec3(-1800081.6336563815,
-			6002674.4507558359,
-			1182903.2896941833)); 
 		Cesium3DTilesSelection::TilesetOptions options;
 		options.maximumCachedBytes = 256LL * 1024 * 1024; 
 		options.maximumScreenSpaceError = 4.0; 
-		tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
-			path_tileset,
-			options);
+		if (!path_tileset.empty())
+		{
+			tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
+				path_tileset,
+				options); 
+		}
+		else
+		{
+			tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
+				2275207,
+				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmZDAyNWYzMi1mMjk4LTQ5NjEtYmUwMi1hNjc4MDcxOWFlNDQiLCJpZCI6MTc4MTMzLCJpYXQiOjE2OTk5NDU5Njd9.7K9lFmBsKk4H1tfTfn590iTEGcFGqOXsa25XO8LoXJ4",
+				options);
+		}
+		
 		isLoadedTileset = true; 
 		m_LayerGroup = interface.getLayerGroupBase();
-		tileset->loadedTiles(); 
+		//tileset->loadedTiles(); 
+
+		//test connection 
+		//CesiumAsync::AsyncSystem asyncSystem(std::make_shared<CesiumNativeTests::SimpleTaskProcessor>());
+		//CesiumIonClient::ApplicationData app{};
+		//CesiumIonClient::Connection connection(
+		//	asyncSystem,
+		//	mockAssetAccessor,
+		//	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmZDAyNWYzMi1mMjk4LTQ5NjEtYmUwMi1hNjc4MDcxOWFlNDQiLCJpZCI6MTc4MTMzLCJpYXQiOjE2OTk5NDU5Njd9.7K9lFmBsKk4H1tfTfn590iTEGcFGqOXsa25XO8LoXJ4",
+		//	app
+		//); 
+		//CesiumAsync::Future<CesiumIonClient::Response<CesiumIonClient::Defaults>> futureDefaults = connection.defaults();
+		//while (!futureDefaults.isReady())
+		//{
+		//	asyncSystem.dispatchMainThreadTasks(); 
+		//}
+
+		//auto t = futureDefaults.wait(); 
+		//int a = 3; 
 	}; 
 	fnc_queue.push(lambda); 
 
@@ -71,10 +103,16 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tile
 	{
 		glm::dvec3 ecef_center_bounding_volume = dragon::CesiumHelper::getCenterBoundingVolume(BoundingVolume);
 		std::optional<glm::dvec3> wgs84_center_bounding_volume = dragon::CesiumHelper::ecefToWgs84(ecef_center_bounding_volume);
-		const double lon = wgs84_center_bounding_volume.value().x;
-		const double lat = wgs84_center_bounding_volume.value().y;
+		double lon = 0; 
+		double lat = 0; 
+		if (wgs84_center_bounding_volume)
+		{
+			lon = wgs84_center_bounding_volume.value().x; 
+			lat = wgs84_center_bounding_volume.value().y;
+		}
+		//const double lat = wgs84_center_bounding_volume.value().y;
 		auto tile = Convert::wgs84ToTile(lon, lat);
-		interface.addCustomDrawableWithTile({ (uint8_t)tile.tileZ, (uint32_t)tile.tileX, (uint32_t)tile.tileY });
+		interface.addCustomDrawableWithTile({ 16,53559,28598 });
 		//set scene 
 		mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(m_LayerGroup.get());
 		tileLayerGroup->visitDrawables([&](const mbgl::gfx::Drawable& drawable) {
@@ -90,6 +128,7 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tile
 						auto& tile = ptrDrawable->getTileID();
 						scene = impl->scene.get(); 
 						prepareRendererResource->context = { impl->scene.get(),tile.value().canonical }; 
+						//prepareRendererResource->context = { impl->scene.get(),tile.value().canonical }; 
 						return; 
 					}
 				}

@@ -139,7 +139,7 @@ namespace dragon
 			const std::string identifier = "3d-model-01";
 			const auto& existingLayer = style.getLayer(identifier);
 			if (!existingLayer) {
-				std::string path_tileset{ "http://10.222.3.84:9000/3dtiles/root.json" };
+	/*			std::string path_tileset{ "http://10.222.3.84:9000/3dtiles/root.json" };
 				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
 					identifier, std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset)));
 
@@ -149,7 +149,11 @@ namespace dragon
 
 				std::string path_tileset3{ "http://10.222.3.84:9000/caolanhcity/caolanh_city3d/root.json" };
 				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
-					"3d-model-03", std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset3)));
+					"3d-model-03", std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset3)));*/
+
+				std::string path_tileset4{ std::string() };
+				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
+					"3d-model-04", std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset4)));
 
 				if (!style.getSource("composite")) {
 					return;
@@ -186,17 +190,18 @@ namespace dragon
 
 				//std::shared_ptr<threepp::Object3D> clone_model = model->clone(true);
 				//clone_model->matrixAutoUpdate = false;
-				std::string path = "ifc/S_Office_Integrated Design Archi.ifc"; 
+		/*		std::string path = "ifc/S_Office_Integrated Design Archi.ifc"; 
 				mbgl::style::Style& style = m_Map->getStyle();
 				const std::string identifier = "Example-Bim-Layer";
 				const auto& existingLayer = style.getLayer(identifier);
 				if (!existingLayer) {
 					style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
 						identifier, std::make_unique<ThreeDCustomDrawableStyleLayerHost>(path)));
-				};
+				};*/
 
 				m_Map->jumpTo(mbgl::CameraOptions()
-					.withCenter(mbgl::LatLng{ 10.795536743953814, 106.71569824218750 })
+					.withCenter(mbgl::LatLng{ 22.321104791706215, 114.20831725401739 })
+					//.withCenter(mbgl::LatLng{ 10.795017038608506, 106.72194579235669 })
 					.withZoom(18)
 					.withBearing(0.0)
 					.withPitch(0.0));

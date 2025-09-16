@@ -6,7 +6,7 @@ namespace CesiumNativeTests {
 class SimpleTaskProcessor : public CesiumAsync::ITaskProcessor {
 public:
   virtual void startTask(std::function<void()> f) override {
-	  //f();
+	  f();
   }
 };
 } // namespace CesiumNativeTests
