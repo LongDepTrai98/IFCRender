@@ -98,13 +98,19 @@ public:
       const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
       void* pMainThreadRendererResources,
       const glm::dvec2& translation,
-      const glm::dvec2& scale) override {}
+      const glm::dvec2& scale) override {
+      int a = 3;
+
+  }
 
   virtual void detachRasterInMainThread(
       const Cesium3DTilesSelection::Tile& tile,
       int32_t overlayTextureCoordinateID,
       const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
-      void* pMainThreadRendererResources) noexcept override {}
+      void* pMainThreadRendererResources) noexcept override {
+      int a = 3;
+
+  }
 
   std::function<void(const TileLoadResult&)> prepareInLoadThreadTestCallback =
       [](const TileLoadResult& /*result*/) {};

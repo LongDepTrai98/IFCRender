@@ -59,8 +59,8 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tile
 			nullptr
 		);
 		Cesium3DTilesSelection::TilesetOptions options;
-		options.maximumCachedBytes = 256LL * 1024 * 1024; 
-		options.maximumScreenSpaceError = 4.0; 
+		//options.maximumCachedBytes = 256LL * 1024 * 1024; 
+		//options.maximumScreenSpaceError = 4.0; 
 		if (!path_tileset.empty())
 		{
 			tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
@@ -112,8 +112,8 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tile
 		}
 		//const double lat = wgs84_center_bounding_volume.value().y;
 		auto tile = Convert::wgs84ToTile(lon, lat);
-		interface.addCustomDrawableWithTile({ (uint8_t)tile.tileZ, (uint32_t)tile.tileX, (uint32_t)tile.tileY });
-		//interface.addCustomDrawableWithTile({ 16,53559,28598 });
+		//interface.addCustomDrawableWithTile({ (uint8_t)tile.tileZ, (uint32_t)tile.tileX, (uint32_t)tile.tileY });
+		interface.addCustomDrawableWithTile({ 16,53559,28598 });
 		//set scene 
 		mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(m_LayerGroup.get());
 		tileLayerGroup->visitDrawables([&](const mbgl::gfx::Drawable& drawable) {
