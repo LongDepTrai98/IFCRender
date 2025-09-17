@@ -154,121 +154,221 @@ namespace dragon
 			}
 		}
 
-		for (size_t meshIndex = 0; meshIndex < gltf.meshes.size(); ++meshIndex)
-		{
+		for (size_t meshIndex = 0; meshIndex < gltf.meshes.size(); ++meshIndex) {
 			const auto& gltfMesh = gltf.meshes[meshIndex];
-	/*		std::vector<std::shared_ptr<threepp::BufferGeometry>> geos;
-			std::vector<std::shared_ptr<threepp::Material>> mats;*/
-			for (size_t primIndex = 0; primIndex < gltfMesh.primitives.size(); ++primIndex)
-			{
+
+			// FIX: Uncomment và sử dụng vectors để merge geometries
+			std::vector<std::shared_ptr<threepp::BufferGeometry>> geos;
+			std::vector<std::shared_ptr<threepp::Material>> mats;
+
+			for (size_t primIndex = 0; primIndex < gltfMesh.primitives.size(); ++primIndex) {
 				const auto& primitive = gltfMesh.primitives[primIndex];
-				//create geo
+
+				// Create geometry
 				auto geometry = threepp::BufferGeometry::create();
+
+				// FIX: Position attribute với bounds checking
 				if (primitive.attributes.find("POSITION") != primitive.attributes.end()) {
 					auto positionIt = primitive.attributes.find("POSITION");
-					if (positionIt->second >= 0)
-					{
+					if (positionIt->second >= 0 && positionIt->second < static_cast<int32_t>(gltf.accessors.size())) {
 						const CesiumGltf::Accessor& positionAccessor = gltf.accessors[size_t(positionIt->second)];
-						CesiumGltf::BufferView& positionBufferView = gltf.bufferViews[size_t(positionAccessor.bufferView)];
-						auto& posBuffer = gltf.buffers[positionBufferView.buffer];
-						size_t posOffset = positionBufferView.byteOffset + positionAccessor.byteOffset;
-						const float* posData = reinterpret_cast<const float*>(posBuffer.cesium.data.data() + posOffset);
-						size_t posCount = positionAccessor.count;
-						geometry->setAttribute("position", threepp::FloatBufferAttribute::create(std::vector<float>(posData, posData + posCount * 3), 3));
-					
-					}
-				}
-				if (primitive.attributes.find("NORMAL") != primitive.attributes.end())
-				{
-					auto normalIt = primitive.attributes.find("NORMAL");
-					if (normalIt->second >= 0)
-					{
-						const CesiumGltf::Accessor& normalAccessor = gltf.accessors[size_t(normalIt->second)];
-						const CesiumGltf::BufferView& normalBufferView = gltf.bufferViews[size_t(normalAccessor.bufferView)];
-						const auto& posBuffer = gltf.buffers[normalBufferView.buffer];
-						size_t posOffset = normalBufferView.byteOffset + normalAccessor.byteOffset;
-						const float* posData = reinterpret_cast<const float*>(posBuffer.cesium.data.data() + posOffset);
-						size_t posCount = normalAccessor.count;
-						geometry->setAttribute("normal", threepp::FloatBufferAttribute::create(std::vector<float>(posData, posData + posCount * 3), 3));
-					}
-				}
-				if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end())
-				{
-					int uvAccessorIndex = primitive.attributes.at("TEXCOORD_0");
-					const CesiumGltf::Accessor& uvAccessor = gltf.accessors[uvAccessorIndex];
-					const auto& uvBufferView = gltf.bufferViews[size_t(uvAccessor.bufferView)];
-					const auto& uvBuffer = gltf.buffers[uvBufferView.buffer];
-					size_t uvOffset = uvBufferView.byteOffset + uvAccessor.byteOffset;
-					const float* uvData = reinterpret_cast<const float*>(uvBuffer.cesium.data.data() + uvOffset);
-					size_t uvCount = uvAccessor.count;
-					geometry->setAttribute("uv", threepp::FloatBufferAttribute::create(std::vector<float>(uvData, uvData + uvCount * 2), 2));
-				}
 
-				if (primitive.indices >= 0)
-				{
-					const CesiumGltf::Accessor& indicesAccessor = gltf.accessors[size_t(primitive.indices)];
-					const CesiumGltf::BufferView& indicesBufferView = gltf.bufferViews[size_t(indicesAccessor.bufferView)];
-					const auto& indexBuffer = gltf.buffers[indicesBufferView.buffer];
-					size_t indexOffset = indicesBufferView.byteOffset + indicesAccessor.byteOffset;
-					if (indicesAccessor.componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT)
-					{ 
-						const uint16_t* indexData = reinterpret_cast<const uint16_t*>(indexBuffer.cesium.data.data() + indexOffset);
-						std::vector<uint32_t> indices32(indexData, indexData + indicesAccessor.count);
-						geometry->setIndex(std::move(indices32));
-					}
-					else if (indicesAccessor.componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_INT)
-					{
-						const uint32_t* indexData = reinterpret_cast<const uint32_t*>(indexBuffer.cesium.data.data() + indexOffset);
-						std::vector<uint32_t> indices32(indexData, indexData + indicesAccessor.count);
-						geometry->setIndex(std::move(indices32));
-					}
+						// FIX: Kiểm tra bufferView có tồn tại không
+						if (positionAccessor.bufferView < gltf.bufferViews.size()) {
 
-				}
+							const CesiumGltf::BufferView& positionBufferView =
+								gltf.bufferViews[size_t(positionAccessor.bufferView)];
 
-				auto material = threepp::MeshBasicMaterial::create();
-				material->side = threepp::Side::Double;
-				int matIndex = primitive.material;
-				const auto& gltfMaterial = gltf.materials[matIndex];
-				if (gltfMaterial.pbrMetallicRoughness.has_value())
-				{
-					const auto& pbr = gltfMaterial.pbrMetallicRoughness.value();
-					if (pbr.baseColorTexture.has_value())
-					{
-						int texIndex = pbr.baseColorTexture.value().index;
-						const auto& gltfTexture = gltf.textures[texIndex];
-						const auto& gltfImage = gltf.images[size_t(gltfTexture.source)];
-						CesiumGltf::ImageAsset& image = *gltfImage.pAsset;
-						if (image.pixelData.size() > 0)
-						{
-							//create image
-							auto size = image.pixelData.size();
-							std::vector<unsigned char> ucharBuffer(size);
-							std::memcpy(ucharBuffer.data(), image.pixelData.data(), image.pixelData.size());
-							threepp::Image three_img(std::move(ucharBuffer),
-								image.width,
-								image.height);
-							auto texture = threepp::Texture::create(std::move(three_img));
-							if (image.channels == 4)
-							{
-								texture->format = threepp::Format::RGBA;
+							if (positionBufferView.buffer < gltf.buffers.size()) {
+								const auto& posBuffer = gltf.buffers[positionBufferView.buffer];
+								size_t posOffset = positionBufferView.byteOffset + positionAccessor.byteOffset;
+
+								// FIX: Kiểm tra bounds để tránh buffer overflow
+								size_t requiredSize = posOffset + positionAccessor.count * 3 * sizeof(float);
+								if (requiredSize <= posBuffer.cesium.data.size()) {
+									const float* posData = reinterpret_cast<const float*>(
+										posBuffer.cesium.data.data() + posOffset);
+									size_t posCount = positionAccessor.count;
+
+									geometry->setAttribute("position",
+										threepp::FloatBufferAttribute::create(
+											std::vector<float>(posData, posData + posCount * 3), 3));
+								}
 							}
-							else
-							{
-								texture->format = threepp::Format::RGB;
-							}
-							texture->needsUpdate();
-							material->as<threepp::MeshBasicMaterial>()->map = texture;
 						}
 					}
 				}
-			/*	mats.emplace_back(material);
-				geos.emplace_back(geometry);*/
-				std::shared_ptr<threepp::Mesh> mesh = threepp::Mesh::create(geometry, material); 
-				container->add(mesh); 
+
+				// FIX: Normal attribute với bounds checking
+				if (primitive.attributes.find("NORMAL") != primitive.attributes.end()) {
+					auto normalIt = primitive.attributes.find("NORMAL");
+					if (normalIt->second >= 0 && normalIt->second < static_cast<int32_t>(gltf.accessors.size())) {
+						const CesiumGltf::Accessor& normalAccessor = gltf.accessors[size_t(normalIt->second)];
+
+						if (normalAccessor.bufferView < gltf.bufferViews.size()) {
+
+							const CesiumGltf::BufferView& normalBufferView =
+								gltf.bufferViews[size_t(normalAccessor.bufferView)];
+
+							if (normalBufferView.buffer < gltf.buffers.size()) {
+								const auto& normalBuffer = gltf.buffers[normalBufferView.buffer];
+								size_t normalOffset = normalBufferView.byteOffset + normalAccessor.byteOffset;
+
+								size_t requiredSize = normalOffset + normalAccessor.count * 3 * sizeof(float);
+								if (requiredSize <= normalBuffer.cesium.data.size()) {
+									const float* normalData = reinterpret_cast<const float*>(
+										normalBuffer.cesium.data.data() + normalOffset);
+									size_t normalCount = normalAccessor.count;
+
+									geometry->setAttribute("normal",
+										threepp::FloatBufferAttribute::create(
+											std::vector<float>(normalData, normalData + normalCount * 3), 3));
+								}
+							}
+						}
+					}
+				}
+
+				// FIX: UV attribute với bounds checking
+				if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end()) {
+					int uvAccessorIndex = primitive.attributes.at("TEXCOORD_0");
+					if (uvAccessorIndex >= 0 && uvAccessorIndex < static_cast<int32_t>(gltf.accessors.size())) {
+						const CesiumGltf::Accessor& uvAccessor = gltf.accessors[uvAccessorIndex];
+
+						if (uvAccessor.bufferView < gltf.bufferViews.size()) {
+
+							const auto& uvBufferView = gltf.bufferViews[size_t(uvAccessor.bufferView)];
+
+							if (uvBufferView.buffer < gltf.buffers.size()) {
+								const auto& uvBuffer = gltf.buffers[uvBufferView.buffer];
+								size_t uvOffset = uvBufferView.byteOffset + uvAccessor.byteOffset;
+
+								size_t requiredSize = uvOffset + uvAccessor.count * 2 * sizeof(float);
+								if (requiredSize <= uvBuffer.cesium.data.size()) {
+									const float* uvData = reinterpret_cast<const float*>(
+										uvBuffer.cesium.data.data() + uvOffset);
+									size_t uvCount = uvAccessor.count;
+
+									geometry->setAttribute("uv",
+										threepp::FloatBufferAttribute::create(
+											std::vector<float>(uvData, uvData + uvCount * 2), 2));
+								}
+							}
+						}
+					}
+				}
+
+				// FIX: Indices với bounds checking
+				if (primitive.indices >= 0 && primitive.indices < static_cast<int32_t>(gltf.accessors.size())) {
+					const CesiumGltf::Accessor& indicesAccessor = gltf.accessors[size_t(primitive.indices)];
+					if (indicesAccessor.bufferView < gltf.bufferViews.size()) {
+
+						const CesiumGltf::BufferView& indicesBufferView =
+							gltf.bufferViews[size_t(indicesAccessor.bufferView)];
+
+						if (indicesBufferView.buffer < gltf.buffers.size()) {
+							const auto& indexBuffer = gltf.buffers[indicesBufferView.buffer];
+							size_t indexOffset = indicesBufferView.byteOffset + indicesAccessor.byteOffset;
+
+							if (indicesAccessor.componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_SHORT) {
+								size_t requiredSize = indexOffset + indicesAccessor.count * sizeof(uint16_t);
+								if (requiredSize <= indexBuffer.cesium.data.size()) {
+									const uint16_t* indexData = reinterpret_cast<const uint16_t*>(
+										indexBuffer.cesium.data.data() + indexOffset);
+									std::vector<uint32_t> indices32(indexData, indexData + indicesAccessor.count);
+									geometry->setIndex(std::move(indices32));
+								}
+							}
+							else if (indicesAccessor.componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_INT) {
+								size_t requiredSize = indexOffset + indicesAccessor.count * sizeof(uint32_t);
+								if (requiredSize <= indexBuffer.cesium.data.size()) {
+									const uint32_t* indexData = reinterpret_cast<const uint32_t*>(
+										indexBuffer.cesium.data.data() + indexOffset);
+									std::vector<uint32_t> indices32(indexData, indexData + indicesAccessor.count);
+									geometry->setIndex(std::move(indices32));
+								}
+							} else if (indicesAccessor.componentType == CesiumGltf::Accessor::ComponentType::UNSIGNED_BYTE) {
+								size_t requiredSize = indexOffset + indicesAccessor.count * sizeof(uint8_t);
+								if (requiredSize <= indexBuffer.cesium.data.size()) {
+									const uint8_t* indexData = reinterpret_cast<const uint8_t*>(
+										indexBuffer.cesium.data.data() + indexOffset);
+									std::vector<uint32_t> indices32(indexData, indexData + indicesAccessor.count);
+									geometry->setIndex(std::move(indices32));
+								}
+							}
+						}
+					}
+				}
+
+				if (geometry->getIndex()->itemSize() == 0)
+				{
+					spdlog::error("error");
+				}
+
+				// FIX: Material creation với null checking
+				auto material = threepp::MeshBasicMaterial::create();
+				material->side = threepp::Side::Double;
+
+				// FIX: Kiểm tra material index hợp lệ
+				if (primitive.material >= 0 && primitive.material < static_cast<int32_t>(gltf.materials.size())) {
+					const auto& gltfMaterial = gltf.materials[primitive.material];
+
+					if (gltfMaterial.pbrMetallicRoughness.has_value()) {
+						const auto& pbr = gltfMaterial.pbrMetallicRoughness.value();
+
+						if (pbr.baseColorTexture.has_value()) {
+							int texIndex = pbr.baseColorTexture.value().index;
+
+							// FIX: Kiểm tra texture index hợp lệ
+							if (texIndex >= 0 && texIndex < static_cast<int32_t>(gltf.textures.size())) {
+								const auto& gltfTexture = gltf.textures[texIndex];
+
+								// FIX: Kiểm tra image source hợp lệ
+								if (gltfTexture.source >= 0 &&
+									gltfTexture.source < static_cast<int32_t>(gltf.images.size())) {
+
+									const auto& gltfImage = gltf.images[size_t(gltfTexture.source)];
+
+									// FIX: Kiểm tra pAsset không null và có data
+									if (gltfImage.pAsset && gltfImage.pAsset->pixelData.size() > 0) {
+										CesiumGltf::ImageAsset& image = *gltfImage.pAsset;
+
+										auto size = image.pixelData.size();
+										std::vector<unsigned char> ucharBuffer(size);
+										std::memcpy(ucharBuffer.data(), image.pixelData.data(), size);
+
+										threepp::Image three_img(std::move(ucharBuffer),
+											image.width, image.height);
+										auto texture = threepp::Texture::create(std::move(three_img));
+
+										if (image.channels == 4) {
+											texture->format = threepp::Format::RGBA;
+										}
+										else {
+											texture->format = threepp::Format::RGB;
+										}
+
+										texture->needsUpdate();
+										material->as<threepp::MeshBasicMaterial>()->map = texture;
+									}
+								}
+							}
+						}
+					}
+				}
+
+				// FIX: Thêm vào vectors thay vì comment out
+				geometry->computeVertexNormals(); 
+				geos.emplace_back(geometry);
+				mats.emplace_back(material);
 			}
-			/*auto mergeo = threepp::mergeBufferGeometries(geos, true);
-			auto threepp_mesh = threepp::Mesh::create(mergeo, mats);*/
-			//container->add(threepp_mesh);
+			for (size_t i = 0; i < geos.size(); ++i) {
+				auto geometry = geos[i];
+				auto material = mats[i];
+
+				auto threepp_mesh = threepp::Mesh::create(geometry, material);
+				container->add(threepp_mesh);
+			}
 		}
 		// Optional: Clear other data structures if not neede
 

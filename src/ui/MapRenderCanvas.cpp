@@ -202,7 +202,7 @@ namespace dragon
 				m_Map->jumpTo(mbgl::CameraOptions()
 					.withCenter(mbgl::LatLng{ 22.321104791706215, 114.20831725401739 })
 					//.withCenter(mbgl::LatLng{ 10.795017038608506, 106.72194579235669 })
-					.withZoom(18)
+					.withZoom(15)
 					.withBearing(0.0)
 					.withPitch(0.0));
 

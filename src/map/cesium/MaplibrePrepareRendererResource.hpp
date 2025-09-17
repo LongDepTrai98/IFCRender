@@ -3,10 +3,12 @@
 #include <Cesium3DTilesSelection/IPrepareRendererResources.h>
 #include <Cesium3DTilesSelection/Tile.h>
 #include <CesiumRasterOverlays/RasterOverlayTile.h>
+#include <mbgl/tile/tile_id.hpp>
+#include <mbgl/renderer/layer_group.hpp>
+#include <mbgl/style/layers/custom_drawable_layer.hpp>
 #include <spdlog/spdlog.h>
 #include <atomic>
 #include <functional>
-#include <mbgl/tile/tile_id.hpp>
 #include <mutex>
 
 
@@ -17,6 +19,7 @@ namespace threepp
     class Object3D; 
 }
 
+
 namespace Cesium3DTilesSelection {
 class MaplibrePrepareRendererResource : public Cesium3DTilesSelection::IPrepareRendererResources {
 public: 
@@ -24,19 +27,25 @@ public:
     {
         threepp::Scene* scene{ nullptr };
         mbgl::CanonicalTileID root_tile_id{ 0,0,0 };
+        mbgl::LayerGroupBase* layerGroup{ nullptr }; 
+        mbgl::style::CustomDrawableLayerHost::Interface* interface{ nullptr };
     };
 
 public:
   std::atomic<size_t> totalAllocation{};
 
   struct PrepareResult {
-      PrepareResult(std::shared_ptr<threepp::Object3D> obj_)
-        : obj{ obj_ } {
-    }
+      PrepareResult(std::shared_ptr<threepp::Object3D> obj_, mbgl::CanonicalTileID canonicalTileID_)
+        : obj(obj_), canonicalTileID(canonicalTileID_)
+      {
+
+      }
       ~PrepareResult() noexcept { 
           obj = nullptr;
       }
     std::shared_ptr<threepp::Object3D> obj;
+    mbgl::CanonicalTileID canonicalTileID{ 0,0,0 };
+    threepp::Scene* scene{ nullptr };
   };
 
   ~MaplibrePrepareRendererResource() noexcept {  }
@@ -60,7 +69,7 @@ public:
   virtual void* prepareRasterInLoadThread(
       CesiumGltf::ImageAsset& image,
       const std::any& rendererOptions) override {
-    return new PrepareResult{nullptr};
+    return new PrepareResult{nullptr, mbgl::CanonicalTileID(0,0,0)};
   }
 
   virtual void* prepareRasterInMainThread(
@@ -72,7 +81,7 @@ public:
       delete loadThreadResult;
     }
 
-    return new PrepareResult{nullptr};
+    return new PrepareResult{nullptr,mbgl::CanonicalTileID(0,0,0) };
   }
 
   virtual void freeRaster(
@@ -115,9 +124,9 @@ public:
   std::function<void(const TileLoadResult&)> prepareInLoadThreadTestCallback =
       [](const TileLoadResult& /*result*/) {};
 
-  std::shared_ptr<threepp::Group> createGroupThreeppFromModel(Cesium3DTilesSelection::Tile& tile);
   std::shared_ptr<threepp::Group> createGroupThreeppFromModel(CesiumGltf::Model& model, 
-      glm::dmat4& tile_transform);
+      glm::dmat4& tile_transform, 
+      mbgl::CanonicalTileID& canonicalTileID);
 public: 
     std::atomic<int> t_count{ 0 }; 
     std::mutex mutexResource{};

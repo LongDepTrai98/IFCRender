@@ -101,7 +101,8 @@ void ThreeDCustomDrawableStyleLayerHost::update(Interface& interface) {
     // if we have built our drawable(s) already, either update or skip
     if (interface.getDrawableCount() == 0)
     {
-        interface.addCustomDrawableWithTile({ (uint8_t)root_tile_id.z,root_tile_id.x,root_tile_id.y, });
+        mbgl::gl::DrawableCustom* ptrDrawableCustom_{ nullptr }; 
+        interface.addCustomDrawableWithTile({ (uint8_t)root_tile_id.z,root_tile_id.x,root_tile_id.y, }, ptrDrawableCustom_);
         m_LayerGroup = interface.getLayerGroupBase(); 
         return;
     }
