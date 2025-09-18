@@ -136,20 +136,20 @@ namespace dragon
 			MLN_TRACE_FUNC();
 			if (!m_Map) return; 
 			mbgl::style::Style& style = m_Map->getStyle(); 
-			const std::string identifier = "3d-model-01";
+			const std::string identifier = "3dtiles";
 			const auto& existingLayer = style.getLayer(identifier);
 			if (!existingLayer) {
-	/*			std::string path_tileset{ "http://10.222.3.84:9000/3dtiles/root.json" };
+				std::string path_tileset{ "http://10.222.3.84:9000/3dtiles/root.json" };
 				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
 					identifier, std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset)));
 
 				std::string path_tileset2{ "http://10.222.3.84:9000/chobinhdien/Cho_Binh_Dien/root.json" };
 				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
-					"3d-model-02", std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset2)));
+					"Cho_Binh_Dien", std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset2)));
 
 				std::string path_tileset3{ "http://10.222.3.84:9000/caolanhcity/caolanh_city3d/root.json" };
 				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
-					"3d-model-03", std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset3)));*/
+					"caolanh_city3d", std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset3)));
 
 				std::string path_tileset4{ std::string() };
 				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
@@ -188,19 +188,17 @@ namespace dragon
 				style.addLayer(std::move(extrusionLayer));
 
 
-				//std::shared_ptr<threepp::Object3D> clone_model = model->clone(true);
-				//clone_model->matrixAutoUpdate = false;
-		/*		std::string path = "ifc/S_Office_Integrated Design Archi.ifc"; 
+				std::string path = "ifc/ZCB.ifc"; 
 				mbgl::style::Style& style = m_Map->getStyle();
 				const std::string identifier = "Example-Bim-Layer";
 				const auto& existingLayer = style.getLayer(identifier);
 				if (!existingLayer) {
 					style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
 						identifier, std::make_unique<ThreeDCustomDrawableStyleLayerHost>(path)));
-				};*/
+				};
 
 				m_Map->jumpTo(mbgl::CameraOptions()
-					.withCenter(mbgl::LatLng{ 22.321104791706215, 114.20831725401739 })
+					.withCenter(mbgl::LatLng{ 22.321089578051517, 114.20812670422553 })
 					//.withCenter(mbgl::LatLng{ 10.795017038608506, 106.72194579235669 })
 					.withZoom(15)
 					.withBearing(0.0)

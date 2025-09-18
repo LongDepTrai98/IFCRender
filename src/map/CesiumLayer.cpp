@@ -47,22 +47,16 @@
 #include "core/convert/Tile.hpp"
 #include <CesiumAsync/CachingAssetAccessor.h>
 #include <CesiumAsync/GunzipAssetAccessor.h>
-#include <CesiumAsync/SqliteCache.h>
 CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tileset)
 {
 	auto lambda = [&, path_tileset](Interface& interface) {
 		mockAssetAccessor = std::make_shared<CesiumNativeTests::MaplibreAssetAccessor>();
 		prepareRendererResource = std::make_shared<Cesium3DTilesSelection::MaplibrePrepareRendererResource>();
-		constexpr int32_t requestsPerCachePrune = 10000;
-		constexpr uint64_t maxItems = 4096 * 5;
-		auto cache = std::make_shared<CesiumAsync::SqliteCache>(spdlog::default_logger(), "D:/", maxItems);
-		auto cachedAccessor = std::make_shared<CesiumAsync::CachingAssetAccessor>(spdlog::default_logger(), mockAssetAccessor, nullptr, requestsPerCachePrune);
-		auto gunzipAccessor = std::make_shared<CesiumAsync::GunzipAssetAccessor>(
-			cachedAccessor
+		gunzipAssetAccessor = std::make_shared<CesiumAsync::GunzipAssetAccessor>(
+			mockAssetAccessor
 		);
-		
 		tilesetExternals = std::make_shared<Cesium3DTilesSelection::TilesetExternals>(
-			gunzipAccessor,
+			gunzipAssetAccessor,
 			prepareRendererResource,
 			CesiumAsync::AsyncSystem(std::make_shared<CesiumNativeTests::ThreadTaskProcessor>()),
 			nullptr
@@ -80,6 +74,9 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tile
 		supportedFormats.ETC2_EAC_RG11 = true;
 		supportedFormats.BC7_RGBA = true;
 		options.contentOptions.ktx2TranscodeTargets = { supportedFormats, true };
+		options.loadErrorCallback = [=](const Cesium3DTilesSelection::TilesetLoadFailureDetails& failData) {
+			spdlog::error("Failed to load a given tileset, error: {} ", failData.message.c_str());
+		};
 		Cesium3DTilesContent::registerAllTileContentTypes();
 		if (!path_tileset.empty())
 		{
@@ -94,48 +91,11 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tile
 				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmZDAyNWYzMi1mMjk4LTQ5NjEtYmUwMi1hNjc4MDcxOWFlNDQiLCJpZCI6MTc4MTMzLCJpYXQiOjE2OTk5NDU5Njd9.7K9lFmBsKk4H1tfTfn590iTEGcFGqOXsa25XO8LoXJ4",
 				options);
 		}
-		
 		isLoadedTileset = true; 
 		m_LayerGroup = interface.getLayerGroupBase();
 		prepareRendererResource->context.layerGroup = m_LayerGroup.get(); 
 	}; 
 	fnc_queue.push(lambda); 
-
-	//fnc_create_drawable = [&](Interface& interface, const Cesium3DTilesSelection::BoundingVolume& BoundingVolume)
-	//{
-	//	glm::dvec3 ecef_center_bounding_volume = dragon::CesiumHelper::getCenterBoundingVolume(BoundingVolume);
-	//	std::optional<glm::dvec3> wgs84_center_bounding_volume = dragon::CesiumHelper::ecefToWgs84(ecef_center_bounding_volume);
-	//	double lon = 0; 
-	//	double lat = 0; 
-	//	if (wgs84_center_bounding_volume)
-	//	{
-	//		lon = wgs84_center_bounding_volume.value().x; 
-	//		lat = wgs84_center_bounding_volume.value().y;
-	//	}
-	//	//const double lat = wgs84_center_bounding_volume.value().y;
-	//	auto tile = Convert::wgs84ToTile(lon, lat);
-	//	//interface.addCustomDrawableWithTile({ (uint8_t)tile.tileZ, (uint32_t)tile.tileX, (uint32_t)tile.tileY });
-	//	interface.addCustomDrawableWithTile({ 16,53559,28598 });
-	//	//set scene 
-	//	mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(m_LayerGroup.get());
-	//	tileLayerGroup->visitDrawables([&](const mbgl::gfx::Drawable& drawable) {
-	//		if (drawable.getDrawType() == mbgl::gfx::Drawable::DrawableType::DrawableCustom)
-	//		{
-	//			const mbgl::gfx::Drawable* ptrDrawable = &drawable;
-	//			const mbgl::gl::DrawableCustom* ptrDrawableCustom = static_cast<const mbgl::gl::DrawableCustom*>(ptrDrawable);
-	//			if (ptrDrawableCustom)
-	//			{
-	//				auto impl = ptrDrawableCustom->getImpl();
-	//				if (impl->scene)
-	//				{
-	//					auto& tile = ptrDrawable->getTileID();
-	//					scene = impl->scene.get(); 
-	//					prepareRendererResource->context = { impl->scene.get(),tile.value().canonical }; 
-	//					return; 
-	//				}
-	//			}
-	//		}});
-	//}; 
 }
 
 CesiumDrawableStyleLayerHost::~CesiumDrawableStyleLayerHost()
@@ -164,11 +124,10 @@ Cesium3DTilesSelection::ViewState CesiumDrawableStyleLayerHost::createViewState(
 	CesiumGeospatial::Cartographic radian_camera_location = CesiumGeospatial::Cartographic::fromDegrees(location_cam_wgs84.longitude(), location_cam_wgs84.latitude(), cam_altitude_wgs84);
 	glm::dvec3 ecef_camera_location = dragon::CesiumHelper::wgs84ToEcef(location_cam_wgs84.longitude(), location_cam_wgs84.latitude(), cam_altitude_wgs84);
 	glm::dvec3 worldUp = ellipsoid.geodeticSurfaceNormal(ecef_camera_location);
-	// Viewport và FOV
 	double aspectRatio = state.getSize().aspectRatio();
 	glm::dvec2 viewPortSize = glm::dvec2(state.getSize().width, state.getSize().height);
 	double degMaplibreCam = CesiumUtility::Math::radiansToDegrees(state.getFieldOfView()); 
-	double horizontalFieldOfView = CesiumUtility::Math::degreesToRadians(degMaplibreCam * 2.5);
+	double horizontalFieldOfView = CesiumUtility::Math::degreesToRadians(degMaplibreCam * 2.0);
 	double verticalFieldOfView = std::atan(std::tan(horizontalFieldOfView * 0.5) / aspectRatio) * 2.0;
 	glm::dvec3 direction = glm::normalize(ecef_center - ecef_camera_location);
 	glm::dvec3 right = glm::normalize(glm::cross(direction, worldUp)); 
@@ -179,9 +138,23 @@ Cesium3DTilesSelection::ViewState CesiumDrawableStyleLayerHost::createViewState(
 		up,
 		viewPortSize,
 		horizontalFieldOfView,
-		verticalFieldOfView,
-		ellipsoid);
+		verticalFieldOfView);
 }
+
+ 
+static bool isInScene(threepp::Object3D * obj, const threepp::Scene * scene) {
+	if (!obj || !scene) return false;
+
+	auto current = obj;
+	while (current) {
+		if (current == scene) {
+			return true; // object đã nằm trong scene này
+		}
+		current = current->parent;
+	}
+	return false;
+}
+
 
 void CesiumDrawableStyleLayerHost::update(Interface& interface)
 {
@@ -211,18 +184,21 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 			fnc_create_drawable = nullptr;
 		}
 	}
-	else
 	{
 		auto callback_render_show = [&](const Cesium3DTilesSelection::ViewUpdateResult& result) {
 			for (auto& tile : result.tilesToRenderThisFrame)
 			{
 				if (tile->getState() != Cesium3DTilesSelection::TileLoadState::Done) {
-					return;
+					continue;
 				}
 				const Cesium3DTilesSelection::TileRenderContent* renderContent = tile->getContent().getRenderContent();
-				if (renderContent == nullptr) return;
+				if (renderContent == nullptr)
+				{
+					spdlog::error("error"); 
+					continue;
+				}
 				Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareResult* ptr_model = reinterpret_cast<Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareResult*>(renderContent->getRenderResources());
-				if (!ptr_model) break;
+				if (!ptr_model) continue;
 				ptr_model->obj->visible = true;
 			}
 			};
@@ -232,19 +208,19 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 			{
 				if (tile->getState() == Cesium3DTilesSelection::TileLoadState::Failed) {
 					std::string tileIdStr = Cesium3DTilesSelection::TileIdUtilities::createTileIdString(tile->getTileID());
-					spdlog::error("Failed to load tile : {}", tileIdStr);
-					return;
+					continue;
 				}
 				if (tile->getState() != Cesium3DTilesSelection::TileLoadState::Done) {
-					return;
+					continue;
 				}
 				const Cesium3DTilesSelection::TileContent& content = tile->getContent();
 				const Cesium3DTilesSelection::TileRenderContent* renderContent = content.getRenderContent();
 				if (renderContent == nullptr) {
-					return;
+					continue;
 				}
 				Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareResult* ptr_model = reinterpret_cast<Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareResult*>(renderContent->getRenderResources());
-				if (!ptr_model) break;
+				if (!ptr_model) continue;
+				if (!isInScene(ptr_model->obj.get(), ptr_model->scene)) continue; 
 				ptr_model->obj->visible = false;
 			}
 			};

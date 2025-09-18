@@ -72,7 +72,6 @@ namespace Cesium3DTilesSelection
                     {
                         isDrawbleCreated = true;
                         ptrDrawableCustom_ = (mbgl::gl::DrawableCustom*)(ptrDrawable);
-                        //return;
                     }
 			    }
 		    }});
@@ -104,8 +103,8 @@ namespace Cesium3DTilesSelection
         PrepareResult* mainThreadResult = reinterpret_cast<PrepareResult*>(pMainThreadResult);
         if (mainThreadResult->obj && mainThreadResult->scene)
         {
-            spdlog::info("free obj : {}", mainThreadResult->obj->uuid); 
             mainThreadResult->scene->remove(*mainThreadResult->obj);
+            mainThreadResult->obj.reset();
         }
         delete mainThreadResult;
         mainThreadResult = nullptr;
@@ -206,7 +205,7 @@ namespace Cesium3DTilesSelection
         matrixRotate = glm::toMat4(q1);
         matrixRotate = matrixRotate * glm::toMat4(glmRot) * glm::toMat4(quat);
 
-        double metersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84Rtc.value().y);
+        double metersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84Rtc.value().y) + 0.05;
         double scaleZ = 1 / metersPerExtentUnit;
 
         glm::dmat4 scaleMatrix = glm::scale(glm::dmat4(1.0), glm::dvec3(1.0 * metersPerExtentUnit,

@@ -47,7 +47,7 @@ ThreeDCustomDrawableStyleLayerHost::ThreeDCustomDrawableStyleLayerHost(std::stri
     m_RayCaster = std::make_unique<threepp::Raycaster>();
     std::shared_ptr<threepp::Group> container{ nullptr };
     uint8_t z = 16; 
-    root_tile_id = { z,52195,30791 };
+    root_tile_id = { z,53559,28597 };
 
     dragon::WebIFCConverter IFCApi{};
     container = IFCApi.convert(filePath);
@@ -280,7 +280,7 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                         // 3. Translate
                         auto matrix_translate = dragon::ThreeHelper::createMatrixTranslateAroundPivot(
                             box.getCenter(),
-                            1700.0, 2000.0, 0
+                            0.0, 0.0, 0
                         );
 
 
@@ -319,10 +319,11 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
                     //add_model_lambda(*impl->scene); 
                     threepp::Matrix4 transform;
                     transform.set(
-                        0.283599674702, -0.000000044490, -13.635078430176, 3220.403076171875,
-                        13.635078430176, 0.000000000925, 0.283599674702, 2973.635498046875,
-                        0.000000000000, 1.018017053604, -0.000000596137, 47.956161499023,
+                        9.501723289490, 0.000000031922, 9.783340454102, -513.029479980469,
+                        - 9.783340454102, 0.000000031003, 9.501723289490, 5333.705078125000,
+                        0.000000000000, 1.018017053604, -0.000000596137, 5.005340576172,
                         0.000000000000, 0.000000000000, 0.000000000000, 1.000000000000
+
                     );
                     add_model_lambda(*impl->scene, transform);
                 }

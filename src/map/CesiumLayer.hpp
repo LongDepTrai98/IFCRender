@@ -22,6 +22,7 @@ namespace CesiumNativeTests
 namespace CesiumAsync
 {
 	class AsyncSystem; 
+	class GunzipAssetAccessor; 
 }
 namespace CesiumNativeTests
 {
@@ -30,6 +31,7 @@ namespace CesiumNativeTests
 namespace threepp
 {
 	class Group; 
+	class Scene; 
 }
 class CesiumDrawableStyleLayerHost : public mbgl::style::CustomDrawableLayerHost
 {
@@ -47,6 +49,7 @@ public:
 	std::queue<std::function<void(Interface&)>> fnc_queue{};
 	std::shared_ptr<mbgl::LayerGroupBase> m_LayerGroup{ nullptr };
 	std::shared_ptr<Cesium3DTilesSelection::Tileset> tileset{ nullptr };
+	std::shared_ptr<CesiumAsync::GunzipAssetAccessor> gunzipAssetAccessor{ nullptr }; 
 	threepp::Scene* scene{ nullptr };
 	std::shared_ptr<Cesium3DTilesSelection::MaplibrePrepareRendererResource> prepareRendererResource{ nullptr }; 
 	std::shared_ptr<CesiumNativeTests::MaplibreAssetAccessor> mockAssetAccessor{ nullptr };
