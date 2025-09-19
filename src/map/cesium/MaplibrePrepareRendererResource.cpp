@@ -55,6 +55,12 @@ namespace Cesium3DTilesSelection
         if (pRenderContent == nullptr) {
             return pLoadThreadResult;
         }
+        auto center = dragon::CesiumHelper::getCenterBoundingVolume(tile.getBoundingVolume()); 
+        auto wgs84Center = dragon::CesiumHelper::ecefToWgs84(center); 
+        if (wgs84Center)
+        {
+            spdlog::info("lat,lon,height : {},{},{}", wgs84Center.value().y, wgs84Center.value().x, wgs84Center.value().z); 
+        }
         if (pLoadThreadResult) {
             PrepareTileResult* loadThreadResult = reinterpret_cast<PrepareTileResult*>(pLoadThreadResult);
             //create drawable here
