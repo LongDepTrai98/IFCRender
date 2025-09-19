@@ -21,6 +21,8 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <thread>
+#include <CesiumGeospatial/WebMercatorProjection.h>
+
 namespace Cesium3DTilesSelection
 {
     CesiumAsync::Future<TileLoadResultAndRenderResources> MaplibrePrepareRendererResource::prepareInLoadThread(
@@ -41,7 +43,7 @@ namespace Cesium3DTilesSelection
             model_tile->visible = false; 
             p_promise.resolve(TileLoadResultAndRenderResources{
                 std::move(tileLoadResult),
-                new PrepareResult(model_tile, canonicalTileID) });
+                new PrepareTileResult(model_tile, canonicalTileID,false) });
         }); 
     }
 
@@ -54,7 +56,7 @@ namespace Cesium3DTilesSelection
             return pLoadThreadResult;
         }
         if (pLoadThreadResult) {
-            PrepareResult* loadThreadResult = reinterpret_cast<PrepareResult*>(pLoadThreadResult);
+            PrepareTileResult* loadThreadResult = reinterpret_cast<PrepareTileResult*>(pLoadThreadResult);
             //create drawable here
             mbgl::CanonicalTileID canonicalTileID = loadThreadResult->canonicalTileID; 
             bool isDrawbleCreated{ false }; 
@@ -100,7 +102,7 @@ namespace Cesium3DTilesSelection
         void* pMainThreadResult) noexcept {
         if (!pMainThreadResult)
             return; 
-        PrepareResult* mainThreadResult = reinterpret_cast<PrepareResult*>(pMainThreadResult);
+        PrepareTileResult* mainThreadResult = reinterpret_cast<PrepareTileResult*>(pMainThreadResult);
         if (mainThreadResult->obj && mainThreadResult->scene)
         {
             mainThreadResult->scene->remove(*mainThreadResult->obj);
@@ -167,13 +169,13 @@ namespace Cesium3DTilesSelection
         std::optional<glm::dvec3> wgs84Rtc = dragon::CesiumHelper::ecefToWgs84(glm::dvec3(new_ecef_center));
 
         const CesiumGeospatial::Ellipsoid& ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
- /*       auto mecator_tile = Convert::wgs84ToLocalInTile(wgs84Rtc.value().x, wgs84Rtc.value().y, context.root_tile_id.x,
-            context.root_tile_id.y);*/
+
         auto mecator_tile = Convert::wgs84ToTile(wgs84Rtc.value().x, wgs84Rtc.value().y); 
         canonicalTileID = { (uint8_t)mecator_tile.tileZ, (uint32_t)mecator_tile.tileX, (uint32_t)mecator_tile.tileY };
         glm::dmat4 matrix_transform(1.0);
         glm::dmat4 translateToOriginMatrix = glm::translate(glm::dmat4(1.0), -local_center);
-        glm::dmat4 translateBackMatrix = glm::translate(glm::dmat4(1.0), glm::dvec3(mecator_tile.localCoord.x, mecator_tile.localCoord.y, wgs84Rtc.value().z));
+        //glm::dmat4 translateBackMatrix = glm::translate(glm::dmat4(1.0), glm::dvec3(mecator_tile.localCoord.x, mecator_tile.localCoord.y, wgs84Rtc.value().z));
+        glm::dmat4 translateBackMatrix = glm::translate(glm::dmat4(1.0), glm::dvec3(new_ecef_center));
 
         glm::dvec3 oZ_ecef = glm::normalize(ellipsoid.geodeticSurfaceNormal(new_ecef_center)); // Up
         glm::dvec3 oX_ecef = glm::normalize(glm::cross(glm::dvec3(0, 0, 1), oZ_ecef));           // East
@@ -203,16 +205,16 @@ namespace Cesium3DTilesSelection
         glm::dquat q1 = glm::quat_cast(rotationMatrix);
         glm::dmat4 matrixRotate(1.0);
         matrixRotate = glm::toMat4(q1);
-        matrixRotate = matrixRotate * glm::toMat4(glmRot) * glm::toMat4(quat);
+        matrixRotate = /*matrixRotate **/ glm::toMat4(quat) * glm::toMat4(glmRot);
 
-        double metersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84Rtc.value().y) + 0.05;
+        double metersPerExtentUnit = dragon::CesiumHelper::getMetersPerExtentUnit(wgs84Rtc.value().y);
         double scaleZ = 1 / metersPerExtentUnit;
 
         glm::dmat4 scaleMatrix = glm::scale(glm::dmat4(1.0), glm::dvec3(1.0 * metersPerExtentUnit,
             -1.0 * metersPerExtentUnit,
             1.0));
 
-        matrix_transform = translateBackMatrix * scaleMatrix * matrixRotate * CesiumGeometry::Transforms::Y_UP_TO_Z_UP * translateToOriginMatrix;
+        matrix_transform = translateBackMatrix /** scaleMatrix*/  * matrixRotate * CesiumGeometry::Transforms::Y_UP_TO_Z_UP * translateToOriginMatrix;
 
         threepp::Matrix4 tmat;
         for (int col = 0; col < 4; ++col) {
@@ -221,16 +223,52 @@ namespace Cesium3DTilesSelection
             }
         }
 
+        threepp::Matrix4 tmat2;
+        for (int col = 0; col < 4; ++col) {
+            for (int row = 0; row < 4; ++row) {
+                tmat2.elements[col * 4 + row] = static_cast<float>(CesiumGeometry::Transforms::Y_UP_TO_Z_UP[col][row]);
+            }
+        }
+
+        /*model_tile->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
+            child.matrix->identity();
+            child.position.set(0, 0, 0);
+            child.rotation.set(0, 0, 0);
+            child.scale.set(1, 1, 1);
+            child.applyMatrix4(tmat);
+            child.matrixAutoUpdate = false;
+        });*/
+
+        //ep model nam phang
+
         model_tile->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
+            auto geom = child.geometry();
+            if (auto bufferGeom = std::dynamic_pointer_cast<threepp::BufferGeometry>(geom)) {
+                // Lấy attribute position
+                
+                auto posAttr = bufferGeom->getAttribute<float>("position");
+                if (posAttr) {
+                    for (size_t i = 0; i < posAttr->count(); i++) {
+                        threepp::Vector3 v(
+                            posAttr->getX(i),
+                            posAttr->getY(i),
+                            posAttr->getZ(i)
+                        );
+                        v.applyMatrix4(tmat);
+                        std::optional<glm::dvec3> wgs84 = dragon::CesiumHelper::ecefToWgs84(glm::dvec3(v.x, v.y, v.z)); 
+                        auto t = Convert::wgs84ToLocalInTile(wgs84.value().x, wgs84.value().y, canonicalTileID.x, canonicalTileID.y, canonicalTileID.z); 
+                        posAttr->setXYZ(i, t.localX,t.localY,wgs84.value().z);
+                    }
+                    posAttr->needsUpdate();
+                }
+            }
             child.matrix->identity();
             child.position.set(0, 0, 0);
             child.rotation.set(0, 0, 0);
             child.scale.set(1, 1, 1);
             child.matrixAutoUpdate = false;
-            child.applyMatrix4(tmat);
-        });
-
-        model_tile->matrixAutoUpdate = false;
-        return model_tile;
+    });
+    model_tile->matrixAutoUpdate = false;
+    return model_tile;
     }
 }

@@ -30,6 +30,7 @@ namespace dragon
 		static glm::dvec3 getCenterBoundingVolume(const Cesium3DTilesSelection::BoundingVolume& BoundingVolume);
 		static double calculateECEFMercatorTilt(const glm::dvec3& ecefPoint);
 		static double getMetersPerExtentUnit(double lat);
+		static double getMetersPerExtentUnit1(double lat);
 		static glm::dmat4 createMatrixRotateAroundPivot(const glm::dvec3& pivot,
 			double rotateX,
 			double rotateY,

@@ -138,23 +138,8 @@ Cesium3DTilesSelection::ViewState CesiumDrawableStyleLayerHost::createViewState(
 		up,
 		viewPortSize,
 		horizontalFieldOfView,
-		verticalFieldOfView);
+		verticalFieldOfView * 1.5);
 }
-
- 
-static bool isInScene(threepp::Object3D * obj, const threepp::Scene * scene) {
-	if (!obj || !scene) return false;
-
-	auto current = obj;
-	while (current) {
-		if (current == scene) {
-			return true; // object đã nằm trong scene này
-		}
-		current = current->parent;
-	}
-	return false;
-}
-
 
 void CesiumDrawableStyleLayerHost::update(Interface& interface)
 {
@@ -197,9 +182,10 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 					spdlog::error("error"); 
 					continue;
 				}
-				Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareResult* ptr_model = reinterpret_cast<Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareResult*>(renderContent->getRenderResources());
+				Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareTileResult* ptr_model = reinterpret_cast<Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareTileResult*>(renderContent->getRenderResources());
 				if (!ptr_model) continue;
 				ptr_model->obj->visible = true;
+				ptr_model->bIsInScene = true;
 			}
 			};
 
@@ -218,9 +204,9 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 				if (renderContent == nullptr) {
 					continue;
 				}
-				Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareResult* ptr_model = reinterpret_cast<Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareResult*>(renderContent->getRenderResources());
+				Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareTileResult* ptr_model = reinterpret_cast<Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareTileResult*>(renderContent->getRenderResources());
 				if (!ptr_model) continue;
-				if (!isInScene(ptr_model->obj.get(), ptr_model->scene)) continue; 
+				if (!ptr_model->bIsInScene) continue; 
 				ptr_model->obj->visible = false;
 			}
 			};
