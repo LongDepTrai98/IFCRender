@@ -10,16 +10,22 @@
 #include <atomic>
 #include <functional>
 #include <mutex>
-
+#include <unordered_map>
 
 namespace threepp
 {
     class Scene; 
     class Group; 
-    class Object3D; 
+    class Object3D;
+    class Texture; 
 }
 
+namespace  mbgl::gl
+{
+    class DrawableCustom; 
+}
 
+class MaplibreCustomRasterSource; 
 namespace Cesium3DTilesSelection {
 class MaplibrePrepareRendererResource : public Cesium3DTilesSelection::IPrepareRendererResources {
 public: 
@@ -49,13 +55,17 @@ public:
     threepp::Scene* scene{ nullptr };
   };
 
+  struct PrepareRasterResult {
+      std::shared_ptr<threepp::Texture> texture{ nullptr }; 
+  }; 
+
   ~MaplibrePrepareRendererResource() noexcept {  }
 
-  virtual CesiumAsync::Future<TileLoadResultAndRenderResources>
-      prepareInLoadThread(
+  virtual CesiumAsync::Future<TileLoadResultAndRenderResources> prepareInLoadThread(
           const CesiumAsync::AsyncSystem& asyncSystem,
           TileLoadResult&& tileLoadResult,
           const glm::dmat4& transform,
+          const Cesium3DTilesSelection::TileID& tileID,
           const std::any& rendererOptions) override; 
 
   virtual void* prepareInMainThread(
@@ -70,36 +80,29 @@ public:
   virtual void* prepareRasterInLoadThread(
       CesiumGltf::ImageAsset& image,
       const std::any& rendererOptions) override {
-    return new PrepareTileResult{nullptr, mbgl::CanonicalTileID(0,0,0), false};
+      return new PrepareRasterResult();
   }
 
   virtual void* prepareRasterInMainThread(
-      CesiumRasterOverlays::RasterOverlayTile& /*rasterTile*/,
+      CesiumRasterOverlays::RasterOverlayTile& rasterTile,
       void* pLoadThreadResult) override {
+      int a = 3; 
     if (pLoadThreadResult) {
-        PrepareTileResult* loadThreadResult =
-          reinterpret_cast<PrepareTileResult*>(pLoadThreadResult);
-      delete loadThreadResult;
+        PrepareRasterResult* loadThreadResult =
+          reinterpret_cast<PrepareRasterResult*>(pLoadThreadResult);
     }
-
-    return new PrepareTileResult{nullptr,mbgl::CanonicalTileID(0,0,0),false };
+    return pLoadThreadResult; 
   }
 
   virtual void freeRaster(
       const CesiumRasterOverlays::RasterOverlayTile& /*rasterTile*/,
       void* pLoadThreadResult,
       void* pMainThreadResult) noexcept override {
-    if (pMainThreadResult) {
-        PrepareTileResult* mainThreadResult =
-          reinterpret_cast<PrepareTileResult*>(pMainThreadResult);
-      delete mainThreadResult;
-    }
-
-    if (pLoadThreadResult) {
-        PrepareTileResult* loadThreadResult =
-          reinterpret_cast<PrepareTileResult*>(pLoadThreadResult);
-      delete loadThreadResult;
-    }
+      if (pMainThreadResult)
+      {
+          delete pMainThreadResult; 
+          pMainThreadResult = nullptr; 
+      }
   }
 
   virtual void attachRasterInMainThread(
@@ -109,7 +112,6 @@ public:
       void* pMainThreadRendererResources,
       const glm::dvec2& translation,
       const glm::dvec2& scale) override {
-      int a = 3;
 
   }
 
@@ -118,7 +120,6 @@ public:
       int32_t overlayTextureCoordinateID,
       const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
       void* pMainThreadRendererResources) noexcept override {
-      int a = 3;
 
   }
 
@@ -127,10 +128,12 @@ public:
 
   std::shared_ptr<threepp::Group> createGroupThreeppFromModel(CesiumGltf::Model& model, 
       glm::dmat4& tile_transform, 
-      mbgl::CanonicalTileID& canonicalTileID);
+      mbgl::CanonicalTileID& canonicalTileID, 
+      std::optional<CesiumGeometry::QuadtreeTileID> geoTileID);
 public: 
     std::atomic<int> t_count{ 0 }; 
     std::mutex mutexResource{};
     drawable_context context{};
+    std::unordered_map<mbgl::CanonicalTileID, mbgl::gl::DrawableCustom*> setDrawable{}; 
 };
 } // namespace Cesium3DTilesSelection

@@ -47,24 +47,30 @@
 #include "core/convert/Tile.hpp"
 #include <CesiumAsync/CachingAssetAccessor.h>
 #include <CesiumAsync/GunzipAssetAccessor.h>
+#include <CesiumUtility/CreditSystem.h>
+#include "cesium/MaplibreRasterOverlay.hpp"
+
 CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tileset)
 {
-	auto lambda = [&, path_tileset](Interface& interface) {
+	auto lambda = [&,this,path_tileset](Interface& interface) {
 		mockAssetAccessor = std::make_shared<CesiumNativeTests::MaplibreAssetAccessor>();
 		prepareRendererResource = std::make_shared<Cesium3DTilesSelection::MaplibrePrepareRendererResource>();
 		gunzipAssetAccessor = std::make_shared<CesiumAsync::GunzipAssetAccessor>(
 			mockAssetAccessor
 		);
+		auto pMockedCreditSystem = std::make_shared<CesiumUtility::CreditSystem>();
 		tilesetExternals = std::make_shared<Cesium3DTilesSelection::TilesetExternals>(
 			gunzipAssetAccessor,
 			prepareRendererResource,
 			CesiumAsync::AsyncSystem(std::make_shared<CesiumNativeTests::ThreadTaskProcessor>()),
-			nullptr
+			pMockedCreditSystem
 		);
 		Cesium3DTilesSelection::TilesetOptions options;
+		options.maximumScreenSpaceError = 8.0; 
 		options.mainThreadLoadingTimeLimit = 5.0; 
 		options.mainThreadLoadingTimeLimit = 5.0; 
 		options.contentOptions.applyTextureTransform = false; 
+		options.showCreditsOnScreen = false;
 		CesiumGltf::SupportedGpuCompressedPixelFormats supportedFormats;
 		supportedFormats.ETC1_RGB = true;
 		supportedFormats.BC1_RGB = true;
@@ -86,20 +92,24 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tile
 		}
 		else
 		{
+			CesiumRasterOverlays::RasterOverlayOptions rasterOptions; 
+			rasterOverlay = std::make_shared<MaplibreRasterOverlay>("mapbox", rasterOptions); 
 			tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
-				2275207,
+				1,
 				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmZDAyNWYzMi1mMjk4LTQ5NjEtYmUwMi1hNjc4MDcxOWFlNDQiLCJpZCI6MTc4MTMzLCJpYXQiOjE2OTk5NDU5Njd9.7K9lFmBsKk4H1tfTfn590iTEGcFGqOXsa25XO8LoXJ4",
 				options);
+			tileset->getOverlays().add(CesiumUtility::IntrusivePointer(rasterOverlay.get())); 
 		}
 		isLoadedTileset = true; 
 		m_LayerGroup = interface.getLayerGroupBase();
-		prepareRendererResource->context.layerGroup = m_LayerGroup.get(); 
+		prepareRendererResource->context.layerGroup = this->m_LayerGroup.get(); 
 	}; 
 	fnc_queue.push(lambda); 
 }
 
 CesiumDrawableStyleLayerHost::~CesiumDrawableStyleLayerHost()
 {
+	rasterOverlay.reset(); 
 	tileset.reset(); 
 	tilesetExternals.reset(); 
 	prepareRendererResource.reset(); 
@@ -177,11 +187,7 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 					continue;
 				}
 				const Cesium3DTilesSelection::TileRenderContent* renderContent = tile->getContent().getRenderContent();
-				if (renderContent == nullptr)
-				{
-					spdlog::error("error"); 
-					continue;
-				}
+				if (renderContent == nullptr) continue;
 				Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareTileResult* ptr_model = reinterpret_cast<Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareTileResult*>(renderContent->getRenderResources());
 				if (!ptr_model) continue;
 				ptr_model->obj->visible = true;

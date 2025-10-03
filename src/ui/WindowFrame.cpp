@@ -23,12 +23,12 @@ namespace dragon
 		}
 		initUIManager();
 		initUI();
+		initTreeCtrl();
 		initCommand();
 		initMenuBar();
 		initAppToolBar();
 		initMapRenderCanvas();
 		//initBimRenderCanvas();
-		initTreeCtrl();
 		//CreateStatusBar(2);
 		//SetStatusText("Welcome to wxWidgets!");
 		Centre(wxBOTH);

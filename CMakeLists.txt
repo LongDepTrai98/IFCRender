@@ -20,7 +20,7 @@ set(THREEPP_BUILD_EXAMPLES OFF)
 set(THREEPP_WITH_GLFW OFF) # Disable default GLFW backend as we use WxWidgets
 FetchContent_Declare(
         threepp
-        GIT_REPOSITORY https://github.com/markaren/threepp.git
+        GIT_REPOSITORY https://github.com/LongDepTrai98/threepp.git
 )
 FetchContent_MakeAvailable(threepp)
 set_target_properties(threepp PROPERTIES FOLDER "render")
@@ -193,6 +193,9 @@ source_group("map" FILES ${MAPLIBRE_SRC})
 #cesium
 file(GLOB MAPLIBRE_CESIUM_SRC "src/map/cesium/*.hpp" "src/map/cesium/*.cpp")
 source_group("map//cesium" FILES ${MAPLIBRE_CESIUM_SRC})
+#custom raster-source 
+file(GLOB MAPLIBRE_CUSTOM_SOURCE_SRC "src/map/source/*.hpp" "src/map/source/*.cpp")
+source_group("map//source" FILES ${MAPLIBRE_CUSTOM_SOURCE_SRC})
 #tool 
 file(GLOB_RECURSE TOOL_SRC "src/tools/*.hpp" "src/tools/*.cpp")
 source_group("tools" FILES ${TOOL_SRC})
@@ -222,6 +225,7 @@ add_executable(${EDITOR_NAME_PROJECT}
     ${APP_VECTOR_TILE_CORE_SRC}
     ${TOOL_SRC}
     ${MAPLIBRE_CESIUM_SRC}
+    ${MAPLIBRE_CUSTOM_SOURCE_SRC}
 )
 
  #add include 

@@ -10,7 +10,6 @@ namespace CesiumNativeTests {
 class ThreadTaskProcessor : public CesiumAsync::ITaskProcessor {
 public:
     virtual void startTask(std::function<void()> f) override {
-        //std::thread(f).detach();
         pool.detach_task(f);
     }; 
 protected: 

@@ -15,18 +15,15 @@
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmZDAyNWYzMi1mMjk4LTQ5NjEtYmUwMi1hNjc4MDcxOWFlNDQiLCJpZCI6MTc4MTMzLCJpYXQiOjE2OTk5NDU5Njd9.7K9lFmBsKk4H1tfTfn590iTEGcFGqOXsa25XO8LoXJ4';
 
     // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
-    const viewer = new Cesium.Viewer("cesiumContainer");
-
-    // Create the tileset, and set its model matrix to move it
-    // to a certain position on the globe
-    const tileset = viewer.scene.primitives.add(
-    await Cesium.Cesium3DTileset.fromUrl(
-        "https://3dtilesnederland.nl/tiles/1.0/explicit/wilhelminakade-textured/tileset.json",
-        {
-        debugShowBoundingVolume: true,
-        }
-    )
-    );
+    const viewer = new Cesium.Viewer("cesiumContainer", {
+  terrainProvider: await Cesium.CesiumTerrainProvider.fromUrl(
+    "http://10.225.1.12:18080/cesium-terrain",
+    {
+      requestVertexNormals: true,   // nếu bạn có extension octvertexnormals
+      // requestWaterMask: true,    // nếu dataset có water mask
+    }
+  ),
+});
     // tileset.modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
     // Cesium.Cartesian3.fromDegrees(-75.152325, 39.94704, 0.0)
     // );
@@ -53,32 +50,32 @@
         // }
         // });
 
-        viewer.flyTo(tileset, {
-                duration: 4.0,
-                maximumHeight: 2000,
-                offset: {
-                    heading: 0,
-                    pitch: -90,
-                    range: 200
-                }
-            });
+        // viewer.flyTo(tileset, {
+        //         duration: 4.0,
+        //         maximumHeight: 2000,
+        //         offset: {
+        //             heading: 0,
+        //             pitch: -90,
+        //             range: 200
+        //         }
+        //     });
 
-        viewer.scene.postRender.addEventListener(function(scene, time) {
-            // console.log("Camera pos:", viewer.camera.positionWC);
-            // console.log("Heading:", Cesium.Math.toDegrees(viewer.camera.heading));
-            // console.log("Pitch:", viewer.camera.pitch); 
-            // console.log("Roll:", viewer.camera.roll); 
-            // console.log("Direction:", viewer.camera.direction); 
-            // console.log("frustum:", viewer.camera.frustum); 
-            // console.log("fov:", Cesium.Math.toDegrees(viewer.camera.frustum.fovy)); 
-            // console.log("Up:", viewer.camera.up); 
-            // console.log("frustum:", viewer.camera.frustum); 
-            // console.log("Camera:", viewer.camera); 
-            // console.log("Point:",  Cesium.Cartesian3.fromDegrees(-75.152325, 39.94704, 0.0)); 
-            // console.log("Matrix:", Cesium.Transforms.eastNorthUpToFixedFrame(
-            //     Cesium.Cartesian3.fromDegrees(-75.152325, 39.94704, 0.0)
-            // ));
-        });
+        // viewer.scene.postRender.addEventListener(function(scene, time) {
+        //     // console.log("Camera pos:", viewer.camera.positionWC);
+        //     // console.log("Heading:", Cesium.Math.toDegrees(viewer.camera.heading));
+        //     // console.log("Pitch:", viewer.camera.pitch); 
+        //     // console.log("Roll:", viewer.camera.roll); 
+        //     // console.log("Direction:", viewer.camera.direction); 
+        //     // console.log("frustum:", viewer.camera.frustum); 
+        //     // console.log("fov:", Cesium.Math.toDegrees(viewer.camera.frustum.fovy)); 
+        //     // console.log("Up:", viewer.camera.up); 
+        //     // console.log("frustum:", viewer.camera.frustum); 
+        //     // console.log("Camera:", viewer.camera); 
+        //     // console.log("Point:",  Cesium.Cartesian3.fromDegrees(-75.152325, 39.94704, 0.0)); 
+        //     // console.log("Matrix:", Cesium.Transforms.eastNorthUpToFixedFrame(
+        //     //     Cesium.Cartesian3.fromDegrees(-75.152325, 39.94704, 0.0)
+        //     // ));
+        // });
   </script>
  </div>
 </body>

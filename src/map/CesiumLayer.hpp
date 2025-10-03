@@ -33,8 +33,15 @@ namespace threepp
 	class Group; 
 	class Scene; 
 }
+class MaplibreRasterOverlay;
+class MaplibreCustomRasterSource; 
 class CesiumDrawableStyleLayerHost : public mbgl::style::CustomDrawableLayerHost
 {
+public: 
+	enum class CesiumMode
+	{
+
+	};
 public:
 	CesiumDrawableStyleLayerHost(std::string path_tileset);
 	~CesiumDrawableStyleLayerHost(); 
@@ -54,6 +61,7 @@ public:
 	std::shared_ptr<Cesium3DTilesSelection::MaplibrePrepareRendererResource> prepareRendererResource{ nullptr }; 
 	std::shared_ptr<CesiumNativeTests::MaplibreAssetAccessor> mockAssetAccessor{ nullptr };
 	std::shared_ptr<Cesium3DTilesSelection::TilesetExternals> tilesetExternals{ nullptr }; 
+	std::shared_ptr<MaplibreRasterOverlay> rasterOverlay{ nullptr }; 
 	std::function<void(Interface&,const Cesium3DTilesSelection::BoundingVolume&)> fnc_create_drawable{ nullptr };
 }; 
 #endif // !_CESIUM_LAYER_HPP_

@@ -138,10 +138,6 @@ namespace dragon
 						}
 					}
 				}
-				if (!hasTextCoord)
-				{
-					spdlog::error("not have textcoord"); 
-				}
 				// FIX: Indices với bounds checking
 				bool hasIndex{ false }; 
 				if (primitive.indices >= 0 && primitive.indices < static_cast<int32_t>(gltf.accessors.size())) {
@@ -186,13 +182,12 @@ namespace dragon
 
 								}
 							}
+							else
+							{
+								int a = 3; 
+							}
 						}
 					}
-				}
-
-				if (!hasIndex)
-				{
-					spdlog::error("not have index");
 				}
 
 				// FIX: Material creation với null checking
@@ -224,10 +219,10 @@ namespace dragon
 										CesiumGltf::ImageAsset& image = *gltfImage.pAsset;
 
 										auto size = image.pixelData.size();
-										std::vector<unsigned char> ucharBuffer(size);
-										std::memcpy(ucharBuffer.data(), image.pixelData.data(), size);
+										//std::vector<unsigned char> ucharBuffer(size);
+										//std::memcpy(ucharBuffer.data(), image.pixelData.data(), size);
 
-										threepp::Image three_img(std::move(ucharBuffer),
+										threepp::Image three_img(reinterpret_cast<unsigned char*>(image.pixelData.data()),
 											image.width, image.height);
 										auto texture = threepp::Texture::create(std::move(three_img));
 
@@ -250,6 +245,8 @@ namespace dragon
 						}
 					}
 				}
+				material->color = threepp::Color::green; 
+				material->wireframe = true; 
 
 				// FIX: Thêm vào vectors thay vì comment out
 				geometry->computeVertexNormals(); 
