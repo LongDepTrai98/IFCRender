@@ -12,14 +12,18 @@ CesiumAsync::Future<CesiumRasterOverlays::RasterOverlay::CreateTileProviderResul
 	CesiumGeometry::Rectangle coverageRectangle = projectRectangleSimple(projection, tilingSchemeRectangle);
     CesiumRasterOverlays::UrlTemplateRasterOverlayOptions options{
      .credit = "Copyright (c) Some Amazing Source",
-     .projection = CesiumGeospatial::WebMercatorProjection(),
+     .projection = projection,
      .tilingScheme =
-         CesiumGeometry::QuadtreeTilingScheme(coverageRectangle, 1, 1),
+         CesiumGeometry::QuadtreeTilingScheme(CesiumGeospatial::WebMercatorProjection::computeMaximumProjectedRectangle(
+                    ellipsoid),
+                1,
+                1),
      .minimumLevel = 0,
-     .maximumLevel = 15,
-     .tileWidth = 512,
-     .tileHeight = 512,
-     .coverageRectangle = coverageRectangle,
+     .maximumLevel = 10,
+     .tileWidth = 256,
+     .tileHeight = 256,
+     .coverageRectangle = CesiumGeospatial::WebMercatorProjection::computeMaximumProjectedRectangle(
+                    ellipsoid),
     };
 
     CesiumUtility::IntrusivePointer<RasterOverlay> pUrlTemplate =

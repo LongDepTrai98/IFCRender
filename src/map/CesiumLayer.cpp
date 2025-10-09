@@ -66,7 +66,8 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tile
 			pMockedCreditSystem
 		);
 		Cesium3DTilesSelection::TilesetOptions options;
-		options.maximumScreenSpaceError = 8.0; 
+		options.preloadAncestors = false; 
+		options.preloadSiblings = false; 
 		options.mainThreadLoadingTimeLimit = 5.0; 
 		options.mainThreadLoadingTimeLimit = 5.0; 
 		options.contentOptions.applyTextureTransform = false; 
@@ -93,12 +94,13 @@ CesiumDrawableStyleLayerHost::CesiumDrawableStyleLayerHost(std::string path_tile
 		else
 		{
 			CesiumRasterOverlays::RasterOverlayOptions rasterOptions; 
+			rasterOptions.ellipsoid = CesiumGeospatial::Ellipsoid::WGS84; 
 			rasterOverlay = std::make_shared<MaplibreRasterOverlay>("mapbox", rasterOptions); 
 			tileset = std::make_shared<Cesium3DTilesSelection::Tileset>(*tilesetExternals,
 				1,
 				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmZDAyNWYzMi1mMjk4LTQ5NjEtYmUwMi1hNjc4MDcxOWFlNDQiLCJpZCI6MTc4MTMzLCJpYXQiOjE2OTk5NDU5Njd9.7K9lFmBsKk4H1tfTfn590iTEGcFGqOXsa25XO8LoXJ4",
 				options);
-			tileset->getOverlays().add(CesiumUtility::IntrusivePointer(rasterOverlay.get())); 
+			//tileset->getOverlays().add(CesiumUtility::IntrusivePointer(rasterOverlay.get()));  
 		}
 		isLoadedTileset = true; 
 		m_LayerGroup = interface.getLayerGroupBase();
@@ -148,7 +150,7 @@ Cesium3DTilesSelection::ViewState CesiumDrawableStyleLayerHost::createViewState(
 		up,
 		viewPortSize,
 		horizontalFieldOfView,
-		verticalFieldOfView * 1.5);
+		verticalFieldOfView * 2.0);
 }
 
 void CesiumDrawableStyleLayerHost::update(Interface& interface)
@@ -189,6 +191,7 @@ void CesiumDrawableStyleLayerHost::update(Interface& interface)
 				const Cesium3DTilesSelection::TileRenderContent* renderContent = tile->getContent().getRenderContent();
 				if (renderContent == nullptr) continue;
 				Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareTileResult* ptr_model = reinterpret_cast<Cesium3DTilesSelection::MaplibrePrepareRendererResource::PrepareTileResult*>(renderContent->getRenderResources());
+				auto id = ptr_model->canonicalTileID; 
 				if (!ptr_model) continue;
 				ptr_model->obj->visible = true;
 				ptr_model->bIsInScene = true;

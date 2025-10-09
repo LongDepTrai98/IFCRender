@@ -47,7 +47,7 @@ ThreeDCustomDrawableStyleLayerHost::ThreeDCustomDrawableStyleLayerHost(std::stri
     m_RayCaster = std::make_unique<threepp::Raycaster>();
     std::shared_ptr<threepp::Group> container{ nullptr };
     uint8_t z = 16; 
-    root_tile_id = { z,53559,28597 };
+    root_tile_id = { z,52360,30798 };
 
     dragon::WebIFCConverter IFCApi{};
     container = IFCApi.convert(filePath);
@@ -318,13 +318,14 @@ void ThreeDCustomDrawableStyleLayerHost::addBim(std::shared_ptr<threepp::Object3
 
                     //add_model_lambda(*impl->scene); 
                     threepp::Matrix4 transform;
-                    transform.set(
+                    transform.identity(); 
+                   /* transform.set(
                         9.501723289490, 0.000000031922, 9.783340454102, -513.029479980469,
                         - 9.783340454102, 0.000000031003, 9.501723289490, 5333.705078125000,
                         0.000000000000, 1.018017053604, -0.000000596137, 5.005340576172,
                         0.000000000000, 0.000000000000, 0.000000000000, 1.000000000000
 
-                    );
+                    );*/
                     add_model_lambda(*impl->scene, transform);
                 }
             }

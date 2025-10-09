@@ -115,12 +115,12 @@ namespace dragon
 			resourceOptions,
 			clientOptions);
 		m_Backend->setMap(m_Map.get());
-		m_Map->getStyle().loadURL(orderedStyles[5].getUrl());
+		m_Map->getStyle().loadURL(orderedStyles[1].getUrl());
 		m_Map->jumpTo(mbgl::CameraOptions()
-			.withCenter(mbgl::LatLng{ 10.781328313824275, 106.71526995250854 })
-			.withZoom(14)
-			.withBearing(41)
-			.withPitch(80));
+			.withCenter(mbgl::LatLng{ 10.76955895424457, 107.60188301112778 })
+			.withZoom(13)
+			.withBearing(0)
+			.withPitch(0));
 		
 
 
@@ -153,12 +153,23 @@ namespace dragon
 				auto terrain_layer = std::make_unique<mbgl::style::TerrainDrawableLayer>(
 					"terrain", "dem-source", std::make_unique<TerrainStyleLayerHost>(exampleSource.get()));
 				terrain_layer->setSourceID("dem-source");
-				terrain_layer->setMinZoom(10);
-				//style.addLayer(std::move(terrain_layer));
+				terrain_layer->setMinZoom(12);
+				style.addLayer(std::move(terrain_layer));
+
+				/*const std::string identifier = "Example-Bim-Layer";
+				std::string path = "ifc/S_Office_Integrated Design Archi.ifc"; 
+				const auto& existingLayer = style.getLayer(identifier);
+				if (!existingLayer) {
+					style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>(
+						identifier, std::make_unique<ThreeDCustomDrawableStyleLayerHost>(path)));
+				};*/
+
 
 				std::string path_tileset3{ "" };
-				style.addLayer(std::make_unique<mbgl::style::CustomDrawableLayer>("caolanh_city3d", 
-					std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset3)));
+				auto cesium_terrain = std::make_unique<mbgl::style::CustomDrawableLayer>("caolanh_city3d",
+					std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset3)); 
+				cesium_terrain->setMinZoom(10); 
+				style.addLayer(std::move(cesium_terrain));
 
 				std::shared_ptr<MapLayerTree> tree = std::make_shared<MapLayerTree>();
 				tree->create(style);

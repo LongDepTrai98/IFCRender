@@ -25,6 +25,8 @@
 #include <map/source/CustomRasterSource.hpp>
 #include <cpr/cpr.h>
 #include <format>
+#include "MaplibreRasterOverlay.hpp"
+
 #ifdef interface __STRUCT__
 #undef interface __STRUCT__
 #endif // interface __STRUCT__
@@ -39,6 +41,7 @@ namespace Cesium3DTilesSelection
             const std::any& rendererOptions)
     {
         mbgl::CanonicalTileID canonicalTileID{ 0,0,0 };
+        mbgl::CanonicalTileID textureTileID{ 0,0,0 };
         std::optional<CesiumGeometry::QuadtreeTileID> geoTileID{ std::nullopt }; 
         if (tileID.index() == 1)
         {
@@ -47,22 +50,19 @@ namespace Cesium3DTilesSelection
         if (tileID.index() == 3)
         {
             return asyncSystem.createResolvedFuture(TileLoadResultAndRenderResources{ std::move(tileLoadResult), nullptr });
-     /*       auto upscaleNode = std::get<CesiumGeometry::UpsampledQuadtreeNode>(tileID); 
-            geoTileID = upscaleNode.tileID;*/
         }
         CesiumGltf::Model* model_gltf = std::get_if<CesiumGltf::Model>(&tileLoadResult.contentKind);
         if (model_gltf == nullptr)
         {
             return asyncSystem.createResolvedFuture(TileLoadResultAndRenderResources{ std::move(tileLoadResult), nullptr });
         }
-        return asyncSystem.createFuture<TileLoadResultAndRenderResources>([=, this,&canonicalTileID](CesiumAsync::Promise<TileLoadResultAndRenderResources> p_promise) {
+        return asyncSystem.createFuture<TileLoadResultAndRenderResources>([=, this,&canonicalTileID,&textureTileID](CesiumAsync::Promise<TileLoadResultAndRenderResources> p_promise) {
             glm::dmat4 tile_transform = transform;
-            std::shared_ptr<threepp::Group> model_tile = createGroupThreeppFromModel(*model_gltf, tile_transform, canonicalTileID, geoTileID);
+            std::shared_ptr<threepp::Group> model_tile = createGroupThreeppFromModel(*model_gltf, tile_transform, canonicalTileID, textureTileID, geoTileID);
             model_tile->visible = false; 
-
-            auto f = [this, canonicalTileID, model_tile]() {
+            auto f = [this, canonicalTileID, textureTileID, model_tile]() {
                 const std::string& token = "pk.eyJ1IjoiYW5odHVzeHl6IiwiYSI6ImNsdng4ZGp3ZTA2aDgyaWw3ZnM2NXJhcjcifQ.OV7YSJsVT8zY-L4tozXaVw";
-                std::string formatUrl = std::format("https://api.mapbox.com/v4/mapbox.satellite/{}/{}/{}@2x.png256?access_token={}", canonicalTileID.z, canonicalTileID.x, canonicalTileID.y, token);
+                std::string formatUrl = std::format("https://api.mapbox.com/v4/mapbox.satellite/{}/{}/{}@2x.png?access_token={}", textureTileID.z, textureTileID.x, textureTileID.y, token);
                 cpr::Response r;
                 cpr::Header cprHeader;
                 r = cpr::Get(cpr::Url{ formatUrl },
@@ -104,14 +104,7 @@ namespace Cesium3DTilesSelection
                     spdlog::error("Error code : {} with message : {}", r.status_code, r.error.message);
                 }
             }; 
-            //f(); 
-
-
-            /*if (canonicalTileID)
-            {
-               
-                };*/
-                //f();
+            f(); 
             p_promise.resolve(TileLoadResultAndRenderResources{
                 std::move(tileLoadResult),
                 new PrepareTileResult(model_tile, canonicalTileID,false)});
@@ -131,7 +124,7 @@ namespace Cesium3DTilesSelection
             PrepareTileResult* loadThreadResult = reinterpret_cast<PrepareTileResult*>(pLoadThreadResult);
             //create drawable here
             mbgl::CanonicalTileID canonicalTileID = loadThreadResult->canonicalTileID; 
-            spdlog::info("draw tile : {}, {} , {}", canonicalTileID.z, canonicalTileID.x, canonicalTileID.y);
+            //spdlog::info("draw tile : {}, {} , {}", canonicalTileID.z, canonicalTileID.x, canonicalTileID.y);
             bool isDrawbleCreated{ false }; 
             mbgl::TileLayerGroup* tileLayerGroup = static_cast<mbgl::TileLayerGroup*>(context.layerGroup);
             mbgl::gl::DrawableCustom* ptrDrawableCustom_{ nullptr }; 
@@ -144,6 +137,10 @@ namespace Cesium3DTilesSelection
             else
             {
                 ptrDrawableCustom_ = setDrawable.at(canonicalTileID); 
+                if (canonicalTileID.z == 13)
+                {
+                    spdlog::info("tile ID : {}, {}, {}", canonicalTileID.z, canonicalTileID.x, canonicalTileID.y);
+                }
             }
 
             if (ptrDrawableCustom_)
@@ -175,9 +172,24 @@ namespace Cesium3DTilesSelection
         mainThreadResult = nullptr;
     }
 
+    void* MaplibrePrepareRendererResource::prepareRasterInLoadThread(CesiumGltf::ImageAsset& image, const std::any& rendererOptions)
+    {
+        return new PrepareRasterResult(nullptr);
+    }
+
+    void MaplibrePrepareRendererResource::attachRasterInMainThread(const Cesium3DTilesSelection::Tile& tile,
+        int32_t overlayTextureCoordinateID,
+        const CesiumRasterOverlays::RasterOverlayTile& rasterTile, 
+        void* pMainThreadRendererResources, const glm::dvec2& translation,
+        const glm::dvec2& scale)
+    {
+      
+    }
+
     std::shared_ptr<threepp::Group> MaplibrePrepareRendererResource::createGroupThreeppFromModel(CesiumGltf::Model& gltf_model,
         glm::dmat4& tiletransform, 
         mbgl::CanonicalTileID& canonicalTileID,
+        mbgl::CanonicalTileID& textureTileID,
         std::optional<CesiumGeometry::QuadtreeTileID> geoTileID)
     {
         dragon::CesiumHelper::B3DMExtensions b3dm_extension;
@@ -235,6 +247,8 @@ namespace Cesium3DTilesSelection
         const CesiumGeospatial::Ellipsoid& ellipsoid = CesiumGeospatial::Ellipsoid::WGS84;
 
         Convert::TileCoord mecator_tile;  
+        //mecator_tile = Convert::wgs84ToTile(wgs84Rtc.value().x, wgs84Rtc.value().y);
+        //canonicalTileID = { (uint8_t)mecator_tile.tileZ, (uint32_t)mecator_tile.tileX, (uint32_t)mecator_tile.tileY };
         if (!geoTileID)
         {
             mecator_tile = Convert::wgs84ToTile(wgs84Rtc.value().x, wgs84Rtc.value().y);
@@ -242,8 +256,11 @@ namespace Cesium3DTilesSelection
         }
         else
         {
+            Convert::TileCoord texture_tile;
             mecator_tile = Convert::wgs84ToTile(wgs84Rtc.value().x, wgs84Rtc.value().y,geoTileID.value().level);
+            texture_tile = Convert::wgs84ToTile(wgs84Rtc.value().x, wgs84Rtc.value().y, geoTileID.value().level + 1);
             canonicalTileID = { (uint8_t)mecator_tile.tileZ, (uint32_t)mecator_tile.tileX, (uint32_t)mecator_tile.tileY };
+            textureTileID = { (uint8_t)texture_tile.tileZ, (uint32_t)texture_tile.tileX, (uint32_t)texture_tile.tileY };
         }
         
         glm::dmat4 matrix_transform(1.0);
@@ -296,15 +313,6 @@ namespace Cesium3DTilesSelection
                 tmat.elements[col * 4 + row] = static_cast<float>(matrix_transform[col][row]);
             }
         }
-
-        /*model_tile->traverseType<threepp::Mesh>([&](threepp::Mesh& child) {
-            child.matrix->identity();
-            child.position.set(0, 0, 0);
-            child.rotation.set(0, 0, 0);
-            child.scale.set(1, 1, 1);
-            child.applyMatrix4(tmat);
-            child.matrixAutoUpdate = false;
-        });*/
 
         //ep model nam phang
 
@@ -370,7 +378,7 @@ namespace Cesium3DTilesSelection
                     for (const auto& coord : localCoords) {
                         // Normalize về [0, 1] dựa trên bounds thực tế
                         float u = (coord.x - minX) / rangeX;
-                        float v = 1.0f - ((coord.y - minY) / rangeY); // Flip Y
+                        float v = ((coord.y - minY) / rangeY); // Flip Y
 
                         // Clamp để chắc chắn
                         u = std::clamp(u, 0.0f, 1.0f);

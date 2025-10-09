@@ -17,6 +17,7 @@
 #include "threepp/math/Euler.hpp"
 #include "threepp/utils/BufferGeometryUtils.hpp"
 #include <core/convert/Tile.hpp>
+#include <mutex>
 namespace dragon
 {
 	std::shared_ptr<threepp::Group> CesiumHelper::createMesh(CesiumGltf::Model& gltf, B3DMExtensions& extension)
@@ -236,7 +237,6 @@ namespace dragon
 										texture->anisotropy = 16;
 										texture->wrapS = threepp::TextureWrapping::ClampToEdge;
 										texture->wrapT = threepp::TextureWrapping::ClampToEdge;
-										material->fog = true;
 										texture->needsUpdate();
 										material->as<threepp::MeshBasicMaterial>()->map = texture;
 									}
@@ -249,7 +249,7 @@ namespace dragon
 				material->wireframe = true; 
 
 				// FIX: Thêm vào vectors thay vì comment out
-				geometry->computeVertexNormals(); 
+				//geometry->computeVertexNormals(); 
 				geos.emplace_back(geometry);
 				mats.emplace_back(material);
 			}
@@ -262,7 +262,6 @@ namespace dragon
 			}
 		}
 		// Optional: Clear other data structures if not neede
-
 		return container; 
 	}
 	glm::dvec3 CesiumHelper::wgs84ToEcef(const double& lon, const double& lat, const double& height)

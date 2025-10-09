@@ -79,9 +79,7 @@ public:
 
   virtual void* prepareRasterInLoadThread(
       CesiumGltf::ImageAsset& image,
-      const std::any& rendererOptions) override {
-      return new PrepareRasterResult();
-  }
+      const std::any& rendererOptions) override; 
 
   virtual void* prepareRasterInMainThread(
       CesiumRasterOverlays::RasterOverlayTile& rasterTile,
@@ -111,9 +109,7 @@ public:
       const CesiumRasterOverlays::RasterOverlayTile& rasterTile,
       void* pMainThreadRendererResources,
       const glm::dvec2& translation,
-      const glm::dvec2& scale) override {
-
-  }
+      const glm::dvec2& scale) override; 
 
   virtual void detachRasterInMainThread(
       const Cesium3DTilesSelection::Tile& tile,
@@ -129,6 +125,7 @@ public:
   std::shared_ptr<threepp::Group> createGroupThreeppFromModel(CesiumGltf::Model& model, 
       glm::dmat4& tile_transform, 
       mbgl::CanonicalTileID& canonicalTileID, 
+      mbgl::CanonicalTileID& textureTileID,
       std::optional<CesiumGeometry::QuadtreeTileID> geoTileID);
 public: 
     std::atomic<int> t_count{ 0 }; 
