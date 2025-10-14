@@ -130,6 +130,10 @@ namespace dragon
 	void NodeEditorRenderCanvas::Quit()
 	{
 	}
+	void NodeEditorRenderCanvas::OnFrame(const float& time)
+	{
+
+	}
 	void NodeEditorRenderCanvas::OnSize(wxSizeEvent& event)
 	{
 		if (!application) return; 

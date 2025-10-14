@@ -25,7 +25,7 @@ namespace editor
 		config.SettingsFile = jsonPath.c_str();
 		m_Context = ed::CreateEditor(&config); 
         //create simple node 
-        loadSchema("");
+        //loadSchema("");
 	}
 	void Editor::editorOnFrame(const float& time)
 	{
@@ -68,9 +68,9 @@ namespace editor
                 time);
         }
         // Link Drawing Section
-        handleLink();
+        //handleLink();
         //show flow 
-        showFlow(); 
+        //showFlow(); 
         //hover 
         ed::End();
         m_bIsFirstFrame = false; 

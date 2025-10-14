@@ -6,6 +6,7 @@ extern "C" {
 #define STB_IMAGE_STATIC
 #include "stb_image.h"
 }
+#include "graph/Editor.hpp"
 NodeApplication::NodeApplication(Platform* platform, 
 	const char* name) : m_Platform(platform), m_Name(name)
 {
@@ -119,6 +120,11 @@ int NodeApplication::GetTextureHeight(ImTextureID texture)
 
 void NodeApplication::OnStart()
 {
+    if (!m_Editor)
+    {
+        m_Editor = std::make_unique<editor::Editor>(this); 
+        m_Editor->createEditorContext("editor");
+    }
 }
 
 void NodeApplication::OnStop()
@@ -203,7 +209,14 @@ void NodeApplication::Frame()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, windowRounding);
 
     OnFrame(io.DeltaTime);
-
+    if (m_Platform)
+    {
+        m_Platform->OnFrame(io.DeltaTime); 
+    }
+    if (m_Editor)
+    {
+        m_Editor->editorOnFrame(io.DeltaTime); 
+    }
     ImGui::PopStyleVar(2);
     ImGui::End();
     ImGui::PopStyleVar(2);

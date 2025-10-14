@@ -24,6 +24,8 @@ struct Platform
     virtual void NewFrame() = 0;
     virtual void FinishFrame() = 0;
 
+    virtual void OnFrame(const float& time) = 0; 
+
     virtual void Quit() = 0;
 
     bool  HasWindowScaleChanged() const { return m_WindowScaleChanged; }

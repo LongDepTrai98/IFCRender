@@ -6,7 +6,10 @@
 # include <memory>
 struct Platform;
 struct AppRenderer;
-
+namespace editor
+{
+    class Editor;
+}
 class NodeApplication
 {
 public: 
@@ -39,6 +42,7 @@ private:
     std::string                 m_Name;
     std::string                 m_IniFilename;
     Platform*   m_Platform;
+    std::unique_ptr<editor::Editor> m_Editor{ nullptr }; 
     std::unique_ptr<AppRenderer>   m_Renderer;
     ImGuiContext* m_Context = nullptr;
     ImFont* m_DefaultFont = nullptr;

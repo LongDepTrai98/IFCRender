@@ -48,6 +48,7 @@ namespace dragon
 		void NewFrame() override;
 		void FinishFrame() override;
 		void Quit() override;
+		void OnFrame(const float& time) override; 
 	/// <summary>
 	/// Event 
 	/// </summary>
