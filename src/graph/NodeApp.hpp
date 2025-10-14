@@ -5,51 +5,41 @@
 # include <string>
 # include <memory>
 struct Platform;
-struct Renderer;
+struct AppRenderer;
 
-struct NodeApplication
+class NodeApplication
 {
-    NodeApplication(const char* name);
+public: 
+    NodeApplication(Platform* platform, const char* name);
     ~NodeApplication();
-
+public:
     bool Create(int width = -1, int height = -1);
-
     int Run();
-
     void SetTitle(const char* title);
-
     bool Close();
     void Quit();
-
     const std::string& GetName() const;
-
     ImFont* DefaultFont() const;
     ImFont* HeaderFont() const;
-
     ImTextureID LoadTexture(const char* path,const char* name);
     ImTextureID GetTextureIDWithName(const char* name); 
     ImTextureID CreateTexture(const void* data, int width, int height);
     void        DestroyTexture(ImTextureID texture);
     int         GetTextureWidth(ImTextureID texture);
     int         GetTextureHeight(ImTextureID texture);
-
-    virtual void OnStart() = 0; 
-    virtual void OnStop() = 0; 
-    virtual void OnFrame(float deltaTime) = 0; 
-
+    virtual void OnStart(); 
+    virtual void OnStop(); 
+    virtual void OnFrame(float deltaTime); 
     virtual ImGuiWindowFlags GetWindowFlags() const;
-
     virtual bool CanClose() { return true; }
-
+    void Frame();
+    AppRenderer* getRenderer(); 
 private:
     void RecreateFontAtlas();
-
-    void Frame();
-
     std::string                 m_Name;
     std::string                 m_IniFilename;
-    std::unique_ptr<Platform>   m_Platform;
-    std::unique_ptr<Renderer>   m_Renderer;
+    Platform*   m_Platform;
+    std::unique_ptr<AppRenderer>   m_Renderer;
     ImGuiContext* m_Context = nullptr;
     ImFont* m_DefaultFont = nullptr;
     ImFont* m_HeaderFont = nullptr;

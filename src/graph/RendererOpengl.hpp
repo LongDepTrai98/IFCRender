@@ -14,6 +14,9 @@ struct ImTexture
 };
 class RendererOpenGL : public AppRenderer
 {
+public: 
+    ~RendererOpenGL(); 
+public: 
     bool Create(Platform &platform) override;
     void Destroy() override;
     void NewFrame() override;

@@ -106,8 +106,8 @@ if(NOT EXISTS ${NODE_EDITOR_SOURCE})
                 ${NODE_EDITOR_SOURCE}
     )
 endif()
-#list(APPEND CMAKE_MODULE_PATH ${NODE_EDITOR_SOURCE}/misc/cmake-modules)
-#add_subdirectory(${NODE_EDITOR_SOURCE}/examples)
+list(APPEND CMAKE_MODULE_PATH ${NODE_EDITOR_SOURCE}/misc/cmake-modules)
+add_subdirectory(${NODE_EDITOR_SOURCE}/examples)
 
 set(MAPLIBRE_INCLUDE_SOURCE_DIRS
     ${MAPLIBRE_SOURCE_DIR}/src
@@ -219,8 +219,15 @@ source_group("map//source" FILES ${MAPLIBRE_CUSTOM_SOURCE_SRC})
 file(GLOB_RECURSE TOOL_SRC "src/tools/*.hpp" "src/tools/*.cpp")
 source_group("tools" FILES ${TOOL_SRC})
 #node extension 
-file(GLOB GRAPH_EXTENSION_SRC "src/graph/extension/*.h" "src/graph/extension/*.cpp")
-source_group("graph//extension" FILES ${GRAPH_EXTENSION_SRC})
+file(GLOB GRAPH_EXTENSION_ImGuiColorTextEdit_SRC "src/graph/extension/ImGuiColorTextEdit/*.h" "src/graph/extension/ImGuiColorTextEdit/*.cpp")
+source_group("graph//extension" FILES ${GRAPH_EXTENSION_ImGuiColorTextEdit_SRC})
+file(GLOB GRAPH_implot_EXTENSION_SRC "src/graph/extension/implot/*.h" "src/graph/extension/implot/*.cpp")
+source_group("graph//extension" FILES ${GRAPH_implot_EXTENSION_SRC})
+file(GLOB_RECURSE GRAPH_EXTENSION_misc_SRC "src/graph/extension/misc/*.h" "src/graph/extension/misc/*.cpp")
+source_group("graph//extension" FILES ${GRAPH_EXTENSION_misc_SRC})
+file(GLOB GRAPH_EXTENSION_uuid_SRC "src/graph/extension/uuid/*.h" "src/graph/extension/uuid/*.cpp")
+source_group("graph//extension" FILES ${GRAPH_EXTENSION_uuid_SRC})
+
 file(GLOB GRAPH_NODE_SRC "src/graph/Node/*.hpp" "src/graph/Node/*.cpp")
 source_group("graph//Node" FILES ${GRAPH_NODE_SRC})
 file(GLOB GRAPH_NODE_IMGUI_HELPER_SRC "src/graph/ImGuiHelper/*.hpp" "src/graph/ImGuiHelper/*.cpp")
@@ -257,11 +264,14 @@ add_executable(${EDITOR_NAME_PROJECT}
     ${TOOL_SRC}
     ${MAPLIBRE_CESIUM_SRC}
     ${MAPLIBRE_CUSTOM_SOURCE_SRC}
-    #${GRAPH_EXTENSION_SRC}
-    #${GRAPH_NODE_SRC}
-    #${GRAPH_NODE_IMGUI_HELPER_SRC}
-    #${GRAPH_UI_COMPONENT_SRC}
-    #${GRAPH_SRC}
+    ${GRAPH_EXTENSION_ImGuiColorTextEdit_SRC}
+    ${GRAPH_implot_EXTENSION_SRC}
+    ${GRAPH_EXTENSION_misc_SRC}
+    ${GRAPH_EXTENSION_uuid_SRC}
+    ${GRAPH_NODE_SRC}
+    ${GRAPH_NODE_IMGUI_HELPER_SRC}
+    ${GRAPH_UI_COMPONENT_SRC}
+    ${GRAPH_SRC}
 )
 
  #add include 
@@ -282,7 +292,7 @@ PRIVATE nlohmann_json
 PRIVATE s2::s2
 PRIVATE fmt::fmt
 PRIVATE cpr::cpr
-#PRIVATE imgui imgui_node_editor application
+PRIVATE imgui imgui_node_editor application
 $<$<CONFIG:Debug>:/Debug/web-ifc-library.lib>
 $<$<CONFIG:Release>:/Release/web-ifc-library.lib>
 $<$<CONFIG:Debug>:${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libuv.lib

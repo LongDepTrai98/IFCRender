@@ -1,5 +1,9 @@
 #include "RendererOpengl.hpp"
 
+RendererOpenGL::~RendererOpenGL()
+{
+}
+
 bool RendererOpenGL::Create(Platform& platform)
 {
     m_Platform = &platform;
@@ -36,25 +40,31 @@ bool RendererOpenGL::Create(Platform& platform)
         return false;
 
     m_Platform->SetRenderer(this);
-
     return true;
-    return false;
 }
 
 void RendererOpenGL::Destroy()
 {
+    if (!m_Platform)
+        return;
+    m_Platform->SetRenderer(nullptr);
+    ImGui_ImplOpenGL3_Shutdown();
 }
 
 void RendererOpenGL::NewFrame()
 {
+    ImGui_ImplOpenGL3_NewFrame();
 }
 
 void RendererOpenGL::RenderDrawData(ImDrawData* drawData)
 {
+    ImGui_ImplOpenGL3_RenderDrawData(drawData);
 }
 
 void RendererOpenGL::Clear(const ImVec4& color)
 {
+    glClearColor(color.x, color.y, color.z, color.w);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void RendererOpenGL::Present()
@@ -63,28 +73,61 @@ void RendererOpenGL::Present()
 
 void RendererOpenGL::Resize(int width, int height)
 {
+    glViewport(0, 0, width, height);
 }
 
 ImVector<ImTexture>::iterator RendererOpenGL::FindTexture(ImTextureID texture)
 {
-    return ImVector<ImTexture>::iterator();
+    auto textureID = static_cast<GLuint>(reinterpret_cast<std::intptr_t>(texture));
+
+    return std::find_if(m_Textures.begin(), m_Textures.end(), [textureID](ImTexture& texture)
+        {
+            return texture.TextureID == textureID;
+        });
 }
 
 ImTextureID RendererOpenGL::CreateTexture(const void* data, int width, int height)
 {
-    return ImTextureID();
+    m_Textures.resize(m_Textures.size() + 1);
+    ImTexture& texture = m_Textures.back();
+
+    // Upload texture to graphics system
+    GLint last_texture = 0;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+    glGenTextures(1, &texture.TextureID);
+    glBindTexture(GL_TEXTURE_2D, texture.TextureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glBindTexture(GL_TEXTURE_2D, last_texture);
+
+    texture.Width = width;
+    texture.Height = height;
+
+    return reinterpret_cast<ImTextureID>(static_cast<std::intptr_t>(texture.TextureID));
 }
 
 void RendererOpenGL::DestroyTexture(ImTextureID texture)
 {
+    auto textureIt = FindTexture(texture);
+    if (textureIt == m_Textures.end())
+        return;
+    glDeleteTextures(1, &textureIt->TextureID);
+    m_Textures.erase(textureIt);
 }
 
 int RendererOpenGL::GetTextureWidth(ImTextureID texture)
 {
+    auto textureIt = FindTexture(texture);
+    if (textureIt != m_Textures.end())
+        return textureIt->Width;
     return 0;
 }
 
 int RendererOpenGL::GetTextureHeight(ImTextureID texture)
 {
+    auto textureIt = FindTexture(texture);
+    if (textureIt != m_Textures.end())
+        return textureIt->Height;
     return 0;
 }

@@ -2,7 +2,7 @@
 # include <memory>
 
 struct Application;
-struct Renderer;
+struct AppRenderer;
 
 struct Platform
 {
@@ -19,7 +19,7 @@ struct Platform
     virtual bool ProcessMainWindowEvents() = 0;
     virtual bool IsMainWindowVisible() const = 0;
 
-    virtual void SetRenderer(Renderer* renderer) = 0;
+    virtual void SetRenderer(AppRenderer* renderer) = 0;
 
     virtual void NewFrame() = 0;
     virtual void FinishFrame() = 0;

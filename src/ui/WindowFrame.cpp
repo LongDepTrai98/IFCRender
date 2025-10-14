@@ -29,7 +29,7 @@ namespace dragon
 		initMenuBar();
 		initAppToolBar();
 		initMapRenderCanvas();
-		//initNodeEditorRenderCanvas(); 
+		initNodeEditorRenderCanvas(); 
 		//initBimRenderCanvas();
 		//CreateStatusBar(2);
 		//SetStatusText("Welcome to wxWidgets!");

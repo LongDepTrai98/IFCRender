@@ -7,6 +7,7 @@ struct ImVec4;
 using ImTextureID = void*;
 class AppRenderer
 {
+public: 
     virtual ~AppRenderer() {};
 
     virtual bool Create(Platform& platform) = 0;
