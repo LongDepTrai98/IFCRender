@@ -25,6 +25,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(threepp)
 set_target_properties(threepp PROPERTIES FOLDER "render")
 #add cesium-native
+
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cesium-native)
+    execute_process(
+        COMMAND git clone https://github.com/LongDepTrai98/cesium-native.git  ${CMAKE_CURRENT_SOURCE_DIR}/cesium-native
+    )
+endif()
+
 set(DCESIUM_USE_EZVCPG OFF)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cesium-native)
 if(NOT CESIUM_DISABLE_CURL) 
@@ -90,6 +97,18 @@ if(NOT EXISTS ${MAPLIBRE_SOURCE_DIR}/CMakeLists.txt)
                 ${MAPLIBRE_SOURCE_DIR}
     )
 endif()
+#add node editor  
+set(NODE_EDITOR_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/imgui-node-editor)
+if(NOT EXISTS ${NODE_EDITOR_SOURCE})
+    execute_process(
+        COMMAND git clone
+                https://github.com/LongDepTrai98/imgui-node-editor.git
+                ${NODE_EDITOR_SOURCE}
+    )
+endif()
+#list(APPEND CMAKE_MODULE_PATH ${NODE_EDITOR_SOURCE}/misc/cmake-modules)
+#add_subdirectory(${NODE_EDITOR_SOURCE}/examples)
+
 set(MAPLIBRE_INCLUDE_SOURCE_DIRS
     ${MAPLIBRE_SOURCE_DIR}/src
     ${MAPLIBRE_SOURCE_DIR}/include
@@ -110,7 +129,7 @@ set(MAPLIBRE_INCLUDE_SOURCE_DIRS
     ${MAPLIBRE_SOURCE_DIR}/vendor/unique_resource)
 #add_subdirectory(${MAPLIBRE_SOURCE_DIR})
 #project
-set(PROJECT_NAME Dragon)
+set(PROJECT_NAME 3DSceneEditor)
 set(EDITOR_NAME_PROJECT App)
 #set path 
 set(WX_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/wxWidgets-3.3.1/include)
@@ -199,6 +218,18 @@ source_group("map//source" FILES ${MAPLIBRE_CUSTOM_SOURCE_SRC})
 #tool 
 file(GLOB_RECURSE TOOL_SRC "src/tools/*.hpp" "src/tools/*.cpp")
 source_group("tools" FILES ${TOOL_SRC})
+#node extension 
+file(GLOB GRAPH_EXTENSION_SRC "src/graph/extension/*.h" "src/graph/extension/*.cpp")
+source_group("graph//extension" FILES ${GRAPH_EXTENSION_SRC})
+file(GLOB GRAPH_NODE_SRC "src/graph/Node/*.hpp" "src/graph/Node/*.cpp")
+source_group("graph//Node" FILES ${GRAPH_NODE_SRC})
+file(GLOB GRAPH_NODE_IMGUI_HELPER_SRC "src/graph/ImGuiHelper/*.hpp" "src/graph/ImGuiHelper/*.cpp")
+source_group("graph//ImGuiHelper" FILES ${GRAPH_NODE_IMGUI_HELPER_SRC})
+file(GLOB GRAPH_UI_COMPONENT_SRC "src/graph/UIComponent/*.hpp" "src/graph/UIComponent/*.cpp")
+source_group("graph//UIComponent" FILES ${GRAPH_UI_COMPONENT_SRC})
+file(GLOB GRAPH_SRC "src/graph/*.hpp" "src/graph/*.cpp" "src/graph/*.h")
+source_group("graph" FILES ${GRAPH_SRC})
+
 add_executable(${EDITOR_NAME_PROJECT} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/app.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/wxInclude.hpp
@@ -226,6 +257,11 @@ add_executable(${EDITOR_NAME_PROJECT}
     ${TOOL_SRC}
     ${MAPLIBRE_CESIUM_SRC}
     ${MAPLIBRE_CUSTOM_SOURCE_SRC}
+    #${GRAPH_EXTENSION_SRC}
+    #${GRAPH_NODE_SRC}
+    #${GRAPH_NODE_IMGUI_HELPER_SRC}
+    #${GRAPH_UI_COMPONENT_SRC}
+    #${GRAPH_SRC}
 )
 
  #add include 
@@ -246,6 +282,7 @@ PRIVATE nlohmann_json
 PRIVATE s2::s2
 PRIVATE fmt::fmt
 PRIVATE cpr::cpr
+#PRIVATE imgui imgui_node_editor application
 $<$<CONFIG:Debug>:/Debug/web-ifc-library.lib>
 $<$<CONFIG:Release>:/Release/web-ifc-library.lib>
 $<$<CONFIG:Debug>:${MAPLIBRE_SOURCE_DIR}/platform/windows/vendor/vcpkg/installed/x64-windows/debug/lib/libuv.lib

@@ -3,7 +3,7 @@
 #include <string>
 namespace dragon::app_config
 {
-	constexpr const char* app_name = "Dragon";
+	constexpr const char* app_name = "3DSceneEditor";
 	constexpr const int num_sampler = 4;
 	constexpr const bool enable_msaa = true;
 }

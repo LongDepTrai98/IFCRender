@@ -22,4 +22,11 @@ namespace dragon::panel_config
 		.MinimizeButton(true)
 		.PinButton(true)
 		.MinSize(400, 300); 
+	static wxAuiPaneInfo node_editor_panel_info = wxAuiPaneInfo()
+		.Name("Node editor")
+		.Caption("Node editor")
+		.Left()
+		.MinimizeButton(true)
+		.PinButton(true)
+		.MinSize(400, 300);
 }

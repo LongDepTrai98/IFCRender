@@ -39,7 +39,8 @@ namespace dragon
 		void initTreeCtrl();
 		void initAppToolBar();
 		void initBimRenderCanvas();
-		void initMapRenderCanvas(); 
+		void initMapRenderCanvas();
+		void initNodeEditorRenderCanvas(); 
 		void initCommand();
 	private:
 		AppMenubar* m_AppMenuBar{ nullptr };

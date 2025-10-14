@@ -165,11 +165,11 @@ namespace dragon
 				};*/
 
 
-				std::string path_tileset3{ "" };
-				auto cesium_terrain = std::make_unique<mbgl::style::CustomDrawableLayer>("caolanh_city3d",
-					std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset3)); 
-				cesium_terrain->setMinZoom(10); 
-				style.addLayer(std::move(cesium_terrain));
+				//std::string path_tileset3{ "" };
+				//auto cesium_terrain = std::make_unique<mbgl::style::CustomDrawableLayer>("caolanh_city3d",
+				//	std::make_unique<CesiumDrawableStyleLayerHost>(path_tileset3)); 
+				//cesium_terrain->setMinZoom(10); 
+				//style.addLayer(std::move(cesium_terrain));
 
 				std::shared_ptr<MapLayerTree> tree = std::make_shared<MapLayerTree>();
 				tree->create(style);

@@ -3,6 +3,7 @@
 #include "IGLCanvas.hpp"
 #include "BimRenderCanvas.hpp"
 #include "MapRenderCanvas.hpp"
+#include "NodeEditorRenderCanvas.hpp"
 #include "config/app_config.hpp"
 #include "config/pannel_config.hpp"
 #include "commands/AppCommandsHandler.hpp"
@@ -28,6 +29,7 @@ namespace dragon
 		initMenuBar();
 		initAppToolBar();
 		initMapRenderCanvas();
+		//initNodeEditorRenderCanvas(); 
 		//initBimRenderCanvas();
 		//CreateStatusBar(2);
 		//SetStatusText("Welcome to wxWidgets!");
@@ -162,6 +164,42 @@ namespace dragon
 		std::unique_ptr<MapRenderCanvas> map_render_canvas = std::make_unique<MapRenderCanvas>(this, dispAttrs); 
 		m_UIManager->AddPane(map_render_canvas.get(), panel_config::map_view_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
 		m_Canvas.emplace_back(std::move(map_render_canvas)); 
+	}
+	void WindowFrame::initNodeEditorRenderCanvas()
+	{
+		wxGLAttributes dispAttrs;
+		if (app_config::enable_msaa)
+		{
+			dispAttrs.PlatformDefaults()
+				.RGBA()
+				.DoubleBuffer()
+				.Depth(24)
+				.SampleBuffers(1)
+				.Samplers(app_config::num_sampler)
+				.Stencil(8)
+				.FrameBuffersRGB()
+				.PlatformDefaults()
+				.EndList();
+		}
+		else
+		{
+			dispAttrs.PlatformDefaults()
+				.RGBA()
+				.DoubleBuffer()
+				.Depth(24)
+				.Stencil(8)
+				.FrameBuffersRGB()
+				.PlatformDefaults()
+				.EndList();
+		}
+		if (!wxGLCanvas::IsDisplaySupported(dispAttrs))
+		{
+			throw std::exception("glCanvans not support display attribute");
+		}
+		const std::string& checkedPath = assets::Icons + "scene.ico";
+		std::unique_ptr<NodeEditorRenderCanvas> node_editor_render_canvas = std::make_unique<NodeEditorRenderCanvas>(this, dispAttrs);
+		m_UIManager->AddPane(node_editor_render_canvas.get(), panel_config::node_editor_panel_info.Icon(AppHelper::loadBitmapBundle(checkedPath, wxBITMAP_TYPE_ICO)));
+		m_Canvas.emplace_back(std::move(node_editor_render_canvas));
 	}
 	void WindowFrame::initCommand()
 	{
